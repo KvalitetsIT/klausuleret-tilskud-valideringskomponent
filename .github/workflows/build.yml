@@ -15,13 +15,13 @@ jobs:
 # Set docker image names.
     - name: Setup env variables
       run: |
-        echo "DOCKER_SERVICE=kvalitetsit/kithugs" >> $GITHUB_ENV
-        echo "DOCKER_DOCUMENTATION=kvalitetsit/kithugs-documentation" >> $GITHUB_ENV
+        echo "DOCKER_SERVICE=kvalitetsit/klausuleret-tilskud-valideringskomponent" >> $GITHUB_ENV
+        echo "DOCKER_DOCUMENTATION=kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation" >> $GITHUB_ENV
 
 # Checkout source code
     - uses: actions/checkout@v4
 
-# Fail if DOCKER_SERVICE is kithugs and repo is not kithugs. This step can be deleted once
+# Fail if DOCKER_SERVICE is klausuleret-tilskud-valideringskomponent and repo is not klausuleret-tilskud-valideringskomponent. This step can be deleted once
     - name: Initial build
       run: ./build/failOnFirstBuild.sh
 

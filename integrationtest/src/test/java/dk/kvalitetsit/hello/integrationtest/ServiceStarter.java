@@ -16,7 +16,7 @@ import java.util.Collections;
 
 public class ServiceStarter {
     private static final Logger logger = LoggerFactory.getLogger(ServiceStarter.class);
-    private static final Logger serviceLogger = LoggerFactory.getLogger("kithugs");
+    private static final Logger serviceLogger = LoggerFactory.getLogger("klausuleret-tilskud-valideringskomponent");
     private static final Logger mariadbLogger = LoggerFactory.getLogger("mariadb");
 
     private static Network dockerNetwork;
@@ -47,12 +47,12 @@ public class ServiceStarter {
         GenericContainer<?> service;
 
         // Start service
-        service = new GenericContainer<>("local/kithugs-qa:dev")
+        service = new GenericContainer<>("local/klausuleret-tilskud-valideringskomponent-qa:dev")
                 .withFileSystemBind("/tmp", "/jacoco-output")
                 .withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-output/jacoco-it.exec,dumponexit=true -cp integrationtest.jar");
 
         service.withNetwork(dockerNetwork)
-                .withNetworkAliases("kithugs")
+                .withNetworkAliases("klausuleret-tilskud-valideringskomponent")
 
                 .withEnv("LOG_LEVEL", "INFO")
 

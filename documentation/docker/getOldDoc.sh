@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if docker pull kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:latest; then
     echo "Copy from old documentation image."

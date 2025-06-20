@@ -1,8 +1,6 @@
 package dk.kvalitetsit.hello.integrationtest;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.JSON;
 import org.openapitools.client.api.KithugsApi;
@@ -12,19 +10,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.openapitools.client.model.HelloRequest;
 
-class HelloIT extends AbstractIntegrationTest {
+class HelloIT {
 
-    public static final String input = "Some Name";
-    private static KithugsApi helloApi;
+    static final String input = "Some Name";
+    static final KithugsApi helloApi = setupTest(input);
 
-    @BeforeAll
-    public static void setup() {
-        var apiClient = new ApiClient();
-        apiClient.setBasePath(getApiBasePath().toString());
-        helloApi = new KithugsApi(apiClient);
+    static KithugsApi setupTest(String initialData) {
+        KithugsApi api = IntegrationTest.startService();
+        post(api, initialData);
+        return api;
+    }
+
+    static void post(KithugsApi api, String input) {
         var r = new HelloRequest(); r.setName(input);
         try {
-            helloApi.v1HelloPost(r);
+            api.v1HelloPost(r);
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
@@ -32,16 +32,12 @@ class HelloIT extends AbstractIntegrationTest {
 
     @Test
     void testCallServiceWithName() throws ApiException {
-        //in V901__extra_data_for_integration_test.sql the name "Some Name" is set to be inserted into the db.
-        //here we test that we can get that name from the db.
-        var input = HelloIT.input;
-
         var result = helloApi.v1HelloGet(input);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         boolean containsSomeName = result.stream()
-            .anyMatch(dbEntry -> HelloIT.input.equals(dbEntry.getName()));
+                .anyMatch(dbEntry -> input.equals(dbEntry.getName()));
         assert(containsSomeName);
     }
 
@@ -58,16 +54,14 @@ class HelloIT extends AbstractIntegrationTest {
 
     @Test
     void testCallServiceWithoutName() throws ApiException {
-        //in V901__extra_data_for_integration_test.sql the name "Some Name" is set to be inserted into the db.
-        //here we test that that is the only name we get from the db when we try to get everything from the db
         String input = null;
-        
+
         var result = helloApi.v1HelloGet(input);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         boolean containsSomeName = result.stream()
-            .anyMatch(dbEntry -> HelloIT.input.equals(dbEntry.getName()));
+                .anyMatch(dbEntry -> HelloIT.input.equals(dbEntry.getName()));
         assert(containsSomeName);
     }
 

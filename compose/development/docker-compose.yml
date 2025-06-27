@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: mariadb:10.6
+    image: mariadb:10.11
     environment:
       - MYSQL_ROOT_PASSWORD=rootroot
       - MYSQL_DATABASE=hellodb
@@ -11,6 +11,19 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
+
+  flyway:
+    image: flyway/flyway:latest
+    environment:
+      - FLYWAY_URL=jdbc:mariadb://mariadb:3306/hellodb
+      - FLYWAY_USER=hellouser
+      - FLYWAY_PASSWORD=secret1234
+    volumes:
+      - ../configuration/ddl:/flyway/sql
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    command: migrate
 
   validation:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
@@ -30,6 +43,8 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
     ports:
       - 8080:8080
 
@@ -43,7 +58,6 @@ services:
       JDBC_URL: "jdbc:mariadb://mariadb:3306/hellodb"
       JDBC_USER: "hellouser"
       JDBC_PASS: "secret1234"
-      spring.flyway.locations: "classpath:db/migration,filesystem:/app/sql"
     depends_on:
       mariadb:
         condition: service_healthy

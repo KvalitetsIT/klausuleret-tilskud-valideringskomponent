@@ -48,30 +48,6 @@ services:
     ports:
       - 8080:8080
 
-  validation-qa:
-    image: local/klausuleret-tilskud-valideringskomponent-qa:dev
-    volumes:
-      - /tmp:/jacoco-output
-    environment:
-      JVM_OPTS: -javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-output/jacoco-it.exec,dumponexit=true -cp integrationtest.jar
-      LOG_LEVEL: "INFO"
-      JDBC_URL: "jdbc:mariadb://mariadb:3306/hellodb"
-      JDBC_USER: "hellouser"
-      JDBC_PASS: "secret1234"
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    networks:
-      default:
-        aliases:
-          - klausuleret-tilskud-valideringskomponent
-    # Healthcheck mimics Wait.forHttp("/actuator").forPort(8081)
-    healthcheck:
-      test: [ "CMD", "sh", "-c", "curl -f http://localhost:8081/actuator || exit 1" ]
-      interval: 5s
-      timeout: 2s
-      retries: 10
-
   documentation-and-test:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:latest
     environment:

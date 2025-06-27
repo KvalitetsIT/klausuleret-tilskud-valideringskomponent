@@ -76,7 +76,7 @@ public class IntegrationTest {
     }
 
     private static URI startDockerCompose() {
-        String serviceName = "validation-qa";
+        String serviceName = "validation";
         int servicePort = 8080;
         ComposeContainer composeContainer = new ComposeContainer(getComposeFile())
                 .withExposedService(serviceName, servicePort)

@@ -93,6 +93,6 @@ public class IntegrationTest {
     private static @NotNull File getComposeFile() {
         var testWorkingDir = System.getProperty("user.dir");
         var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
-        return new File(projectRoot, "documentation/docker/compose/docker-compose.yml");
+        return new File(projectRoot, "compose/development/docker-compose.yml");
     }
 }

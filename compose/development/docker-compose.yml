@@ -11,19 +11,8 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
-
-  flyway:
-    image: flyway/flyway:latest
-    environment:
-      - FLYWAY_URL=jdbc:mariadb://mariadb:3306/hellodb
-      - FLYWAY_USER=hellouser
-      - FLYWAY_PASSWORD=secret1234
     volumes:
-      - ../configuration/ddl:/flyway/sql
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    command: migrate
+      - ../configuration/ddl:/docker-entrypoint-initdb.d
 
   validation:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
@@ -43,8 +32,6 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-      flyway:
-        condition: service_completed_successfully
     ports:
       - 8080:8080
       - 8081:8081

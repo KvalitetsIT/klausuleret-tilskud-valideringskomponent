@@ -4,12 +4,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.JSON;
+import org.openapitools.client.model.BasicError;
 import org.openapitools.client.model.DetailedError;
+import org.openapitools.client.model.HelloRequest;
 
 import static dk.kvalitetsit.hello.integrationtest.IntegrationTest.api;
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.openapitools.client.model.HelloRequest;
 
 class HelloIT {
     static final String input = "Some Name";
@@ -74,13 +74,11 @@ class HelloIT {
         var input = "John Doe Is Too Long";
 
         var thrownException = assertThrows(ApiException.class, () -> api.v1HelloGet(input));
-        DetailedError detailedError = JSON.deserialize(thrownException.getResponseBody(), DetailedError.class);
-        assertEquals("Bad Request", detailedError.getError());
-        assertEquals("/v1/hello", detailedError.getPath());
-        assertEquals("v1HelloGet.name: size must be between 0 and 10", detailedError.getDetailedError());
-        assertEquals(DetailedError.DetailedErrorCodeEnum._10, detailedError.getDetailedErrorCode());
-        assertNotNull(detailedError.getTimestamp());
-        assertEquals(400, detailedError.getStatus().longValue());
+        BasicError basicError = JSON.deserialize(thrownException.getResponseBody(), BasicError.class);
+        assertEquals("/v1/hello", basicError.getPath());
+        assertEquals("v1HelloGet.name: size must be between 0 and 10", basicError.getError());
+        assertNotNull(basicError.getTimestamp());
+        assertEquals(400, basicError.getStatus().longValue());
     }
 
     @Test
@@ -88,13 +86,11 @@ class HelloIT {
         var request = new HelloRequest().name("John Doe Is Too Long");
 
         var thrownException = assertThrows(ApiException.class, () -> api.v1HelloPost(request));
-        DetailedError detailedError = JSON.deserialize(thrownException.getResponseBody(), DetailedError.class);
-        assertEquals("Bad Request", detailedError.getError());
-        assertEquals("/v1/hello", detailedError.getPath());
-        assertEquals("name: size must be between 0 and 10", detailedError.getDetailedError());
-        assertEquals(DetailedError.DetailedErrorCodeEnum._10, detailedError.getDetailedErrorCode());
-        assertNotNull(detailedError.getTimestamp());
-        assertEquals(400, detailedError.getStatus().longValue());
+        BasicError basicError = JSON.deserialize(thrownException.getResponseBody(), BasicError.class);
+        assertEquals("/v1/hello", basicError.getPath());
+        assertEquals("name: size must be between 0 and 10", basicError.getError());
+        assertNotNull(basicError.getTimestamp());
+        assertEquals(400, basicError.getStatus().longValue());
     }
 
     @Test

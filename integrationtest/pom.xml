@@ -62,7 +62,7 @@
 
         <dependency>
             <groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
-            <artifactId>web</artifactId>
+            <artifactId>application</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -109,6 +109,13 @@
             <artifactId>flyway-mysql</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

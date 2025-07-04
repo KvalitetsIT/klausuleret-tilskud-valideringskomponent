@@ -1,0 +1,304 @@
+openapi: 3.0.1
+info:
+  title: Validation Component
+  description: ""
+  version: "1.0.0"
+  contact:
+    email: "development@kvalitetitsit.dk"
+tags:
+  - name: management
+    description: "the API needed in order to manage clauses"
+servers:
+  - url: '{protocol}://{environment}:{port}'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+      environment:
+        enum:
+          - localhost # Docker-compose setup
+        default: localhost # Development
+      port:
+        enum:
+          - "8080"
+        default: "8080"
+paths:
+  /v1/clauses/dsl:
+    post:
+      tags:
+        - management
+      requestBody:
+        description: "A list of Domain-Specific Language (DSL) expressions"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/dsl'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/dsl'
+        '400':
+          $ref: '#/components/responses/400'
+
+  /v1/clauses:
+    post:
+      tags:
+        - management
+      requestBody:
+        description: "A list of expressions in Domain-Specific Language (DSL) format"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Expression'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expression'
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+
+
+    get:
+      tags:
+        - management
+      summary: "API to test body validation"
+      description: "Retrieves all clauses"
+      parameters:
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expression'
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+
+  /v1/clauses/{id}:
+    get:
+      tags:
+        - management
+      summary: "Retrieves the clause associated with the specified id"
+      description: "Retrieves the clause associated with the specified id"
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expression'
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+
+    delete:
+      tags:
+        - management
+      summary: "Deletes the clause associated with the specified id"
+      description: "Deletes the clause associated with the specified id"
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expression'
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/dsl'
+        '400':
+          $ref: '#/components/responses/400'
+
+
+
+components:
+  responses:
+    '400':
+      description: "Bad Request. This could be because: * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> (See a possible detailed error message in the in the response.)"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/detailedError'
+    '401':
+      description: "Unauthorized. This could be because: <br> * The calling system has not been properly authenticated."
+    '403':
+      description: "Forbidden. This could be because: <br> * The requested information does not belong the organisation of the user <br> * The calling user does not have the required roles"
+
+  parameters:
+    id:
+      name: id
+      in: path
+      description: a clause id in uuid format.
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+      description: The zero-based index from which to start returning results
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+      description: The maximum number of items to retrieve. Used together with the 'offset' parameter to control pagination.
+
+  schemas:
+    detailedError:
+      allOf:
+        - $ref: '#/components/schemas/basicError'
+        - type: object
+          required:
+            - detailed_error
+            - detailed_error_code
+          properties:
+            detailed_error:
+              description: Detailed error text. This could be a text describing an validation error.
+              type: string
+            detailed_error_code:
+              description: >-
+                Detailed error code. This could be a code describing an validation error.
+                * 10: Input validation error
+                * 20: Other error.
+              type: string
+              enum:
+                - "10"
+                - "20"
+
+    basicError:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - path
+      properties:
+        error:
+          description: Error message.
+          type: string
+        path:
+          description: Path
+          type: string
+        status:
+          description: HTTP status code
+          type: integer
+        timestamp:
+          description: Time of error
+          type: string
+          format: date-time
+
+    Expression:
+      description: "A polymorphic interface that represents an expression. It can be a simple condition, a binary expression combining other expressions, or a parenthesized expression"
+      oneOf:
+        - $ref: '#/components/schemas/Condition'
+        - $ref: '#/components/schemas/BinaryExpression'
+        - $ref: '#/components/schemas/ParenthesizedExpression'
+      discriminator:
+        propertyName: type
+        mapping:
+          Condition: '#/components/schemas/Condition'
+          BinaryExpression: '#/components/schemas/BinaryExpression'
+          ParenthesizedExpression: '#/components/schemas/ParenthesizedExpression'
+
+    Condition:
+      description: "A basic condition consisting of a field, an operator, and a list of values. This represents the most atomic form of an expression"
+      type: object
+      required: [ type, field, operator, values ]
+      properties:
+        field:
+          description: "The name of the field the condition applies to"
+          type: string
+        operator:
+          description: "The operator used in the condition (e.g., '=', '!=', 'in')"
+          type: string
+        values:
+          description: "A list of values the field is compared against"
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+          description: "Identifies this object as a Condition expression"
+
+    BinaryExpression:
+      description: "A compound expression combining two expressions with a binary operator such as AND or OR"
+      type: object
+      required: [ type, left, operator, right ]
+      properties:
+        left:
+          description: "The left-hand side expression"
+          $ref: '#/components/schemas/Expression'
+        operator:
+          description: "The binary operator (e.g., 'AND', 'OR') connecting the two expressions"
+          type: string
+        right:
+          description: "The right-hand side expression."
+          $ref: '#/components/schemas/Expression'
+        type:
+          type: string
+          description: "Identifies this object as a BinaryExpression"
+
+    ParenthesizedExpression:
+      description: "An expression wrapped in parentheses to group it logically within a larger expression"
+      type: object
+      required: [ type, inner ]
+      properties:
+        inner:
+          description: "The inner expression contained within the parentheses"
+          $ref: '#/components/schemas/Expression'
+        type:
+          description: "Identifies this object as a ParenthesizedExpression."
+          type: string
+    dsl:
+      description: "A clause specified in a domain specific language (DSL)"
+      type: string
+      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
+      example: "Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"
+
+
+
+
+
+
+
+
+
+
+

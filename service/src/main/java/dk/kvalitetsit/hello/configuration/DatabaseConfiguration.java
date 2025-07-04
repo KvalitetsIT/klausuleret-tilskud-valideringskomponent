@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.util.Optional;
 
 @Configuration
@@ -19,15 +20,15 @@ public class DatabaseConfiguration {
                                  @Value("${jdbc.user}") String jdbcUser,
                                  @Value("${jdbc.pass}") String jdbcPass,
                                  @Value("${jdbc.connection.test.query:#{null}}") String testQuery,
-                                 @Value("${jdbc.connection.max.age:1800000}") Long maxConnectionAge,
-                                 @Value("${jdbc.connection.max.idle.time:#{null}}") Long maxConnectionIdleTime) {
+                                 @Value("${jdbc.connection.max.age:PT30M}") Duration maxConnectionAge,
+                                 @Value("${jdbc.connection.max.idle.time:#{null}}") Duration maxConnectionIdleTime) {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(jdbcUrl);
         hikariConfig.setUsername(jdbcUser);
         hikariConfig.setPassword(jdbcPass);
         Optional.ofNullable(testQuery).ifPresent(hikariConfig::setConnectionTestQuery);
-        hikariConfig.setMaxLifetime(maxConnectionAge);
-        Optional.ofNullable(maxConnectionIdleTime).ifPresent(hikariConfig::setIdleTimeout);
+        hikariConfig.setMaxLifetime(maxConnectionAge.toMillis());
+        Optional.ofNullable(maxConnectionIdleTime).map(Duration::toMillis).ifPresent(hikariConfig::setIdleTimeout);
 
         return new HikariDataSource(hikariConfig);
     }

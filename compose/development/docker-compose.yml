@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: mariadb:10.6
+    image: mariadb:10.11
     environment:
       - MYSQL_ROOT_PASSWORD=rootroot
       - MYSQL_DATABASE=hellodb
@@ -11,6 +11,8 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
+    volumes:
+      - ../configuration/ddl:/docker-entrypoint-initdb.d
 
   validation:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
@@ -32,31 +34,7 @@ services:
         condition: service_healthy
     ports:
       - 8080:8080
-
-  validation-qa:
-    image: local/klausuleret-tilskud-valideringskomponent-qa:dev
-    volumes:
-      - /tmp:/jacoco-output
-    environment:
-      JVM_OPTS: -javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-output/jacoco-it.exec,dumponexit=true -cp integrationtest.jar
-      LOG_LEVEL: "INFO"
-      JDBC_URL: "jdbc:mariadb://mariadb:3306/hellodb"
-      JDBC_USER: "hellouser"
-      JDBC_PASS: "secret1234"
-      spring.flyway.locations: "classpath:db/migration,filesystem:/app/sql"
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    networks:
-      default:
-        aliases:
-          - klausuleret-tilskud-valideringskomponent
-    # Healthcheck mimics Wait.forHttp("/actuator").forPort(8081)
-    healthcheck:
-      test: [ "CMD", "sh", "-c", "curl -f http://localhost:8081/actuator || exit 1" ]
-      interval: 5s
-      timeout: 2s
-      retries: 10
+      - 8081:8081
 
   documentation-and-test:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:latest

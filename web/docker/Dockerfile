@@ -1,9 +1,9 @@
-FROM ibm-semeru-runtimes:open-21-jre
+FROM bellsoft/liberica-runtime-container:jre-21-glibc
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y tzdata
+RUN apk update && apk upgrade && apk add --no-cache tzdata
 
-RUN groupadd --gid 11000 appuser && \
-    useradd --gid 11000 --uid 11001 -m appuser
+RUN addgroup appuser && \
+    adduser -G appuser -D appuser
 
 WORKDIR /opt/kvalitetsit
 COPY /maven/application.cdx.json ./
@@ -17,5 +17,5 @@ COPY /maven/web-exec.jar web.jar
 EXPOSE 8080
 EXPOSE 8081
 
-USER 11001
+USER appuser
 ENTRYPOINT ["/home/appuser/entrypoint.sh"]

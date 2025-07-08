@@ -49,7 +49,7 @@ Health URL that can be used for readiness probe: http://localhost:8081/actuator/
 ### Documentation
 
 Documentation of the API is build as a separate Docker image. Documentation is build using Swagger. The documentation 
-image is post-fixed with `-documentation`. The file `documentation/docker/compose/docker-compose.yml` contains a  setup 
+image is post-fixed with `-documentation`. The file `compose/development/docker-compose.yml` contains a  setup 
 that starts both the service and documentation image. The documentation can be accessed at http://localhost/test
 and the service can be called through the Swagger UI. 
 
@@ -69,13 +69,16 @@ from [dependabot-auto-merge.yml](.github/workflows/dependabot-auto-merge.yml). B
 
 ## Configuration
 
-| Environment variable | Description                                                                                          | Required |
-|----------------------|------------------------------------------------------------------------------------------------------|----------|
-| JDBC_URL             | JDBC connection URL                                                                                  | Yes      |
-| JDBC_USER            | JDBC user                                                                                            | Yes      |
-| JDBC_PASS            | JDBC password                                                                                        | Yes      |
-| LOG_LEVEL            | Log Level for applikation  log. Defaults to INFO.                                                    | No       |
-| LOG_LEVEL_FRAMEWORK  | Log level for framework. Defaults to INFO.                                                           | No       |
-| CORRELATION_ID       | HTTP header to take correlation id from. Used to correlate log messages. Defaults to "x-request-id". | No       |
+| Environment variable          | Description                                                                                                                  | Required |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------|----------|
+| JDBC_URL                      | JDBC connection URL                                                                                                          | Yes      |
+| JDBC_USER                     | JDBC user                                                                                                                    | Yes      |
+| JDBC_PASS                     | JDBC password                                                                                                                | Yes      |
+| JDBC_CONNECTION_TEST_QUERY    | Query for testing the JDBC connection. Defaults to using the JDBC driver for validating connections.                         | No       |
+| JDBC_CONNECTION_MAX_AGE       | Maximum amount of time (ISO 8601 Duration) a connection is allowed to be in the JDBC connection pool. Defaults to 30 minutes | No       |
+| JDBC_CONNECTION_MAX_IDLE_TIME | Maximum amount of time (ISO 8601 Duration) a connection is allowed to sit idle in the JDBC connection pool                   | No       |
+| LOG_LEVEL                     | Log Level for applikation  log. Defaults to INFO.                                                                            | No       |
+| LOG_LEVEL_FRAMEWORK           | Log level for framework. Defaults to INFO.                                                                                   | No       |
+| CORRELATION_ID                | HTTP header to take correlation id from. Used to correlate log messages. Defaults to "x-request-id".                         | No       |
 
 The database connection pool is set up using HikariCP, and uses its default settings that are documented at https://github.com/brettwooldridge/HikariCP?tab=readme-ov-file#frequently-used. 

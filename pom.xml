@@ -121,6 +121,13 @@
 				<scope>test</scope>
 			</dependency>
 
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-mysql</artifactId>
+				<version>11.9.1</version>
+				<scope>test</scope>
+			</dependency>
+
 			<!-- Code coverage -->
 			<dependency>
 				<groupId>org.jacoco</groupId>

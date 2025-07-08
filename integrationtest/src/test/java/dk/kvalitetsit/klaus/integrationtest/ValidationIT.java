@@ -73,7 +73,7 @@ public class ValidationIT {
                 .withLogConsumer("master-db", new Slf4jLogConsumer(logger).withPrefix("master-db"))
                 .withExposedService("validation-component", 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
                 .withLogConsumer("validation-component", new Slf4jLogConsumer(logger).withPrefix("validation-component"))
-                .withLocalCompose(true);
+                .withLocalCompose(false);
 
         environment.start();
 
@@ -103,7 +103,7 @@ public class ValidationIT {
 
     @Test
     void testPostValidation()  {
-        var api  =  new ValidationApi(new ApiClient());
+        var api  =  new ValidationApi(client);
         var request = new ValidationRequest().age(18);
         try {
             var response = api.v1ValidationsPost(request);

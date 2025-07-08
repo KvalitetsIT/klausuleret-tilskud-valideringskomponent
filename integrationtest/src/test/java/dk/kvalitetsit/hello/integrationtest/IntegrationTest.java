@@ -23,6 +23,8 @@ public class IntegrationTest {
 
     // Create one API instance for testing
     public static final KithugsApi api = createApi();
+    private static final String DB_USERNAME = "hellouser";
+    private static final String DB_PASSWORD = "secret1234";
 
     static {
         setLanguage();
@@ -46,8 +48,8 @@ public class IntegrationTest {
     private static URI startServices() {
         var jdbcUrl = setupDatabaseContainer();
         System.setProperty("JDBC.URL", jdbcUrl);
-        System.setProperty("JDBC.USER", "hellouser");
-        System.setProperty("JDBC.PASS", "secret1234");
+        System.setProperty("JDBC.USER", DB_USERNAME);
+        System.setProperty("JDBC.PASS", DB_PASSWORD);
         SpringApplication.run(Application.class);
         try {
             return new URI("http://localhost:8080");
@@ -57,10 +59,10 @@ public class IntegrationTest {
     }
 
     private static String setupDatabaseContainer() {
-        var mariadb = new MariaDBContainer<>("mariadb:10.6")
+        var mariadb = new MariaDBContainer<>("mariadb:10.11")
                 .withDatabaseName("hellodb")
-                .withUsername("hellouser")
-                .withPassword("secret1234")
+                .withUsername(DB_USERNAME)
+                .withPassword(DB_PASSWORD)
                 .withNetworkAliases("mariadb");
         mariadb.start();
         attachLogger(LoggerFactory.getLogger("mariadb"), mariadb);
@@ -74,7 +76,7 @@ public class IntegrationTest {
     }
 
     private static URI startDockerCompose() {
-        String serviceName = "validation-qa";
+        String serviceName = "validation";
         int servicePort = 8080;
         ComposeContainer composeContainer = new ComposeContainer(getComposeFile())
                 .withExposedService(serviceName, servicePort)
@@ -93,6 +95,6 @@ public class IntegrationTest {
     private static @NotNull File getComposeFile() {
         var testWorkingDir = System.getProperty("user.dir");
         var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
-        return new File(projectRoot, "documentation/docker/compose/docker-compose.yml");
+        return new File(projectRoot, "compose/development/docker-compose.yml");
     }
 }

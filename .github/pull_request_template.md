@@ -4,3 +4,6 @@
 ## Changes
 ### What has changed - and why?
 1.
+
+## Documentation
+### Added/Updated user guide, decision log, design/architecture documentation etc.?

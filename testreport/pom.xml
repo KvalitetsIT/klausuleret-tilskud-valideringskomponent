@@ -14,7 +14,17 @@
     <dependencies>
         <dependency>
             <groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
-            <artifactId>service</artifactId>
+            <artifactId>validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
+            <artifactId>management</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
+            <artifactId>common</artifactId>
         </dependency>
 
         <dependency>
@@ -24,7 +34,7 @@
 
         <dependency>
             <groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
-            <artifactId>web</artifactId>
+            <artifactId>application</artifactId>
         </dependency>
     </dependencies>
 

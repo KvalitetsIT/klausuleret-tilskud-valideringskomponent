@@ -32,7 +32,7 @@ public class ValidationIT {
     static void setup() {
         var testWorkingDir = System.getProperty("user.dir");
         var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
-        var composeFile = new File(projectRoot, "documentation/docker/compose/docker-compose.yml");
+        var composeFile = new File(projectRoot, "compose/development/docker-compose.yml");
 
         if (Boolean.getBoolean("runInDocker")) {
             runInDocker(composeFile);

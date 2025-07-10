@@ -1,9 +1,6 @@
-# Issue: [Title] 
-### Issue number: [IUAKT-[issue_number]](https://kvalitetsit.atlassian.net/browse/IUAKT-[issue_number])
+## Issue [IUAKT-<number>](https://kvalitetsit.atlassian.net/browse/IUAKT-<number>)
 
-## Changes
-### What has changed - and why?
-1.
-
-## Documentation
-### Added/Updated user guide, decision log, design/architecture documentation etc.?
+## Checklist
+- [ ] Follows coding conventions
+- [ ] Tests added/updated
+- [ ] Documentation updated (if needed)

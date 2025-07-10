@@ -5,11 +5,13 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>web</module>
-		<module>service</module>
+		<module>application</module>
+		<module>validation</module>
         <module>integrationtest</module>
 		<module>testreport</module>
 		<module>documentation</module>
+		<module>management</module>
+		<module>common</module>
 	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -20,7 +22,6 @@
 	<artifactId>klausuleret-tilskud-valideringskomponent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>klausuleret-tilskud-valideringskomponent</name>
-	<description>KITHUGS service</description>
 
 	<properties>
 		<java.version>21</java.version>
@@ -35,9 +36,22 @@
 			<!-- Modules in project -->
 			<dependency>
 				<groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
-				<artifactId>service</artifactId>
+				<artifactId>validation</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+
+			<dependency>
+				<groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
+				<artifactId>common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
+				<artifactId>management</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
@@ -47,7 +61,7 @@
 
 			<dependency>
 				<groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
-				<artifactId>web</artifactId>
+				<artifactId>application</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -156,6 +170,15 @@
 				<version>1.9.0</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>junit-jupiter</artifactId>
+				<version>1.21.1</version>
+				<scope>test</scope>
+			</dependency>
+
+
+
 		</dependencies>
 	</dependencyManagement>
 

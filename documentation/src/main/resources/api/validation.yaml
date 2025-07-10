@@ -1,0 +1,204 @@
+openapi: 3.0.1
+info:
+  title: Validation Component
+  description: ""
+  version: "1.0.0"
+  contact:
+    email: "development@kvalitetitsit.dk"
+tags:
+  - name: validation
+    description: "the API related to integration with FMK (fælles medicin kort)"
+servers:
+  - url: '{protocol}://{environment}:{port}'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+      environment:
+        enum:
+          - localhost # Docker-compose setup
+        default: localhost # Development
+      port:
+        enum:
+          - "8080"
+        default: "8080"
+paths:
+  /v1/validations:
+    post:
+      tags:
+        - validation
+      summary: Validates an ordination from FMK
+      description: Validates an ordination from FMK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/validationRequest'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationResponse'
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+
+components:
+  responses:
+    '400':
+      description: "Bad Request. This could be because: * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> (See a possible detailed error message in the in the response.)"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/detailedError'
+    '401':
+      description: "Unauthorized. This could be because: <br> * The calling system has not been properly authenticated."
+    '403':
+      description: "Forbidden. This could be because: <br> * The requested information does not belong the organisation of the user <br> * The calling user does not have the required roles"
+
+  schemas:
+    detailedError:
+      allOf:
+        - $ref: '#/components/schemas/basicError'
+        - type: object
+          required:
+            - detailed_error
+            - detailed_error_code
+          properties:
+            detailed_error:
+              description: Detailed error text. This could be a text describing an validation error.
+              type: string
+            detailed_error_code:
+              description: >-
+                Detailed error code. This could be a code describing an validation error.
+                * 10: Input validation error
+                * 20: Other error.
+              type: string
+              enum:
+                - "10"
+                - "20"
+
+    basicError:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - path
+      properties:
+        error:
+          description: Error message.
+          type: string
+        path:
+          description: Path
+          type: string
+        status:
+          description: HTTP status code
+          type: integer
+        timestamp:
+          description: Time of error
+          type: string
+          format: date-time
+
+    actor:
+      description: "The clinician who either reported or created the prescription"
+      type: object
+      properties:
+        specialityCode:
+          type: string
+          description: "indeholder lægens speciale jf. autorisationsregistret"
+          example: "PSYK"
+        organisationSpeciality:
+          type: string
+          description: "indeholder organisationens speciale jf. SOR. Det skal afklares hvilket kodesæt der kan anvendes"
+          example: "psykiatri"
+
+    validationCode:
+      type: integer
+      description: n/a
+      enum:
+        - 10908
+        - 10909
+      example: 10908
+
+    validationRequest:
+      type: object
+      required:
+        - age
+      properties:
+        skipValidations:
+          description: "en række fejltyper som ikke skal valideres"
+          type: array
+          items:
+            $ref: "#/components/schemas/validationCode"
+        personIdentifier:
+          description: "indeholder et unik id svarende til CPR medicinkortets id, CPR-nummer eller eCPR-nummer, disse værdier medsendes ikke, da data i kaldet dermed er pseudonymiseret. Det skal være muligt at finde tilbage til CPR-nummer eller eCPR-nummer ved opslag i FMK, f.eks. ved fejlsøgning"
+          type: string
+        age:
+          description: patientens/borgerens alder i år
+          type: integer
+          example: 62
+          minimum: 0
+          maximum: 150
+        prescriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/prescription"
+
+    validationResponse:
+      type: boolean
+
+    prescription:
+      type: object
+      description: "indeholder data fra lægemiddelordinationen som skal valideres. Dvs. den nye lægemiddelordination der skal oprettes, den nye version af en lægemiddelordination der skal opdateres til, eller gældende version af lægemiddelordinationen ved oprettelse af recept"
+      properties:
+        createdBy:
+          description:
+          $ref: "#/components/schemas/actor"
+        reportedBy:
+          $ref: "#/components/schemas/actor"
+        drugIdentifier:
+          description: n/a
+          type: string
+          example: "28100902676"
+        indicationCode:
+          description: n/a
+          type: string
+          example: "31"
+        createdDateTime:
+          description: "angiver dato og tid for oprettelse af versionen af lægemiddelordinationen"
+          type: string
+          format: date-time
+          example: "2025-06-13T14:24:03"
+        action:
+          description: n/a
+          type: string
+          enum:
+            - CreateDrugMedication
+            - UpdateDrugMedication
+            - CreatePrescription
+          example: CreateDrugMedication
+
+        elementPath:
+          description: "indeholder en streng svarende til FMK’s element path i udvidet valideringer"
+          type: string
+          example: CreateDrugMedicationRequest.DrugMedication[2]
+
+
+
+
+
+
+
+
+
+
+
+

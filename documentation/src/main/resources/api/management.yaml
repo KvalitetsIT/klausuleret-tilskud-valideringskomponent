@@ -62,7 +62,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Expression'
+                $ref: '#/components/schemas/Clause'
       responses:
         '200':
           description: Ok
@@ -71,7 +71,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Expression'
+                  $ref: '#/components/schemas/Clause'
             text/plain:
               schema:
                 type: string
@@ -95,7 +95,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Expression'
+                  $ref: '#/components/schemas/Clause'
             text/plain:
               schema:
                 type: string
@@ -116,7 +116,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Expression'
+                $ref: '#/components/schemas/Clause'
             text/plain:
               schema:
                 type: string
@@ -136,14 +136,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Expression'
+                $ref: '#/components/schemas/Clause'
             text/plain:
               schema:
                 $ref: '#/components/schemas/dsl'
         '400':
           $ref: '#/components/responses/400'
-
-
 
 components:
   responses:
@@ -224,7 +222,24 @@ components:
           type: string
           format: date-time
 
+    Clause:
+      type: object
+      required:
+        - name
+        - expression
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: "The name of the clause"
+          example: "CHOL"
+        expression:
+          $ref: '#/components/schemas/Expression'
+
     Expression:
+      type: object
       description: "A polymorphic interface that represents an expression. It can be a simple condition, a binary expression combining other expressions, or a parenthesized expression"
       oneOf:
         - $ref: '#/components/schemas/Condition'
@@ -289,7 +304,7 @@ components:
     dsl:
       description: "A clause specified in a domain specific language (DSL)"
       type: string
-      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
+#      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
       example: "Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"
 
 

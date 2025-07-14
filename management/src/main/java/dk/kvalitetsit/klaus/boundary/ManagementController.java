@@ -5,9 +5,8 @@ import dk.kvalitetsit.klaus.boundary.mapping.DslMapper;
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
 import dk.kvalitetsit.klaus.model.Pagination;
 import dk.kvalitetsit.klaus.service.ManagementServiceAdaptor;
-import jakarta.validation.constraints.Pattern;
 import org.openapitools.api.ManagementApi;
-import org.openapitools.model.Expression;
+import org.openapitools.model.Clause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,12 +25,13 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<String>> v1ClausesDslPost(List<@Pattern(regexp = "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))") String> requestBody) {
-        return ResponseEntity.ok(this.service.createDSL(requestBody));
+    public ResponseEntity<List<String>> v1ClausesDslPost(List<String> requestBody) {
+        var response = this.service.createDSL(requestBody);
+        return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<List<Expression>> v1ClausesGet(Optional<Integer> offset, Optional<Integer> limit) {
+    public ResponseEntity<List<Clause>> v1ClausesGet(Optional<Integer> offset, Optional<Integer> limit) {
         try {
             return ResponseEntity.ok(service.read_all(new Pagination(offset, limit)));
         } catch (ServiceException e) {
@@ -40,26 +40,20 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<Expression> v1ClausesIdDelete(UUID id) {
-        try {
-            return ResponseEntity.ok(service.delete(id));
-        } catch (ServiceException e) {
-            throw new RuntimeException(e);
-        }
+    public ResponseEntity<Clause> v1ClausesIdDelete(UUID id) {
+        return service.delete(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new RuntimeException("Could not delete clause"));
     }
 
     @Override
-    public ResponseEntity<Expression> v1ClausesIdGet(UUID id) {
-        try {
-            return ResponseEntity.ok(service.read(id));
-        } catch (ServiceException e) {
-            throw new RuntimeException(e);
-        }
+    public ResponseEntity<Clause> v1ClausesIdGet(UUID id) {
+        return service.read(id).map(ResponseEntity::ok).orElseThrow(() -> new RuntimeException("Clause was not found"));
     }
 
 
     @Override
-    public ResponseEntity<List<Expression>> v1ClausesPost(List<Expression> expression) {
+    public ResponseEntity<List<Clause>> v1ClausesPost(List<Clause> expression) {
         try {
             return ResponseEntity.ok(service.create(expression));
         } catch (ServiceException e) {

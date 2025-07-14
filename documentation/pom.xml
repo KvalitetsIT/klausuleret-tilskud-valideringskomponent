@@ -61,6 +61,18 @@
 			<artifactId>gson-fire</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+
 	</dependencies>
 	<build>
 		<plugins>
@@ -152,6 +164,8 @@
 								<useSpringBoot3>true</useSpringBoot3>
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
+								<useOneOfInterfaces>true</useOneOfInterfaces>
+								<library>restclient</library>
 							</configOptions>
 							<output>${project.build.directory}/generated-test-sources/openapi/test</output>
 							<generateApiTests>false</generateApiTests>
@@ -174,6 +188,9 @@
 								<useSpringBoot3>true</useSpringBoot3>
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
+								<useOneOfInterfaces>true</useOneOfInterfaces>
+								<library>restclient</library>
+
 							</configOptions>
 							<output>${project.build.directory}/generated-test-sources/openapi/test</output>
 							<generateApiTests>false</generateApiTests>

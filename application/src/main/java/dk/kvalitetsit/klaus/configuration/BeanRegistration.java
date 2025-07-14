@@ -2,14 +2,15 @@ package dk.kvalitetsit.klaus.configuration;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import dk.kvalitetsit.klaus.Mapper;
-import dk.kvalitetsit.klaus.boundary.mapping.DslMapper;
-import dk.kvalitetsit.klaus.boundary.mapping.ExpressionToDslMapper;
-import dk.kvalitetsit.klaus.boundary.mapping.DtoMapper;
-import dk.kvalitetsit.klaus.boundary.mapping.ModelMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.*;
+import dk.kvalitetsit.klaus.repository.ClauseDao;
+import dk.kvalitetsit.klaus.repository.ClauseDaoAdaptor;
+import dk.kvalitetsit.klaus.repository.mapping.ClauseEntityMapper;
+import dk.kvalitetsit.klaus.repository.mapping.EntityClauseMapper;
+import dk.kvalitetsit.klaus.repository.mapping.EntityExpressionMapper;
+import dk.kvalitetsit.klaus.repository.mapping.ExpressionEntityMapper;
 import dk.kvalitetsit.klaus.service.model.Prescription;
-import org.openapitools.model.Expression;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,28 +56,33 @@ public class BeanRegistration {
     }
 
     @Bean
+    public ClauseDaoAdaptor clauseDaoAdaptor(ClauseDao dao) {
+        return new ClauseDaoAdaptor(dao, new ClauseEntityMapper(new ExpressionEntityMapper()), new EntityClauseMapper(new EntityExpressionMapper()));
+    }
+
+    @Bean
     public PlatformTransactionManager masterTransactionManager(@Qualifier("masterDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
     @Bean
-    public Mapper<org.openapitools.model.Expression, dk.kvalitetsit.klaus.model.Expression> dtoMapper() {
-        return new DtoMapper();
+    public Mapper<org.openapitools.model.Clause, dk.kvalitetsit.klaus.model.Clause> dtoMapper() {
+        return new DtoClauseMapper(new ExpressionMapper());
     }
 
     @Bean
-    public Mapper<dk.kvalitetsit.klaus.model.Expression, org.openapitools.model.Expression> modelMapper() {
-        return new ModelMapper();
+    public Mapper<dk.kvalitetsit.klaus.model.Clause, org.openapitools.model.Clause> modelMapper() {
+        return new ClauseModelMapper(new ExpressionModelMapper());
     }
 
     @Bean
-    public Mapper<String, Expression> dslMapper() {
+    public Mapper<String, org.openapitools.model.Clause> dslMapper() {
         return new DslMapper();
     }
 
     @Bean
-    public Mapper<dk.kvalitetsit.klaus.model.Expression, String> dslToModelMapper() {
-        return new ExpressionToDslMapper();
+    public Mapper<dk.kvalitetsit.klaus.model.Clause, String> modelDslMapper() {
+        return new ClauseDslMapper(new ExpressionDslMapper());
     }
 
     @Bean

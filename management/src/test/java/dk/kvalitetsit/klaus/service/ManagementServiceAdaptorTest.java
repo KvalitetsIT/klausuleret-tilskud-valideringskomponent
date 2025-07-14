@@ -1,11 +1,8 @@
 package dk.kvalitetsit.klaus.service;
 
 
-import dk.kvalitetsit.klaus.boundary.mapping.DslMapper;
-import dk.kvalitetsit.klaus.boundary.mapping.ExpressionToDslMapper;
-import dk.kvalitetsit.klaus.boundary.mapping.DtoMapper;
-import dk.kvalitetsit.klaus.boundary.mapping.ModelMapper;
-import dk.kvalitetsit.klaus.model.Expression;
+import dk.kvalitetsit.klaus.boundary.mapping.*;
+import dk.kvalitetsit.klaus.model.Clause;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +13,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.BinaryExpression;
 
-import java.util.List;
+import java.util.Optional;
 
-import static dk.kvalitetsit.klaus.MockFactory.clause;
+import static dk.kvalitetsit.klaus.MockFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
@@ -34,43 +31,31 @@ public class ManagementServiceAdaptorTest {
 
     @BeforeEach
     void setUp() {
-        var modelMapper = new ModelMapper();
-        var dtoMapper = new DtoMapper();
+        var modelMapper = new ClauseModelMapper(new ExpressionModelMapper());
+        var clauseMapper = new DtoClauseMapper(new ExpressionMapper());
         var dslMapper = new DslMapper();
-        var dslModelMapper = new ExpressionToDslMapper();
+        var dslModelMapper = new ClauseDslMapper(new ExpressionDslMapper());
 
-        adaptor = new ManagementServiceAdaptor(concreteService, dtoMapper, modelMapper, dslMapper, dslModelMapper);
+        adaptor = new ManagementServiceAdaptor(concreteService, clauseMapper, modelMapper, dslMapper, dslModelMapper);
     }
 
     @Test
     void testCreate() {
-        var expected_model = new Expression.BinaryExpression(
-                new Expression.Condition("ATC", "=", List.of("C10BA03")),
-                "eller",
-                new Expression.BinaryExpression(
-                        new Expression.Condition("ATC", "i", List.of("C10BA02", "C10BA05")),
-                        "og",
-                        new Expression.Condition("ALDER", ">=", List.of("13"))
-                )
-        );
 
-        Mockito.when(concreteService.create(Mockito.any(Expression.class))).thenReturn(expected_model);
-        var result = adaptor.create(clause);
+        Mockito.when(concreteService.create(Mockito.any(Clause.class))).thenReturn(Optional.of(clauseModel));
+        var result = adaptor.create(clauseDto);
 
-        // Verify correct result
-        assertInstanceOf(clause.getClass(), result);
-        BinaryExpression condition = (BinaryExpression) result;
+        assertInstanceOf(expressionDto.getClass(), result.get().getExpression());
+        BinaryExpression condition = (BinaryExpression) result.get().getExpression();
 
-        assertEquals(clause.getType(), condition.getType());
+        assertEquals(expressionDto.getType(), condition.getType());
 
-
-        // Verify correct argument
-        var captor = ArgumentCaptor.forClass(Expression.BinaryExpression.class);
+        var captor = ArgumentCaptor.forClass(Clause.class);
         Mockito.verify(concreteService, Mockito.times(1)).create(captor.capture());
-        Expression.BinaryExpression actual_model = captor.getValue();
+        Clause actual_model = captor.getValue();
 
+        var expected_model = new Clause(clauseModel.name(), Optional.empty(), clauseModel.expression());
         assertEquals(expected_model, actual_model);
-
     }
 }
 

@@ -3,7 +3,7 @@ services:
     image: mariadb:10.11
     environment:
       - MYSQL_ROOT_PASSWORD=rootroot
-      - MYSQL_DATABASE=hellodb
+      - MYSQL_DATABASE=validation_db
       - MYSQL_USER=user
       - MYSQL_PASSWORD=secret1234
     healthcheck:
@@ -30,11 +30,11 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
-
+    
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
-      - app_jdbc_validation_url=jdbc:mariadb://validation-db:3306/hellodb
+      - app_jdbc_validation_url=jdbc:mariadb://validation-db:3306/validation_db
       - app_jdbc_validation_username=user
       - app_jdbc_validation_password=secret1234
       - app_jdbc_master_url=jdbc:mariadb://master-db:3306/sdm_krs_a

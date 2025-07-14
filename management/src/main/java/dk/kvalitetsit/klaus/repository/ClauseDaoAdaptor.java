@@ -22,9 +22,7 @@ public class ClauseDaoAdaptor {
     }
 
     public Optional<Clause> create(Clause entry) throws ServiceException {
-        var result= validationDao.create(modelMapper.map(entry));
-        var e = result.map(entityMapper::map);
-        return  e;
+        return validationDao.create(modelMapper.map(entry)).map(entityMapper::map);
     }
 
     public List<Clause> create(List<Clause> entry) throws ServiceException {

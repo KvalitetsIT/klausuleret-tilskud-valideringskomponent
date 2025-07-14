@@ -31,7 +31,6 @@ public class ClauseDaoImpl implements ClauseDao {
     @Override
     public Optional<ClauseEntity> create(ClauseEntity entry) throws ServiceException {
         try {
-            // 1. Insert into clause to get ID and UUID
             UUID uuid = UUID.randomUUID();
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -95,7 +94,13 @@ public class ClauseDaoImpl implements ClauseDao {
     @Override
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
-            String sql = "SELECT id, type FROM clause WHERE uuid = :uuid";
+            String sql = """
+            SELECT c.id, c.name, e.type
+            FROM clause c
+            JOIN expression e ON c.id = e.id
+            WHERE c.uuid = :uuid
+        """;
+
             Map<String, Object> row = template.queryForMap(sql, Map.of("uuid", uuid.toString()));
 
             Long id = ((Number) row.get("id")).longValue();

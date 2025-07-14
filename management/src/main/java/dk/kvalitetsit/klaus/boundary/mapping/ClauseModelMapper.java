@@ -14,6 +14,10 @@ public class ClauseModelMapper implements Mapper<Clause, org.openapitools.model.
 
     @Override
     public org.openapitools.model.Clause map(Clause entry) {
-        return new org.openapitools.model.Clause(entry.name(), this.expressionModelMapper.map(entry.expression()));
+        var dto = new org.openapitools.model.Clause(
+                entry.name(),
+                this.expressionModelMapper.map(entry.expression()));
+        entry.uuid().ifPresent(dto::uuid);;
+        return dto;
     }
 }

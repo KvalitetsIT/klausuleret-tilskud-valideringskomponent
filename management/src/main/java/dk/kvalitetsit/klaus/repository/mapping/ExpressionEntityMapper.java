@@ -2,7 +2,7 @@ package dk.kvalitetsit.klaus.repository.mapping;
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Expression;
-import dk.kvalitetsit.klaus.model.ExpressionEntity;
+import dk.kvalitetsit.klaus.repository.model.ExpressionEntity;
 
 public class ExpressionEntityMapper implements Mapper<Expression, ExpressionEntity> {
     @Override
@@ -15,15 +15,15 @@ public class ExpressionEntityMapper implements Mapper<Expression, ExpressionEnti
     }
 
     private ExpressionEntity.ConditionEntity map(Expression.Condition b) {
-        return new ExpressionEntity.ConditionEntity(b.field(), b.operator(), b.values());
+        return new ExpressionEntity.ConditionEntity(null, b.field(), b.operator(), b.values());
     }
 
     private ExpressionEntity.BinaryExpressionEntity map(Expression.BinaryExpression b) {
-        return new ExpressionEntity.BinaryExpressionEntity(this.map(b.left()), b.operator(), this.map((b.right())));
+        return new ExpressionEntity.BinaryExpressionEntity(null, this.map(b.left()), b.operator(), this.map((b.right())));
     }
 
     private ExpressionEntity.ParenthesizedExpressionEntity map(Expression.ParenthesizedExpression b) {
-        return new ExpressionEntity.ParenthesizedExpressionEntity(this.map(b.inner()));
+        return new ExpressionEntity.ParenthesizedExpressionEntity(null, this.map(b.inner()));
     }
 
 }

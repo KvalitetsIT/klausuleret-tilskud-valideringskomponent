@@ -2,8 +2,8 @@ package dk.kvalitetsit.klaus.repository;
 
 
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
-import dk.kvalitetsit.klaus.model.ClauseEntity;
-import dk.kvalitetsit.klaus.model.ExpressionEntity;
+import dk.kvalitetsit.klaus.repository.model.ClauseEntity;
+import dk.kvalitetsit.klaus.repository.model.ExpressionEntity;
 import dk.kvalitetsit.klaus.model.Pagination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +17,16 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Repository
 public class ClauseDaoImpl implements ClauseDao {
 
     private static final Logger logger = LoggerFactory.getLogger(ClauseDaoImpl.class);
     private final NamedParameterJdbcTemplate template;
+    private final ExecutorService clauseCreatorExecutor = Executors.newFixedThreadPool(10);
 
     public ClauseDaoImpl(@Qualifier("validationDataSource") DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
@@ -34,37 +38,24 @@ public class ClauseDaoImpl implements ClauseDao {
             UUID uuid = UUID.randomUUID();
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            MapSqlParameterSource clauseParams = new MapSqlParameterSource()
-                    .addValue("uuid", uuid.toString())
-                    .addValue("name", entry.name());
-
             template.update(
-                    "INSERT INTO clause (uuid, name) VALUES (:uuid, :name)",
-                    clauseParams,
+                    "INSERT INTO clause (uuid, version, name) VALUES (:uuid, :version, :name)",
+                    new MapSqlParameterSource()
+                            .addValue("uuid", uuid.toString())
+                            .addValue("version", entry.version())
+                            .addValue("name", entry.name()),
                     keyHolder,
                     new String[]{"id"}
             );
 
-            Number generatedId = Optional.ofNullable(keyHolder.getKey()).orElseThrow(() -> new ServiceException("Failed to generate clause ID"));
+            long clauseId = Optional.ofNullable(keyHolder.getKey())
+                    .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
+                    .longValue();
 
-            long id = generatedId.longValue();
+            // Create expression with fresh expression ID = clause ID
+            ExpressionEntity expr = create(clauseId, entry.expression());
 
-            MapSqlParameterSource exprParams = new MapSqlParameterSource()
-                    .addValue("id", id)
-                    .addValue("type", entry.expression().type());
-
-            template.update("INSERT INTO expression (id, type) VALUES (:id, :type)", exprParams);
-
-            ExpressionEntity expr = entry.expression();
-            switch (expr.type()) {
-                case "condition_expression" -> insertCondition(id, (ExpressionEntity.ConditionEntity) expr);
-                case "binary_expression" -> insertBinary(id, (ExpressionEntity.BinaryExpressionEntity) expr);
-                case "parenthesized_expression" ->
-                        insertParenthesized(id, (ExpressionEntity.ParenthesizedExpressionEntity) expr);
-                default -> throw new IllegalStateException("Unknown expression type: " + expr.type());
-            }
-
-            return Optional.of(new ClauseEntity(id, uuid, entry.name(), expr));
+            return Optional.of(new ClauseEntity(clauseId, uuid, entry.name(), entry.version(), expr));
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
@@ -72,9 +63,62 @@ public class ClauseDaoImpl implements ClauseDao {
         }
     }
 
+    private ExpressionEntity create(long clauseId, ExpressionEntity expression) {
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        // Use provided ID directly, do not use GeneratedKeyHolder here
+        template.update(
+                "INSERT INTO expression (clause_id, type) VALUES (:clause_id, :type)",
+                new MapSqlParameterSource()
+                        .addValue("clause_id", clauseId)
+                        .addValue("type", expression.type()),
+                keyHolder,
+                new String[]{"id"}
+        );
+
+        long expressionId = Optional.ofNullable(keyHolder.getKey())
+                .orElseThrow(() -> new ServiceException("Failed to get expression primary key"))
+                .longValue();
+
+        switch (expression.type()) {
+            case "condition_expression" -> insertCondition(
+                    expressionId,
+                    (ExpressionEntity.ConditionEntity) expression
+            );
+            case "binary_expression" -> insertBinary(
+                    clauseId,
+                    expressionId,
+                    (ExpressionEntity.BinaryExpressionEntity) expression
+            );
+            case "parenthesized_expression" -> insertParenthesized(
+                    clauseId,
+                    expressionId,
+                    (ExpressionEntity.ParenthesizedExpressionEntity) expression
+            );
+            default -> throw new IllegalStateException("Unknown expression type: " + expression.type());
+        }
+
+        // Return a copy with the correct ID
+        return expression.withId(expressionId); // Make sure ExpressionEntity has `withId(long)` method
+    }
+
     @Override
     public List<ClauseEntity> create(List<ClauseEntity> entry) throws ServiceException {
-        return entry.stream().map(this::create).filter(Optional::isPresent).map(Optional::get).toList();
+        var version = fetchNextVersion();
+        // Assign the version to all entries
+        var entries = entry.stream().map(e -> new ClauseEntity(e.id(), e.uuid(), e.name(), version, e.expression())).toList();
+        // Create a list of async tasks
+        List<CompletableFuture<Optional<ClauseEntity>>> futures = entries.stream()
+                .map(entity -> CompletableFuture.supplyAsync(() -> this.create(entity), clauseCreatorExecutor))
+                .toList();
+
+        // Wait for all the futures to complete and collect the results
+        return futures.stream()
+                .map(CompletableFuture::join) // .join() waits for completion and gets the result
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
     }
 
     @Override
@@ -95,17 +139,18 @@ public class ClauseDaoImpl implements ClauseDao {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-            SELECT c.id, c.name, e.type
-            FROM clause c
-            JOIN expression e ON c.id = e.id
-            WHERE c.uuid = :uuid
-        """;
+                        SELECT c.id, c.name, e.type, c.version
+                        FROM clause c
+                        JOIN expression e ON c.id = e.id
+                        WHERE c.uuid = :uuid
+                    """;
 
             Map<String, Object> row = template.queryForMap(sql, Map.of("uuid", uuid.toString()));
 
             Long id = ((Number) row.get("id")).longValue();
             String name = (String) row.get("name");
             String type = (String) row.get("type");
+            Integer version = (Integer) row.get("version");
 
             ExpressionEntity expression = switch (type) {
                 case "condition_expression" -> readCondition(id);
@@ -114,7 +159,7 @@ public class ClauseDaoImpl implements ClauseDao {
                 default -> throw new IllegalStateException("Unknown expression type: " + type);
             };
 
-            return Optional.of(new ClauseEntity(id, uuid, name, expression));
+            return Optional.of(new ClauseEntity(id, uuid, name, version, expression));
 
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -127,13 +172,25 @@ public class ClauseDaoImpl implements ClauseDao {
     @Override
     public List<ClauseEntity> read_all(Pagination pagination) throws ServiceException {
         try {
-            String sql = "SELECT id FROM expression ORDER BY id LIMIT :limit OFFSET :offset";
-            List<UUID> ids = template.query(sql, Map.of(
+            String sql = """
+                        SELECT c.uuid
+                        FROM clause c
+                        JOIN expression e ON c.id = e.id
+                        ORDER BY c.id
+                        LIMIT :limit OFFSET :offset
+                    """;
+
+            List<UUID> uuids = template.query(sql, Map.of(
                     "limit", pagination.limit(),
                     "offset", pagination.offset()
-            ), (rs, rowNum) -> UUID.fromString(rs.getString("id")));
+            ), (rs, rowNum) -> UUID.fromString(rs.getString("uuid")));
 
-            return ids.stream().map(this::read).filter(Optional::isPresent).map(Optional::get).toList();
+            return uuids.stream()
+                    .map(this::read)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .toList();
+
         } catch (Exception e) {
             logger.error("Failed to read all expressions with pagination", e);
             throw new ServiceException("Failed to read expressions", e);
@@ -144,12 +201,22 @@ public class ClauseDaoImpl implements ClauseDao {
     @Override
     public List<ClauseEntity> read_all() throws ServiceException {
         try {
-            String sql = "SELECT id FROM expression";
-            List<UUID> ids = template.query(sql, Collections.emptyMap(), (rs, rowNum) ->
-                    UUID.fromString(rs.getString("id"))
+            String sql = """
+                        SELECT c.uuid
+                        FROM clause c
+                        JOIN expression e ON c.id = e.id
+                    """;
+
+            List<UUID> uuids = template.query(sql, Collections.emptyMap(), (rs, rowNum) ->
+                    UUID.fromString(rs.getString("uuid"))
             );
 
-            return ids.stream().map(this::read).map(Optional::get).toList();
+            return uuids.stream()
+                    .map(this::read)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .toList();
+
         } catch (Exception e) {
             logger.error("Failed to read all expressions", e);
             throw new ServiceException("Failed to read expressions", e);
@@ -169,91 +236,84 @@ public class ClauseDaoImpl implements ClauseDao {
     }
 
 
-    private void insertCondition(long expressionId, ExpressionEntity.ConditionEntity condition) {
-        var params = Map.of(
-                "expression_id", expressionId,
-                "field", condition.field(),
-                "operator", condition.operator()
-        );
+    private void insertCondition(long parentId, ExpressionEntity.ConditionEntity condition) {
 
-        template.update("""
-                INSERT INTO condition_expression(expression_id, field, operator) 
-                VALUES (:expression_id, :field, :operator)
-                """, params);
+        template.update(
+                "INSERT INTO condition_expression(expression_id, field, operator) VALUES (:expression_id, :field, :operator)",
+                Map.of(
+                        "expression_id", parentId,
+                        "field", condition.field(),
+                        "operator", condition.operator()
+                ));
 
         for (String value : condition.values()) {
-            var valueParams = Map.of(
-                    "condition_id", expressionId,
-                    "value", value
-            );
-            template.update("""
-                    INSERT INTO condition_value(condition_id, value)
-                    VALUES (:condition_id, :value)
-                    """, valueParams);
+            template.update(
+                    "INSERT INTO condition_value(condition_id, value) VALUES (:condition_id, :value)",
+                    Map.of(
+                            "condition_id", parentId,
+                            "value", value
+                    ));
         }
     }
 
-    private void insertBinary(long expressionId, ExpressionEntity.BinaryExpressionEntity binary) {
-        ClauseEntity left = create(new ClauseEntity(0L, UUID.randomUUID(), "", binary.left())).orElseThrow();
-        ClauseEntity right = create(new ClauseEntity(0L, UUID.randomUUID(), "", binary.right())).orElseThrow();
+    // Note the new 'clauseId' parameter
+    private void insertBinary(long clauseId, long parentId, ExpressionEntity.BinaryExpressionEntity binary) {
+        // Pass the original clauseId, not the parent expression's ID
+        ExpressionEntity left = create(clauseId, binary.left());
+        ExpressionEntity right = create(clauseId, binary.right());
 
-        var params = Map.of(
-                "expression_id", expressionId,
-                "left_id", left.id(),
-                "operator", binary.operator(),
-                "right_id", right.id()
-        );
-
-        template.update("""
-                INSERT INTO binary_expression(expression_id, left_id, operator, right_id)
-                VALUES (:expression_id, :left_id, :operator, :right_id)
-                """, params);
+        template.update(
+                "INSERT INTO binary_expression(expression_id, left_id, operator, right_id) VALUES (:expression_id, :left_id, :operator, :right_id)",
+                Map.of(
+                        "expression_id", parentId,
+                        "left_id", left.id(),
+                        "operator", binary.operator(),
+                        "right_id", right.id()
+                ));
     }
 
-    private void insertParenthesized(long expressionId, ExpressionEntity.ParenthesizedExpressionEntity paren) {
-        var inner = create(new ClauseEntity(0L, UUID.randomUUID(), "", paren.inner())).orElseThrow();
+    // Note the new 'clauseId' parameter
+    private void insertParenthesized(long clauseId, long parentId, ExpressionEntity.ParenthesizedExpressionEntity paren) {
+        // Pass the original clauseId
+        var inner = create(clauseId, paren.inner());
 
-        var params = Map.of(
-                "expression_id", expressionId,
-                "inner_id", inner.id()
-        );
-
-        template.update("""
-                INSERT INTO parenthesized_expression(expression_id, inner_id)
-                VALUES (:expression_id, :inner_id)
-                """, params);
+        template.update(
+                "INSERT INTO parenthesized_expression(expression_id, inner_id) VALUES (:expression_id, :inner_id)",
+                Map.of(
+                        "expression_id", parentId,
+                        "inner_id", inner.id()
+                ));
     }
 
     private ExpressionEntity.ConditionEntity readCondition(long expressionId) {
-        var cond = template.queryForObject("""
-                    SELECT field, operator FROM condition_expression WHERE expression_id = :id
-                """, Map.of("id", expressionId), (rs, rowNum) ->
-                new Object[]{rs.getString("field"), rs.getString("operator")}
+        var cond = template.queryForObject(
+                "SELECT field, operator FROM condition_expression WHERE expression_id = :id",
+                Map.of("id", expressionId),
+                (rs, rowNum) -> new Object[]{rs.getString("field"), rs.getString("operator")}
         );
 
-        List<String> values = template.query("""
-                    SELECT value FROM condition_value WHERE condition_id = :id ORDER BY id
-                """, Map.of("id", expressionId), (rs, rowNum) -> rs.getString("value"));
+        List<String> values = template.query(
+                "SELECT value FROM condition_value WHERE condition_id = :id ORDER BY id",
+                Map.of("id", expressionId),
+                (rs, rowNum) -> rs.getString("value"));
 
-        return new ExpressionEntity.ConditionEntity((String) cond[0], (String) cond[1], values);
+        return new ExpressionEntity.ConditionEntity(expressionId, (String) cond[0], (String) cond[1], values);
     }
 
 
     private ExpressionEntity readBinary(Long id) {
-        var row = template.queryForObject("""
-                    SELECT left_id, operator, right_id FROM binary_expression WHERE expression_id = :id
-                """, Map.of("id", id), (rs, rowNum) ->
-                new Object[]{
-                        rs.getLong("left_id"),
+        return template.queryForObject(
+                "SELECT left_id, operator, right_id FROM binary_expression WHERE expression_id = :id",
+                Map.of("id", id),
+                (rs, rowNum) -> new ExpressionEntity.BinaryExpressionEntity(
+                        id,
+                        readById(rs.getLong("left_id")).orElseThrow(),
                         rs.getString("operator"),
-                        rs.getLong("right_id")
-                }
+                        readById(rs.getLong("right_id")).orElseThrow()
+                )
         );
 
-        ExpressionEntity left = readById((Long) row[0]).orElseThrow();
-        ExpressionEntity right = readById((Long) row[2]).orElseThrow();
 
-        return new ExpressionEntity.BinaryExpressionEntity(left, (String) row[1], right);
     }
 
     private ExpressionEntity readParenthesized(Long id) {
@@ -264,7 +324,7 @@ public class ClauseDaoImpl implements ClauseDao {
         );
 
         ExpressionEntity inner = readById(innerId).orElseThrow();
-        return new ExpressionEntity.ParenthesizedExpressionEntity(inner);
+        return new ExpressionEntity.ParenthesizedExpressionEntity(innerId, inner);
     }
 
 
@@ -283,5 +343,11 @@ public class ClauseDaoImpl implements ClauseDao {
             return Optional.empty();
         }
     }
+
+    private int fetchNextVersion() {
+        String sql = "SELECT NEXT VALUE FOR clause_version_seq";
+        return template.queryForObject(sql, new MapSqlParameterSource(), Integer.class);
+    }
+
 
 }

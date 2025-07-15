@@ -2,7 +2,7 @@ package dk.kvalitetsit.klaus.repository.mapping;
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Expression;
-import dk.kvalitetsit.klaus.model.ExpressionEntity;
+import dk.kvalitetsit.klaus.repository.model.ExpressionEntity;
 
 public class EntityExpressionMapper implements Mapper<ExpressionEntity, Expression> {
 

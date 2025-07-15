@@ -35,11 +35,15 @@ public class ManagementServiceAdaptor {
     }
 
     public List<String> createDSL(List<String> dsl) throws ServiceException {
-        return dsl.stream().map(this::createDSL).filter(Optional::isPresent).map(Optional::get).toList();
+        var clauses = dsl.stream().map(dslClauseMapper::map).map(dtoClauseMapper::map).toList();
+        return clauseService.create(clauses).stream().map(clauseDslMapper::map).toList();
     }
 
     public List<Clause> create(List<Clause> expressions) throws ServiceException {
-        return expressions.stream().map(this::create).filter(Optional::isPresent).map(Optional::get).toList();
+        var mappedExpressions = expressions.stream().map(this.dtoClauseMapper::map).toList();
+        return clauseService.create(mappedExpressions).stream()
+                .map(this.clauseDtoMapper::map)
+                .toList();
     }
 
     public Optional<Clause> create(Clause entry) throws ServiceException {
@@ -52,7 +56,6 @@ public class ManagementServiceAdaptor {
         var model = this.dtoClauseMapper.map(clause);
         return clauseService.create(model).map(clauseDslMapper::map);
     }
-
 
     public Optional<Clause> delete(UUID entry) throws ServiceException {
         return clauseService.delete(entry).map(clauseDtoMapper::map);

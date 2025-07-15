@@ -72,7 +72,7 @@ public class BeanRegistration {
 
     @Bean
     public Mapper<dk.kvalitetsit.klaus.model.Clause, org.openapitools.model.Clause> clauseDtoMapper() {
-        return new ClauseModelMapper(new ExpressionModelMapper());
+        return new ClauseDtoMapper(new ExpressionModelMapper());
     }
 
     @Bean

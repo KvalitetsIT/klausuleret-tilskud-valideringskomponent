@@ -3,6 +3,7 @@ package dk.kvalitetsit.klaus.repository;
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
 import dk.kvalitetsit.klaus.model.*;
+import dk.kvalitetsit.klaus.repository.model.ClauseEntity;
 
 import java.util.List;
 import java.util.Optional;

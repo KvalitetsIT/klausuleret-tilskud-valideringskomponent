@@ -2,9 +2,9 @@ package dk.kvalitetsit.klaus.repository.mapping;
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Clause;
-import dk.kvalitetsit.klaus.model.ClauseEntity;
+import dk.kvalitetsit.klaus.repository.model.ClauseEntity;
 import dk.kvalitetsit.klaus.model.Expression;
-import dk.kvalitetsit.klaus.model.ExpressionEntity;
+import dk.kvalitetsit.klaus.repository.model.ExpressionEntity;
 
 public class ClauseEntityMapper implements Mapper<Clause, ClauseEntity> {
 
@@ -16,6 +16,6 @@ public class ClauseEntityMapper implements Mapper<Clause, ClauseEntity> {
 
     @Override
     public ClauseEntity map(Clause entry) {
-        return new ClauseEntity(null, null, entry.name(), this.expressionEntityMapper.map(entry.expression()));
+        return new ClauseEntity(null, null, entry.name(), null, this.expressionEntityMapper.map(entry.expression()));
     }
 }

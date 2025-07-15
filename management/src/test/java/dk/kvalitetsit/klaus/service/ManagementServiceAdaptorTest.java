@@ -31,7 +31,7 @@ public class ManagementServiceAdaptorTest {
 
     @BeforeEach
     void setUp() {
-        var modelMapper = new ClauseModelMapper(new ExpressionModelMapper());
+        var modelMapper = new ClauseDtoMapper(new ExpressionModelMapper());
         var clauseMapper = new DtoClauseMapper(new ExpressionMapper());
         var dslMapper = new DslMapper();
         var dslModelMapper = new ClauseDslMapper(new ExpressionDslMapper());
@@ -54,7 +54,7 @@ public class ManagementServiceAdaptorTest {
         Mockito.verify(concreteService, Mockito.times(1)).create(captor.capture());
         Clause actual_model = captor.getValue();
 
-        var expected_model = new Clause(clauseModel.name(), Optional.empty(), clauseModel.expression());
+        var expected_model = new Clause(clauseModel.name(), Optional.empty(), Optional.empty(), clauseModel.expression());
         assertEquals(expected_model, actual_model);
     }
 }

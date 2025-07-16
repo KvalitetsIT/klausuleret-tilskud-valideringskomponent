@@ -1,10 +1,7 @@
 package dk.kvalitetsit.klaus.integrationtest;
 
-
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.Clause;
 import org.springframework.web.client.RestClientResponseException;
@@ -49,6 +46,8 @@ public class ManagementIT extends BaseTest {
         try {
             var created = api.v1ClausesPost(dsl);
             var deleted = api.v1ClausesIdDelete(Objects.requireNonNull(created.getFirst().getUuid()));
+
+            Assertions.assertEquals(created.getFirst(), deleted);
         } catch (RestClientResponseException e) {
             throw new RuntimeException(e);
         }
@@ -66,6 +65,19 @@ public class ManagementIT extends BaseTest {
             Assertions.assertTrue(second.stream().map(Clause::getVersion).allMatch(version -> version == 2));
             Assertions.assertTrue(third.stream().map(Clause::getVersion).allMatch(version -> version == 3));
 
+        } catch (RestClientResponseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void testReadClauseSet() {
+        final List<Clause> dsl = List.of(clauseDto);
+        try {
+            var created = api.v1ClausesPost(dsl);
+            var read = api.v1ClausesGet(null, null); // <- Setting the pagination to null should result reading everything
+            Assertions.assertEquals(created.getFirst().getName(), read.getFirst().getName());
+            Assertions.assertEquals(created.getFirst().getExpression(), read.getFirst().getExpression());
         } catch (RestClientResponseException e) {
             throw new RuntimeException(e);
         }

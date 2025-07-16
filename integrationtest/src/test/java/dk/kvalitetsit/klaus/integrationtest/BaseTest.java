@@ -3,26 +3,60 @@ package dk.kvalitetsit.klaus.integrationtest;
 import dk.kvalitetsit.klaus.Application;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
+@SpringBootTest
 public abstract class BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(ValidationIT.class);
     protected static ApiClient client;
     static ComposeContainer environment;
     private static ConfigurableApplicationContext ctx;
+
+    @Autowired
+    private DataSource dataSource;
+
+    private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void resetDatabase() {
+        if (jdbcTemplate == null) {
+            jdbcTemplate = new JdbcTemplate(dataSource);
+        }
+
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
+
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
+
+        for (Map<String, Object> row : rows) {
+            String tableName = (String) row.values().toArray()[0]; // First column is table name
+
+            if (!tableName.endsWith("_seq")) { // Skip sequence-like tables
+                jdbcTemplate.execute("TRUNCATE TABLE " + tableName);
+            }
+        }
+
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+    }
 
     @BeforeAll
     static void setup() {

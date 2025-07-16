@@ -2,9 +2,9 @@ package dk.kvalitetsit.klaus.integrationtest;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.ValidationRequest;
+import org.springframework.web.client.RestClientResponseException;
 
 public class ValidationIT extends BaseTest  {
 
@@ -15,7 +15,7 @@ public class ValidationIT extends BaseTest  {
         try {
             var response = api.v1ValidationsPost(request);
             Assertions.assertTrue(response);
-        } catch (ApiException e) {
+        } catch (RestClientResponseException e) {
             throw new RuntimeException(e);
         }
     }

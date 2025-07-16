@@ -17,9 +17,9 @@ public record MainConfiguration(
         ValidationConfiguration validation,
         ClauseConfiguration clauseConfiguration
 ) {
-    record DatasourceConfiguration(@NotNull Datasource master, @NotNull Datasource validation) {
+    public record DatasourceConfiguration(@NotNull Datasource master, @NotNull Datasource validation) {
     }
 
-    record Datasource(@NotBlank String url, @NotBlank String username, @NotBlank String password) {
+    public record Datasource(@NotBlank String url, @NotBlank String username, @NotBlank String password) {
     }
 }

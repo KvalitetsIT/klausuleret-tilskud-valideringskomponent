@@ -21,7 +21,6 @@ services:
     ports:
       - 3307:3306
     environment:
-      - MYSQL_ROOT_PASSWORD=rootroot
       - MYSQL_DATABASE=sdm_krs_a
       - MYSQL_USER=user
       - MYSQL_PASSWORD=secret1234

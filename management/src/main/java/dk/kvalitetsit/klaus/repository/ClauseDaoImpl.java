@@ -181,8 +181,8 @@ public class ClauseDaoImpl implements ClauseDao {
                     """;
 
             List<UUID> uuids = template.query(sql, Map.of(
-                    "limit", pagination.limit(),
-                    "offset", pagination.offset()
+                    "limit", pagination.limit().orElse(0),
+                    "offset", pagination.offset().orElse(10)
             ), (rs, rowNum) -> UUID.fromString(rs.getString("uuid")));
 
             return uuids.stream()

@@ -33,6 +33,7 @@ public class ManagementController implements ManagementApi {
     @Override
     public ResponseEntity<List<Clause>> v1ClausesGet(Optional<Integer> offset, Optional<Integer> limit) {
         try {
+            if (offset.isEmpty() && limit.isEmpty()) return ResponseEntity.ok(service.read_all());
             return ResponseEntity.ok(service.read_all(new Pagination(offset, limit)));
         } catch (ServiceException e) {
             throw new RuntimeException(e);

@@ -96,7 +96,6 @@ public class ClauseDaoImpl implements ClauseDao {
                     expressionId,
                     (ExpressionEntity.ParenthesizedExpressionEntity) expression
             );
-            default -> throw new IllegalStateException("Unknown expression type: " + expression.type());
         }
 
         // Return a copy with the correct ID

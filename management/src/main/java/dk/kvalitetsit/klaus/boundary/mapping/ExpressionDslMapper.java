@@ -22,7 +22,6 @@ public class ExpressionDslMapper implements Mapper<Expression, String> {
                 String values = String.join(", ", c.values());
                 result = "(" + c.field() + " " + c.operator() + " " + values + ")";
             }
-            default -> throw new IllegalArgumentException("Unexpected expression: " + entry);
         }
 
         return result;

@@ -22,44 +22,26 @@ import java.time.Duration;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
-    protected static ApiClient client;
-    private static final ComposeContainer environment;
     private static final boolean runInDocker = Boolean.getBoolean("runInDocker");
 
+    private static final ComposeContainer environment = createEnvironment();
+    protected static ApiClient client;
     @LocalServerPort
     protected int localServerPort;
 
-    static {
+    private static ComposeContainer createEnvironment() {
         var testWorkingDir = System.getProperty("user.dir");
         var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
         var composeFile = new File(projectRoot, "compose/development/docker-compose.yml");
 
-        environment = runInDocker ? runInDocker(composeFile) : runOutsideDocker(composeFile);
-        environment.start();
-
-        Runtime.getRuntime().addShutdownHook(new Thread(environment::stop));
+        return runInDocker ? runInDocker(composeFile) : runOutsideDocker(composeFile);
     }
 
     @DynamicPropertySource
     static void overrideProps(DynamicPropertyRegistry registry) {
+        environment.start();
         setupAndRegisterProperties("master-db", "master", "sdm_krs_a", "", registry);
         setupAndRegisterProperties("validation-db", "validation", "validation_db", "rootroot", registry);
-    }
-
-    @BeforeEach
-    void setupApiClient() {
-        String host;
-        String port;
-
-        if (runInDocker) {
-            host = environment.getServiceHost("validation-component", 8080);
-            port = environment.getServicePort("validation-component", 8080).toString();
-        } else {
-            host = "localhost";
-            port = String.valueOf(localServerPort);
-        }
-
-        client = new ApiClient().setBasePath(String.format("http://%s:%s", host, port));
     }
 
     private static void setupAndRegisterProperties(
@@ -96,4 +78,10 @@ public abstract class BaseTest {
                 .withLocalCompose(false);
     }
 
+    @BeforeEach
+    void setupApiClient() {
+        String host = runInDocker ? environment.getServiceHost("validation-component", 8080) : "localhost";
+        String port = runInDocker ? environment.getServicePort("validation-component", 8080).toString() : String.valueOf(localServerPort);
+        client = new ApiClient().setBasePath(String.format("http://%s:%s", host, port));
+    }
 }

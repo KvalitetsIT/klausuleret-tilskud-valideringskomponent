@@ -36,9 +36,9 @@ public class BeanRegistration {
     @Bean("validationDataSource")
     public DataSource validationDataSource() {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(configuration.jdbc().validation().url());
-        hikariConfig.setUsername(configuration.jdbc().validation().username());
-        hikariConfig.setPassword(configuration.jdbc().validation().password());
+        hikariConfig.setJdbcUrl(configuration.management().jdbc().url());
+        hikariConfig.setUsername(configuration.management().jdbc().username());
+        hikariConfig.setPassword(configuration.management().jdbc().password());
         return new HikariDataSource(hikariConfig);
     }
 
@@ -50,9 +50,9 @@ public class BeanRegistration {
     @Bean("masterDataSource")
     public DataSource masterDataSource() {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(configuration.jdbc().master().url());
-        hikariConfig.setUsername(configuration.jdbc().master().username());
-        hikariConfig.setPassword(configuration.jdbc().master().password());
+        hikariConfig.setJdbcUrl(configuration.validation().jdbc().url());
+        hikariConfig.setUsername(configuration.validation().jdbc().username());
+        hikariConfig.setPassword(configuration.validation().jdbc().password());
         return new HikariDataSource(hikariConfig);
     }
 

@@ -40,8 +40,8 @@ public abstract class BaseTest {
     @DynamicPropertySource
     static void overrideProps(DynamicPropertyRegistry registry) {
         environment.start();
-        setupAndRegisterProperties("master-db", "master", "sdm_krs_a", "", registry);
-        setupAndRegisterProperties("validation-db", "validation", "validation_db", "rootroot", registry);
+        setupAndRegisterProperties("master-db", "validation", "sdm_krs_a", "", registry);
+        setupAndRegisterProperties("validation-db", "management", "validation_db", "rootroot", registry);
     }
 
     private static void setupAndRegisterProperties(
@@ -53,9 +53,9 @@ public abstract class BaseTest {
     ) {
         String host = environment.getServiceHost(serviceName, 3306);
         Integer port = environment.getServicePort(serviceName, 3306);
-        registry.add("app.jdbc." + prefix + ".url", () -> "jdbc:mariadb://" + host + ":" + port + "/" + db);
-        registry.add("app.jdbc." + prefix + ".username", () -> "root");
-        registry.add("app.jdbc." + prefix + ".password", () -> password);
+        registry.add("app." + prefix + ".jdbc.url", () -> "jdbc:mariadb://" + host + ":" + port + "/" + db);
+        registry.add("app." + prefix + ".jdbc.username", () -> "root");
+        registry.add("app." + prefix + ".jdbc.password", () -> password);
     }
 
     private static ComposeContainer runOutsideDocker(File composeFile) {

@@ -4,7 +4,7 @@ import dk.kvalitetsit.klaus.exceptions.ServiceException;
 import dk.kvalitetsit.klaus.repository.entity.ClauseEntity;
 import dk.kvalitetsit.klaus.repository.entity.DrugEntity;
 import dk.kvalitetsit.klaus.repository.entity.PackingEnitity;
-import dk.kvalitetsit.klaus.repository.mapper.ClassificationRowMapper;
+import dk.kvalitetsit.klaus.repository.mapper.ClauseRowMapper;
 import dk.kvalitetsit.klaus.repository.mapper.DrugRowMapper;
 import dk.kvalitetsit.klaus.repository.mapper.PackageRowMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +21,7 @@ public class MasterDaoImpl implements MasterDao {
 
     private final DrugRowMapper drugRowMapper = new DrugRowMapper();
     private final PackageRowMapper packageRowMapper = new PackageRowMapper();
-    private final ClassificationRowMapper classificationRowMapper = new ClassificationRowMapper();
+    private final ClauseRowMapper clauseRowMapper = new ClauseRowMapper();
 
     @Qualifier("masterJdbcTemplate")
     private final NamedParameterJdbcTemplate template;
@@ -63,18 +63,18 @@ public class MasterDaoImpl implements MasterDao {
     }
 
     @Override
-    public Optional<ClauseEntity> findClassificationByID(long id) throws ServiceException {
+    public Optional<ClauseEntity> findClausesByID(long id) throws ServiceException {
         try {
             String sql = "SELECT * FROM Klausulering WHERE KlausuleringPID = :id";
             return Optional.ofNullable(template.queryForObject(
                     sql,
                     new MapSqlParameterSource("id", id),
-                    classificationRowMapper
+                    clauseRowMapper
             ));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (Exception e) {
-            throw new ServiceException("Failed to fetch classification by id", e);
+            throw new ServiceException("Failed to fetch clause by id", e);
         }
     }
 
@@ -102,9 +102,9 @@ public class MasterDaoImpl implements MasterDao {
     public List<ClauseEntity> findAllClauses() throws ServiceException {
         try {
             String sql = "SELECT * FROM Klausulering";
-            return template.query(sql, classificationRowMapper);
+            return template.query(sql, clauseRowMapper);
         } catch (Exception e) {
-            throw new ServiceException("Failed to fetch all classifications", e);
+            throw new ServiceException("Failed to fetch all clauses", e);
         }
     }
 

@@ -15,7 +15,7 @@ public record PackingEnitity(
         long drugID,
         String packageTypeCode,
         byte manufacturingFee,
-        String classificationCode,
+        String clauseCode,
         Timestamp lastReplicated,
         String reimbursementCode,
         String storageConditions,

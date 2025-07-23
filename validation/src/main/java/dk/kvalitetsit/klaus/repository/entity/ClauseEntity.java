@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public record ClauseEntity(
         String code,
         LocalDateTime validTo,
-        long classificationPID,
+        long clausePID,
         String shortText,
         Timestamp lastReplicated,
         String text,

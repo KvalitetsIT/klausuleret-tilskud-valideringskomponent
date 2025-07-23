@@ -36,8 +36,8 @@ public class MasterDaoImplIT extends BaseTest {
     }
 
     @Test
-    void testFindClassificationByCode(){
-        var clause = this.dao.findClassificationByID(546L);
+    void testFindClausesByCode(){
+        var clause = this.dao.findClausesByID(546L);
         Assertions.assertFalse(clause.isEmpty());
     }
 

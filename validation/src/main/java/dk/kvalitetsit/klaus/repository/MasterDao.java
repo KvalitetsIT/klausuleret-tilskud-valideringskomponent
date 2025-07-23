@@ -14,7 +14,7 @@ public interface MasterDao {
 
     Optional<PackingEnitity> findPackageById(long id) throws ServiceException;
 
-    Optional<ClauseEntity> findClassificationByID(long id) throws ServiceException;
+    Optional<ClauseEntity> findClausesByID(long id) throws ServiceException;
 
     List<DrugEntity> findAllDrugs() throws ServiceException;
 

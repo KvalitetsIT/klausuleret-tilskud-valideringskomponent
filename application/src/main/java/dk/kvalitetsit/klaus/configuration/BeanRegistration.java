@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -53,6 +54,11 @@ public class BeanRegistration {
         hikariConfig.setUsername(configuration.jdbc().master().username());
         hikariConfig.setPassword(configuration.jdbc().master().password());
         return new HikariDataSource(hikariConfig);
+    }
+
+    @Bean("masterJdbcTemplate")
+    public NamedParameterJdbcTemplate masterJdbcTemplate(@Qualifier("masterDataSource") DataSource dataSource) {
+        return new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Bean

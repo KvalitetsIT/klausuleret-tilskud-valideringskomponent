@@ -1,0 +1,14 @@
+package dk.kvalitetsit.klaus.repository.entity;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
+public record ClauseEntity(
+        String code,
+        LocalDateTime validTo,
+        long classificationPID,
+        String shortText,
+        Timestamp lastReplicated,
+        String text,
+        LocalDateTime validFrom
+) {}
+

@@ -4,10 +4,10 @@ package dk.kvalitetsit.klaus.boundary.mapping;
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Expression;
 
-public class ExpressionToDslMapper implements Mapper<Expression, String> {
+public class ExpressionDslMapper implements Mapper<Expression, String> {
     @Override
     public String map(Expression entry) {
-        String result = "";
+        String result;
 
         switch (entry) {
             case Expression.ParenthesizedExpression c -> {
@@ -20,9 +20,8 @@ public class ExpressionToDslMapper implements Mapper<Expression, String> {
             }
             case Expression.Condition c -> {
                 String values = String.join(", ", c.values());
-                result = c.field() + " " + c.operator() + " (" + values + ")";
+                result = "(" + c.field() + " " + c.operator() + " " + values + ")";
             }
-            default -> throw new IllegalArgumentException("Unexpected expression: " + entry);
         }
 
         return result;

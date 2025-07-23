@@ -7,7 +7,7 @@ import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.Condition;
 import org.openapitools.model.ParenthesizedExpression;
 
-public class ModelMapper implements Mapper<Expression, org.openapitools.model.Expression> {
+public class ExpressionModelMapper implements Mapper<Expression, org.openapitools.model.Expression> {
 
     @Override
     public org.openapitools.model.Expression map(Expression expression) {

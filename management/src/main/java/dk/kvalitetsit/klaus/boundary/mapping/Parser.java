@@ -3,10 +3,7 @@ package dk.kvalitetsit.klaus.boundary.mapping;
 
 
 
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.Condition;
-import org.openapitools.model.Expression;
-import org.openapitools.model.ParenthesizedExpression;
+import org.openapitools.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,12 +78,11 @@ class Parser {
      *
      * @return the parsed {@code Expression}
      */
-    public Expression parseClause() {
+    public Clause parseClause() {
         expect("Klausul");
         Token name = next();
-        System.out.println("Parsing Klausul: " + name.text());
         expect(":");
-        return parseExpression();
+        return new Clause(name.text(), parseExpression());
     }
 
     /**

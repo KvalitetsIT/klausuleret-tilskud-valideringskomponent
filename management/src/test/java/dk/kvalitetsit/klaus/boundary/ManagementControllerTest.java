@@ -12,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static dk.kvalitetsit.klaus.MockFactory.clause;
-import static dk.kvalitetsit.klaus.MockFactory.dsl;
+import static dk.kvalitetsit.klaus.MockFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
@@ -29,19 +28,19 @@ public class ManagementControllerTest {
 
     @Test
     void testPostNonDSL() {
-        Mockito.when(clauseService.create(Mockito.any(List.class))).then(a -> List.of(clause));
-        var result = managementController.v1ClausesPost(List.of(clause));
+        Mockito.when(clauseService.create(Mockito.any(List.class))).then(a -> List.of(clauseDto));
+        var result = managementController.v1ClausesPost(List.of(clauseDto));
 
         assertNotNull(result);
         assertNotNull(result.getBody());
-        assertEquals(List.of(clause), result.getBody());
+        assertEquals(List.of(clauseDto), result.getBody());
 
         var inputArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         Mockito.verify(clauseService, times(1)).create(inputArgumentCaptor.capture());
 
         assertNotNull(inputArgumentCaptor.getValue());
-        assertEquals(clause, inputArgumentCaptor.getValue().getFirst());
+        assertEquals(clauseDto, inputArgumentCaptor.getValue().getFirst());
     }
 
     @Test

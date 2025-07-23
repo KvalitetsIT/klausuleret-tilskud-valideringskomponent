@@ -1,0 +1,6 @@
+CREATE TABLE clause (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    uuid VARCHAR(36) NOT NULL UNIQUE,
+    version INT NOT NULL DEFAULT 1,
+    name VARCHAR(255)
+);

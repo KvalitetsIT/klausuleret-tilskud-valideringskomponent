@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import javax.sql.DataSource;
 
 @ConfigurationProperties
-
 public record TestConfiguration() {
     // Configure beans used for test
 

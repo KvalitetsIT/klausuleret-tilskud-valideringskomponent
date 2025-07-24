@@ -10,7 +10,9 @@ import dk.kvalitetsit.klaus.repository.mapping.ClauseEntityMapper;
 import dk.kvalitetsit.klaus.repository.mapping.EntityClauseMapper;
 import dk.kvalitetsit.klaus.repository.mapping.EntityExpressionMapper;
 import dk.kvalitetsit.klaus.repository.mapping.ExpressionEntityMapper;
+import dk.kvalitetsit.klaus.service.model.DataContext;
 import dk.kvalitetsit.klaus.service.model.Prescription;
+import org.openapitools.model.ValidationRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class BeanRegistration {
@@ -90,6 +94,15 @@ public class BeanRegistration {
     public Mapper<dk.kvalitetsit.klaus.model.Clause, String> modelDslMapper() {
         return new ClauseDslMapper(new ExpressionDslMapper());
     }
+
+    @Bean
+    public Mapper<ValidationRequest, DataContext> validationRequestDataContextMapper() {
+        return entry -> new DataContext(Map.of(
+                "ALDER", List.of(entry.getAge().toString()),
+                "ATC", entry.getExistingDrugMedications().stream().filter(x -> x.getAtcCode().isPresent()).map(x -> x.getAtcCode().get()).toList()
+        ));
+    }
+
 
     @Bean
     public Mapper<org.openapitools.model.Prescription, Prescription> precriptionModelMapper() {

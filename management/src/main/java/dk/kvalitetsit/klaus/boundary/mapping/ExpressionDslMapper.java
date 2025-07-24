@@ -20,7 +20,7 @@ public class ExpressionDslMapper implements Mapper<Expression, String> {
             }
             case Expression.Condition c -> {
                 String values = String.join(", ", c.values());
-                result = "(" + c.field() + " " + c.operator() + " " + values + ")";
+                result = "(" + c.field() + " " + c.operator().getValue() + " " + values + ")";
             }
         }
 

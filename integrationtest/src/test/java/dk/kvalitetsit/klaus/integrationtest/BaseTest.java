@@ -1,21 +1,28 @@
 package dk.kvalitetsit.klaus.integrationtest;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("resource")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -78,10 +85,33 @@ public abstract class BaseTest {
                 .withLocalCompose(false);
     }
 
+    private static void resetDB(DataSource dataSource) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
+
+        for (Map<String, Object> row : rows) {
+            String tableName = (String) row.values().toArray()[0];
+            if (!tableName.endsWith("_seq")) {
+                jdbcTemplate.execute("TRUNCATE TABLE " + tableName);
+            }
+        }
+
+        jdbcTemplate.execute("ALTER SEQUENCE clause_version_seq RESTART WITH 1;");
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+    }
+
     @BeforeEach
     void setupApiClient() {
         String host = runInDocker ? environment.getServiceHost("validation-component", 8080) : "localhost";
         String port = runInDocker ? environment.getServicePort("validation-component", 8080).toString() : String.valueOf(localServerPort);
         client = new ApiClient().setBasePath(String.format("http://%s:%s", host, port));
     }
+
+    @AfterEach
+    void cleanup(@Autowired @Qualifier("validationDataSource") DataSource dataSource) {
+        resetDB(dataSource);
+    }
+
+
 }

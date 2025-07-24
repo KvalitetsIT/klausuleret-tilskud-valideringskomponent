@@ -3,8 +3,9 @@ package dk.kvalitetsit.klaus.service;
 
 import dk.kvalitetsit.klaus.CRUD;
 import dk.kvalitetsit.klaus.Mapper;
+import dk.kvalitetsit.klaus.service.model.DataContext;
 import org.openapitools.model.Expression;
-import org.openapitools.model.Prescription;
+import org.openapitools.model.ValidationRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,24 +15,19 @@ import org.springframework.stereotype.Service;
  * Note: For now it implements {@link CRUD<Expression>} however this will most likely not be the case in the future
  */
 @Service
-public class ValidationServiceAdaptor implements ValidationService<Prescription> {
+public class ValidationServiceAdaptor implements ValidationService<ValidationRequest> {
 
-    private final ValidationService<dk.kvalitetsit.klaus.service.model.Prescription> service;
-    private final Mapper<Prescription, dk.kvalitetsit.klaus.service.model.Prescription> dtoMapper;
-    private final Mapper<dk.kvalitetsit.klaus.service.model.Prescription, Prescription> modelMapper;
+    private final ValidationService<DataContext> service;
+    private final Mapper<ValidationRequest, DataContext> mapper;
 
-    public ValidationServiceAdaptor(
-            ValidationService<dk.kvalitetsit.klaus.service.model.Prescription> service,
-            Mapper<Prescription, dk.kvalitetsit.klaus.service.model.Prescription> dtoMapper,
-            Mapper<dk.kvalitetsit.klaus.service.model.Prescription, Prescription> modelMapper
-    ) {
+    public ValidationServiceAdaptor(ValidationService<DataContext> service, Mapper<ValidationRequest, DataContext> mapper) {
         this.service = service;
-        this.dtoMapper = dtoMapper;
-        this.modelMapper = modelMapper;
+        this.mapper = mapper;
     }
 
     @Override
-    public boolean validate(Prescription prescription) {
-        return service.validate(this.dtoMapper.map(prescription));
+    public boolean validate(ValidationRequest request) {
+        DataContext ctx = mapper.map(request);
+        return service.validate(ctx);
     }
 }

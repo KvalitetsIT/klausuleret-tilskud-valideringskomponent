@@ -30,7 +30,7 @@ paths:
       tags:
         - management
       requestBody:
-        description: "A list of Domain-Specific Language (DSL) expressions"
+        description: "A list of expressions in Domain-Specific Language (DSL) format"
         required: true
         content:
           application/json:
@@ -55,7 +55,7 @@ paths:
       tags:
         - management
       requestBody:
-        description: "A list of expressions in Domain-Specific Language (DSL) format"
+        description: "A list of expressions"
         required: true
         content:
           application/json:
@@ -257,6 +257,19 @@ components:
           BinaryExpression: '#/components/schemas/BinaryExpression'
           ParenthesizedExpression: '#/components/schemas/ParenthesizedExpression'
 
+    Operator:
+      description: "The operator used in the condition (e.g., '=', '!=', 'in')"
+      type: string
+      example: "!="
+      enum:
+        - "="
+        - "i"
+        - ">="
+        - "<="
+        - ">"
+        - "<"
+
+
     Condition:
       description: "A basic condition consisting of a field, an operator, and a list of values. This represents the most atomic form of an expression"
       type: object
@@ -266,8 +279,7 @@ components:
           description: "The name of the field the condition applies to"
           type: string
         operator:
-          description: "The operator used in the condition (e.g., '=', '!=', 'in')"
-          type: string
+          $ref: '#/components/schemas/Operator'
         values:
           description: "A list of values the field is compared against"
           type: array
@@ -310,7 +322,7 @@ components:
       description: "A clause specified in a domain specific language (DSL)"
       type: string
 #      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
-      example: "Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"
+      example: "Klausul CHOL: (ATC = C10BA03) eller (ATC in C10BA02, C10BA05) og (ALDER >= 13)"
 
 
 

@@ -10,6 +10,8 @@ import org.openapitools.model.ParenthesizedExpression;
 
 public class ExpressionMapper implements Mapper<org.openapitools.model.Expression, Expression> {
 
+    private final OperatorDtoModelMapper operatorDtoModelMapper = new OperatorDtoModelMapper();
+
     @Override
     public Expression map(org.openapitools.model.Expression expression) {
         return switch (expression) {
@@ -21,7 +23,7 @@ public class ExpressionMapper implements Mapper<org.openapitools.model.Expressio
     }
 
     private Expression.Condition map(Condition b) {
-        return new Expression.Condition(b.getField(), b.getOperator(), b.getValues());
+        return new Expression.Condition(b.getField(), operatorDtoModelMapper.map(b.getOperator()), b.getValues());
     }
 
     private Expression.BinaryExpression map(BinaryExpression b) {

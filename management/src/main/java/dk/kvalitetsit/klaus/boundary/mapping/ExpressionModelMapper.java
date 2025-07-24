@@ -5,9 +5,12 @@ import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Expression;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.Condition;
+import org.openapitools.model.Operator;
 import org.openapitools.model.ParenthesizedExpression;
 
 public class ExpressionModelMapper implements Mapper<Expression, org.openapitools.model.Expression> {
+
+    private final Mapper<dk.kvalitetsit.klaus.model.Operator, Operator> mapper = new OperatorModelDtoMapper();
 
     @Override
     public org.openapitools.model.Expression map(Expression expression) {
@@ -19,7 +22,7 @@ public class ExpressionModelMapper implements Mapper<Expression, org.openapitool
     }
 
     private Condition map(Expression.Condition b) {
-        return new Condition(b.field(), b.operator(), b.values(), "Condition");
+        return new Condition(b.field(), mapper.map(b.operator()), b.values(), "Condition");
     }
 
     private BinaryExpression map(Expression.BinaryExpression b) {

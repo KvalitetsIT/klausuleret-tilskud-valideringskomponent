@@ -185,7 +185,7 @@ class Parser {
             values.add(next().text());
         } while (match(","));
         expect(")");
-        return new Condition(field.text(), op.text(), values, "Condition");
+        return new Condition(field.text(), Operator.fromValue(op.text()), values, "Condition");
     }
 }
 

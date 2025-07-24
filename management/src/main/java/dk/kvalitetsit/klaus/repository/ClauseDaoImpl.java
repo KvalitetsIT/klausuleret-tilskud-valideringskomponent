@@ -2,9 +2,10 @@ package dk.kvalitetsit.klaus.repository;
 
 
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
+import dk.kvalitetsit.klaus.model.Operator;
+import dk.kvalitetsit.klaus.model.Pagination;
 import dk.kvalitetsit.klaus.repository.model.ClauseEntity;
 import dk.kvalitetsit.klaus.repository.model.ExpressionEntity;
-import dk.kvalitetsit.klaus.model.Pagination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -242,7 +243,7 @@ public class ClauseDaoImpl implements ClauseDao {
                 Map.of(
                         "expression_id", parentId,
                         "field", condition.field(),
-                        "operator", condition.operator()
+                        "operator", condition.operator().getValue()
                 ));
 
         for (String value : condition.values()) {
@@ -296,7 +297,7 @@ public class ClauseDaoImpl implements ClauseDao {
                 Map.of("id", expressionId),
                 (rs, rowNum) -> rs.getString("value"));
 
-        return new ExpressionEntity.ConditionEntity(expressionId, (String) cond[0], (String) cond[1], values);
+        return new ExpressionEntity.ConditionEntity(expressionId, (String) cond[0], Operator.fromValue((String) cond[1]), values);
     }
 
 

@@ -1,4 +1,4 @@
-package dk.kvalitetsit.klaus.boundary.mapping;
+package dk.kvalitetsit.klaus.boundary.mapping.dto;
 
 import dk.kvalitetsit.klaus.Mapper;
 import org.openapitools.model.Operator;

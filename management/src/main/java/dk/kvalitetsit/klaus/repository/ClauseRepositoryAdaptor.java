@@ -9,14 +9,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ClauseDaoAdaptor {
+public class ClauseRepositoryAdaptor implements ClauseRepository<Clause> {
 
-    private final ClauseDao validationDao;
+    private final ClauseRepository<ClauseEntity> validationDao;
     private final Mapper<Clause, ClauseEntity> modelMapper;
     private final Mapper<ClauseEntity, Clause> entityMapper;
 
-
-    public ClauseDaoAdaptor(ClauseDao validationDao, Mapper<Clause, ClauseEntity> modelMapper, Mapper<ClauseEntity, Clause> entityMapper) {
+    public ClauseRepositoryAdaptor(ClauseRepository<ClauseEntity> validationDao, Mapper<Clause, ClauseEntity> modelMapper, Mapper<ClauseEntity, Clause> entityMapper) {
         this.validationDao = validationDao;
         this.modelMapper = modelMapper;
         this.entityMapper = entityMapper;
@@ -30,8 +29,8 @@ public class ClauseDaoAdaptor {
         return validationDao.create(entry.stream().map(this.modelMapper::map).toList()).stream().map(this.entityMapper::map).toList();
     }
 
-    public Optional<Clause> delete(UUID entry) throws ServiceException {
-        return validationDao.delete(entry).map(entityMapper::map);
+    public Optional<Clause> delete(UUID id) throws ServiceException {
+        return validationDao.delete(id).map(entityMapper::map);
     }
 
     public Optional<Clause> read(UUID id) throws ServiceException {

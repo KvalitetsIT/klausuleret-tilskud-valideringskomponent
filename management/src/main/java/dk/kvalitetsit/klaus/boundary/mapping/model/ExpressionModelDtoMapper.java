@@ -1,11 +1,11 @@
-package dk.kvalitetsit.klaus.boundary.mapping;
+package dk.kvalitetsit.klaus.boundary.mapping.model;
 
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Expression;
 import org.openapitools.model.*;
 
-public class ExpressionModelMapper implements Mapper<Expression, org.openapitools.model.Expression> {
+public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapitools.model.Expression> {
 
     private final Mapper<dk.kvalitetsit.klaus.model.Operator, Operator> mapper = new OperatorModelDtoMapper();
 

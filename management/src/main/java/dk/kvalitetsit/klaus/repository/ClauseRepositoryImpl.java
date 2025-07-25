@@ -23,13 +23,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Repository
-public class ClauseDaoImpl implements ClauseDao {
+public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClauseDaoImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
     private final ExecutorService clauseCreatorExecutor = Executors.newFixedThreadPool(10);
 
-    public ClauseDaoImpl(@Qualifier("validationDataSource") DataSource dataSource) {
+    public ClauseRepositoryImpl(@Qualifier("validationDataSource") DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
     }
 
@@ -122,15 +122,15 @@ public class ClauseDaoImpl implements ClauseDao {
     }
 
     @Override
-    public Optional<ClauseEntity> delete(UUID uuid) throws ServiceException {
+    public Optional<ClauseEntity> delete(UUID id) throws ServiceException {
         try {
-            Optional<ClauseEntity> existing = read(uuid);
+            Optional<ClauseEntity> existing = read(id);
             if (existing.isEmpty()) return Optional.empty();
 
-            template.update("DELETE FROM clause WHERE uuid = :uuid", Map.of("uuid", uuid.toString()));
+            template.update("DELETE FROM clause WHERE uuid = :uuid", Map.of("uuid", id.toString()));
             return existing;
         } catch (Exception e) {
-            logger.error("Failed to delete clause {}", uuid, e);
+            logger.error("Failed to delete clause {}", id, e);
             throw new ServiceException("Failed to delete clause", e);
         }
     }

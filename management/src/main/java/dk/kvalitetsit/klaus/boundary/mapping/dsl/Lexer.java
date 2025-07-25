@@ -1,4 +1,4 @@
-package dk.kvalitetsit.klaus.boundary.mapping;
+package dk.kvalitetsit.klaus.boundary.mapping.dsl;
 
 
 

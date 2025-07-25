@@ -4,16 +4,14 @@ package dk.kvalitetsit.klaus.service;
 import dk.kvalitetsit.klaus.model.Clause;
 import dk.kvalitetsit.klaus.model.Expression;
 import dk.kvalitetsit.klaus.model.Operator;
-import dk.kvalitetsit.klaus.repository.ClauseDaoAdaptor;
+import dk.kvalitetsit.klaus.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.klaus.service.model.DataContext;
-import dk.kvalitetsit.klaus.service.model.Prescription;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openapitools.model.ValidationRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +25,7 @@ class ValidationServiceImplTest {
     @InjectMocks
     private ValidationServiceImpl service;
     @Mock
-    private ClauseDaoAdaptor dao;
+    private ClauseRepositoryAdaptor dao;
 
     @Test
     void testCreate() {

@@ -1,4 +1,4 @@
-package dk.kvalitetsit.klaus.repository.mapping;
+package dk.kvalitetsit.klaus.repository.mapping.entity;
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Expression;

@@ -1,4 +1,4 @@
-package dk.kvalitetsit.klaus.boundary.mapping;
+package dk.kvalitetsit.klaus.boundary.mapping.dto;
 
 
 
@@ -8,7 +8,7 @@ import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.Condition;
 import org.openapitools.model.ParenthesizedExpression;
 
-public class ExpressionMapper implements Mapper<org.openapitools.model.Expression, Expression> {
+public class DtoExpressionMapper implements Mapper<org.openapitools.model.Expression, Expression> {
 
     private final OperatorDtoModelMapper operatorDtoModelMapper = new OperatorDtoModelMapper();
 

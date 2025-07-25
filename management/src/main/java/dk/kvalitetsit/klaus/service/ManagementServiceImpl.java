@@ -4,7 +4,7 @@ package dk.kvalitetsit.klaus.service;
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
 import dk.kvalitetsit.klaus.model.Clause;
 import dk.kvalitetsit.klaus.model.Pagination;
-import dk.kvalitetsit.klaus.repository.ClauseDaoAdaptor;
+import dk.kvalitetsit.klaus.repository.ClauseRepositoryAdaptor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.UUID;
 @Service
 public class ManagementServiceImpl implements ManagementService<Clause> {
 
-    private final ClauseDaoAdaptor repository;
+    private final ClauseRepositoryAdaptor repository;
 
-    public ManagementServiceImpl(ClauseDaoAdaptor repository) {
+    public ManagementServiceImpl(ClauseRepositoryAdaptor repository) {
         this.repository = repository;
     }
 
@@ -31,8 +31,8 @@ public class ManagementServiceImpl implements ManagementService<Clause> {
     }
 
     @Override
-    public Optional<Clause> delete(UUID entry) throws ServiceException {
-        return repository.delete(entry);
+    public Optional<Clause> delete(UUID id) throws ServiceException {
+        return repository.delete(id);
     }
 
     @Override

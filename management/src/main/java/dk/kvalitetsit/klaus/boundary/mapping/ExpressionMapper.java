@@ -27,7 +27,7 @@ public class ExpressionMapper implements Mapper<org.openapitools.model.Expressio
     }
 
     private Expression.BinaryExpression map(BinaryExpression b) {
-        return new Expression.BinaryExpression(this.map(b.getLeft()), b.getOperator(), this.map((b.getRight())));
+        return new Expression.BinaryExpression(this.map(b.getLeft()), Expression.BinaryExpression.BinaryOperator.fromValue(b.getOperator().getValue()), this.map((b.getRight())));
     }
 
     private Expression.ParenthesizedExpression map(ParenthesizedExpression b) {

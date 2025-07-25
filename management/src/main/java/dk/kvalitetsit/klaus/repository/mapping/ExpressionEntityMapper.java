@@ -19,7 +19,7 @@ public class ExpressionEntityMapper implements Mapper<Expression, ExpressionEnti
     }
 
     private ExpressionEntity.BinaryExpressionEntity map(Expression.BinaryExpression b) {
-        return new ExpressionEntity.BinaryExpressionEntity(null, this.map(b.left()), b.operator(), this.map((b.right())));
+        return new ExpressionEntity.BinaryExpressionEntity(null, this.map(b.left()), b.operator().getValue(), this.map((b.right())));
     }
 
     private ExpressionEntity.ParenthesizedExpressionEntity map(Expression.ParenthesizedExpression b) {

@@ -10,20 +10,18 @@ public class ExpressionDslMapper implements Mapper<Expression, String> {
         String result;
 
         switch (entry) {
-            case Expression.ParenthesizedExpression c -> {
-                result = "(" + map(c.inner()) + ")";
-            }
-            case Expression.BinaryExpression b -> {
-                String left = map(b.left());
-                String right = map(b.right());
-                result = left + " " + b.operator() + " " + right;
-            }
-            case Expression.Condition c -> {
-                String values = String.join(", ", c.values());
-                result = "(" + c.field() + " " + c.operator().getValue() + " " + values + ")";
-            }
+            case Expression.ParenthesizedExpression c -> result = "(" + map(c.inner()) + ")";
+            case Expression.BinaryExpression b -> result = map(b.left()) + " " +  map(b.operator())+ " " + map(b.right());
+            case Expression.Condition c -> result = "(" + c.field() + " " + c.operator().getValue() + " " + String.join(", ", c.values()) + ")";
         }
 
         return result;
+    }
+
+    private String map(Expression.BinaryExpression.BinaryOperator operator) {
+        return switch (operator){
+            case AND -> "og";
+            case OR -> "eller";
+        };
     }
 }

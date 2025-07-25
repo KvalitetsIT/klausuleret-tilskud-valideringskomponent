@@ -258,9 +258,9 @@ components:
           ParenthesizedExpression: '#/components/schemas/ParenthesizedExpression'
 
     Operator:
-      description: "The operator used in the condition (e.g., '=', '!=', 'in')"
+      description: "The operator used in the condition"
       type: string
-      example: "!="
+      example: "<="
       enum:
         - "="
         - "i"
@@ -269,6 +269,13 @@ components:
         - ">"
         - "<"
 
+    BinaryOperator:
+      description: "The binary operator (e.g., 'AND', 'OR') connecting the two expressions"
+      type: string
+      example: "AND"
+      enum:
+        - "AND"
+        - "OR"
 
     Condition:
       description: "A basic condition consisting of a field, an operator, and a list of values. This represents the most atomic form of an expression"
@@ -298,8 +305,7 @@ components:
           description: "The left-hand side expression"
           $ref: '#/components/schemas/Expression'
         operator:
-          description: "The binary operator (e.g., 'AND', 'OR') connecting the two expressions"
-          type: string
+          $ref: '#/components/schemas/BinaryOperator'
         right:
           description: "The right-hand side expression."
           $ref: '#/components/schemas/Expression'

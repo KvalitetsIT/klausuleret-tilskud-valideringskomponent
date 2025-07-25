@@ -3,10 +3,7 @@ package dk.kvalitetsit.klaus.boundary.mapping;
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Expression;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.Condition;
-import org.openapitools.model.Operator;
-import org.openapitools.model.ParenthesizedExpression;
+import org.openapitools.model.*;
 
 public class ExpressionModelMapper implements Mapper<Expression, org.openapitools.model.Expression> {
 
@@ -26,7 +23,7 @@ public class ExpressionModelMapper implements Mapper<Expression, org.openapitool
     }
 
     private BinaryExpression map(Expression.BinaryExpression b) {
-        return new BinaryExpression(this.map(b.left()), b.operator(), this.map((b.right())), "BinaryExpression");
+        return new BinaryExpression(this.map(b.left()), BinaryOperator.fromValue(b.operator().getValue()), this.map((b.right())), "BinaryExpression");
     }
 
     private ParenthesizedExpression map(Expression.ParenthesizedExpression b) {

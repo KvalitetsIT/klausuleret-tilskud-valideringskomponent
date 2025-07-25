@@ -30,9 +30,8 @@ class Evaluator {
                 boolean left = eval(b.left(), ctx);
                 boolean right = eval(b.right(), ctx);
                 yield switch (b.operator()) {
-                    case "og" -> left && right;
-                    case "eller" -> left || right;
-                    default -> throw new RuntimeException("Unknown logical operator: " + b.operator());
+                    case AND -> left && right;
+                    case OR -> left || right;
                 };
             }
             case Expression.ParenthesizedExpression p -> eval(p.inner(), ctx);

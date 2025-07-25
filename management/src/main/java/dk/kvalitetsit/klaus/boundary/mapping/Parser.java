@@ -102,7 +102,7 @@ class Parser {
         while (peek().text().equals("eller")) {
             next(); // consume 'eller'
             Expression right = parseAndExpression();
-            left = new BinaryExpression(left, "eller", right, "BinaryExpression");
+            left = new BinaryExpression(left, BinaryOperator.OR, right, "BinaryExpression");
         }
         return left;
     }
@@ -115,7 +115,7 @@ class Parser {
         while (peek().text().equals("og")) {
             next(); // consume 'og'
             Expression right = parseOperand();
-            left = new BinaryExpression(left, "og", right, "BinaryExpression");
+            left = new BinaryExpression(left, BinaryOperator.AND, right, "BinaryExpression");
         }
         return left;
     }

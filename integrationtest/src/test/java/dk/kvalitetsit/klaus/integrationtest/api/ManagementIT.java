@@ -1,5 +1,7 @@
-package dk.kvalitetsit.klaus.integrationtest;
+package dk.kvalitetsit.klaus.integrationtest.api;
 
+import dk.kvalitetsit.klaus.integrationtest.BaseTest;
+import dk.kvalitetsit.klaus.integrationtest.MockFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

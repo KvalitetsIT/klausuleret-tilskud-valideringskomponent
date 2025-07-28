@@ -59,7 +59,7 @@ services:
   documentation-and-test:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:latest
     environment:
-      - BASE_URL=/test
+      - BASE_URL=/
       - 'SERVER_URLS=[{"url": "http://localhost:8080", "name": "validation"}]'
     ports:
       - 80:8080

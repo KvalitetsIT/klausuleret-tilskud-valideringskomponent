@@ -1,10 +1,10 @@
-package dk.kvalitetsit.klaus.boundary.mapping;
+package dk.kvalitetsit.klaus.boundary.mapping.dsl;
 
 import dk.kvalitetsit.klaus.Mapper;
 import org.openapitools.model.Clause;
 
 
-public class DslMapper implements Mapper<String, Clause> {
+public class DslClauseMapper implements Mapper<String, Clause> {
 
     @Override
     public Clause map(String dsl) {

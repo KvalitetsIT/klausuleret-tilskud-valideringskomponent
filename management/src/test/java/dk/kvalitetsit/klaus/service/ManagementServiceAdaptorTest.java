@@ -1,7 +1,13 @@
 package dk.kvalitetsit.klaus.service;
 
 
-import dk.kvalitetsit.klaus.boundary.mapping.*;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.ClauseDslMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.DslClauseMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.ExpressionDslMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dto.DtoClauseMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dto.DtoExpressionMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.model.ClauseModelDtoMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.klaus.model.Clause;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,9 +37,9 @@ public class ManagementServiceAdaptorTest {
 
     @BeforeEach
     void setUp() {
-        var modelMapper = new ClauseDtoMapper(new ExpressionModelMapper());
-        var clauseMapper = new DtoClauseMapper(new ExpressionMapper());
-        var dslMapper = new DslMapper();
+        var modelMapper = new ClauseModelDtoMapper(new ExpressionModelDtoMapper());
+        var clauseMapper = new DtoClauseMapper(new DtoExpressionMapper());
+        var dslMapper = new DslClauseMapper();
         var dslModelMapper = new ClauseDslMapper(new ExpressionDslMapper());
 
         adaptor = new ManagementServiceAdaptor(concreteService, clauseMapper, modelMapper, dslMapper, dslModelMapper);

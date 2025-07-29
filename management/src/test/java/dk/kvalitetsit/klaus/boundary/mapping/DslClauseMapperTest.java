@@ -1,6 +1,9 @@
 package dk.kvalitetsit.klaus.boundary.mapping;
 
 
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.ClauseDslMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.DslClauseMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.ExpressionDslMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -9,9 +12,9 @@ import static dk.kvalitetsit.klaus.MockFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
-public class DslMapperTest {
+public class DslClauseMapperTest {
 
-    private final DslMapper mapper = new DslMapper();
+    private final DslClauseMapper mapper = new DslClauseMapper();
     private final ClauseDslMapper clauseDslMapper = new ClauseDslMapper(new ExpressionDslMapper());
 
     @Test

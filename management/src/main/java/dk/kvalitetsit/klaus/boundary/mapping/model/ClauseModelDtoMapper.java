@@ -1,14 +1,14 @@
-package dk.kvalitetsit.klaus.boundary.mapping;
+package dk.kvalitetsit.klaus.boundary.mapping.model;
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Clause;
 import dk.kvalitetsit.klaus.model.Expression;
 
-public class ClauseDtoMapper implements Mapper<Clause, org.openapitools.model.Clause>{
+public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.model.Clause> {
 
-    private  final Mapper<Expression, org.openapitools.model.Expression> expressionModelMapper;
+    private final Mapper<Expression, org.openapitools.model.Expression> expressionModelMapper;
 
-    public ClauseDtoMapper(Mapper<Expression, org.openapitools.model.Expression> expressionModelMapper) {
+    public ClauseModelDtoMapper(Mapper<Expression, org.openapitools.model.Expression> expressionModelMapper) {
         this.expressionModelMapper = expressionModelMapper;
     }
 

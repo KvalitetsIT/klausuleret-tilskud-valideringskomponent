@@ -2,9 +2,10 @@ package dk.kvalitetsit.klaus.repository;
 
 
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
+import dk.kvalitetsit.klaus.model.Operator;
+import dk.kvalitetsit.klaus.model.Pagination;
 import dk.kvalitetsit.klaus.repository.model.ClauseEntity;
 import dk.kvalitetsit.klaus.repository.model.ExpressionEntity;
-import dk.kvalitetsit.klaus.model.Pagination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,13 +23,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Repository
-public class ClauseDaoImpl implements ClauseDao {
+public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClauseDaoImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
     private final ExecutorService clauseCreatorExecutor = Executors.newFixedThreadPool(10);
 
-    public ClauseDaoImpl(@Qualifier("validationDataSource") DataSource dataSource) {
+    public ClauseRepositoryImpl(@Qualifier("validationDataSource") DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
     }
 
@@ -121,15 +122,15 @@ public class ClauseDaoImpl implements ClauseDao {
     }
 
     @Override
-    public Optional<ClauseEntity> delete(UUID uuid) throws ServiceException {
+    public Optional<ClauseEntity> delete(UUID id) throws ServiceException {
         try {
-            Optional<ClauseEntity> existing = read(uuid);
+            Optional<ClauseEntity> existing = read(id);
             if (existing.isEmpty()) return Optional.empty();
 
-            template.update("DELETE FROM clause WHERE uuid = :uuid", Map.of("uuid", uuid.toString()));
+            template.update("DELETE FROM clause WHERE uuid = :uuid", Map.of("uuid", id.toString()));
             return existing;
         } catch (Exception e) {
-            logger.error("Failed to delete clause {}", uuid, e);
+            logger.error("Failed to delete clause {}", id, e);
             throw new ServiceException("Failed to delete clause", e);
         }
     }
@@ -242,7 +243,7 @@ public class ClauseDaoImpl implements ClauseDao {
                 Map.of(
                         "expression_id", parentId,
                         "field", condition.field(),
-                        "operator", condition.operator()
+                        "operator", condition.operator().getValue()
                 ));
 
         for (String value : condition.values()) {
@@ -296,7 +297,7 @@ public class ClauseDaoImpl implements ClauseDao {
                 Map.of("id", expressionId),
                 (rs, rowNum) -> rs.getString("value"));
 
-        return new ExpressionEntity.ConditionEntity(expressionId, (String) cond[0], (String) cond[1], values);
+        return new ExpressionEntity.ConditionEntity(expressionId, (String) cond[0], Operator.fromValue((String) cond[1]), values);
     }
 
 

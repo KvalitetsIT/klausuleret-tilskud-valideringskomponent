@@ -25,25 +25,10 @@ public class ManagementIT extends BaseTest {
     private ManagementApi api;
 
     @BeforeEach
-    void setup(@Autowired @Qualifier("validationDataSource") DataSource dataSource) {
+    void setup() {
         this.api = new ManagementApi(client);
-        resetDB(dataSource);
     }
 
-    private static void resetDB(DataSource dataSource) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
-
-        for (Map<String, Object> row : rows) {
-            String tableName = (String) row.values().toArray()[0];
-            if (!tableName.endsWith("_seq")) {
-                jdbcTemplate.execute("TRUNCATE TABLE " + tableName);
-            }
-        }
-
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
-    }
 
     @Test
     void testPostClauseDslSet() {
@@ -87,9 +72,12 @@ public class ManagementIT extends BaseTest {
     void testPostClauseDoIncrementVersion() {
         final List<Clause> dsl = List.of(clauseDto);
         try {
+            var clauses = api.v1ClausesGet(null, null);
             var first = api.v1ClausesPost(dsl);
             var second = api.v1ClausesPost(dsl);
             var third = api.v1ClausesPost(dsl);
+
+            System.out.println(clauses);
 
             Assertions.assertTrue(first.stream().map(Clause::getVersion).allMatch(version -> version != null && version == 1));
             Assertions.assertTrue(second.stream().map(Clause::getVersion).allMatch(version -> version != null && version == 2));

@@ -1,7 +1,7 @@
 package dk.kvalitetsit.klaus.boundary;
 
 
-import dk.kvalitetsit.klaus.boundary.mapping.DslMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.DslClauseMapper;
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
 import dk.kvalitetsit.klaus.model.Pagination;
 import dk.kvalitetsit.klaus.service.ManagementServiceAdaptor;
@@ -20,7 +20,7 @@ public class ManagementController implements ManagementApi {
 
     private final ManagementServiceAdaptor service;
 
-    public ManagementController(@Autowired ManagementServiceAdaptor service, DslMapper dslMapper) {
+    public ManagementController(@Autowired ManagementServiceAdaptor service, DslClauseMapper dslClauseMapper) {
         this.service = service;
     }
 
@@ -49,7 +49,9 @@ public class ManagementController implements ManagementApi {
 
     @Override
     public ResponseEntity<Clause> v1ClausesIdGet(UUID id) {
-        return service.read(id).map(ResponseEntity::ok).orElseThrow(() -> new RuntimeException("Clause was not found"));
+        return service.read(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new RuntimeException("Clause was not found"));
     }
 
 

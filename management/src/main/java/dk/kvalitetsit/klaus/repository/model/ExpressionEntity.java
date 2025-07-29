@@ -1,5 +1,7 @@
 package dk.kvalitetsit.klaus.repository.model;
 
+import dk.kvalitetsit.klaus.model.Operator;
+
 import java.util.List;
 
 public sealed interface ExpressionEntity
@@ -13,7 +15,7 @@ public sealed interface ExpressionEntity
 
     ExpressionEntity withId(Long newId);
 
-    record ConditionEntity(Long id, String field, String operator, List<String> values)
+    record ConditionEntity(Long id, String field, Operator operator, List<String> values)
             implements ExpressionEntity {
 
         @Override

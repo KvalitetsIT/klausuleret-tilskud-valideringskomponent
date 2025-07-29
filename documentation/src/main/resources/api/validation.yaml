@@ -30,7 +30,7 @@ paths:
       tags:
         - validation
       summary: Validates an ordination from FMK
-      description: Validates an ordination from FMK
+      description: Validates an set of ordinations from FMK
       requestBody:
         required: true
         content:
@@ -151,9 +151,39 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/prescription"
+        existingDrugMedications:
+          type: array
+          description: "kan forekomme nul eller mange gange, og indeholder udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"
+          items:
+            $ref: "#/components/schemas/existingDrugMedication"
+
 
     validationResponse:
       type: boolean
+
+    existingDrugMedication:
+      type: object
+      description: "udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"
+      properties:
+        drugIdentifier:
+          type: string
+          example: 28100645874
+          description: "lægemidlet drugid, uanset kilde (dvs. f.eks. også magistrelle lægemidler, se sidste lægemiddelordination i eksemplet herunder"
+        atcCode:
+          type: string
+          example: "J01CE02"
+          description: ATC-kode, source er altid Medicinpriser
+        formCode:
+          type: string
+          example: "TABFILM"
+          description: Lægemidlets form-kode, source er altid Medicinpriser
+        routeOfAdministrationCode:
+          type: string
+          example: OK
+          description: "administrationsvejskode, som angivet på lægemiddelordinationen ved ordination, hvilket ikke nødvendigvis svarer til en af de muligheder der er angivet i Medicinpriser. Source er altid Medicinpriser"
+          enum:
+            - OR
+            - OK
 
     prescription:
       type: object

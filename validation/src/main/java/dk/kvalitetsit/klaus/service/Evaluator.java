@@ -1,8 +1,6 @@
 package dk.kvalitetsit.klaus.service;
 
 
-
-
 import dk.kvalitetsit.klaus.model.Expression;
 import dk.kvalitetsit.klaus.service.model.DataContext;
 
@@ -32,14 +30,14 @@ class Evaluator {
                 boolean left = eval(b.left(), ctx);
                 boolean right = eval(b.right(), ctx);
                 yield switch (b.operator()) {
-                    case "og" -> left && right;
-                    case "eller" -> left || right;
-                    default -> throw new RuntimeException("Unknown logical operator: " + b.operator());
+                    case AND -> left && right;
+                    case OR -> left || right;
                 };
             }
             case Expression.ParenthesizedExpression p -> eval(p.inner(), ctx);
         };
     }
+
     /**
      * Evaluates a single condition expression against the data context.
      *
@@ -59,21 +57,20 @@ class Evaluator {
         List<String> actualValues = ctx.get(c.field());
 
         return switch (c.operator()) {
-            case "=" -> actualValues.stream().anyMatch(v -> v.equals(c.values().getFirst()));
-            case "i" -> actualValues.stream().anyMatch(c.values()::contains);
-            case ">=", "<=", ">", "<" -> {
+            case EQUAL -> actualValues.stream().anyMatch(v -> v.equals(c.values().getFirst()));
+            case IN -> actualValues.stream().anyMatch(c.values()::contains);
+            case GREATER_THAN_OR_EQUAL_TO, LESS_THAN_OR_EQUAL_TO, GREATER_THAN, LESS_THAN -> {
                 int target = Integer.parseInt(c.values().getFirst());
                 yield actualValues.stream()
                         .mapToInt(Integer::parseInt)
                         .anyMatch(actual -> switch (c.operator()) {
-                            case ">=" -> actual >= target;
-                            case "<=" -> actual <= target;
-                            case ">"  -> actual > target;
-                            case "<"  -> actual < target;
+                            case GREATER_THAN_OR_EQUAL_TO -> actual >= target;
+                            case LESS_THAN_OR_EQUAL_TO -> actual <= target;
+                            case GREATER_THAN -> actual > target;
+                            case LESS_THAN -> actual < target;
                             default -> false;
                         });
             }
-            default -> throw new RuntimeException("Unknown comparison operator: " + c.operator());
         };
     }
 }

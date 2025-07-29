@@ -1,13 +1,13 @@
-package dk.kvalitetsit.klaus.boundary.mapping;
+package dk.kvalitetsit.klaus.boundary.mapping.model;
 
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.model.Expression;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.Condition;
-import org.openapitools.model.ParenthesizedExpression;
+import org.openapitools.model.*;
 
-public class ExpressionModelMapper implements Mapper<Expression, org.openapitools.model.Expression> {
+public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapitools.model.Expression> {
+
+    private final Mapper<dk.kvalitetsit.klaus.model.Operator, Operator> mapper = new OperatorModelDtoMapper();
 
     @Override
     public org.openapitools.model.Expression map(Expression expression) {
@@ -19,11 +19,11 @@ public class ExpressionModelMapper implements Mapper<Expression, org.openapitool
     }
 
     private Condition map(Expression.Condition b) {
-        return new Condition(b.field(), b.operator(), b.values(), "Condition");
+        return new Condition(b.field(), mapper.map(b.operator()), b.values(), "Condition");
     }
 
     private BinaryExpression map(Expression.BinaryExpression b) {
-        return new BinaryExpression(this.map(b.left()), b.operator(), this.map((b.right())), "BinaryExpression");
+        return new BinaryExpression(this.map(b.left()), BinaryOperator.fromValue(b.operator().getValue()), this.map((b.right())), "BinaryExpression");
     }
 
     private ParenthesizedExpression map(Expression.ParenthesizedExpression b) {

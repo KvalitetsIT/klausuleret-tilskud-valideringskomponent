@@ -1,8 +1,6 @@
 package dk.kvalitetsit.klaus;
 
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.Condition;
-import org.openapitools.model.Expression;
+import org.openapitools.model.*;
 
 import java.util.List;
 
@@ -18,11 +16,11 @@ public class MockFactory {
 
     public static final Expression clause = new BinaryExpression()
             .type("BinaryExpression")
-            .operator("eller")
-            .left(new Condition().type("Condition").field("ATC").operator("=").values(List.of("C10BA03")))
-            .right(new BinaryExpression().type("BinaryExpression").operator("og")
-                    .left(new Condition().type("Condition").field("ATC").operator("i").values(List.of("C10BA02", "C10BA05")))
-                    .right(new Condition().type("Condition").field("ALDER").operator(">=").values(List.of("13"))
+            .operator(BinaryOperator.OR)
+            .left(new Condition().type("Condition").field("ATC").operator(Operator.EQUAL).values(List.of("C10BA03")))
+            .right(new BinaryExpression().type("BinaryExpression").operator(BinaryOperator.AND)
+                    .left(new Condition().type("Condition").field("ATC").operator(Operator.I).values(List.of("C10BA02", "C10BA05")))
+                    .right(new Condition().type("Condition").field("ALDER").operator(Operator.GREATER_THAN_OR_EQUAL_TO).values(List.of("13"))
                     )
             );
 }

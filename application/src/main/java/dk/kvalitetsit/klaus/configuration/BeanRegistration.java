@@ -3,14 +3,22 @@ package dk.kvalitetsit.klaus.configuration;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dk.kvalitetsit.klaus.Mapper;
-import dk.kvalitetsit.klaus.boundary.mapping.*;
-import dk.kvalitetsit.klaus.repository.ClauseDao;
-import dk.kvalitetsit.klaus.repository.ClauseDaoAdaptor;
-import dk.kvalitetsit.klaus.repository.mapping.ClauseEntityMapper;
-import dk.kvalitetsit.klaus.repository.mapping.EntityClauseMapper;
-import dk.kvalitetsit.klaus.repository.mapping.EntityExpressionMapper;
-import dk.kvalitetsit.klaus.repository.mapping.ExpressionEntityMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.ClauseDslMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.DslClauseMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dsl.ExpressionDslMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dto.DtoClauseMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.dto.DtoExpressionMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.model.ClauseModelDtoMapper;
+import dk.kvalitetsit.klaus.boundary.mapping.model.ExpressionModelDtoMapper;
+import dk.kvalitetsit.klaus.repository.ClauseRepository;
+import dk.kvalitetsit.klaus.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.klaus.repository.mapping.model.ClauseEntityMapper;
+import dk.kvalitetsit.klaus.repository.mapping.entity.EntityClauseMapper;
+import dk.kvalitetsit.klaus.repository.mapping.entity.EntityExpressionMapper;
+import dk.kvalitetsit.klaus.repository.mapping.model.ExpressionEntityMapper;
+import dk.kvalitetsit.klaus.service.model.DataContext;
 import dk.kvalitetsit.klaus.service.model.Prescription;
+import org.openapitools.model.ValidationRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +30,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class BeanRegistration {
@@ -62,8 +72,8 @@ public class BeanRegistration {
     }
 
     @Bean
-    public ClauseDaoAdaptor clauseDaoAdaptor(ClauseDao dao) {
-        return new ClauseDaoAdaptor(dao, new ClauseEntityMapper(new ExpressionEntityMapper()), new EntityClauseMapper(new EntityExpressionMapper()));
+    public ClauseRepositoryAdaptor clauseDaoAdaptor(ClauseRepository dao) {
+        return new ClauseRepositoryAdaptor(dao, new ClauseEntityMapper(new ExpressionEntityMapper()), new EntityClauseMapper(new EntityExpressionMapper()));
     }
 
     @Bean
@@ -73,23 +83,32 @@ public class BeanRegistration {
 
     @Bean
     public Mapper<org.openapitools.model.Clause, dk.kvalitetsit.klaus.model.Clause> dtoMapper() {
-        return new DtoClauseMapper(new ExpressionMapper());
+        return new DtoClauseMapper(new DtoExpressionMapper());
     }
 
     @Bean
     public Mapper<dk.kvalitetsit.klaus.model.Clause, org.openapitools.model.Clause> clauseDtoMapper() {
-        return new ClauseDtoMapper(new ExpressionModelMapper());
+        return new ClauseModelDtoMapper(new ExpressionModelDtoMapper());
     }
 
     @Bean
     public Mapper<String, org.openapitools.model.Clause> dslMapper() {
-        return new DslMapper();
+        return new DslClauseMapper();
     }
 
     @Bean
     public Mapper<dk.kvalitetsit.klaus.model.Clause, String> modelDslMapper() {
         return new ClauseDslMapper(new ExpressionDslMapper());
     }
+
+    @Bean
+    public Mapper<ValidationRequest, DataContext> validationRequestDataContextMapper() {
+        return entry -> new DataContext(Map.of(
+                "ALDER", List.of(entry.getAge().toString()),
+                "ATC", entry.getExistingDrugMedications().stream().flatMap(x -> x.getAtcCode().stream()).toList()
+                ));
+    }
+
 
     @Bean
     public Mapper<org.openapitools.model.Prescription, Prescription> precriptionModelMapper() {

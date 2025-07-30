@@ -20,12 +20,16 @@ import dk.kvalitetsit.klaus.service.model.DataContext;
 import dk.kvalitetsit.klaus.service.model.Prescription;
 import org.openapitools.model.ValidationRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import javax.sql.DataSource;
 import java.time.OffsetDateTime;
@@ -131,5 +135,17 @@ public class BeanRegistration {
                 .createdDateTime(prescription.createdDateTime().atOffset(ZoneOffset.UTC));
     }
 
+    @Bean
+    public CorsFilter corsFilter(@Value("#{'${allowed_origins:http://localhost}'}") List<String> allowedOrigins) {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        allowedOrigins.forEach(config::addAllowedOrigin);
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
 
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsFilter(source);
+    }
 }

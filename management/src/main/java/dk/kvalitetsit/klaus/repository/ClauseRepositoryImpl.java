@@ -116,8 +116,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         // Wait for all the futures to complete and collect the results
         return futures.stream()
                 .map(CompletableFuture::join) // .join() waits for completion and gets the result
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .toList();
     }
 
@@ -187,8 +186,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
             return uuids.stream()
                     .map(this::read)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Optional::stream)
                     .toList();
 
         } catch (Exception e) {
@@ -213,8 +211,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
             return uuids.stream()
                     .map(this::read)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Optional::stream)
                     .toList();
 
         } catch (Exception e) {

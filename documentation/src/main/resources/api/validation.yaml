@@ -53,38 +53,13 @@ paths:
 components:
   responses:
     '400':
-      description: "Bad Request. This could be because: * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> (See a possible detailed error message in the in the response.)"
+      description: "Bad Request"
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/detailedError'
-    '401':
-      description: "Unauthorized. This could be because: <br> * The calling system has not been properly authenticated."
-    '403':
-      description: "Forbidden. This could be because: <br> * The requested information does not belong the organisation of the user <br> * The calling user does not have the required roles"
+            $ref: '#/components/schemas/basicError'
 
   schemas:
-    detailedError:
-      allOf:
-        - $ref: '#/components/schemas/basicError'
-        - type: object
-          required:
-            - detailed_error
-            - detailed_error_code
-          properties:
-            detailed_error:
-              description: Detailed error text. This could be a text describing an validation error.
-              type: string
-            detailed_error_code:
-              description: >-
-                Detailed error code. This could be a code describing an validation error.
-                * 10: Input validation error
-                * 20: Other error.
-              type: string
-              enum:
-                - "10"
-                - "20"
-
     basicError:
       type: object
       required:

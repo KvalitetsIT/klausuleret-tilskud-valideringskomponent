@@ -18,7 +18,7 @@ public class ValidationController implements ValidationApi {
     }
 
     @Override
-    public ResponseEntity<Boolean> call20250801validationsPost(ValidationRequest validationRequest) {
+    public ResponseEntity<Boolean> call20250801validatePost(ValidationRequest validationRequest) {
         var all_prescriptions_are_valid = service.validate(validationRequest);
         return ResponseEntity.ok(all_prescriptions_are_valid);
     }

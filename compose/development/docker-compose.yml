@@ -47,6 +47,7 @@ services:
       - userrole_monitor_values=monitorrole
       - userrole_provisioner_values=provisionerrole
       - allowed_origins=http://localhost"
+      - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       validation-db:
         condition: service_healthy
@@ -55,6 +56,7 @@ services:
     ports:
       - 8080:8080
       - 8081:8081
+      - 5005:5005
 
   documentation-and-test:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:latest

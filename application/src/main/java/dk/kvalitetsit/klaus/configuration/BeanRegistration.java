@@ -12,12 +12,12 @@ import dk.kvalitetsit.klaus.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.klaus.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.klaus.repository.ClauseRepository;
 import dk.kvalitetsit.klaus.repository.ClauseRepositoryAdaptor;
-import dk.kvalitetsit.klaus.repository.mapping.model.ClauseEntityMapper;
 import dk.kvalitetsit.klaus.repository.mapping.entity.EntityClauseMapper;
 import dk.kvalitetsit.klaus.repository.mapping.entity.EntityExpressionMapper;
+import dk.kvalitetsit.klaus.repository.mapping.model.ClauseEntityMapper;
 import dk.kvalitetsit.klaus.repository.mapping.model.ExpressionEntityMapper;
 import dk.kvalitetsit.klaus.service.model.DataContext;
-import dk.kvalitetsit.klaus.service.model.Prescription;
+import org.openapitools.model.ExistingDrugMedication;
 import org.openapitools.model.ValidationRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +32,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import javax.sql.DataSource;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -109,30 +107,8 @@ public class BeanRegistration {
     public Mapper<ValidationRequest, DataContext> validationRequestDataContextMapper() {
         return entry -> new DataContext(Map.of(
                 "ALDER", List.of(entry.getAge().toString()),
-                "ATC", entry.getExistingDrugMedications().stream().flatMap(x -> x.getAtcCode().stream()).toList()
+                "ATC", entry.getExistingDrugMedications().orElse(List.of()).stream().map(ExistingDrugMedication::getAtcCode).toList()
                 ));
-    }
-
-
-    @Bean
-    public Mapper<org.openapitools.model.Prescription, Prescription> precriptionModelMapper() {
-        return (org.openapitools.model.Prescription prescription) -> new Prescription(
-                prescription.getCreatedBy().orElse(null),
-                prescription.getReportedBy().orElse(null),
-                prescription.getDrugIdentifier().orElse(null),
-                prescription.getIndicationCode().orElse(null),
-                prescription.getCreatedDateTime().map(OffsetDateTime::toInstant).orElse(null)
-        );
-    }
-
-    @Bean
-    public Mapper<Prescription, org.openapitools.model.Prescription> precriptionDtoMapper() {
-        return (Prescription prescription) -> new org.openapitools.model.Prescription()
-                .createdBy(prescription.createdBy())
-                .reportedBy(prescription.reportedBy())
-                .drugIdentifier(prescription.drugIdentifier())
-                .indicationCode(prescription.indicationCode())
-                .createdDateTime(prescription.createdDateTime().atOffset(ZoneOffset.UTC));
     }
 
     @Bean

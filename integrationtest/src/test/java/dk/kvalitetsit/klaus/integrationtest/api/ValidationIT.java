@@ -26,9 +26,17 @@ public class ValidationIT extends BaseTest {
     @Test
     void testPostValidation() {
         managementApi.call20250801clausesDslPost(List.of("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"));
-        var request = new ValidationRequest().age(18).addExistingDrugMedicationsItem(new ExistingDrugMedication().atcCode("C10BA05"));
+        var existingDrugMedication = new ExistingDrugMedication()
+                .atcCode("C10BA05")
+                .drugIdentifier("123456789")
+                .formCode("TAB")
+                .routeOfAdministrationCode("OK");
+        var request = new ValidationRequest()
+                .age(18)
+                .personIdentifier("1234567890")
+                .addExistingDrugMedicationsItem(existingDrugMedication);
         try {
-            var response = validationApi.call20250801validationsPost(request);
+            var response = validationApi.call20250801validatePost(request);
             Assertions.assertTrue(response);
         } catch (RestClientResponseException e) {
             throw new RuntimeException(e);

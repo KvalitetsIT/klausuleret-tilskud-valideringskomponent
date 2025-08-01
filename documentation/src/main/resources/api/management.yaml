@@ -25,7 +25,7 @@ servers:
           - "8080"
         default: "8080"
 paths:
-  /v1/clauses/dsl:
+  /2025/08/01/clauses/dsl:
     post:
       tags:
         - management
@@ -50,7 +50,7 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /v1/clauses:
+  /2025/08/01/clauses:
     post:
       tags:
         - management
@@ -102,7 +102,7 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /v1/clauses/{id}:
+  /2025/08/01/clauses/{id}:
     get:
       tags:
         - management

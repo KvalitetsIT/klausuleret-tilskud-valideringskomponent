@@ -25,10 +25,10 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void testPostValidation() {
-        managementApi.v1ClausesDslPost(List.of("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"));
+        managementApi.call20250801clausesDslPost(List.of("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"));
         var request = new ValidationRequest().age(18).addExistingDrugMedicationsItem(new ExistingDrugMedication().atcCode("C10BA05"));
         try {
-            var response = validationApi.v1ValidationsPost(request);
+            var response = validationApi.call20250801validationsPost(request);
             Assertions.assertTrue(response);
         } catch (RestClientResponseException e) {
             throw new RuntimeException(e);

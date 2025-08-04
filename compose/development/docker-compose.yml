@@ -46,7 +46,7 @@ services:
       - userrole_user_values=userrole1,userrole2
       - userrole_monitor_values=monitorrole
       - userrole_provisioner_values=provisionerrole
-      - allowed_origins=http://localhost"
+      - allowed_origins=http://localhost
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       validation-db:
@@ -61,7 +61,7 @@ services:
   documentation-and-test:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:latest
     environment:
-      - BASE_URL=/
+      - BASE_URL=/swagger
       - 'SERVER_URLS=[{"url": "http://localhost:8080", "name": "validation"}]'
     ports:
       - 80:8080

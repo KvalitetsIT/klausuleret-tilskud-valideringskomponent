@@ -7,7 +7,7 @@ info:
     email: "development@kvalitetitsit.dk"
 tags:
   - name: validation
-    description: "API til at validere lægemiddelordinationener fra FMK (fælles medicin kort)"
+    description: "API til at validere lægemiddelordinationer fra FMK (fælles medicin kort)"
 servers:
   - url: '{protocol}://{environment}:{port}'
     variables:

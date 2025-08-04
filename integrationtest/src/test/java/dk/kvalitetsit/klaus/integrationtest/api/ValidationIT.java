@@ -1,16 +1,18 @@
 package dk.kvalitetsit.klaus.integrationtest.api;
 
 import dk.kvalitetsit.klaus.integrationtest.BaseTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.ExistingDrugMedication;
 import org.openapitools.client.model.ValidationRequest;
+import org.openapitools.client.model.ValidationStatus;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ValidationIT extends BaseTest {
 
@@ -37,7 +39,7 @@ public class ValidationIT extends BaseTest {
                 .addExistingDrugMedicationsItem(existingDrugMedication);
         try {
             var response = validationApi.call20250801validatePost(request);
-            Assertions.assertTrue(response);
+            assertEquals(ValidationStatus.VALIDATED, response.getValidationStatus());
         } catch (RestClientResponseException e) {
             throw new RuntimeException(e);
         }

@@ -7,14 +7,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.Clause;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.client.RestClientResponseException;
 
-import javax.sql.DataSource;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import static dk.kvalitetsit.klaus.integrationtest.MockFactory.clauseDto;
@@ -34,7 +29,7 @@ public class ManagementIT extends BaseTest {
     void testPostClauseDslSet() {
         final List<String> dsl = List.of(MockFactory.dsl);
         try {
-            var response = api.v1ClausesDslPost(dsl);
+            var response = api.call20250801clausesDslPost(dsl);
             Assertions.assertEquals(dsl, response);
         } catch (RestClientResponseException e) {
             throw new RuntimeException(e);
@@ -45,7 +40,7 @@ public class ManagementIT extends BaseTest {
     void testPostClauseSet() {
         final List<Clause> clauses = List.of(clauseDto);
         try {
-            var response = api.v1ClausesPost(clauses);
+            var response = api.call20250801clausesPost(clauses);
             response.forEach(clause -> Assertions.assertNotNull(clause.getUuid()));
             response.forEach(clause -> Assertions.assertNotNull(clause.getVersion()));
 
@@ -59,8 +54,8 @@ public class ManagementIT extends BaseTest {
     void testDeleteClause() {
         final List<Clause> dsl = List.of(clauseDto);
         try {
-            var created = api.v1ClausesPost(dsl);
-            var deleted = api.v1ClausesIdDelete(Objects.requireNonNull(created.getFirst().getUuid()));
+            var created = api.call20250801clausesPost(dsl);
+            var deleted = api.call20250801clausesIdDelete(Objects.requireNonNull(created.getFirst().getUuid()));
 
             Assertions.assertEquals(created.getFirst(), deleted);
         } catch (RestClientResponseException e) {
@@ -72,10 +67,10 @@ public class ManagementIT extends BaseTest {
     void testPostClauseDoIncrementVersion() {
         final List<Clause> dsl = List.of(clauseDto);
         try {
-            var clauses = api.v1ClausesGet(null, null);
-            var first = api.v1ClausesPost(dsl);
-            var second = api.v1ClausesPost(dsl);
-            var third = api.v1ClausesPost(dsl);
+            var clauses = api.call20250801clausesGet(null, null);
+            var first = api.call20250801clausesPost(dsl);
+            var second = api.call20250801clausesPost(dsl);
+            var third = api.call20250801clausesPost(dsl);
 
             System.out.println(clauses);
 
@@ -92,8 +87,8 @@ public class ManagementIT extends BaseTest {
     void testReadClauseSet() {
         final List<Clause> dsl = List.of(clauseDto);
         try {
-            var created = api.v1ClausesPost(dsl);
-            var read = api.v1ClausesGet(null, null); // <- Setting the pagination to null should result reading everything
+            var created = api.call20250801clausesPost(dsl);
+            var read = api.call20250801clausesGet(null, null); // <- Setting the pagination to null should result reading everything
             Assertions.assertEquals(created.getFirst().getName(), read.getFirst().getName());
             Assertions.assertEquals(created.getFirst().getExpression(), read.getFirst().getExpression());
         } catch (RestClientResponseException e) {

@@ -1,12 +1,11 @@
 package dk.kvalitetsit.klaus.boundary;
 
 
-import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.service.ValidationService;
-import dk.kvalitetsit.klaus.service.model.DataContext;
 import org.openapitools.api.ValidationApi;
-import org.openapitools.model.Prescription;
 import org.openapitools.model.ValidationRequest;
+import org.openapitools.model.ValidationResponse;
+import org.openapitools.model.ValidationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,8 +20,11 @@ public class ValidationController implements ValidationApi {
     }
 
     @Override
-    public ResponseEntity<Boolean> v1ValidationsPost(ValidationRequest validationRequest) {
-        var all_prescriptions_are_valid = service.validate(validationRequest);
-        return ResponseEntity.ok(all_prescriptions_are_valid);
+    public ResponseEntity<ValidationResponse> call20250801validatePost(ValidationRequest validationRequest) {
+        var validateSuccess = service.validate(validationRequest);
+        var validationStatus = validateSuccess
+                ? ValidationStatus.VALIDATED
+                : ValidationStatus.VALIDATION_FAILED;
+        return ResponseEntity.ok(new ValidationResponse().validationStatus(validationStatus));
     }
 }

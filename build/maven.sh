@@ -3,14 +3,8 @@
 apt-get update
 apt-get install -y docker.io
 
-SRC_FOLDER=src
+# Parent directory of parent directory of this script
+SRC_FOLDER=$(dirname "$(dirname "$(readlink -f "$0")")")
 
-if [ -d $SRC_FOLDER ]; then
-  cd $SRC_FOLDER
-
-  mvn clean install -Pdocker-test
-else
-  echo "$SRC_FOLDER folder not found."
-  exit 1
-fi
-
+cd $SRC_FOLDER
+mvn clean install -Pdocker-test

@@ -7,7 +7,7 @@ info:
     email: "development@kvalitetitsit.dk"
 tags:
   - name: validation
-    description: "the API related to integration with FMK (fælles medicin kort)"
+    description: "API til at validere lægemiddelordinationer fra FMK (fælles medicin kort)"
 servers:
   - url: '{protocol}://{environment}:{port}'
     variables:
@@ -25,12 +25,11 @@ servers:
           - "8080"
         default: "8080"
 paths:
-  /v1/validations:
+  /2025/08/01/validate:
     post:
       tags:
         - validation
-      summary: Validates an ordination from FMK
-      description: Validates an set of ordinations from FMK
+      description: "Validerer lægemiddelordinationener fra FMK"
       requestBody:
         required: true
         content:
@@ -53,38 +52,13 @@ paths:
 components:
   responses:
     '400':
-      description: "Bad Request. This could be because: * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> (See a possible detailed error message in the in the response.)"
+      description: "Bad Request"
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/detailedError'
-    '401':
-      description: "Unauthorized. This could be because: <br> * The calling system has not been properly authenticated."
-    '403':
-      description: "Forbidden. This could be because: <br> * The requested information does not belong the organisation of the user <br> * The calling user does not have the required roles"
+            $ref: '#/components/schemas/basicError'
 
   schemas:
-    detailedError:
-      allOf:
-        - $ref: '#/components/schemas/basicError'
-        - type: object
-          required:
-            - detailed_error
-            - detailed_error_code
-          properties:
-            detailed_error:
-              description: Detailed error text. This could be a text describing an validation error.
-              type: string
-            detailed_error_code:
-              description: >-
-                Detailed error code. This could be a code describing an validation error.
-                * 10: Input validation error
-                * 20: Other error.
-              type: string
-              enum:
-                - "10"
-                - "20"
-
     basicError:
       type: object
       required:
@@ -94,7 +68,7 @@ components:
         - path
       properties:
         error:
-          description: Error message.
+          description: Error message
           type: string
         path:
           description: Path
@@ -107,123 +81,185 @@ components:
           type: string
           format: date-time
 
-    actor:
-      description: "The clinician who either reported or created the prescription"
-      type: object
-      properties:
-        specialityCode:
-          type: string
-          description: "indeholder lægens speciale jf. autorisationsregistret"
-          example: "PSYK"
-        organisationSpeciality:
-          type: string
-          description: "indeholder organisationens speciale jf. SOR. Det skal afklares hvilket kodesæt der kan anvendes"
-          example: "psykiatri"
-
-    validationCode:
-      type: integer
-      description: n/a
-      enum:
-        - 10908
-        - 10909
-      example: 10908
-
     validationRequest:
       type: object
       required:
+        - skipValidations
+        - personIdentifier
         - age
+        - validate
       properties:
         skipValidations:
-          description: "en række fejltyper som ikke skal valideres"
+          description: "Koder for fejltyper som skal tilsidesættes ved validering"
           type: array
           items:
             $ref: "#/components/schemas/validationCode"
         personIdentifier:
-          description: "indeholder et unik id svarende til CPR medicinkortets id, CPR-nummer eller eCPR-nummer, disse værdier medsendes ikke, da data i kaldet dermed er pseudonymiseret. Det skal være muligt at finde tilbage til CPR-nummer eller eCPR-nummer ved opslag i FMK, f.eks. ved fejlsøgning"
+          description: "Unikt id svarende til CPR medicinkortets id, CPR-nummer eller eCPR-nummer, disse værdier medsendes ikke, da data i kaldet dermed er pseudonymiseret. Det skal være muligt at finde tilbage til CPR-nummer eller eCPR-nummer ved opslag i FMK, f.eks. ved fejlsøgning"
           type: string
+          example: "1234567890"
         age:
-          description: patientens/borgerens alder i år
+          description: "Patientens/borgerens alder"
           type: integer
           example: 62
           minimum: 0
-          maximum: 150
-        prescriptions:
+        validate:
+          description: "Data der skal valideres"
           type: array
           items:
-            $ref: "#/components/schemas/prescription"
+            $ref: "#/components/schemas/validate"
         existingDrugMedications:
+          description: "Eksisterende lægemiddelordinationer i FMK. En tom liste betyder at sådanne data ikke findes. Mangler feltet, er data bevidst ikke sendt med"
           type: array
-          description: "kan forekomme nul eller mange gange, og indeholder udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"
+          nullable: true
           items:
             $ref: "#/components/schemas/existingDrugMedication"
 
+    validationCode:
+      description: "Fejlkode for fejlet validering"
+      type: integer
+      example: 10908
 
-    validationResponse:
-      type: boolean
-
-    existingDrugMedication:
+    validate:
+      description: "Data der skal valideres"
       type: object
-      description: "udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"
+      required:
+        - action
+        - elementPath
+        - newDrugMedication
       properties:
-        drugIdentifier:
-          type: string
-          example: 28100645874
-          description: "lægemidlet drugid, uanset kilde (dvs. f.eks. også magistrelle lægemidler, se sidste lægemiddelordination i eksemplet herunder"
-        atcCode:
-          type: string
-          example: "J01CE02"
-          description: ATC-kode, source er altid Medicinpriser
-        formCode:
-          type: string
-          example: "TABFILM"
-          description: Lægemidlets form-kode, source er altid Medicinpriser
-        routeOfAdministrationCode:
-          type: string
-          example: OK
-          description: "administrationsvejskode, som angivet på lægemiddelordinationen ved ordination, hvilket ikke nødvendigvis svarer til en af de muligheder der er angivet i Medicinpriser. Source er altid Medicinpriser"
-          enum:
-            - OR
-            - OK
-
-    prescription:
-      type: object
-      description: "indeholder data fra lægemiddelordinationen som skal valideres. Dvs. den nye lægemiddelordination der skal oprettes, den nye version af en lægemiddelordination der skal opdateres til, eller gældende version af lægemiddelordinationen ved oprettelse af recept"
-      properties:
-        createdBy:
-          description:
-          $ref: "#/components/schemas/actor"
-        reportedBy:
-          $ref: "#/components/schemas/actor"
-        drugIdentifier:
-          description: n/a
-          type: string
-          example: "28100902676"
-        indicationCode:
-          description: n/a
-          type: string
-          example: "31"
-        createdDateTime:
-          description: "angiver dato og tid for oprettelse af versionen af lægemiddelordinationen"
-          type: string
-          format: date-time
-          example: "2025-06-13T14:24:03"
         action:
-          description: n/a
+          description: "Handlingen der kræver validering"
           type: string
           enum:
             - CreateDrugMedication
             - UpdateDrugMedication
             - CreatePrescription
           example: CreateDrugMedication
-
         elementPath:
-          description: "indeholder en streng svarende til FMK’s element path i udvidet valideringer"
+          description: "FMK’s element path i udvidet valideringer"
           type: string
           example: CreateDrugMedicationRequest.DrugMedication[2]
+        newDrugMedication:
+            $ref: "#/components/schemas/newDrugMedication"
+
+    newDrugMedication:
+      description: "Data fra lægemiddelordinationen som skal valideres"
+      type: object
+      required:
+        - createdBy
+        - createdDateTime
+        - drugIdentifier
+        - indicationCode
+      properties:
+        createdBy:
+          description: "Aktør der har oprettet lægemiddelordinationen"
+          $ref: "#/components/schemas/actor"
+        reportedBy:
+          description: "Aktør der har rapporteret lægemiddelordinationen"
+          $ref: "#/components/schemas/actor"
+        createdDateTime:
+          description: "Dato og tid for oprettelse af lægemiddelordinationen"
+          type: string
+          format: date-time
+          example: "2025-06-13T14:24:03+02:00"
+        drugIdentifier:
+          description: "Lægemidlets drugid. Kilde er foreløbigt altid Medicinpriser"
+          type: string
+          example: "28100902676"
+        indicationCode:
+          description: "Indikationen som angivet ved oprettelse af ordinationen. Kilde er altid Medicinpriser"
+          type: string
+          example: "31"
+
+    actor:
+      description: "Aktør for lægemiddelordinationen"
+      type: object
+      properties:
+        specialityCode:
+          description: "Lægens speciale jf. autorisationsregistret"
+          type: string
+          example: "PSYK"
+        organisationSpeciality:
+          description: "Organisationens speciale jf. SOR"
+          type: string
+          example: "psykiatri"
+
+    existingDrugMedication:
+      description: "Udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"
+      type: object
+      required:
+        - drugIdentifier
+        - atcCode
+        - formCode
+        - routeOfAdministrationCode
+      properties:
+        drugIdentifier:
+          description: "Lægemidlet drugid, uanset kilde (dvs. f.eks. også magistrelle lægemidler)"
+          type: string
+          example: "28100645874"
+        atcCode:
+          description: "ATC-kode. Kilde er altid Medicinpriser"
+          type: string
+          example: "J01CE02"
+        formCode:
+          description: "Lægemidlets form-kode. Kilde er altid Medicinpriser"
+          type: string
+          example: "TABFILM"
+        routeOfAdministrationCode:
+          description: "Administrationsvejskode, som angivet på lægemiddelordinationen ved ordination. Kilde er altid Medicinpriser"
+          type: string
+          example: "OK"
 
 
+    validationResponse:
+      type: object
+      required:
+        - validationStatus
+      properties:
+        validationStatus:
+          $ref: "#/components/schemas/validationStatus"
+        validationErrors:
+          type: array
+          items:
+            $ref: "#/components/schemas/validationError"
 
+    validationStatus:
+      description: "Status for valideringen"
+      type: string
+      enum:
+        - Validated
+        - ExistingDrugMedicationsRequired
+        - ValidationFailed
 
+    validationError:
+      description: "Detaljer om valideringsfejl. Altid inkluderet hvis validationStatus er ValidationFailed"
+      type: object
+      required:
+        - errorCode
+        - errorMessage
+        - elementPath
+        - clauseCode
+        - clauseText
+        - warningQuestion
+      properties:
+        errorCode:
+          $ref: "#/components/schemas/validationCode"
+        errorMessage:
+          description: "Fejlbesked for valideringen"
+          type: string
+        elementPath:
+          description: "Element path for det validate element der fejlede valideringen"
+          type: string
+        clauseCode:
+          description: "Klausulkoden for medicintilskud"
+          type: string
+        clauseText:
+          description: "Tekst for klausulen"
+          type: string
+        warningQuestion:
+          description: "Tekst egnet til præsentation i LPS, EPJ-system mm."
+          type: string
 
 
 

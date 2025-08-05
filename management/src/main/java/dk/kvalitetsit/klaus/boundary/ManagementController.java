@@ -25,13 +25,13 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<String>> v1ClausesDslPost(List<String> requestBody) {
+    public ResponseEntity<List<String>> call20250801clausesDslPost(List<String> requestBody) {
         var response = this.service.createDSL(requestBody);
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<List<Clause>> v1ClausesGet(Optional<Integer> offset, Optional<Integer> limit) {
+    public ResponseEntity<List<Clause>> call20250801clausesGet(Optional<Integer> offset, Optional<Integer> limit) {
         try {
             if (offset.isEmpty() && limit.isEmpty()) return ResponseEntity.ok(service.read_all());
             return ResponseEntity.ok(service.read_all(new Pagination(offset, limit)));
@@ -41,14 +41,14 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<Clause> v1ClausesIdDelete(UUID id) {
+    public ResponseEntity<Clause> call20250801clausesIdDelete(UUID id) {
         return service.delete(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RuntimeException("Could not delete clause"));
     }
 
     @Override
-    public ResponseEntity<Clause> v1ClausesIdGet(UUID id) {
+    public ResponseEntity<Clause> call20250801clausesIdGet(UUID id) {
         return service.read(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RuntimeException("Clause was not found"));
@@ -56,7 +56,7 @@ public class ManagementController implements ManagementApi {
 
 
     @Override
-    public ResponseEntity<List<Clause>> v1ClausesPost(List<Clause> expression) {
+    public ResponseEntity<List<Clause>> call20250801clausesPost(List<Clause> expression) {
         try {
             return ResponseEntity.ok(service.create(expression));
         } catch (ServiceException e) {

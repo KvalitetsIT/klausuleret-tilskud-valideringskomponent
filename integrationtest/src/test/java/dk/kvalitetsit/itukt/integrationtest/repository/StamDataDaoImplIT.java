@@ -1,15 +1,15 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
-import dk.kvalitetsit.itukt.repository.MasterDaoImpl;
+import dk.kvalitetsit.itukt.repository.StamDataDaoImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class MasterDaoImplIT extends BaseTest {
+public class StamDataDaoImplIT extends BaseTest {
 
     @Autowired
-    private MasterDaoImpl dao;
+    private StamDataDaoImpl dao;
 
     @Test
     void testGetAllDrugs(){

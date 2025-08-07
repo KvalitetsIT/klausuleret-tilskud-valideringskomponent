@@ -16,6 +16,7 @@ import dk.kvalitetsit.itukt.repository.mapping.entity.EntityClauseMapper;
 import dk.kvalitetsit.itukt.repository.mapping.entity.EntityExpressionMapper;
 import dk.kvalitetsit.itukt.repository.mapping.model.ClauseEntityMapper;
 import dk.kvalitetsit.itukt.repository.mapping.model.ExpressionEntityMapper;
+import dk.kvalitetsit.itukt.repository.model.ClauseEntity;
 import dk.kvalitetsit.itukt.service.model.DataContext;
 import org.openapitools.model.ExistingDrugMedication;
 import org.openapitools.model.ValidationRequest;
@@ -45,41 +46,41 @@ public class BeanRegistration {
     }
 
     @Primary
-    @Bean("validationDataSource")
-    public DataSource validationDataSource() {
-        var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(configuration.management().jdbc().url());
-        hikariConfig.setUsername(configuration.management().jdbc().username());
-        hikariConfig.setPassword(configuration.management().jdbc().password());
-        return new HikariDataSource(hikariConfig);
+    @Bean("appDataSource")
+    public DataSource appDataSource() {
+        return createDataSource(
+                configuration.management().jdbc().url(),
+                configuration.management().jdbc().username(),
+                configuration.management().jdbc().password()
+        );
     }
 
-    @Bean
-    public PlatformTransactionManager clauseTransactionManager(@Qualifier("validationDataSource") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
+    @Bean("stamDataSource")
+    public DataSource stamDataSource() {
+        return createDataSource(
+                configuration.validation().jdbc().url(),
+                configuration.validation().jdbc().username(),
+                configuration.validation().jdbc().password()
+        );
     }
 
-    @Bean("masterDataSource")
-    public DataSource masterDataSource() {
-        var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(configuration.validation().jdbc().url());
-        hikariConfig.setUsername(configuration.validation().jdbc().username());
-        hikariConfig.setPassword(configuration.validation().jdbc().password());
-        return new HikariDataSource(hikariConfig);
-    }
-
-    @Bean("masterJdbcTemplate")
-    public NamedParameterJdbcTemplate masterJdbcTemplate(@Qualifier("masterDataSource") DataSource dataSource) {
+    @Bean("stamDataJdbcTemplate")
+    public NamedParameterJdbcTemplate stamDataJdbcTemplate(@Qualifier("stamDataSource") DataSource dataSource) {
         return new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseDaoAdaptor(ClauseRepository dao) {
+    public ClauseRepositoryAdaptor clauseDaoAdaptor(ClauseRepository<ClauseEntity> dao) {
         return new ClauseRepositoryAdaptor(dao, new ClauseEntityMapper(new ExpressionEntityMapper()), new EntityClauseMapper(new EntityExpressionMapper()));
     }
 
     @Bean
-    public PlatformTransactionManager masterTransactionManager(@Qualifier("masterDataSource") DataSource dataSource) {
+    public PlatformTransactionManager clauseTransactionManager(@Qualifier("appDataSource") DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
+
+    @Bean
+    public PlatformTransactionManager stamDataTransactionManager(@Qualifier("stamDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
@@ -108,7 +109,7 @@ public class BeanRegistration {
         return entry -> new DataContext(Map.of(
                 "ALDER", List.of(entry.getAge().toString()),
                 "ATC", entry.getExistingDrugMedications().orElse(List.of()).stream().map(ExistingDrugMedication::getAtcCode).toList()
-                ));
+        ));
     }
 
     @Bean
@@ -124,4 +125,13 @@ public class BeanRegistration {
 
         return new CorsFilter(source);
     }
+
+    private DataSource createDataSource(String url, String username, String password) {
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(url);
+        hikariConfig.setUsername(username);
+        hikariConfig.setPassword(password);
+        return new HikariDataSource(hikariConfig);
+    }
+
 }

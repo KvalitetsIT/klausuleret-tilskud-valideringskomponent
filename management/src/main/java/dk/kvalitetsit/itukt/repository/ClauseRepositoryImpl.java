@@ -24,7 +24,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
 
-    public ClauseRepositoryImpl(@Qualifier("validationDataSource") DataSource dataSource) {
+    public ClauseRepositoryImpl(@Qualifier("appDataSource") DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
     }
 

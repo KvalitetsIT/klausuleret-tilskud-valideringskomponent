@@ -15,16 +15,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class MasterDaoImpl implements MasterDao {
+public class StamDataDaoImpl implements StamDataDao {
 
     private final DataClassRowMapper<DrugEntity> drugRowMapper;
     private final DataClassRowMapper<PackingEnitity> packageRowMapper;
     private final DataClassRowMapper<ClauseEntity> clauseRowMapper;
 
-    @Qualifier("masterJdbcTemplate")
+    @Qualifier("stamDataJdbcTemplate")
     private final NamedParameterJdbcTemplate template;
 
-    public MasterDaoImpl(NamedParameterJdbcTemplate template) {
+    public StamDataDaoImpl(NamedParameterJdbcTemplate template) {
         this.template = template;
         drugRowMapper = DataClassRowMapper.newInstance(DrugEntity.class);
         clauseRowMapper = DataClassRowMapper.newInstance(ClauseEntity.class);

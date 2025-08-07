@@ -47,8 +47,8 @@ public abstract class BaseTest {
     @DynamicPropertySource
     static void overrideProps(DynamicPropertyRegistry registry) {
         environment.start();
-        setupAndRegisterProperties("master-db", "validation", "sdm_krs_a", "", registry);
-        setupAndRegisterProperties("validation-db", "management", "validation_db", "rootroot", registry);
+        setupAndRegisterProperties("stamdata-db", "validation", "sdm_krs_a", "", registry);
+        setupAndRegisterProperties("app-db", "management", "validation_db", "rootroot", registry);
     }
 
     private static void setupAndRegisterProperties(
@@ -67,19 +67,19 @@ public abstract class BaseTest {
 
     private static ComposeContainer runOutsideDocker(File composeFile) {
         return new ComposeContainer(composeFile)
-                .withServices("validation-db", "master-db")
-                .withExposedService("validation-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withExposedService("master-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+                .withServices("app-db", "stamdata-db")
+                .withExposedService("app-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+                .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
                 .withLocalCompose(true);
     }
 
     private static ComposeContainer runInDocker(File composeFile) {
         return new ComposeContainer(composeFile)
-                .withServices("validation-db", "master-db", "validation-component")
-                .withExposedService("validation-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer("validation-db", new Slf4jLogConsumer(logger).withPrefix("validation-db"))
-                .withExposedService("master-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer("master-db", new Slf4jLogConsumer(logger).withPrefix("master-db"))
+                .withServices("app-db", "stamdata-db", "validation-component")
+                .withExposedService("app-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+                .withLogConsumer("app-db", new Slf4jLogConsumer(logger).withPrefix("app-db"))
+                .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+                .withLogConsumer("stamdata-db", new Slf4jLogConsumer(logger).withPrefix("stamdata-db"))
                 .withExposedService("validation-component", 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
                 .withLogConsumer("validation-component", new Slf4jLogConsumer(logger).withPrefix("validation-component"))
                 .withLocalCompose(false);
@@ -108,7 +108,7 @@ public abstract class BaseTest {
     }
 
     @AfterEach
-    void cleanup(@Autowired @Qualifier("validationDataSource") DataSource dataSource) {
+    void cleanup(@Autowired @Qualifier("appDataSource") DataSource dataSource) {
         resetDB(dataSource);
     }
 

@@ -8,7 +8,7 @@ import dk.kvalitetsit.itukt.repository.entity.PackingEnitity;
 import java.util.List;
 import java.util.Optional;
 
-public interface MasterDao {
+public interface StamDataDao {
 
     Optional<DrugEntity> findDrugById(long drugId) throws ServiceException;
 

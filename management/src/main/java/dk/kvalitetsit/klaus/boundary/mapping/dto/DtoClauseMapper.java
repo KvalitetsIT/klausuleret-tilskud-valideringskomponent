@@ -13,6 +13,6 @@ public class DtoClauseMapper implements Mapper<Clause, dk.kvalitetsit.klaus.mode
 
     @Override
     public dk.kvalitetsit.klaus.model.Clause map(Clause entry) {
-        return new dk.kvalitetsit.klaus.model.Clause(entry.getName(), entry.getUuid(), entry.getVersion(), this.expressionMapper.map(entry.getExpression()));
+        return new dk.kvalitetsit.klaus.model.Clause(entry.getName(), entry.getUuid(), this.expressionMapper.map(entry.getExpression()));
     }
 }

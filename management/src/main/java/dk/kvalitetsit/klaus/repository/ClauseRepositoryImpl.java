@@ -3,7 +3,6 @@ package dk.kvalitetsit.klaus.repository;
 
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
 import dk.kvalitetsit.klaus.model.Operator;
-import dk.kvalitetsit.klaus.model.Pagination;
 import dk.kvalitetsit.klaus.repository.model.ClauseEntity;
 import dk.kvalitetsit.klaus.repository.model.ExpressionEntity;
 import org.slf4j.Logger;
@@ -18,16 +17,12 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Repository
 public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
-    private final ExecutorService clauseCreatorExecutor = Executors.newFixedThreadPool(10);
 
     public ClauseRepositoryImpl(@Qualifier("validationDataSource") DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
@@ -40,10 +35,9 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
             template.update(
-                    "INSERT INTO clause (uuid, version, name) VALUES (:uuid, :version, :name)",
+                    "INSERT INTO clause (uuid, name) VALUES (:uuid, :name)",
                     new MapSqlParameterSource()
                             .addValue("uuid", uuid.toString())
-                            .addValue("version", entry.version())
                             .addValue("name", entry.name()),
                     keyHolder,
                     new String[]{"id"}
@@ -56,7 +50,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             // Create expression with fresh expression ID = clause ID
             ExpressionEntity expr = create(clauseId, entry.expression());
 
-            return Optional.of(new ClauseEntity(clauseId, uuid, entry.name(), entry.version(), expr));
+            return Optional.of(new ClauseEntity(clauseId, uuid, entry.name(), expr));
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
@@ -104,41 +98,10 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     }
 
     @Override
-    public List<ClauseEntity> create(List<ClauseEntity> entry) throws ServiceException {
-        var version = fetchNextVersion();
-        // Assign the version to all entries
-        var entries = entry.stream().map(e -> new ClauseEntity(e.id(), e.uuid(), e.name(), version, e.expression())).toList();
-        // Create a list of async tasks
-        List<CompletableFuture<Optional<ClauseEntity>>> futures = entries.stream()
-                .map(entity -> CompletableFuture.supplyAsync(() -> this.create(entity), clauseCreatorExecutor))
-                .toList();
-
-        // Wait for all the futures to complete and collect the results
-        return futures.stream()
-                .map(CompletableFuture::join) // .join() waits for completion and gets the result
-                .flatMap(Optional::stream)
-                .toList();
-    }
-
-    @Override
-    public Optional<ClauseEntity> delete(UUID id) throws ServiceException {
-        try {
-            Optional<ClauseEntity> existing = read(id);
-            if (existing.isEmpty()) return Optional.empty();
-
-            template.update("DELETE FROM clause WHERE uuid = :uuid", Map.of("uuid", id.toString()));
-            return existing;
-        } catch (Exception e) {
-            logger.error("Failed to delete clause {}", id, e);
-            throw new ServiceException("Failed to delete clause", e);
-        }
-    }
-
-    @Override
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, e.type, c.version
+                        SELECT c.id, c.name, e.type
                         FROM clause c
                         JOIN expression e ON c.id = e.id
                         WHERE c.uuid = :uuid
@@ -149,7 +112,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             Long id = ((Number) row.get("id")).longValue();
             String name = (String) row.get("name");
             String type = (String) row.get("type");
-            Integer version = (Integer) row.get("version");
 
             ExpressionEntity expression = switch (type) {
                 case "condition_expression" -> readCondition(id);
@@ -158,40 +120,13 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 default -> throw new IllegalStateException("Unknown expression type: " + type);
             };
 
-            return Optional.of(new ClauseEntity(id, uuid, name, version, expression));
+            return Optional.of(new ClauseEntity(id, uuid, name, expression));
 
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (Exception e) {
             logger.error("Failed to read expression {}", uuid, e);
             throw new ServiceException("Failed to read expression", e);
-        }
-    }
-
-    @Override
-    public List<ClauseEntity> read_all(Pagination pagination) throws ServiceException {
-        try {
-            String sql = """
-                        SELECT c.uuid
-                        FROM clause c
-                        JOIN expression e ON c.id = e.id
-                        ORDER BY c.id
-                        LIMIT :limit OFFSET :offset
-                    """;
-
-            List<UUID> uuids = template.query(sql, Map.of(
-                    "limit", pagination.limit().orElse(0),
-                    "offset", pagination.offset().orElse(10)
-            ), (rs, rowNum) -> UUID.fromString(rs.getString("uuid")));
-
-            return uuids.stream()
-                    .map(this::read)
-                    .flatMap(Optional::stream)
-                    .toList();
-
-        } catch (Exception e) {
-            logger.error("Failed to read all expressions with pagination", e);
-            throw new ServiceException("Failed to read expressions", e);
         }
     }
 
@@ -219,19 +154,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             throw new ServiceException("Failed to read expressions", e);
         }
     }
-
-
-    @Override
-    public Optional<ClauseEntity> update(UUID id, ClauseEntity entry) throws ServiceException {
-        try {
-            delete(id);
-            return create(entry);
-        } catch (Exception e) {
-            logger.error("Failed to update expression {}", id, e);
-            throw new ServiceException("Failed to update expression", e);
-        }
-    }
-
 
     private void insertCondition(long parentId, ExpressionEntity.ConditionEntity condition) {
 
@@ -340,11 +262,4 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             return Optional.empty();
         }
     }
-
-    private int fetchNextVersion() {
-        String sql = "SELECT NEXT VALUE FOR clause_version_seq";
-        return template.queryForObject(sql, new MapSqlParameterSource(), Integer.class);
-    }
-
-
 }

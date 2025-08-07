@@ -15,6 +15,6 @@ public class EntityClauseMapper implements Mapper<ClauseEntity, Clause> {
 
     @Override
     public Clause map(ClauseEntity entry) {
-        return new Clause(entry.name(), Optional.of(entry.uuid()), Optional.of(entry.version()), entityExpressionMapper.map(entry.expression()));
+        return new Clause(entry.name(), Optional.of(entry.uuid()), entityExpressionMapper.map(entry.expression()));
     }
 }

@@ -27,7 +27,7 @@ class ManagementServiceImplTest {
     @Test
     void testCreate() {
         var expression = new Expression.Condition("field", Operator.EQUAL, List.of());
-        var input = new Clause("CHOL", null, Optional.of(1), expression);
+        var input = new Clause("CHOL", null, expression);
         Mockito.when(dao.create(Mockito.any(Clause.class))).thenReturn(Optional.of(input));
 
         var result = service.create(input);

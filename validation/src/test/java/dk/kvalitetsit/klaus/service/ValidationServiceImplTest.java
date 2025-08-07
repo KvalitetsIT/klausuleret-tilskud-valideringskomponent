@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -32,7 +31,7 @@ class ValidationServiceImplTest {
 
         var expression = new Expression.Condition("age", Operator.EQUAL, List.of("20"));
 
-        var clause = new Clause("CHOL", null, Optional.of(1), expression);
+        var clause = new Clause("CHOL", null, expression);
 
         Mockito.when(dao.read_all()).thenReturn(List.of(clause));
 

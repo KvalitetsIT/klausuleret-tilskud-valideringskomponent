@@ -60,7 +60,7 @@ public class ManagementServiceAdaptorTest {
         Mockito.verify(concreteService, Mockito.times(1)).create(captor.capture());
         Clause actual_model = captor.getValue();
 
-        var expected_model = new Clause(clauseModel.name(), Optional.empty(), Optional.empty(), clauseModel.expression());
+        var expected_model = new Clause(clauseModel.name(), Optional.empty(), clauseModel.expression());
         assertEquals(expected_model, actual_model);
     }
 }

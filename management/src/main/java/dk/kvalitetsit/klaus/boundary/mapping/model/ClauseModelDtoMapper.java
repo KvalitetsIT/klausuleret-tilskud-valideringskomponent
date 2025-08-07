@@ -18,7 +18,6 @@ public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.mod
                 entry.name(),
                 this.expressionModelMapper.map(entry.expression()));
         entry.uuid().ifPresent(dto::uuid);
-        entry.version().ifPresent(dto::version);
         return dto;
     }
 }

@@ -5,12 +5,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.api.ValidationApi;
+import org.openapitools.client.model.DslInput;
 import org.openapitools.client.model.ExistingDrugMedication;
 import org.openapitools.client.model.ValidationRequest;
 import org.openapitools.client.model.ValidationStatus;
 import org.springframework.web.client.RestClientResponseException;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -27,7 +26,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void testPostValidation() {
-        managementApi.call20250801clausesDslPost(List.of("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"));
+        managementApi.call20250801clausesDslPost(new DslInput().dsl("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"));
         var existingDrugMedication = new ExistingDrugMedication()
                 .atcCode("C10BA05")
                 .drugIdentifier("123456789")

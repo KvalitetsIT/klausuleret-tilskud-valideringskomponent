@@ -4,22 +4,25 @@ package dk.kvalitetsit.klaus.boundary;
 import dk.kvalitetsit.klaus.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openapitools.model.Clause;
+import org.openapitools.model.DslInput;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static dk.kvalitetsit.klaus.MockFactory.clauseDto;
 import static dk.kvalitetsit.klaus.MockFactory.dsl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
-public class ManagementControllerTest {
+class ManagementControllerTest {
 
 
     @InjectMocks
@@ -28,38 +31,49 @@ public class ManagementControllerTest {
     private ManagementServiceAdaptor clauseService;
 
     @Test
-    void testPostNonDSL() {
-        Mockito.when(clauseService.create(Mockito.any(List.class))).then(a -> List.of(clauseDto));
-        var result = managementController.call20250801clausesPost(List.of(clauseDto));
+    void call20250801clausesPost_CreatesClause() {
+        Mockito.when(clauseService.create(Mockito.any(Clause.class))).thenReturn(Optional.of(clauseDto));
 
-        assertNotNull(result);
-        assertNotNull(result.getBody());
-        assertEquals(List.of(clauseDto), result.getBody());
+        managementController.call20250801clausesPost(clauseDto);
 
-        var inputArgumentCaptor = ArgumentCaptor.forClass(List.class);
-
-        Mockito.verify(clauseService, times(1)).create(inputArgumentCaptor.capture());
-
-        assertNotNull(inputArgumentCaptor.getValue());
-        assertEquals(clauseDto, inputArgumentCaptor.getValue().getFirst());
+        Mockito.verify(clauseService, times(1)).create(clauseDto);
     }
 
     @Test
-    void testPostDSL() {
+    void call20250801clausesDslPost_CreatesClause() {
+        Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(Optional.of(dsl));
 
-        Mockito.when(clauseService.createDSL(List.of(dsl))).then(a -> List.of(dsl));
-        var result = managementController.call20250801clausesDslPost(List.of(dsl));
+        DslInput dslInput = new DslInput().dsl(dsl);
+        managementController.call20250801clausesDslPost(dslInput);
 
-        assertNotNull(result);
-        assertNotNull(result.getBody());
-        assertEquals(List.of(dsl), result.getBody());
-
-        var inputArgumentCaptor = ArgumentCaptor.forClass(List.class);
-
-        Mockito.verify(clauseService, times(1)).createDSL(inputArgumentCaptor.capture());
-
-        assertNotNull(inputArgumentCaptor.getValue());
-        assertEquals(List.of(dsl), inputArgumentCaptor.getValue());
+        Mockito.verify(clauseService, times(1)).createDSL(dslInput);
     }
 
+    @Test
+    void call20250801clausesIdGet_WhenClauseExists_ReturnsClause() {
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(clauseService.read(uuid)).thenReturn(Optional.of(clauseDto));
+
+        var clauseResponse = managementController.call20250801clausesIdGet(uuid);
+
+        assertEquals(clauseDto, clauseResponse.getBody());
+    }
+
+    @Test
+    void call20250801clausesIdGet_WhenClauseDoesNotExist_ThrowsException() {
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(clauseService.read(uuid)).thenReturn(Optional.empty());
+
+        var e = assertThrows(RuntimeException.class, () -> managementController.call20250801clausesIdGet(uuid));
+        assertEquals("Clause was not found", e.getMessage());
+    }
+
+    @Test
+    void call20250801clausesGet_ReturnsClausesFromService() {
+        Mockito.when(clauseService.read_all()).thenReturn(List.of(clauseDto));
+
+        var clausesResponse = managementController.call20250801clausesGet();
+
+        assertEquals(List.of(clauseDto), clausesResponse.getBody());
+    }
 }

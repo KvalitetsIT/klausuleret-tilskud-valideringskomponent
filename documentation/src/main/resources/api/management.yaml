@@ -30,23 +30,15 @@ paths:
       tags:
         - management
       requestBody:
-        description: "A list of expressions in Domain-Specific Language (DSL) format"
+        description: "A clause in Domain-Specific Language (DSL) format"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/dsl'
+              $ref: '#/components/schemas/dslInput'
       responses:
         '200':
           description: Ok
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/dsl'
         '400':
           $ref: '#/components/responses/400'
 
@@ -60,21 +52,10 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/Clause'
+              $ref: '#/components/schemas/Clause'
       responses:
         '200':
           description: Ok
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Clause'
-            text/plain:
-              schema:
-                type: string
         '400':
           $ref: '#/components/responses/400'
 
@@ -84,9 +65,6 @@ paths:
         - management
       summary: "API to test body validation"
       description: "Retrieves all clauses"
-      parameters:
-        - $ref: '#/components/parameters/offset'
-        - $ref: '#/components/parameters/limit'
       responses:
         '200':
           description: Ok
@@ -120,26 +98,6 @@ paths:
             text/plain:
               schema:
                 type: string
-        '400':
-          $ref: '#/components/responses/400'
-
-    delete:
-      tags:
-        - management
-      summary: "Deletes the clause associated with the specified id"
-      description: "Deletes the clause associated with the specified id"
-      parameters:
-        - $ref: '#/components/parameters/id'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Clause'
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/dsl'
         '400':
           $ref: '#/components/responses/400'
 
@@ -231,11 +189,6 @@ components:
         uuid:
           type: string
           format: uuid
-        version:
-          type: integer
-          minimum: 1
-          example: 21
-          description: A number indicating which version/batch the clause is related
         name:
           type: string
           description: "The name of the clause"
@@ -324,6 +277,14 @@ components:
         type:
           description: "Identifies this object as a ParenthesizedExpression."
           type: string
+
+    dslInput:
+      type: object
+      required:
+        - dsl
+      properties:
+        dsl:
+          $ref: '#/components/schemas/dsl'
     dsl:
       description: "A clause specified in a domain specific language (DSL)"
       type: string

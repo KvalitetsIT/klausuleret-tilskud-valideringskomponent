@@ -1,18 +1,18 @@
 package dk.kvalitetsit.klaus.integrationtest.api;
 
 import dk.kvalitetsit.klaus.integrationtest.BaseTest;
-import dk.kvalitetsit.klaus.integrationtest.MockFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
-import org.openapitools.client.model.Clause;
-import org.springframework.web.client.RestClientResponseException;
+import org.openapitools.client.model.Condition;
+import org.openapitools.client.model.DslInput;
+import org.openapitools.client.model.Operator;
 
 import java.util.List;
-import java.util.Objects;
 
 import static dk.kvalitetsit.klaus.integrationtest.MockFactory.clauseDto;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 
 public class ManagementIT extends BaseTest {
@@ -26,74 +26,31 @@ public class ManagementIT extends BaseTest {
 
 
     @Test
-    void testPostClauseDslSet() {
-        final List<String> dsl = List.of(MockFactory.dsl);
-        try {
-            var response = api.call20250801clausesDslPost(dsl);
-            Assertions.assertEquals(dsl, response);
-        } catch (RestClientResponseException e) {
-            throw new RuntimeException(e);
-        }
+    void testPostAndGetClauseDsl() {
+        var dslInput = new DslInput().dsl("Klausul CHOL: (ALDER >= 13)");
+
+        api.call20250801clausesDslPost(dslInput);
+        var clauses = api.call20250801clausesGet();
+
+        assertEquals(1, clauses.size());
+        var clause = clauses.getFirst();
+        assertEquals("CHOL", clause.getName());
+        assertInstanceOf(Condition.class, clause.getExpression());
+        var condition = (Condition) clause.getExpression();
+        assertEquals("ALDER", condition.getField());
+        assertEquals(List.of("13"), condition.getValues());
+        assertEquals(Operator.GREATER_THAN_OR_EQUAL_TO, condition.getOperator());
     }
 
     @Test
-    void testPostClauseSet() {
-        final List<Clause> clauses = List.of(clauseDto);
-        try {
-            var response = api.call20250801clausesPost(clauses);
-            response.forEach(clause -> Assertions.assertNotNull(clause.getUuid()));
-            response.forEach(clause -> Assertions.assertNotNull(clause.getVersion()));
+    void testPostAndGetClause() {
+        api.call20250801clausesPost(clauseDto);
+        var clauses = api.call20250801clausesGet();
 
-            Assertions.assertEquals(clauses.stream().map(Clause::getExpression).toList(), response.stream().map(Clause::getExpression).toList());
-        } catch (RestClientResponseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    void testDeleteClause() {
-        final List<Clause> dsl = List.of(clauseDto);
-        try {
-            var created = api.call20250801clausesPost(dsl);
-            var deleted = api.call20250801clausesIdDelete(Objects.requireNonNull(created.getFirst().getUuid()));
-
-            Assertions.assertEquals(created.getFirst(), deleted);
-        } catch (RestClientResponseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    void testPostClauseDoIncrementVersion() {
-        final List<Clause> dsl = List.of(clauseDto);
-        try {
-            var clauses = api.call20250801clausesGet(null, null);
-            var first = api.call20250801clausesPost(dsl);
-            var second = api.call20250801clausesPost(dsl);
-            var third = api.call20250801clausesPost(dsl);
-
-            System.out.println(clauses);
-
-            Assertions.assertTrue(first.stream().map(Clause::getVersion).allMatch(version -> version != null && version == 1));
-            Assertions.assertTrue(second.stream().map(Clause::getVersion).allMatch(version -> version != null && version == 2));
-            Assertions.assertTrue(third.stream().map(Clause::getVersion).allMatch(version -> version != null && version == 3));
-
-        } catch (RestClientResponseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    void testReadClauseSet() {
-        final List<Clause> dsl = List.of(clauseDto);
-        try {
-            var created = api.call20250801clausesPost(dsl);
-            var read = api.call20250801clausesGet(null, null); // <- Setting the pagination to null should result reading everything
-            Assertions.assertEquals(created.getFirst().getName(), read.getFirst().getName());
-            Assertions.assertEquals(created.getFirst().getExpression(), read.getFirst().getExpression());
-        } catch (RestClientResponseException e) {
-            throw new RuntimeException(e);
-        }
+        assertEquals(1, clauses.size());
+        var clause = clauses.getFirst();
+        assertEquals(clauseDto.getName(), clause.getName());
+        assertEquals(clauseDto.getExpression(), clause.getExpression());
     }
 
 }

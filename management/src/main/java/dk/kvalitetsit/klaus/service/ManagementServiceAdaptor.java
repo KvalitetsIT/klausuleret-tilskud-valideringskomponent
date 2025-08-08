@@ -3,8 +3,8 @@ package dk.kvalitetsit.klaus.service;
 
 import dk.kvalitetsit.klaus.Mapper;
 import dk.kvalitetsit.klaus.exceptions.ServiceException;
-import dk.kvalitetsit.klaus.model.Pagination;
 import org.openapitools.model.Clause;
+import org.openapitools.model.DslInput;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,31 +34,15 @@ public class ManagementServiceAdaptor {
         this.clauseDslMapper = clauseDslMapper;
     }
 
-    public List<String> createDSL(List<String> dsl) throws ServiceException {
-        var clauses = dsl.stream().map(dslClauseMapper::map).map(dtoClauseMapper::map).toList();
-        return clauseService.create(clauses).stream().map(clauseDslMapper::map).toList();
-    }
-
-    public List<Clause> create(List<Clause> expressions) throws ServiceException {
-        var mappedExpressions = expressions.stream().map(this.dtoClauseMapper::map).toList();
-        return clauseService.create(mappedExpressions).stream()
-                .map(this.clauseDtoMapper::map)
-                .toList();
-    }
-
     public Optional<Clause> create(Clause entry) throws ServiceException {
         var model = dtoClauseMapper.map(entry);
         return clauseService.create(model).map(clauseDtoMapper::map);
     }
 
-    public Optional<String> createDSL(String dsl) throws ServiceException {
-        var clause = this.dslClauseMapper.map(dsl);
+    public Optional<String> createDSL(DslInput dsl) throws ServiceException {
+        var clause = this.dslClauseMapper.map(dsl.getDsl());
         var model = this.dtoClauseMapper.map(clause);
         return clauseService.create(model).map(clauseDslMapper::map);
-    }
-
-    public Optional<Clause> delete(UUID entry) throws ServiceException {
-        return clauseService.delete(entry).map(clauseDtoMapper::map);
     }
 
     public Optional<Clause> read(UUID id) throws ServiceException {
@@ -69,15 +53,7 @@ public class ManagementServiceAdaptor {
         return clauseService.read(id).map(clauseDslMapper::map);
     }
 
-    public List<Clause> read_all(Pagination pagination) throws ServiceException {
-        return clauseService.read_all(pagination).stream().map(clauseDtoMapper::map).toList();
-    }
-
     public List<Clause> read_all() throws ServiceException {
-        return clauseService.read_all().stream().map(clauseDtoMapper::map).toList();
-    }
-
-    public Optional<Clause> update(UUID id, Clause entry) throws ServiceException {
-        return clauseService.update(id, dtoClauseMapper.map(entry)).map(clauseDtoMapper::map);
+        return clauseService.readAll().stream().map(clauseDtoMapper::map).toList();
     }
 }

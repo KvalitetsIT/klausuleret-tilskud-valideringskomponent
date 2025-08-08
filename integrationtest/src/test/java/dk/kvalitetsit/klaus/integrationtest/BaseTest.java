@@ -97,7 +97,6 @@ public abstract class BaseTest {
             }
         }
 
-        jdbcTemplate.execute("ALTER SEQUENCE clause_version_seq RESTART WITH 1;");
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
     }
 

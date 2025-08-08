@@ -1,8 +1,8 @@
 package dk.kvalitetsit.klaus.service;
 
 
-import dk.kvalitetsit.klaus.repository.ClauseRepository;
 import dk.kvalitetsit.klaus.model.Clause;
+import dk.kvalitetsit.klaus.repository.ClauseRepository;
 import dk.kvalitetsit.klaus.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.klaus.service.model.DataContext;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class ValidationServiceImpl implements ValidationService<DataContext> {
 
     @Override
     public boolean validate(DataContext ctx) {
-        List<Clause> clauses = this.clauseRepository.read_all();
+        List<Clause> clauses = this.clauseRepository.readAll();
         return clauses.stream().allMatch(clause -> evaluator.eval(clause.expression(), ctx));
     }
 }

@@ -70,8 +70,8 @@ public class BeanRegistration {
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseDaoAdaptor(ClauseRepository<ClauseEntity> dao) {
-        return new ClauseRepositoryAdaptor(dao, new ClauseEntityMapper(new ExpressionEntityMapper()), new EntityClauseMapper(new EntityExpressionMapper()));
+    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(ClauseRepository<ClauseEntity> clauseRepository) {
+        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityMapper(new ExpressionEntityMapper()), new EntityClauseMapper(new EntityExpressionMapper()));
     }
 
     @Bean

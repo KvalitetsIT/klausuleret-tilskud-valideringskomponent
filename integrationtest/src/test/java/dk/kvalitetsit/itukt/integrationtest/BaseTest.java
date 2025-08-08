@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
+import dk.kvalitetsit.itukt.Application;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("resource")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Application.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);

@@ -2,24 +2,26 @@ package dk.kvalitetsit.itukt.configuration;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dk.kvalitetsit.itukt.Mapper;
-import dk.kvalitetsit.itukt.boundary.mapping.dsl.ClauseDslMapper;
-import dk.kvalitetsit.itukt.boundary.mapping.dsl.DslClauseMapper;
-import dk.kvalitetsit.itukt.boundary.mapping.dsl.ExpressionDslMapper;
-import dk.kvalitetsit.itukt.boundary.mapping.dto.DtoClauseMapper;
-import dk.kvalitetsit.itukt.boundary.mapping.dto.DtoExpressionMapper;
-import dk.kvalitetsit.itukt.boundary.mapping.model.ClauseModelDtoMapper;
-import dk.kvalitetsit.itukt.boundary.mapping.model.ExpressionModelDtoMapper;
-import dk.kvalitetsit.itukt.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.repository.ClauseRepositoryAdaptor;
-import dk.kvalitetsit.itukt.repository.mapping.entity.EntityClauseMapper;
-import dk.kvalitetsit.itukt.repository.mapping.entity.EntityExpressionMapper;
-import dk.kvalitetsit.itukt.repository.mapping.model.ClauseEntityMapper;
-import dk.kvalitetsit.itukt.repository.mapping.model.ExpressionEntityMapper;
-import dk.kvalitetsit.itukt.repository.model.ClauseEntity;
-import dk.kvalitetsit.itukt.service.model.DataContext;
+import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslClauseMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionDslMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoClauseMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoExpressionMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
+import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityClauseMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityExpressionMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseEntityMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionEntityMapper;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 import org.openapitools.model.ExistingDrugMedication;
 import org.openapitools.model.ValidationRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -70,7 +72,7 @@ public class BeanRegistration {
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(ClauseRepository<ClauseEntity> clauseRepository) {
+    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
         return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityMapper(new ExpressionEntityMapper()), new EntityClauseMapper(new EntityExpressionMapper()));
     }
 
@@ -85,12 +87,12 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Mapper<org.openapitools.model.Clause, dk.kvalitetsit.itukt.model.Clause> dtoMapper() {
+    public Mapper<org.openapitools.model.Clause, Clause> dtoMapper() {
         return new DtoClauseMapper(new DtoExpressionMapper());
     }
 
     @Bean
-    public Mapper<dk.kvalitetsit.itukt.model.Clause, org.openapitools.model.Clause> clauseDtoMapper() {
+    public Mapper<Clause, org.openapitools.model.Clause> clauseDtoMapper() {
         return new ClauseModelDtoMapper(new ExpressionModelDtoMapper());
     }
 
@@ -100,7 +102,7 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Mapper<dk.kvalitetsit.itukt.model.Clause, String> modelDslMapper() {
+    public Mapper<Clause, String> modelDslMapper() {
         return new ClauseDslMapper(new ExpressionDslMapper());
     }
 

@@ -30,7 +30,7 @@ public class ManagementServiceImpl implements ManagementService<Clause> {
     }
 
     @Override
-    public List<Clause> read_all() throws ServiceException {
-        return repository.read_all();
+    public List<Clause> readAll() throws ServiceException {
+        return repository.readAll();
     }
 }

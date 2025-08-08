@@ -33,7 +33,7 @@ class ValidationServiceImplTest {
 
         var clause = new Clause("CHOL", null, expression);
 
-        Mockito.when(dao.read_all()).thenReturn(List.of(clause));
+        Mockito.when(dao.readAll()).thenReturn(List.of(clause));
 
         var request = new DataContext(Map.of("ALDER", List.of("20")));
 

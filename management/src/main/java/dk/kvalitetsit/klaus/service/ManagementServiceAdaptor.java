@@ -54,6 +54,6 @@ public class ManagementServiceAdaptor {
     }
 
     public List<Clause> read_all() throws ServiceException {
-        return clauseService.read_all().stream().map(clauseDtoMapper::map).toList();
+        return clauseService.readAll().stream().map(clauseDtoMapper::map).toList();
     }
 }

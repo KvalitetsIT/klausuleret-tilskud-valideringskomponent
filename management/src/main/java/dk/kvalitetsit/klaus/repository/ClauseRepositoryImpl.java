@@ -132,7 +132,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
 
     @Override
-    public List<ClauseEntity> read_all() throws ServiceException {
+    public List<ClauseEntity> readAll() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid

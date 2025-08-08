@@ -29,7 +29,7 @@ public class ClauseRepositoryAdaptor implements ClauseRepository<Clause> {
         return validationDao.read(id).map(entityMapper::map);
     }
 
-    public List<Clause> read_all() throws ServiceException {
-        return validationDao.read_all().stream().map(this.entityMapper::map).toList();
+    public List<Clause> readAll() throws ServiceException {
+        return validationDao.readAll().stream().map(this.entityMapper::map).toList();
     }
 }

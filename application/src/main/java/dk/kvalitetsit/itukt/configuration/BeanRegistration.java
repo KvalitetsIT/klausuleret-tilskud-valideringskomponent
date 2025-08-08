@@ -18,6 +18,12 @@ import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityExpressio
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseEntityMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionEntityMapper;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.service.ManagementService;
+import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
+import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
+import dk.kvalitetsit.itukt.validation.service.ValidationService;
+import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
+import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 import org.openapitools.model.ExistingDrugMedication;
 import org.openapitools.model.ValidationRequest;
@@ -112,6 +118,37 @@ public class BeanRegistration {
                 "ALDER", List.of(entry.getAge().toString()),
                 "ATC", entry.getExistingDrugMedications().orElse(List.of()).stream().map(ExistingDrugMedication::getAtcCode).toList()
         ));
+    }
+
+    @Bean
+    public ManagementService<Clause> managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
+        return new ManagementServiceImpl(clauseRepository);
+    }
+
+    @Bean
+    public ManagementServiceAdaptor managementServiceAdaptor(
+            @Autowired ManagementService<Clause> managementService,
+            @Autowired Mapper<org.openapitools.model.Clause, Clause> dtoClauseMapper,
+            @Autowired Mapper<String, org.openapitools.model.Clause> dslClauseMapper,
+            @Autowired Mapper<Clause, String> modelDslMapper,
+            @Autowired Mapper<Clause, org.openapitools.model.Clause> clauseModelDtoMapper
+    ) {
+        return new ManagementServiceAdaptor(
+                managementService,
+                dtoClauseMapper,
+                clauseModelDtoMapper,
+                dslClauseMapper,
+                modelDslMapper
+        );
+    }
+
+    @Bean
+    public ValidationService<ValidationRequest> validationService(
+            @Autowired ClauseRepositoryAdaptor clauseRepository,
+            @Autowired Mapper<ValidationRequest, DataContext> validationRequestDataContextMapper
+    ) {
+        ValidationService<DataContext> concreteValidationService = new ValidationServiceImpl(clauseRepository);
+        return new ValidationServiceAdaptor(concreteValidationService, validationRequestDataContextMapper);
     }
 
     @Bean

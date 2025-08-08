@@ -93,34 +93,6 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Mapper<org.openapitools.model.Clause, Clause> dtoMapper() {
-        return new DtoClauseMapper(new DtoExpressionMapper());
-    }
-
-    @Bean
-    public Mapper<Clause, org.openapitools.model.Clause> clauseDtoMapper() {
-        return new ClauseModelDtoMapper(new ExpressionModelDtoMapper());
-    }
-
-    @Bean
-    public Mapper<String, org.openapitools.model.Clause> dslMapper() {
-        return new DslClauseMapper();
-    }
-
-    @Bean
-    public Mapper<Clause, String> modelDslMapper() {
-        return new ClauseDslMapper(new ExpressionDslMapper());
-    }
-
-    @Bean
-    public Mapper<ValidationRequest, DataContext> validationRequestDataContextMapper() {
-        return entry -> new DataContext(Map.of(
-                "ALDER", List.of(entry.getAge().toString()),
-                "ATC", entry.getExistingDrugMedications().orElse(List.of()).stream().map(ExistingDrugMedication::getAtcCode).toList()
-        ));
-    }
-
-    @Bean
     public ManagementService<Clause> managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
         return new ManagementServiceImpl(clauseRepository);
     }
@@ -136,30 +108,30 @@ public class BeanRegistration {
     }
 
     @Bean
-    public ManagementServiceAdaptor managementServiceAdaptor(
-            @Autowired ManagementService<Clause> managementService,
-            @Autowired Mapper<org.openapitools.model.Clause, Clause> dtoClauseMapper,
-            @Autowired Mapper<String, org.openapitools.model.Clause> dslClauseMapper,
-            @Autowired Mapper<Clause, String> modelDslMapper,
-            @Autowired Mapper<Clause, org.openapitools.model.Clause> clauseModelDtoMapper
-    ) {
+    public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService<Clause> managementService) {
         return new ManagementServiceAdaptor(
                 managementService,
-                dtoClauseMapper,
-                clauseModelDtoMapper,
-                dslClauseMapper,
-                modelDslMapper
+                new DtoClauseMapper(new DtoExpressionMapper()),
+                new ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
+                new DslClauseMapper(),
+                new ClauseDslMapper(new ExpressionDslMapper())
         );
     }
 
     @Bean
-    public ValidationService<ValidationRequest> validationService(
-            @Autowired ClauseRepositoryAdaptor clauseRepository,
-            @Autowired Mapper<ValidationRequest, DataContext> validationRequestDataContextMapper
-    ) {
-        ValidationService<DataContext> concreteValidationService = new ValidationServiceImpl(clauseRepository);
-        return new ValidationServiceAdaptor(concreteValidationService, validationRequestDataContextMapper);
+    public ValidationService<ValidationRequest> validationService(@Autowired ClauseRepositoryAdaptor clauseRepository) {
+
+        Mapper<ValidationRequest, DataContext> mapper = entry -> new DataContext(Map.of(
+                "ALDER", List.of(entry.getAge().toString()),
+                "ATC", entry.getExistingDrugMedications().orElse(List.of()).stream().map(ExistingDrugMedication::getAtcCode).toList()
+        ));
+
+        return new ValidationServiceAdaptor(
+                new ValidationServiceImpl(clauseRepository),
+                mapper
+        );
     }
+
 
     @Bean
     public CorsFilter corsFilter(@Value("#{'${allowed_origins:http://localhost}'}") List<String> allowedOrigins) {

@@ -15,7 +15,7 @@ public record TestConfiguration() {
     // Configure beans used for test
 
     @Bean
-    public ClauseRepository<ClauseEntity> helloDao(@Qualifier("appDataSource") DataSource dataSource) {
+    public ClauseRepository<ClauseEntity> clauseRepository(@Qualifier("appDataSource") DataSource dataSource) {
         return new ClauseRepositoryImpl(dataSource);
     }
 

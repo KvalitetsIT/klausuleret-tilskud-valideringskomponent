@@ -27,7 +27,9 @@ public class ManagementIT extends BaseTest {
 
     @Test
     void testPostAndGetClauseDsl() {
-        api.call20250801clausesDslPost(new DslInput().dsl("Klausul CHOL: (ALDER >= 13)"));
+        var dslInput = new DslInput().dsl("Klausul CHOL: (ALDER >= 13)");
+
+        api.call20250801clausesDslPost(dslInput);
         var clauses = api.call20250801clausesGet();
 
         assertEquals(1, clauses.size());

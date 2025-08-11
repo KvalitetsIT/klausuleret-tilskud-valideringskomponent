@@ -31,5 +31,5 @@ public class MockFactory {
                     new dk.kvalitetsit.itukt.common.model.Expression.Condition("ALDER", dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_TO, List.of("13"))
             ));
 
-    public static final dk.kvalitetsit.itukt.common.model.Clause clauseModel = new dk.kvalitetsit.itukt.common.model.Clause("CHOL", Optional.of(UUID.randomUUID()), expressionModel);
+    public static final dk.kvalitetsit.itukt.common.model.Clause clauseModel = new dk.kvalitetsit.itukt.common.model.Clause("CHOL", Optional.of(UUID.randomUUID()),  expressionModel);
 }

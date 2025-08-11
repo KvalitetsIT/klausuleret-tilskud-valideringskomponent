@@ -1,9 +1,8 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,7 @@ public class ValidationServiceImpl implements ValidationService<DataContext> {
 
     private final Evaluator evaluator = new Evaluator();
 
-    public ValidationServiceImpl(ClauseRepositoryAdaptor clauseRepository) {
+    public ValidationServiceImpl(ClauseRepository<Clause> clauseRepository) {
         this.clauseRepository = clauseRepository;
     }
 

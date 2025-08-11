@@ -1,5 +1,5 @@
 services:
-  validation-db:
+  app-db:
     image: mariadb:10.11
     environment:
       - MYSQL_ROOT_PASSWORD=rootroot
@@ -16,7 +16,7 @@ services:
     volumes:
       - ../configuration/ddl:/docker-entrypoint-initdb.d
 
-  master-db:
+  stamdata-db:
     image: trifork/tilskud-sdm-db:latest
     ports:
       - 3307:3306
@@ -33,10 +33,10 @@ services:
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
-      - app_management_jdbc_url=jdbc:mariadb://validation-db:3306/validation_db
+      - app_management_jdbc_url=jdbc:mariadb://app-db:3306/validation_db
       - app_management_jdbc_username=user
       - app_management_jdbc_password=secret1234
-      - app_validation_jdbc_url=jdbc:mariadb://master-db:3306/sdm_krs_a
+      - app_validation_jdbc_url=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
       - app_validation_jdbc_username=root
       - app_validation_jdbc_password=
       - usercontext_header_name=X-Test-Auth
@@ -49,9 +49,9 @@ services:
       - allowed_origins=http://localhost
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
-      validation-db:
+      app-db:
         condition: service_healthy
-      master-db:
+      stamdata-db:
         condition: service_healthy
     ports:
       - 8080:8080

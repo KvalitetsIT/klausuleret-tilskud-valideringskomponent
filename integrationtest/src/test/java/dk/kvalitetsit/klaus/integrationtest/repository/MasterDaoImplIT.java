@@ -1,7 +1,7 @@
 package dk.kvalitetsit.klaus.integrationtest.repository;
 
 import dk.kvalitetsit.klaus.integrationtest.BaseTest;
-import dk.kvalitetsit.klaus.repository.MasterDaoImpl;
+import dk.kvalitetsit.itukt.validation.repository.MasterDaoImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

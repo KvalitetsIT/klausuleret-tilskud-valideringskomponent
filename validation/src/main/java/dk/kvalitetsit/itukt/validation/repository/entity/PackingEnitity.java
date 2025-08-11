@@ -1,0 +1,36 @@
+package dk.kvalitetsit.itukt.validation.repository.entity;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
+public record PackingEnitity(
+        LocalDateTime validTo,
+        long itemNumber,
+        String alphanumericSequence,
+        BigDecimal dddPerPackage,
+        long subPackageCount,
+        String priceCalculationCode,
+        String lastPriceChangeDate,
+        byte isDoseDispenser,
+        long drugID,
+        String packageTypeCode,
+        byte manufacturingFee,
+        String clauseCode,
+        Timestamp lastReplicated,
+        String reimbursementCode,
+        String storageConditions,
+        long storageTime,
+        long storageTimeNumeric,
+        String creationDate,
+        byte isInReimbursementGroup,
+        long packagePID,
+        long packageDistributor,
+        BigDecimal packageSizeNumeric,
+        String packageSizeUnit,
+        String packageSizeText,
+        String expiryDate,
+        String deliveryConditionCode,
+        String deliverySpecialty,
+        LocalDateTime validFrom,
+        long subPackageItemNumber
+) {}

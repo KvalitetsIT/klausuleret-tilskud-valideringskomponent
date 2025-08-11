@@ -48,8 +48,8 @@ public abstract class BaseTest {
     @DynamicPropertySource
     static void overrideProps(DynamicPropertyRegistry registry) {
         environment.start();
-        setupAndRegisterProperties("stamdata-db", "validation", "sdm_krs_a", "", registry);
-        setupAndRegisterProperties("app-db", "management", "validation_db", "rootroot", registry);
+        setupAndRegisterProperties("stamdata-db", "validation.stamdata", "sdm_krs_a", "", registry);
+        setupAndRegisterProperties("app-db", "common", "validation_db", "rootroot", registry);
     }
 
     private static void setupAndRegisterProperties(

@@ -1,12 +1,12 @@
-package dk.kvalitetsit.itukt.configuration;
+package dk.kvalitetsit.itukt.common.configuration;
 
 import com.fasterxml.jackson.databind.Module;
 import org.openapitools.jackson.nullable.JsonNullableModule;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties
-public class JacksonConfiguration {
+@Configuration
+public class JacksonBeanRegistration {
     @Bean
     public Module jsonNullableModule() {
         return new JsonNullableModule();

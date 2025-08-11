@@ -33,12 +33,12 @@ services:
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
-      - app_management_jdbc_url=jdbc:mariadb://app-db:3306/validation_db
-      - app_management_jdbc_username=user
-      - app_management_jdbc_password=secret1234
-      - app_validation_jdbc_url=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
-      - app_validation_jdbc_username=root
-      - app_validation_jdbc_password=
+      - app_common_jdbc_url=jdbc:mariadb://app-db:3306/validation_db
+      - app_common_jdbc_username=user
+      - app_common_jdbc_password=secret1234
+      - app_validation_stamdata_jdbc_url=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
+      - app_validation_stamdata_jdbc_username=root
+      - app_validation_stamdata_jdbc_password=
       - usercontext_header_name=X-Test-Auth
       - userattributes_role_key=UserRoles
       - userattributes_org_key=organisation

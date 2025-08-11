@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 
-@Repository
 public class ValidationRepositoryImpl implements ValidationRepository {
 
     // Suggestion / draft

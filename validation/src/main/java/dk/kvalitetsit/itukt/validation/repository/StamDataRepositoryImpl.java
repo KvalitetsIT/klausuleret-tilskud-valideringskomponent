@@ -9,23 +9,23 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public class StamDataRepositoryImpl implements StamDataRepository {
 
     private final DataClassRowMapper<DrugEntity> drugRowMapper;
     private final DataClassRowMapper<PackingEnitity> packageRowMapper;
     private final DataClassRowMapper<ClauseEntity> clauseRowMapper;
 
-    @Qualifier("stamDataJdbcTemplate")
     private final NamedParameterJdbcTemplate template;
 
-    public StamDataRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
+    public StamDataRepositoryImpl(DataSource dataSource) {
+        this.template = new NamedParameterJdbcTemplate(dataSource);
         drugRowMapper = DataClassRowMapper.newInstance(DrugEntity.class);
         clauseRowMapper = DataClassRowMapper.newInstance(ClauseEntity.class);
         packageRowMapper = DataClassRowMapper.newInstance(PackingEnitity.class);

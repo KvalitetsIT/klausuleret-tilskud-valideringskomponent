@@ -13,6 +13,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDto
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityClauseMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityExpressionMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseEntityMapper;
@@ -21,6 +22,8 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
+import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
+import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
@@ -72,10 +75,7 @@ public class BeanRegistration {
         );
     }
 
-    @Bean("stamDataJdbcTemplate")
-    public NamedParameterJdbcTemplate stamDataJdbcTemplate(@Qualifier("stamDataSource") DataSource dataSource) {
-        return new NamedParameterJdbcTemplate(dataSource);
-    }
+
 
     @Bean
     public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
@@ -123,6 +123,16 @@ public class BeanRegistration {
     @Bean
     public ManagementService<Clause> managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
         return new ManagementServiceImpl(clauseRepository);
+    }
+
+    @Bean
+    public ClauseRepository<ClauseEntity> clauseRepository(@Qualifier("appDataSource") DataSource dataSource){
+        return new ClauseRepositoryImpl(dataSource);
+    }
+
+    @Bean
+    public StamDataRepository stamDataRepository(@Qualifier("stamDataSource")  DataSource dataSource){
+        return new StamDataRepositoryImpl(dataSource);
     }
 
     @Bean

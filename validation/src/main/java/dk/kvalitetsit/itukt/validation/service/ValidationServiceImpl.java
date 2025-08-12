@@ -4,7 +4,6 @@ package dk.kvalitetsit.itukt.validation.service;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

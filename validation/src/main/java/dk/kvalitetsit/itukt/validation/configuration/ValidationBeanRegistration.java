@@ -30,11 +30,11 @@ public class ValidationBeanRegistration {
 
     @Bean("stamDataSource")
     public DataSource stamDataSource() {
-        return createDataSource(
-                configuration.stamdata().jdbc().url(),
-                configuration.stamdata().jdbc().username(),
-                configuration.stamdata().jdbc().password()
-        );
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(configuration.stamdata().jdbc().url());
+        hikariConfig.setUsername(configuration.stamdata().jdbc().username());
+        hikariConfig.setPassword(configuration.stamdata().jdbc().password());
+        return new HikariDataSource(hikariConfig);
     }
 
     @Bean("stamDataJdbcTemplate")
@@ -53,14 +53,6 @@ public class ValidationBeanRegistration {
                 "ALDER", List.of(entry.getAge().toString()),
                 "ATC", entry.getExistingDrugMedications().orElse(List.of()).stream().map(ExistingDrugMedication::getAtcCode).toList()
         ));
-    }
-
-    private DataSource createDataSource(String url, String username, String password) {
-        var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(url);
-        hikariConfig.setUsername(username);
-        hikariConfig.setPassword(password);
-        return new HikariDataSource(hikariConfig);
     }
 
 }

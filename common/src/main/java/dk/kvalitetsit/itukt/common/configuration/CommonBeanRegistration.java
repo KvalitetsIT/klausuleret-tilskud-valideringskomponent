@@ -30,11 +30,11 @@ public class CommonBeanRegistration {
 
     @Bean("appDataSource")
     public DataSource appDataSource() {
-        return createDataSource(
-                configuration.jdbc().url(),
-                configuration.jdbc().username(),
-                configuration.jdbc().password()
-        );
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(configuration.jdbc().url());
+        hikariConfig.setUsername(configuration.jdbc().username());
+        hikariConfig.setPassword(configuration.jdbc().password());
+        return new HikariDataSource(hikariConfig);
     }
 
     @Bean
@@ -54,14 +54,6 @@ public class CommonBeanRegistration {
         source.registerCorsConfiguration("/**", config);
 
         return new CorsFilter(source);
-    }
-
-    private DataSource createDataSource(String url, String username, String password) {
-        var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(url);
-        hikariConfig.setUsername(username);
-        hikariConfig.setPassword(password);
-        return new HikariDataSource(hikariConfig);
     }
 
 }

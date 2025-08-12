@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class ValidationServiceImpl implements ValidationService<DataContext> {
 
     private final ClauseRepository<Clause> clauseRepository;

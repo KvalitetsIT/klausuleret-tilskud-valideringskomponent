@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
 public class ManagementServiceImpl implements ManagementService<Clause> {
 
     private final ClauseRepositoryAdaptor repository;

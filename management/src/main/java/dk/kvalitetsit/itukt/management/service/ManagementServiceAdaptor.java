@@ -5,13 +5,11 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import org.openapitools.model.Clause;
 import org.openapitools.model.DslInput;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
 public class ManagementServiceAdaptor {
 
     private final ManagementService<dk.kvalitetsit.itukt.common.model.Clause> clauseService;

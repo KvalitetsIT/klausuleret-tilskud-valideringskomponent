@@ -8,6 +8,7 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -19,13 +20,12 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.*;
 
-@Repository
 public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
 
-    public ClauseRepositoryImpl(@Qualifier("appDataSource") DataSource dataSource) {
+    public ClauseRepositoryImpl(DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
     }
 

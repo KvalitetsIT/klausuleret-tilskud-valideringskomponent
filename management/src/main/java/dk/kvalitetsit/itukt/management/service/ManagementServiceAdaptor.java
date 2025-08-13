@@ -5,7 +5,6 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import org.openapitools.model.Clause;
 import org.openapitools.model.DslInput;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

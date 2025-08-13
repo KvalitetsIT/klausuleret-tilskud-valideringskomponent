@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.common.model;
+package dk.kvalitetsit.itukt.common.configuration;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

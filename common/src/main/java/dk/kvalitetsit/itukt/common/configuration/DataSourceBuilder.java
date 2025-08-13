@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.common.configuration;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dk.kvalitetsit.itukt.common.model.DatasourceConfiguration;
 
 import javax.sql.DataSource;
 import java.time.Duration;

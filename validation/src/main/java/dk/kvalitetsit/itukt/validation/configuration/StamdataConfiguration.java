@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
-import dk.kvalitetsit.itukt.common.model.DatasourceConfiguration;
+import dk.kvalitetsit.itukt.common.configuration.DatasourceConfiguration;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;

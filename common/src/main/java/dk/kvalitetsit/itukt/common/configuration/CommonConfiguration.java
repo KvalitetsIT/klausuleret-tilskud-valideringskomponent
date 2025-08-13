@@ -7,5 +7,5 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "itukt.common")
-public record CommonConfiguration(@NotNull Datasource jdbc) {
+public record CommonConfiguration(@NotNull Datasource ituktdb) {
 }

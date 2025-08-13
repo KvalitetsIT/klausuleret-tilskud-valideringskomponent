@@ -31,9 +31,9 @@ public class CommonBeanRegistration {
     @Bean("appDataSource")
     public DataSource appDataSource() {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(configuration.jdbc().url());
-        hikariConfig.setUsername(configuration.jdbc().username());
-        hikariConfig.setPassword(configuration.jdbc().password());
+        hikariConfig.setJdbcUrl(configuration.ituktdb().url());
+        hikariConfig.setUsername(configuration.ituktdb().username());
+        hikariConfig.setPassword(configuration.ituktdb().password());
         return new HikariDataSource(hikariConfig);
     }
 

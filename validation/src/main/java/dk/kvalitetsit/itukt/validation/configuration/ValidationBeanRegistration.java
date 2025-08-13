@@ -38,9 +38,9 @@ public class ValidationBeanRegistration {
     @Bean("stamDataSource")
     public DataSource stamDataSource() {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(configuration.stamdata().jdbc().url());
-        hikariConfig.setUsername(configuration.stamdata().jdbc().username());
-        hikariConfig.setPassword(configuration.stamdata().jdbc().password());
+        hikariConfig.setJdbcUrl(configuration.stamdata().stamdatadb().url());
+        hikariConfig.setUsername(configuration.stamdata().stamdatadb().username());
+        hikariConfig.setPassword(configuration.stamdata().stamdatadb().password());
         return new HikariDataSource(hikariConfig);
     }
 

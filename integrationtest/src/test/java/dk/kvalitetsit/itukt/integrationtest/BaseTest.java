@@ -48,8 +48,8 @@ public abstract class BaseTest {
     @DynamicPropertySource
     static void overrideProps(DynamicPropertyRegistry registry) {
         environment.start();
-        setupAndRegisterProperties("stamdata-db", "validation.stamdata", "sdm_krs_a", "", registry);
-        setupAndRegisterProperties("app-db", "common", "validation_db", "rootroot", registry);
+        setupAndRegisterProperties("stamdata-db", "validation.stamdata.stamdatadb", "sdm_krs_a", "", registry);
+        setupAndRegisterProperties("itukt-db", "common.ituktdb", "itukt_db", "rootroot", registry);
     }
 
     private static void setupAndRegisterProperties(
@@ -61,24 +61,24 @@ public abstract class BaseTest {
     ) {
         String host = environment.getServiceHost(serviceName, 3306);
         Integer port = environment.getServicePort(serviceName, 3306);
-        registry.add("itukt." + prefix + ".jdbc.url", () -> "jdbc:mariadb://" + host + ":" + port + "/" + db);
-        registry.add("itukt." + prefix + ".jdbc.username", () -> "root");
-        registry.add("itukt." + prefix + ".jdbc.password", () -> password);
+        registry.add("itukt." + prefix + ".url", () -> "jdbc:mariadb://" + host + ":" + port + "/" + db);
+        registry.add("itukt." + prefix + ".username", () -> "root");
+        registry.add("itukt." + prefix + ".password", () -> password);
     }
 
     private static ComposeContainer runOutsideDocker(File composeFile) {
         return new ComposeContainer(composeFile)
-                .withServices("app-db", "stamdata-db")
-                .withExposedService("app-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+                .withServices("itukt-db", "stamdata-db")
+                .withExposedService("itukt-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
                 .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
                 .withLocalCompose(true);
     }
 
     private static ComposeContainer runInDocker(File composeFile) {
         return new ComposeContainer(composeFile)
-                .withServices("app-db", "stamdata-db", "validation-component")
-                .withExposedService("app-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer("app-db", new Slf4jLogConsumer(logger).withPrefix("app-db"))
+                .withServices("itukt-db", "stamdata-db", "validation-component")
+                .withExposedService("itukt-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+                .withLogConsumer("itukt-db", new Slf4jLogConsumer(logger).withPrefix("itukt-db"))
                 .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
                 .withLogConsumer("stamdata-db", new Slf4jLogConsumer(logger).withPrefix("stamdata-db"))
                 .withExposedService("validation-component", 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))

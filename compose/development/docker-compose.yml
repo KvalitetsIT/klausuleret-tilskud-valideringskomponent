@@ -1,9 +1,9 @@
 services:
-  app-db:
+  itukt-db:
     image: mariadb:10.11
     environment:
       - MYSQL_ROOT_PASSWORD=rootroot
-      - MYSQL_DATABASE=validation_db
+      - MYSQL_DATABASE=itukt_db
       - MYSQL_USER=user
       - MYSQL_PASSWORD=secret1234
     healthcheck:
@@ -33,16 +33,16 @@ services:
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
-      - itukt_common_jdbc_url=jdbc:mariadb://app-db:3306/validation_db
-      - itukt_common_jdbc_username=user
-      - itukt_common_jdbc_password=secret1234
-      - itukt_validation_stamdata_jdbc_url=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
-      - itukt_validation_stamdata_jdbc_username=root
-      - itukt_validation_stamdata_jdbc_password=
+      - itukt_common_ituktdb_url=jdbc:mariadb://itukt-db:3306/itukt_db
+      - itukt_common_ituktdb_username=user
+      - itukt_common_ituktdb_password=secret1234
+      - itukt_validation_stamdata_stamdatadb_url=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
+      - itukt_validation_stamdata_stamdatadb_username=root
+      - itukt_validation_stamdata_stamdatadb_password=
       - allowed_origins=http://localhost
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
-      app-db:
+      itukt-db:
         condition: service_healthy
       stamdata-db:
         condition: service_healthy

@@ -7,5 +7,5 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "stamdata")
-public record StamdataConfiguration(@NotNull Datasource jdbc) {
+public record StamdataConfiguration(@NotNull Datasource stamdatadb) {
 }

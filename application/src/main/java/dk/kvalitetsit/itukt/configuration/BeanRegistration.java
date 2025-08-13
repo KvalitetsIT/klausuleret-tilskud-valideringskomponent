@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.configuration;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionDslMapper;
@@ -22,13 +21,12 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
+import dk.kvalitetsit.itukt.validation.boundary.mapping.ValidationDataContextMapper;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
-import dk.kvalitetsit.itukt.validation.service.model.DataContext;
-import org.openapitools.model.ExistingDrugMedication;
 import org.openapitools.model.ValidationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +34,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.cors.CorsConfiguration;
@@ -45,7 +42,6 @@ import org.springframework.web.filter.CorsFilter;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 public class BeanRegistration {
@@ -120,15 +116,9 @@ public class BeanRegistration {
 
     @Bean
     public ValidationService<ValidationRequest> validationService(@Autowired ClauseRepositoryAdaptor clauseRepository) {
-
-        Mapper<ValidationRequest, DataContext> mapper = entry -> new DataContext(Map.of(
-                "ALDER", List.of(entry.getAge().toString()),
-                "ATC", entry.getExistingDrugMedications().orElse(List.of()).stream().map(ExistingDrugMedication::getAtcCode).toList()
-        ));
-
         return new ValidationServiceAdaptor(
                 new ValidationServiceImpl(clauseRepository),
-                mapper
+                new ValidationDataContextMapper()
         );
     }
 

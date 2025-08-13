@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-@ConfigurationProperties(prefix = "app.validation")
+@ConfigurationProperties(prefix = "itukt.validation")
 public record ValidationConfiguration(@NotNull StamdataConfiguration stamdata) {
 
 }

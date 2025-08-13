@@ -61,9 +61,9 @@ public abstract class BaseTest {
     ) {
         String host = environment.getServiceHost(serviceName, 3306);
         Integer port = environment.getServicePort(serviceName, 3306);
-        registry.add("app." + prefix + ".jdbc.url", () -> "jdbc:mariadb://" + host + ":" + port + "/" + db);
-        registry.add("app." + prefix + ".jdbc.username", () -> "root");
-        registry.add("app." + prefix + ".jdbc.password", () -> password);
+        registry.add("itukt." + prefix + ".jdbc.url", () -> "jdbc:mariadb://" + host + ":" + port + "/" + db);
+        registry.add("itukt." + prefix + ".jdbc.username", () -> "root");
+        registry.add("itukt." + prefix + ".jdbc.password", () -> password);
     }
 
     private static ComposeContainer runOutsideDocker(File composeFile) {

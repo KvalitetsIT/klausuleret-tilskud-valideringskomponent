@@ -33,12 +33,12 @@ services:
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
-      - app_common_jdbc_url=jdbc:mariadb://app-db:3306/validation_db
-      - app_common_jdbc_username=user
-      - app_common_jdbc_password=secret1234
-      - app_validation_stamdata_jdbc_url=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
-      - app_validation_stamdata_jdbc_username=root
-      - app_validation_stamdata_jdbc_password=
+      - itukt_common_jdbc_url=jdbc:mariadb://app-db:3306/validation_db
+      - itukt_common_jdbc_username=user
+      - itukt_common_jdbc_password=secret1234
+      - itukt_validation_stamdata_jdbc_url=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
+      - itukt_validation_stamdata_jdbc_username=root
+      - itukt_validation_stamdata_jdbc_password=
       - allowed_origins=http://localhost
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:

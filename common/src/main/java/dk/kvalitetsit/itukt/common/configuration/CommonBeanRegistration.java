@@ -1,9 +1,6 @@
 package dk.kvalitetsit.itukt.common.configuration;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +12,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 @Configuration
 @EnableTransactionManagement
@@ -28,13 +24,14 @@ public class CommonBeanRegistration {
         this.configuration = configuration;
     }
 
+    @Bean
+    public DataSourceBuilder dataSourceBuilder() {
+        return new DataSourceBuilder();
+    }
+
     @Bean("appDataSource")
-    public DataSource appDataSource() {
-        var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(configuration.ituktdb().url());
-        hikariConfig.setUsername(configuration.ituktdb().username());
-        hikariConfig.setPassword(configuration.ituktdb().password());
-        return new HikariDataSource(hikariConfig);
+    public DataSource appDataSource(DataSourceBuilder dataSourceBuilder) {
+        return dataSourceBuilder.build(configuration.ituktdb());
     }
 
     @Bean
@@ -43,15 +40,15 @@ public class CommonBeanRegistration {
     }
 
     @Bean
-    public CorsFilter corsFilter(@Value("#{'${allowed_origins:http://localhost}'}") List<String> allowedOrigins) {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        allowedOrigins.forEach(config::addAllowedOrigin);
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+    public CorsFilter corsFilter() {
+        var corsConfig = new CorsConfiguration();
+        corsConfig.setAllowCredentials(true);
+        configuration.allowedOrigins().forEach(corsConfig::addAllowedOrigin);
+        corsConfig.addAllowedHeader("*");
+        corsConfig.addAllowedMethod("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", corsConfig);
 
         return new CorsFilter(source);
     }

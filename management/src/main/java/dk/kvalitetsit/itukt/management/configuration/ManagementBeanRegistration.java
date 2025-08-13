@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
@@ -54,39 +53,13 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public Mapper<org.openapitools.model.Clause, Clause> dtoClauseMapper() {
-        return new DtoClauseMapper(new DtoExpressionMapper());
-    }
-
-    @Bean
-    public Mapper<String, org.openapitools.model.Clause> dslClauseMapper() {
-        return new DslClauseMapper();
-    }
-
-    @Bean
-    public Mapper<Clause, String> modelDslMapper() {
-        return new ClauseDslMapper(new ExpressionDslMapper());
-    }
-
-    @Bean
-    public Mapper<Clause, org.openapitools.model.Clause> clauseModelDtoMapper() {
-        return new ClauseModelDtoMapper(new ExpressionModelDtoMapper());
-    }
-
-    @Bean
-    public ManagementServiceAdaptor managementServiceAdaptor(
-            @Autowired ManagementService<Clause> managementService,
-            @Autowired Mapper<org.openapitools.model.Clause, Clause> dtoClauseMapper,
-            @Autowired Mapper<String, org.openapitools.model.Clause> dslClauseMapper,
-            @Autowired Mapper<Clause, String> modelDslMapper,
-            @Autowired Mapper<Clause, org.openapitools.model.Clause> clauseModelDtoMapper
-    ) {
+    public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService<Clause> managementService) {
         return new ManagementServiceAdaptor(
                 managementService,
-                dtoClauseMapper,
-                clauseModelDtoMapper,
-                dslClauseMapper,
-                modelDslMapper
+                new DtoClauseMapper(new DtoExpressionMapper()),
+                new ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
+                new DslClauseMapper(),
+                new ClauseDslMapper(new ExpressionDslMapper())
         );
     }
 

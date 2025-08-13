@@ -1,5 +1,7 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
@@ -25,6 +27,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -36,6 +40,20 @@ public class ManagementBeanRegistration {
 
     public ManagementBeanRegistration(ManagementConfiguration configuration) {
         this.configuration = configuration;
+    }
+
+    @Bean("appDataSource")
+    public DataSource appDataSource() {
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(configuration.jdbc().url());
+        hikariConfig.setUsername(configuration.jdbc().username());
+        hikariConfig.setPassword(configuration.jdbc().password());
+        return new HikariDataSource(hikariConfig);
+    }
+
+    @Bean
+    public PlatformTransactionManager clauseTransactionManager(@Qualifier("appDataSource") DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
     }
 
     @Bean

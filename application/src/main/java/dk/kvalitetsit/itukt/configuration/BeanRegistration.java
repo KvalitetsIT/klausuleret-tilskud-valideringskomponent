@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.configuration;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionDslMapper;
@@ -22,13 +21,12 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
+import dk.kvalitetsit.itukt.validation.boundary.mapping.ValidationDataContextMapper;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
-import dk.kvalitetsit.itukt.validation.service.model.DataContext;
-import org.openapitools.model.ExistingDrugMedication;
 import org.openapitools.model.ValidationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +34,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.cors.CorsConfiguration;
@@ -45,7 +42,6 @@ import org.springframework.web.filter.CorsFilter;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 public class BeanRegistration {
@@ -93,34 +89,6 @@ public class BeanRegistration {
     }
 
     @Bean
-    public Mapper<org.openapitools.model.Clause, Clause> dtoMapper() {
-        return new DtoClauseMapper(new DtoExpressionMapper());
-    }
-
-    @Bean
-    public Mapper<Clause, org.openapitools.model.Clause> clauseDtoMapper() {
-        return new ClauseModelDtoMapper(new ExpressionModelDtoMapper());
-    }
-
-    @Bean
-    public Mapper<String, org.openapitools.model.Clause> dslMapper() {
-        return new DslClauseMapper();
-    }
-
-    @Bean
-    public Mapper<Clause, String> modelDslMapper() {
-        return new ClauseDslMapper(new ExpressionDslMapper());
-    }
-
-    @Bean
-    public Mapper<ValidationRequest, DataContext> validationRequestDataContextMapper() {
-        return entry -> new DataContext(Map.of(
-                "ALDER", List.of(entry.getAge().toString()),
-                "ATC", entry.getExistingDrugMedications().orElse(List.of()).stream().map(ExistingDrugMedication::getAtcCode).toList()
-        ));
-    }
-
-    @Bean
     public ManagementService<Clause> managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
         return new ManagementServiceImpl(clauseRepository);
     }
@@ -136,30 +104,24 @@ public class BeanRegistration {
     }
 
     @Bean
-    public ManagementServiceAdaptor managementServiceAdaptor(
-            @Autowired ManagementService<Clause> managementService,
-            @Autowired Mapper<org.openapitools.model.Clause, Clause> dtoClauseMapper,
-            @Autowired Mapper<String, org.openapitools.model.Clause> dslClauseMapper,
-            @Autowired Mapper<Clause, String> modelDslMapper,
-            @Autowired Mapper<Clause, org.openapitools.model.Clause> clauseModelDtoMapper
-    ) {
+    public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService<Clause> managementService) {
         return new ManagementServiceAdaptor(
                 managementService,
-                dtoClauseMapper,
-                clauseModelDtoMapper,
-                dslClauseMapper,
-                modelDslMapper
+                new DtoClauseMapper(new DtoExpressionMapper()),
+                new ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
+                new DslClauseMapper(),
+                new ClauseDslMapper(new ExpressionDslMapper())
         );
     }
 
     @Bean
-    public ValidationService<ValidationRequest> validationService(
-            @Autowired ClauseRepositoryAdaptor clauseRepository,
-            @Autowired Mapper<ValidationRequest, DataContext> validationRequestDataContextMapper
-    ) {
-        ValidationService<DataContext> concreteValidationService = new ValidationServiceImpl(clauseRepository);
-        return new ValidationServiceAdaptor(concreteValidationService, validationRequestDataContextMapper);
+    public ValidationService<ValidationRequest> validationService(@Autowired ClauseRepositoryAdaptor clauseRepository) {
+        return new ValidationServiceAdaptor(
+                new ValidationServiceImpl(clauseRepository),
+                new ValidationDataContextMapper()
+        );
     }
+
 
     @Bean
     public CorsFilter corsFilter(@Value("#{'${allowed_origins:http://localhost}'}") List<String> allowedOrigins) {

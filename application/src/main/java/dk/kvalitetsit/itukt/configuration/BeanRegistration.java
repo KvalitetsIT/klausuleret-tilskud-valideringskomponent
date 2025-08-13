@@ -2,6 +2,9 @@ package dk.kvalitetsit.itukt.configuration;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.DatasourceConfiguration;
+import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionDslMapper;
@@ -9,15 +12,13 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoExpressionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityClauseMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityExpressionMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseEntityMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionEntityMapper;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
@@ -30,7 +31,6 @@ import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
 import org.openapitools.model.ValidationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -41,7 +41,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Configuration
 public class BeanRegistration {
@@ -55,20 +58,12 @@ public class BeanRegistration {
     @Primary
     @Bean("appDataSource")
     public DataSource appDataSource() {
-        return createDataSource(
-                configuration.management().jdbc().url(),
-                configuration.management().jdbc().username(),
-                configuration.management().jdbc().password()
-        );
+        return createDataSource(configuration.management().jdbc());
     }
 
     @Bean("stamDataSource")
     public DataSource stamDataSource() {
-        return createDataSource(
-                configuration.validation().jdbc().url(),
-                configuration.validation().jdbc().username(),
-                configuration.validation().jdbc().password()
-        );
+        return createDataSource(configuration.validation().jdbc());
     }
 
 
@@ -124,10 +119,10 @@ public class BeanRegistration {
 
 
     @Bean
-    public CorsFilter corsFilter(@Value("#{'${allowed_origins:http://localhost}'}") List<String> allowedOrigins) {
+    public CorsFilter corsFilter(MainConfiguration configuration) {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        allowedOrigins.forEach(config::addAllowedOrigin);
+        configuration.allowedOrigins().forEach(config::addAllowedOrigin);
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
@@ -137,11 +132,18 @@ public class BeanRegistration {
         return new CorsFilter(source);
     }
 
-    private DataSource createDataSource(String url, String username, String password) {
+    private DataSource createDataSource(DatasourceConfiguration config) {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(url);
-        hikariConfig.setUsername(username);
-        hikariConfig.setPassword(password);
+        hikariConfig.setJdbcUrl(config.url());
+        hikariConfig.setUsername(config.username());
+        hikariConfig.setPassword(config.password());
+
+        Optional.ofNullable(config.connection()).ifPresent(connection -> {
+            Optional.ofNullable(connection.testQuery()).ifPresent(hikariConfig::setConnectionTestQuery);
+            Optional.ofNullable(connection.maxAge()).map(Duration::toMillis).ifPresent(hikariConfig::setMaxLifetime);
+            Optional.ofNullable(connection.maxIdleTime()).map(Duration::toMillis).ifPresent(hikariConfig::setIdleTimeout);
+        });
+
         return new HikariDataSource(hikariConfig);
     }
 

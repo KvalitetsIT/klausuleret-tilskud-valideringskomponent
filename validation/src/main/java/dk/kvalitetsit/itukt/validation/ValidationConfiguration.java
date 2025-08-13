@@ -1,11 +1,8 @@
 package dk.kvalitetsit.itukt.validation;
 
-import dk.kvalitetsit.itukt.common.model.Datasource;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import dk.kvalitetsit.itukt.common.model.DatasourceConfiguration;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-@ConfigurationProperties(prefix = "validation")
-public record ValidationConfiguration(Datasource jdbc) {
-
+public record ValidationConfiguration(DatasourceConfiguration jdbc) {
 }

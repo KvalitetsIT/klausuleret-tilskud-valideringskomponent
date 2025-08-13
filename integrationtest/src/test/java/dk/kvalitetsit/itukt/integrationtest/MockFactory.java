@@ -1,5 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.openapitools.client.model.*;
 
 import java.util.List;
@@ -32,5 +34,6 @@ public class MockFactory {
             ));
 
     public static final dk.kvalitetsit.itukt.common.model.Clause clauseModel = new dk.kvalitetsit.itukt.common.model.Clause("CHOL", Optional.of(UUID.randomUUID()), expressionModel);
+    public static ClauseEntity clauseEntity = new ClauseEntity(UUID.randomUUID(), "clause_1", new ExpressionEntity.BinaryExpressionEntity());
 }
 

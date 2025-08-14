@@ -13,12 +13,9 @@ public class DataSourceBuilder {
         hikariConfig.setJdbcUrl(config.url());
         hikariConfig.setUsername(config.username());
         hikariConfig.setPassword(config.password());
-
-        Optional.ofNullable(config.connection()).ifPresent(connection -> {
-            Optional.ofNullable(connection.testQuery()).ifPresent(hikariConfig::setConnectionTestQuery);
-            Optional.ofNullable(connection.maxAge()).map(Duration::toMillis).ifPresent(hikariConfig::setMaxLifetime);
-            Optional.ofNullable(connection.maxIdleTime()).map(Duration::toMillis).ifPresent(hikariConfig::setIdleTimeout);
-        });
+        hikariConfig.setMaxLifetime(config.connection().maxAge().toMillis());
+        Optional.ofNullable(config.connection().testQuery()).ifPresent(hikariConfig::setConnectionTestQuery);
+        Optional.ofNullable(config.connection().maxIdleTime()).map(Duration::toMillis).ifPresent(hikariConfig::setIdleTimeout);
 
         return new HikariDataSource(hikariConfig);
     }

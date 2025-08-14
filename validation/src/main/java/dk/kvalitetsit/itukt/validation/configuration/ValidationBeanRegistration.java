@@ -1,6 +1,8 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
+import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.validation.boundary.mapping.ValidationInputMapper;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.boundary.mapping.ValidationDataContextMapper;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
@@ -10,6 +12,7 @@ import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
 import org.openapitools.model.ValidationRequest;
+import org.openapitools.model.ValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -51,10 +54,10 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public ValidationService<ValidationRequest> validationService(@Autowired ClauseCache clauseCache) {
+    public ValidationService<ValidationRequest, ValidationResponse> validationService(@Autowired ClauseCache clauseCache) {
         return new ValidationServiceAdaptor(
                 new ValidationServiceImpl(clauseCache),
-                new ValidationDataContextMapper()
+                new ValidationInputMapper()
         );
     }
 

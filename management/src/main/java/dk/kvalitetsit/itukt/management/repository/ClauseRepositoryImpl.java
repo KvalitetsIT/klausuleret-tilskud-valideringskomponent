@@ -63,10 +63,8 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
         // Use provided ID directly, do not use GeneratedKeyHolder here
         template.update(
-                "INSERT INTO expression (clause_id, type) VALUES (:clause_id, :type)",
-                new MapSqlParameterSource()
-                        .addValue("clause_id", clauseId)
-                        .addValue("type", expression.type().getValue()),
+                "INSERT INTO expression (type) VALUES (:type)",
+                new MapSqlParameterSource().addValue("type", expression.type().getValue()),
                 keyHolder,
                 new String[]{"id"}
         );

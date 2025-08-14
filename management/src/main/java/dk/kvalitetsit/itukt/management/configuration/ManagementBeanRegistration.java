@@ -21,14 +21,12 @@ import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
 @Configuration
-@EnableConfigurationProperties(ManagementConfiguration.class)
 public class ManagementBeanRegistration {
 
     private final ManagementConfiguration configuration;

@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.common.configuration;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -15,7 +14,6 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@EnableConfigurationProperties(CommonConfiguration.class)
 public class CommonBeanRegistration {
 
     private final CommonConfiguration configuration;

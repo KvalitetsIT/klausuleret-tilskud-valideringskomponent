@@ -12,7 +12,6 @@ import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
 import org.openapitools.model.ValidationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -21,7 +20,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-@EnableConfigurationProperties(ValidationConfiguration.class)
 public class ValidationBeanRegistration {
 
     private final ValidationConfiguration configuration;

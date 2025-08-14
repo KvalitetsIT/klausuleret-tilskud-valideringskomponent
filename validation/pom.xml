@@ -93,11 +93,6 @@
             <artifactId>common</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
-            <artifactId>management</artifactId>
-        </dependency>
-
 
     </dependencies>
 </project>

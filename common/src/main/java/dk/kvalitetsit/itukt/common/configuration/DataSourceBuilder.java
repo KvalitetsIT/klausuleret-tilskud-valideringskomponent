@@ -1,0 +1,25 @@
+package dk.kvalitetsit.itukt.common.configuration;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import javax.sql.DataSource;
+import java.time.Duration;
+import java.util.Optional;
+
+public class DataSourceBuilder {
+    public DataSource build(DatasourceConfiguration config) {
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(config.url());
+        hikariConfig.setUsername(config.username());
+        hikariConfig.setPassword(config.password());
+
+        Optional.ofNullable(config.connection()).ifPresent(connection -> {
+            Optional.ofNullable(connection.testQuery()).ifPresent(hikariConfig::setConnectionTestQuery);
+            Optional.ofNullable(connection.maxAge()).map(Duration::toMillis).ifPresent(hikariConfig::setMaxLifetime);
+            Optional.ofNullable(connection.maxIdleTime()).map(Duration::toMillis).ifPresent(hikariConfig::setIdleTimeout);
+        });
+
+        return new HikariDataSource(hikariConfig);
+    }
+}

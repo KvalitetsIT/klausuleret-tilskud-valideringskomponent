@@ -4,7 +4,7 @@ package dk.kvalitetsit.itukt.validation.service;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,7 @@ class ValidationServiceImplTest {
     @InjectMocks
     private ValidationServiceImpl service;
     @Mock
-    private ClauseRepositoryAdaptor dao;
+    private ClauseRepository<Clause> dao;
 
     @Test
     void testCreate() {

@@ -29,7 +29,7 @@ public class ValidationIT extends BaseTest {
         managementApi.call20250801clausesDslPost(new DslInput().dsl("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"));
         var existingDrugMedication = new ExistingDrugMedication()
                 .atcCode("C10BA05")
-                .drugIdentifier("123456789")
+                .drugIdentifier(123456789L)
                 .formCode("TAB")
                 .routeOfAdministrationCode("OK");
         var request = new ValidationRequest()

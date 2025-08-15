@@ -8,10 +8,10 @@ import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.DslInput;
 import org.openapitools.client.model.ExistingDrugMedication;
 import org.openapitools.client.model.ValidationRequest;
-import org.openapitools.client.model.ValidationStatus;
+import org.openapitools.client.model.ValidationSuccess;
 import org.springframework.web.client.RestClientResponseException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ValidationIT extends BaseTest {
 
@@ -38,7 +38,7 @@ public class ValidationIT extends BaseTest {
                 .addExistingDrugMedicationsItem(existingDrugMedication);
         try {
             var response = validationApi.call20250801validatePost(request);
-            assertEquals(ValidationStatus.VALIDATED, response.getValidationStatus());
+            assertInstanceOf(ValidationSuccess.class, response);
         } catch (RestClientResponseException e) {
             throw new RuntimeException(e);
         }

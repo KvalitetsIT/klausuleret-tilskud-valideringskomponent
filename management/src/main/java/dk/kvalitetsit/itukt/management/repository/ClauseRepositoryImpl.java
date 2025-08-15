@@ -233,7 +233,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     private Optional<ExpressionEntity> readById(Long id) {
         try {
             String sql = "SELECT type FROM expression WHERE id = :id";
-            ExpressionType type = ExpressionType.valueOf(template.queryForObject(sql, Map.of("id", id), String.class));
+            ExpressionType type = template.queryForObject(sql, Map.of("id", id), ExpressionType.class);
 
             return Optional.of(switch (type) {
                 case CONDITION -> readCondition(id);

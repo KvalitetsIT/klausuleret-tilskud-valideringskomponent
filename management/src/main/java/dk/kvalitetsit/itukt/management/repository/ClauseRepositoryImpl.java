@@ -64,7 +64,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         // Use provided ID directly, do not use GeneratedKeyHolder here
         template.update(
                 "INSERT INTO expression (type) VALUES (:type)",
-                new MapSqlParameterSource().addValue("type", expression.type().getValue()),
+                new MapSqlParameterSource().addValue("type", expression.type().toString()),
                 keyHolder,
                 new String[]{"id"}
         );
@@ -97,7 +97,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
             Long id = ((Number) row.get("id")).longValue();
             String name = (String) row.get("name");
-            ExpressionType type =  ExpressionType.fromValue((String) row.get("type"));
+            ExpressionType type =  ExpressionType.valueOf((String) row.get("type"));
 
             ExpressionEntity expression = switch (type) {
                 case ExpressionType.CONDITION -> readCondition(id);
@@ -233,7 +233,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     private Optional<ExpressionEntity> readById(Long id) {
         try {
             String sql = "SELECT type FROM expression WHERE id = :id";
-            ExpressionType type = ExpressionType.fromValue(template.queryForObject(sql, Map.of("id", id), String.class));
+            ExpressionType type = ExpressionType.valueOf(template.queryForObject(sql, Map.of("id", id), String.class));
 
             return Optional.of(switch (type) {
                 case CONDITION -> readCondition(id);

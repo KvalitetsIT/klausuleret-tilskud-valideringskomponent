@@ -165,7 +165,7 @@ components:
           example: "2025-06-13T14:24:03+02:00"
         drugIdentifier:
           description: "Lægemidlets drugid. Kilde er foreløbigt altid Medicinpriser"
-          type: string
+          type: long
           example: "28100902676"
         indicationCode:
           description: "Indikationen som angivet ved oprettelse af ordinationen. Kilde er altid Medicinpriser"
@@ -196,7 +196,7 @@ components:
       properties:
         drugIdentifier:
           description: "Lægemidlet drugid, uanset kilde (dvs. f.eks. også magistrelle lægemidler)"
-          type: string
+          type: long
           example: "28100645874"
         atcCode:
           description: "ATC-kode. Kilde er altid Medicinpriser"

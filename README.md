@@ -1,7 +1,6 @@
 # klausuleret-tilskud-valideringskomponent
 
 ![Build Status](https://github.com/KvalitetsIT/klausuleret-tilskud-valideringskomponent/workflows/CICD/badge.svg)
-![Coverage](https://github.com/KvalitetsIT/klausuleret-tilskud-valideringskomponent/badges/jacoco.svg)
 
 **Komponent:** Klausuleret Tilskud – Valideringskomponent  
 **Version:** 1.0  

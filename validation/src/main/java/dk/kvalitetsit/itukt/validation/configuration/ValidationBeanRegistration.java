@@ -43,7 +43,7 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public StamDataRepository stamDataRepository(@Qualifier("stamDataSource")  DataSource dataSource){
+    public StamDataRepository stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
         return new StamDataRepositoryImpl(dataSource);
     }
 
@@ -54,9 +54,10 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public ValidationService<ValidationRequest, ValidationResponse> validationService(@Autowired ClauseCache clauseCache) {
+    public ValidationService<ValidationRequest, ValidationResponse> validationService(@Autowired ClauseCache clauseCache,
+                                                                                      @Autowired StamDataRepository stamDataRepository) {
         return new ValidationServiceAdaptor(
-                new ValidationServiceImpl(clauseCache),
+                new ValidationServiceImpl(clauseCache, stamDataRepository),
                 new ValidationInputMapper()
         );
     }

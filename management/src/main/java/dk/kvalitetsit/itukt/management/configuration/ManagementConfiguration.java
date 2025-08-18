@@ -5,5 +5,4 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "itukt.management")
-public record ManagementConfiguration() {
-}
+public record ManagementConfiguration(boolean isMocked) { }

@@ -11,6 +11,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapp
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryMock;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityClauseMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityExpressionMapper;
@@ -37,6 +38,7 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ClauseRepository<ClauseEntity> clauseRepository(@Qualifier("appDataSource") DataSource dataSource){
+        if (configuration.isMocked()) return new ClauseRepositoryMock();
         return new ClauseRepositoryImpl(dataSource);
     }
 

@@ -64,12 +64,12 @@ Hermed et eksempel på en *Docker Compose*-opsætning, som kan anvendes til at s
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
-      - APP_MANAGEMENT_JDBC_URL=jdbc:mariadb://app-db:3306/validation_db
-      - APP_MANAGEMENT_JDBC_USERNAME=user
-      - APP_MANAGEMENT_JDBC_PASSWORD=secret1234
-      - APP_VALIDATION_JDBC_URL=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
-      - APP_VALIDATION_JDBC_USERNAME=root
-      - APP_VALIDATION_JDBC_PASSWORD=
+      - ITUKT_COMMON_ITUKTDB_URL=jdbc:mariadb://app-db:3306/validation_db
+      - ITUKT_COMMON_ITUKTDB_USERNAME=user
+      - ITUKT_COMMON_ITUKTDB_PASSWORD=secret1234
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_URL=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_USERNAME=root
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD=
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       app-db:

@@ -32,11 +32,11 @@ class ValidationInputMapperTest {
     @Test
     void map_WithMultipleValidateItems_MapsAgeAndDrugId() {
         var newDrugMedication1 = new NewDrugMedication()
-                .drugIdentifier("11111");
+                .drugIdentifier(11111L);
         var validate1 = new Validate()
                 .newDrugMedication(newDrugMedication1);
         var newDrugMedication2 = new NewDrugMedication()
-                .drugIdentifier("22222");
+                .drugIdentifier(22222L);
         var validate2 = new Validate()
                 .newDrugMedication(newDrugMedication2);
         var validationRequest = new ValidationRequest()

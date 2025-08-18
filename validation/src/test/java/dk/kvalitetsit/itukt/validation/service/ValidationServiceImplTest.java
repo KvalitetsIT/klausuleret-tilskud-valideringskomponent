@@ -27,7 +27,7 @@ class ValidationServiceImplTest {
 
     @Test
     void testValidate() {
-        var validationInput = new ValidationInput(5, "1234");
+        var validationInput = new ValidationInput(5, 1234);
 
         var result = service.validate(validationInput);
 

@@ -193,9 +193,7 @@ Health-URL der kan bruges til readiness probe: `http://localhost:8081/actuator/h
 
 ### 5.2 Api specifikation
 
-Dokumentationen af API’et bygges som et separat Docker-image. Dokumentationen er bygget ved hjælp af Swagger.
-Dokumentations-imag’et får post-fix’et -documentation. Filen /compose/development/docker-compose.yml indeholder en
-opsætning, der starter både tjenesten og dokumentations-imag’et. En OpenAPI/Swagger-UI kan findes på nedenstående
+En OpenAPI/Swagger-UI kan findes på nedenstående
 adresse, hvor yderligere beskrivelser af felter, endpoints osv. kan ses:
 
 ```

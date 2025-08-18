@@ -233,11 +233,4 @@ Database-forbindelsespoolen er sat op ved hjælp af HikariCP og benytter dens st
 
 ## 7. Opdatering af afhængigheder
 Som standard bruger vi GitHub Actions som vores CI/CD-platform, og den kan også håndtere opdateringer af afhængigheder. Vi benytter GitHubs [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuring-dependabot-version-updates)
-til at oprette pull requests med opdateringer af afhængigheder. Derudover har vi et job, der automatisk godkender og merger afhængigheder. 
-Som udgangspunkt er dette kun aktiveret i skabelon-repositoriet. Du kan aktivere det ved at fjerne
-` && github.repository == 'KvalitetsIT/klausuleret-tilskud-valideringskomponent'`
-fra [dependabot-auto-merge.yml](.github/workflows/dependabot-auto-merge.yml). Inden du aktiverer det, bør du tage følgende i betragtning:
-
-- Hvis der ikke er konfigureret en branch protection rule, vil opdateringer af afhængigheder, der fejler det automatiske build og test, alligevel blive merged..
-- Du får ikke mulighed for at gennemgå ændringerne i afhængighederne, før de bliver merged. 
-- Enable auto-merge skal være aktiveret i repositoriet.
+til at oprette pull requests med opdateringer af afhængigheder. 

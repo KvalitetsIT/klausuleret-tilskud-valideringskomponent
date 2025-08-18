@@ -158,15 +158,15 @@ Den følgende tabel indeholder miljø-variable og dertilhørende beskrivelser.
 | LOG_LEVEL_FRAMEWORK                          | Log level for framework. Defaults to INFO.                                                                                   | No       |
 | CORRELATION_ID                               | HTTP header to take correlation id from. Used to correlate log messages. Defaults to "x-request-id".                         | No       |
 | APP_ALLOWED_ORIGINS                          | A list of urls/origins which is to be allowed by CORS.                                                                       | No       |
-| APP_MANAGEMENT_JDBC_URL                      | JDBC connection URL                                                                                                          | Yes      |
-| APP_MANAGEMENT_JDBC_USERNAME                 | JDBC user                                                                                                                    | Yes      |
-| APP_MANAGEMENT_JDBC_PASSWORD                 | JDBC password                                                                                                                | Yes      |
-| APP_MANAGEMENT_JDBC_CONNECTION_TEST_QUERY    | Query for testing the JDBC connection. Defaults to using the JDBC driver for validating connections.                         | No       |
-| APP_MANAGEMENT_JDBC_CONNECTION_MAX_AGE       | Maximum amount of time (ISO 8601 Duration) a connection is allowed to be in the JDBC connection pool. Defaults to 30 minutes | No       |
-| APP_MANAGEMENT_JDBC_CONNECTION_MAX_IDLE_TIME | Maximum amount of time (ISO 8601 Duration) a connection is allowed to sit idle in the JDBC connection pool                   | No       |
-| APP_VALIDATION_JDBC_URL                      | JDBC connection URL                                                                                                          | Yes      |
-| APP_VALIDATION_JDBC_USERNAME                 | JDBC user                                                                                                                    | Yes      |
-| APP_VALIDATION_JDBC_PASSWORD                 | JDBC password                                                                                                                | Yes      |
-| APP_VALIDATION_JDBC_CONNECTION_TEST_QUERY    | Query for testing the JDBC connection. Defaults to using the JDBC driver for validating connections.                         | No       |
-| APP_VALIDATION_JDBC_CONNECTION_MAX_AGE       | Maximum amount of time (ISO 8601 Duration) a connection is allowed to be in the JDBC connection pool. Defaults to 30 minutes | No       |
-| APP_VALIDATION_JDBC_CONNECTION_MAX_IDLE_TIME | Maximum amount of time (ISO 8601 Duration) a connection is allowed to sit idle in the JDBC connection pool                   | No       |
+| ITUKT_COMMON_ITUKTDB_URL                      | JDBC connection URL                                                                                                          | Yes      |
+| ITUKT_COMMON_ITUKTDB_USERNAME                 | JDBC user                                                                                                                    | Yes      |
+| ITUKT_COMMON_ITUKTDB_PASSWORD                 | JDBC password                                                                                                                | Yes      |
+| ITUKT_COMMON_ITUKTDB_CONNECTION_TEST_QUERY    | Query for testing the JDBC connection. Defaults to using the JDBC driver for validating connections.                         | No       |
+| ITUKT_COMMON_ITUKTDB_CONNECTION_MAX_AGE       | Maximum amount of time (ISO 8601 Duration) a connection is allowed to be in the JDBC connection pool. Defaults to 30 minutes | No       |
+| ITUKT_COMMON_ITUKTDB_CONNECTION_MAX_IDLE_TIME | Maximum amount of time (ISO 8601 Duration) a connection is allowed to sit idle in the JDBC connection pool                   | No       |
+| ITUKT_VALIDATION_STAMDATA_STAMDATADB_URL                      | JDBC connection URL                                                                                                          | Yes      |
+| ITUKT_VALIDATION_STAMDATA_STAMDATADB_USERNAME                 | JDBC user                                                                                                                    | Yes      |
+| ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD                 | JDBC password                                                                                                                | Yes      |
+| ITUKT_VALIDATION_STAMDATA_STAMDATADB_CONNECTION_TEST_QUERY    | Query for testing the JDBC connection. Defaults to using the JDBC driver for validating connections.                         | No       |
+| ITUKT_VALIDATION_STAMDATA_STAMDATADB_CONNECTION_MAX_AGE       | Maximum amount of time (ISO 8601 Duration) a connection is allowed to be in the JDBC connection pool. Defaults to 30 minutes | No       |
+| ITUKT_VALIDATION_STAMDATA_STAMDATADB_CONNECTION_MAX_IDLE_TIME | Maximum amount of time (ISO 8601 Duration) a connection is allowed to sit idle in the JDBC connection pool                   | No       |

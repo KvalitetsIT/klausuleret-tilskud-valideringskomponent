@@ -39,7 +39,7 @@ Følg nedenstående trin for at installere og starte *Klausuleret Tilskud – Va
     - [Docker Compose Installationsvejledning](https://docs.docker.com/compose/install/)
 
 2. Kontrollér, at du har adgang til nødvendige Docker-images:
-    - [trifork/tilskud-sdm-db:latest](https://hub.docker.com/layers/trifork/tilskud-sdm-db)
+    - [trifork/tilskud-sdm-db:latest](https://hub.docker.com/r/trifork/tilskud-sdm-db)
     - [kvalitetsit/klausuleret-tilskud-valideringskomponent:dev](https://hub.docker.com/r/kvalitetsit/klausuleret-tilskud-valideringskomponent)
     - [kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:dev](https://hub.docker.com/r/kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation)
 

@@ -40,8 +40,8 @@ Følg nedenstående trin for at installere og starte *Klausuleret Tilskud – Va
 
 2. Kontrollér, at du har adgang til nødvendige Docker-images:
     - [trifork/tilskud-sdm-db:latest](https://hub.docker.com/r/trifork/tilskud-sdm-db)
-    - [kvalitetsit/klausuleret-tilskud-valideringskomponent:dev](https://hub.docker.com/r/kvalitetsit/klausuleret-tilskud-valideringskomponent)
-    - [kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:dev](https://hub.docker.com/r/kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation)
+    - [kvalitetsit/klausuleret-tilskud-valideringskomponent:0.0.1](https://hub.docker.com/r/kvalitetsit/klausuleret-tilskud-valideringskomponent)
+    - [kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:0.0.1](https://hub.docker.com/r/kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation)
 
 ### Trin 2 – Justér nedenstående docker-compose og opsæt miljøvariabler
 

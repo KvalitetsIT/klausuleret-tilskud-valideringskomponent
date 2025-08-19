@@ -9,7 +9,7 @@ public sealed interface ExpressionEntity
         ExpressionEntity.BinaryExpressionEntity,
         ExpressionEntity.ParenthesizedExpressionEntity {
 
-    String type();
+    ExpressionType type();
 
     Long id();
 
@@ -19,8 +19,8 @@ public sealed interface ExpressionEntity
             implements ExpressionEntity {
 
         @Override
-        public String type() {
-            return "condition_expression";
+        public ExpressionType type() {
+            return ExpressionType.CONDITION;
         }
 
         @Override
@@ -33,8 +33,8 @@ public sealed interface ExpressionEntity
             implements ExpressionEntity {
 
         @Override
-        public String type() {
-            return "binary_expression";
+        public ExpressionType type() {
+            return ExpressionType.BINARY;
         }
 
         @Override
@@ -47,8 +47,8 @@ public sealed interface ExpressionEntity
             implements ExpressionEntity {
 
         @Override
-        public String type() {
-            return "parenthesized_expression";
+        public ExpressionType type() {
+            return ExpressionType.PARENTHESIZED;
         }
 
         @Override

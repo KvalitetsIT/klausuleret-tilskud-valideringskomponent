@@ -6,16 +6,14 @@ import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -65,10 +63,8 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
         // Use provided ID directly, do not use GeneratedKeyHolder here
         template.update(
-                "INSERT INTO expression (clause_id, type) VALUES (:clause_id, :type)",
-                new MapSqlParameterSource()
-                        .addValue("clause_id", clauseId)
-                        .addValue("type", expression.type()),
+                "INSERT INTO expression (type) VALUES (:type)",
+                new MapSqlParameterSource().addValue("type", expression.type().toString()),
                 keyHolder,
                 new String[]{"id"}
         );
@@ -77,21 +73,10 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 .orElseThrow(() -> new ServiceException("Failed to get expression primary key"))
                 .longValue();
 
-        switch (expression.type()) {
-            case "condition_expression" -> insertCondition(
-                    expressionId,
-                    (ExpressionEntity.ConditionEntity) expression
-            );
-            case "binary_expression" -> insertBinary(
-                    clauseId,
-                    expressionId,
-                    (ExpressionEntity.BinaryExpressionEntity) expression
-            );
-            case "parenthesized_expression" -> insertParenthesized(
-                    clauseId,
-                    expressionId,
-                    (ExpressionEntity.ParenthesizedExpressionEntity) expression
-            );
+        switch (expression) {
+            case ExpressionEntity.ConditionEntity e -> insertCondition(expressionId, e);
+            case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(clauseId, expressionId, e);
+            case ExpressionEntity.ParenthesizedExpressionEntity e -> insertParenthesized(clauseId, expressionId, e);
         }
 
         // Return a copy with the correct ID
@@ -112,13 +97,12 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
             Long id = ((Number) row.get("id")).longValue();
             String name = (String) row.get("name");
-            String type = (String) row.get("type");
+            ExpressionType type =  ExpressionType.valueOf((String) row.get("type"));
 
             ExpressionEntity expression = switch (type) {
-                case "condition_expression" -> readCondition(id);
-                case "binary_expression" -> readBinary(id);
-                case "parenthesized_expression" -> readParenthesized(id);
-                default -> throw new IllegalStateException("Unknown expression type: " + type);
+                case ExpressionType.CONDITION -> readCondition(id);
+                case ExpressionType.BINARY -> readBinary(id);
+                case ExpressionType.PARENTHESIZED -> readParenthesized(id);
             };
 
             return Optional.of(new ClauseEntity(id, uuid, name, expression));
@@ -232,8 +216,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                         readById(rs.getLong("right_id")).orElseThrow()
                 )
         );
-
-
     }
 
     private ExpressionEntity readParenthesized(Long id) {
@@ -251,13 +233,12 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     private Optional<ExpressionEntity> readById(Long id) {
         try {
             String sql = "SELECT type FROM expression WHERE id = :id";
-            String type = template.queryForObject(sql, Map.of("id", id), String.class);
+            ExpressionType type = template.queryForObject(sql, Map.of("id", id), ExpressionType.class);
 
             return Optional.of(switch (type) {
-                case "condition_expression" -> readCondition(id);
-                case "binary_expression" -> readBinary(id);
-                case "parenthesized_expression" -> readParenthesized(id);
-                default -> throw new IllegalStateException("Unknown expression type: " + type);
+                case CONDITION -> readCondition(id);
+                case BINARY -> readBinary(id);
+                case PARENTHESIZED -> readParenthesized(id);
             });
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

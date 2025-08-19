@@ -165,7 +165,7 @@ components:
           example: "2025-06-13T14:24:03+02:00"
         drugIdentifier:
           description: "Lægemidlets drugid. Kilde er foreløbigt altid Medicinpriser"
-          type: string
+          type: long
           example: "28100902676"
         indicationCode:
           description: "Indikationen som angivet ved oprettelse af ordinationen. Kilde er altid Medicinpriser"
@@ -196,7 +196,7 @@ components:
       properties:
         drugIdentifier:
           description: "Lægemidlet drugid, uanset kilde (dvs. f.eks. også magistrelle lægemidler)"
-          type: string
+          type: long
           example: "28100645874"
         atcCode:
           description: "ATC-kode. Kilde er altid Medicinpriser"
@@ -214,26 +214,58 @@ components:
 
     validationResponse:
       type: object
+      oneOf:
+        - $ref: '#/components/schemas/validationSuccess'
+        - $ref: '#/components/schemas/validationNotPossible'
+        - $ref: '#/components/schemas/validationFailed'
+      discriminator:
+        propertyName: validationStatus
+        mapping:
+          validationSuccess: '#/components/schemas/validationSuccess'
+          validationNotPossible: '#/components/schemas/validationNotPossible'
+          validationFailed: '#/components/schemas/validationFailed'
+
+    validationSuccess:
+      description: "Valideringen er gennemført uden fejl. validationStatus=validationSuccess"
+      type: object
       required:
         - validationStatus
       properties:
         validationStatus:
-          $ref: "#/components/schemas/validationStatus"
-        validationErrors:
-          type: array
-          items:
-            $ref: "#/components/schemas/validationError"
+            type: string
 
-    validationStatus:
-      description: "Status for valideringen"
-      type: string
-      enum:
-        - Validated
-        - ExistingDrugMedicationsRequired
-        - ValidationFailed
+    validationNotPossible:
+      description: "Valideringen kunne ikke gennemføres. validationStatus=validationNotPossible"
+      type: object
+      required:
+        - validationStatus
+        - reason
+      properties:
+        validationStatus:
+          type: string
+        reason:
+          description: "Årsag til at valideringen ikke er mulig"
+          type: string
+          enum:
+            - ExistingDrugMedicationsRequired
+
+    validationFailed:
+      description: "Valideringen fejlede. validationStatus=validationFailed"
+      type: object
+      required:
+        - validationStatus
+        - validationErrors
+      properties:
+        validationStatus:
+          type: string
+        validationErrors:
+            description: "Liste af valideringsfejl"
+            type: array
+            items:
+                $ref: "#/components/schemas/validationError"
 
     validationError:
-      description: "Detaljer om valideringsfejl. Altid inkluderet hvis validationStatus er ValidationFailed"
+      description: "Detaljer om valideringsfejl"
       type: object
       required:
         - errorCode

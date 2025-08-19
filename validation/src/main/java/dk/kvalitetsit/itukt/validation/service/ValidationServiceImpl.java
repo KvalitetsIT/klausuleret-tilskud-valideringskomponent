@@ -5,8 +5,6 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 
-import java.util.List;
-
 public class ValidationServiceImpl implements ValidationService<DataContext> {
 
     private final ClauseRepository<Clause> clauseRepository;
@@ -19,7 +17,8 @@ public class ValidationServiceImpl implements ValidationService<DataContext> {
 
     @Override
     public boolean validate(DataContext ctx) {
-        List<Clause> clauses = this.clauseRepository.readAll();
-        return clauses.stream().allMatch(clause -> evaluator.eval(clause.expression(), ctx));
+//        List<Clause> clauses = this.clauseRepository.readAll();
+//        clauses.stream().anyMatch(clause -> evaluator.eval(clause.expression(), ctx));
+        return true;
     }
 }

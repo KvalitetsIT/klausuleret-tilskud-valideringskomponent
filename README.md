@@ -87,14 +87,14 @@ databaseinstanser.
       retries: 10
     
   validation-component:
-    image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
+    image: kvalitetsit/klausuleret-tilskud-valideringskomponent:0.0.1
     environment:
-      - APP_MANAGEMENT_JDBC_URL=jdbc:mariadb://app-db:3306/validation_db
-      - APP_MANAGEMENT_JDBC_USERNAME=user
-      - APP_MANAGEMENT_JDBC_PASSWORD=secret1234
-      - APP_VALIDATION_JDBC_URL=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
-      - APP_VALIDATION_JDBC_USERNAME=root
-      - APP_VALIDATION_JDBC_PASSWORD=
+      - ITUKT_COMMON_ITUKTDB_URL=jdbc:mariadb://itukt-db:3306/itukt_db
+      - ITUKT_COMMON_ITUKTDB_USERNAME=user
+      - ITUKT_COMMON_ITUKTDB_PASSWORD=secret1234
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_URL=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_USERNAME=root
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD=
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       app-db:
@@ -107,7 +107,7 @@ databaseinstanser.
       - 5005:5005
 
   documentation-and-test:
-    image: kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:latest
+    image: kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:0.0.1
     environment:
       - BASE_URL=/openapi
       - 'SERVER_URLS=[{"url": "http://localhost:8080", "name": "validation"}]'
@@ -186,10 +186,6 @@ Tjenesten lytter efter forbindelser på port 8080.
 
 Spring Boot Actuator lytter efter forbindelser på port 8081 (dette bruges som Prometheus scrape-endpoint og til
 sundhedsovervågning).
-
-Prometheus scrape-endpoint: `http://localhost:8081/actuator/prometheus`
-
-Health-URL der kan bruges til readiness probe: `http://localhost:8081/actuator/health`
 
 ### 5.2 Api specifikation
 

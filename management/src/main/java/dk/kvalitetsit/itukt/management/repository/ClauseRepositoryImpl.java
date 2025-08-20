@@ -171,7 +171,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 Map.of(
                         "expression_id", parentId,
                         "left_id", left.id(),
-                        "operator", binary.operator().getValue(),
+                        "operator", binary.operator().toString(),
                         "right_id", right.id()
                 ));
     }
@@ -212,7 +212,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 (rs, rowNum) -> new ExpressionEntity.BinaryExpressionEntity(
                         id,
                         readById(rs.getLong("left_id")).orElseThrow(),
-                        Expression.BinaryExpression.BinaryOperator.fromValue(rs.getString("operator")),
+                        Expression.BinaryExpression.BinaryOperator.valueOf(rs.getString("operator")),
                         readById(rs.getLong("right_id")).orElseThrow()
                 )
         );

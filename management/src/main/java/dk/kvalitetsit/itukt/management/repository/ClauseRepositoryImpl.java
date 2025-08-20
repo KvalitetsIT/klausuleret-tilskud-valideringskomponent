@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
@@ -96,7 +97,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
             Long id = ((Number) row.get("id")).longValue();
             String name = (String) row.get("name");
-            ExpressionType type =  ExpressionType.valueOf((String) row.get("type"));
+            ExpressionType type = ExpressionType.valueOf((String) row.get("type"));
 
             ExpressionEntity expression = switch (type) {
                 case ExpressionType.CONDITION -> readCondition(id);
@@ -170,7 +171,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 Map.of(
                         "expression_id", parentId,
                         "left_id", left.id(),
-                        "operator", binary.operator(),
+                        "operator", binary.operator().getValue(),
                         "right_id", right.id()
                 ));
     }
@@ -211,7 +212,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 (rs, rowNum) -> new ExpressionEntity.BinaryExpressionEntity(
                         id,
                         readById(rs.getLong("left_id")).orElseThrow(),
-                        rs.getString("operator"),
+                        Expression.BinaryExpression.BinaryOperator.fromValue(rs.getString("operator")),
                         readById(rs.getLong("right_id")).orElseThrow()
                 )
         );

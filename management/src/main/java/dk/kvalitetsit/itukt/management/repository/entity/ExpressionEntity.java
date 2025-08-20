@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
+import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public sealed interface ExpressionEntity
         }
     }
 
-    record BinaryExpressionEntity(Long id, ExpressionEntity left, String operator, ExpressionEntity right)
+    record BinaryExpressionEntity(Long id, ExpressionEntity left, Expression.BinaryExpression.BinaryOperator operator, ExpressionEntity right)
             implements ExpressionEntity {
 
         @Override

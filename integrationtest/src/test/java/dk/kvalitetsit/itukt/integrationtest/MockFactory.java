@@ -34,6 +34,16 @@ public class MockFactory {
             ));
 
     public static final dk.kvalitetsit.itukt.common.model.Clause clauseModel = new dk.kvalitetsit.itukt.common.model.Clause("CHOL", Optional.of(UUID.randomUUID()), expressionModel);
-    public static ClauseEntity clauseEntity = new ClauseEntity(UUID.randomUUID(), "clause_1", new ExpressionEntity.BinaryExpressionEntity());
+
+    public static ClauseEntity clauseEntity = new ClauseEntity(UUID.randomUUID(),
+            "clause_1",
+            new ExpressionEntity.BinaryExpressionEntity(
+                    new ExpressionEntity.ConditionEntity("field_1", dk.kvalitetsit.itukt.common.model.Operator.EQUAL, List.of("item_1", "item_2", "item_3")),
+                    dk.kvalitetsit.itukt.common.model.Expression.BinaryExpression.BinaryOperator.AND,
+                    new ExpressionEntity.ConditionEntity("field_2", dk.kvalitetsit.itukt.common.model.Operator.EQUAL, List.of("item_1", "item_2"))
+            )
+    );
+
+
 }
 

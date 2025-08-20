@@ -73,14 +73,14 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 .orElseThrow(() -> new ServiceException("Failed to get expression primary key"))
                 .longValue();
 
-        switch (expression) {
+        return switch (expression) {
             case ExpressionEntity.ConditionEntity e -> insertCondition(expressionId, e);
             case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(clauseId, expressionId, e);
             case ExpressionEntity.ParenthesizedExpressionEntity e -> insertParenthesized(clauseId, expressionId, e);
-        }
+        };
 
         // Return a copy with the correct ID
-        return expression.withId(expressionId); // Make sure ExpressionEntity has `withId(long)` method
+//        return expression.withId(expressionId); // Make sure ExpressionEntity has `withId(long)` method
     }
 
     @Override
@@ -140,7 +140,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         }
     }
 
-    private void insertCondition(long parentId, ExpressionEntity.ConditionEntity condition) {
+    private ExpressionEntity.ConditionEntity insertCondition(long parentId, ExpressionEntity.ConditionEntity condition) {
 
         template.update(
                 "INSERT INTO condition_expression(expression_id, field, operator) VALUES (:expression_id, :field, :operator)",
@@ -158,10 +158,11 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                             "value", value
                     ));
         }
+        return condition.withId(parentId);
     }
 
     // Note the new 'clauseId' parameter
-    private void insertBinary(long clauseId, long parentId, ExpressionEntity.BinaryExpressionEntity binary) {
+    private ExpressionEntity.BinaryExpressionEntity insertBinary(long clauseId, long parentId, ExpressionEntity.BinaryExpressionEntity binary) {
         // Pass the original clauseId, not the parent expression's ID
         ExpressionEntity left = create(clauseId, binary.left());
         ExpressionEntity right = create(clauseId, binary.right());
@@ -174,10 +175,11 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                         "operator", binary.operator().toString(),
                         "right_id", right.id()
                 ));
+        return new ExpressionEntity.BinaryExpressionEntity(parentId, left, binary.operator(), right);
     }
 
     // Note the new 'clauseId' parameter
-    private void insertParenthesized(long clauseId, long parentId, ExpressionEntity.ParenthesizedExpressionEntity paren) {
+    private ExpressionEntity.ParenthesizedExpressionEntity insertParenthesized(long clauseId, long parentId, ExpressionEntity.ParenthesizedExpressionEntity paren) {
         // Pass the original clauseId
         var inner = create(clauseId, paren.inner());
 
@@ -187,6 +189,8 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                         "expression_id", parentId,
                         "inner_id", inner.id()
                 ));
+
+        return new ExpressionEntity.ParenthesizedExpressionEntity(parentId, inner);
     }
 
     private ExpressionEntity.ConditionEntity readCondition(long expressionId) {

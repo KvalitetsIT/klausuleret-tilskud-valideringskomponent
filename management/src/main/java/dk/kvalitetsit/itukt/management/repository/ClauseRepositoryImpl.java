@@ -85,9 +85,9 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, e.type
+                        SELECT c.id, c.name, c.expression_id, e.type
                         FROM clause c
-                        JOIN expression e ON c.id = e.id
+                        JOIN expression e ON c.expression_id = e.id
                         WHERE c.uuid = :uuid
                     """;
 
@@ -96,11 +96,12 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             Long id = ((Number) row.get("id")).longValue();
             String name = (String) row.get("name");
             ExpressionType type = ExpressionType.valueOf((String) row.get("type"));
+            Long expression_id = ((Number) row.get("expression_id")).longValue();
 
             ExpressionEntity expression = switch (type) {
-                case ExpressionType.CONDITION -> readCondition(id);
-                case ExpressionType.BINARY -> readBinary(id);
-                case ExpressionType.PARENTHESIZED -> readParenthesized(id);
+                case ExpressionType.CONDITION -> readCondition(expression_id);
+                case ExpressionType.BINARY -> readBinary(expression_id);
+                case ExpressionType.PARENTHESIZED -> readParenthesized(expression_id);
             };
 
             return Optional.of(new ClauseEntity(id, uuid, name, expression));
@@ -120,7 +121,8 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        JOIN expression e ON c.id = e.id
+                        JOIN expression e ON c.expression_id = e.id
+                        ORDER BY c.id
                     """;
 
             List<UUID> uuids = template.query(sql, Collections.emptyMap(), (rs, rowNum) ->
@@ -228,7 +230,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         );
 
         ExpressionEntity inner = readById(innerId).orElseThrow();
-        return new ExpressionEntity.ParenthesizedExpressionEntity(innerId, inner);
+        return new ExpressionEntity.ParenthesizedExpressionEntity(id, inner);
     }
 
 

@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
+import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
@@ -26,7 +27,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void testPostValidation() {
-        managementApi.call20250801clausesDslPost(new DslInput().dsl("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"));
+        managementApi.call20250801clausesDslPost(new DslInput().dsl(MockFactory.dsl));
         var existingDrugMedication = new ExistingDrugMedication()
                 .atcCode("C10BA05")
                 .drugIdentifier(123456789L)

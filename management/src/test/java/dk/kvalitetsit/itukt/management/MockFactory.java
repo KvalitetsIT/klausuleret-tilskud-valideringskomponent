@@ -15,7 +15,6 @@ import java.util.UUID;
 public class MockFactory {
 
     public static final String dsl = "Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)";
-    public static final org.openapitools.model.Clause clauseDto;
     private static final ExpressionEntity expressionEntity = new ExpressionEntity.BinaryExpressionEntity(
             new ExpressionEntity.ConditionEntity(1L, "ATC", dk.kvalitetsit.itukt.common.model.Operator.EQUAL, List.of("C10BA03")),
             Expression.BinaryExpression.BinaryOperator.OR,
@@ -71,10 +70,5 @@ public class MockFactory {
     public static ClauseEntity clauseEntity = new ClauseEntity(UUID.randomUUID(), "CHOL", expressionEntity);
     public static final dk.kvalitetsit.itukt.common.model.Clause clauseModel = new dk.kvalitetsit.itukt.common.model.Clause(clauseEntity.name(), Optional.of(clauseEntity.uuid()), expressionModel);
 
-    static {
-        clauseDto = new org.openapitools.model.Clause("CHOL", expressionDto);
-        clauseDto.setUuid(clauseModel.uuid());
-    }
-
-
+    public static final org.openapitools.model.Clause clauseDto = new org.openapitools.model.Clause("CHOL", expressionDto).uuid(clauseModel.uuid().get());
 }

@@ -20,7 +20,6 @@ public class MockFactory {
                     )
             );
 
-    public static final Clause clauseDto = new Clause("CHOL", expressionDto);
 
     public static final dk.kvalitetsit.itukt.common.model.Expression expressionModel = new dk.kvalitetsit.itukt.common.model.Expression.BinaryExpression(
             new dk.kvalitetsit.itukt.common.model.Expression.Condition("ATC", dk.kvalitetsit.itukt.common.model.Operator.EQUAL, List.of("C10BA03")),
@@ -32,4 +31,10 @@ public class MockFactory {
             ));
 
     public static final dk.kvalitetsit.itukt.common.model.Clause clauseModel = new dk.kvalitetsit.itukt.common.model.Clause("CHOL", Optional.of(UUID.randomUUID()),  expressionModel);
+    public static final Clause clauseDto;
+
+    static {
+        clauseDto = new Clause("CHOL", expressionDto);
+        clauseDto.setUuid(clauseModel.uuid());
+    };
 }

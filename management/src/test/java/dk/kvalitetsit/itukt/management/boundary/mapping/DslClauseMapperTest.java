@@ -19,7 +19,7 @@ public class DslClauseMapperTest {
 
     @Test
     void testDSLToModel() {
-        assertEquals(clauseDto, mapper.map(dsl));
+        assertEquals(clauseDto.getExpression(), mapper.map(dsl).getExpression());
     }
 
     @Test

@@ -49,21 +49,15 @@ public class ManagementServiceAdaptorTest {
 
     @Test
     void testCreate() {
-
         Mockito.when(concreteService.create(Mockito.any(Clause.class))).thenReturn(Optional.of(clauseModel));
         var result = adaptor.create(clauseDto);
-
-        assertInstanceOf(expressionDto.getClass(), result.get().getExpression());
-        BinaryExpression condition = (BinaryExpression) result.get().getExpression();
-
-        assertEquals(expressionDto.getType(), condition.getType());
+        assertEquals(clauseDto, result.get());
 
         var captor = ArgumentCaptor.forClass(Clause.class);
         Mockito.verify(concreteService, Mockito.times(1)).create(captor.capture());
         Clause actual_model = captor.getValue();
 
-        var expected_model = new Clause(clauseModel.name(), Optional.empty(), clauseModel.expression());
-        assertEquals(expected_model, actual_model);
+        assertEquals(clauseModel, actual_model);
     }
 
     @Test

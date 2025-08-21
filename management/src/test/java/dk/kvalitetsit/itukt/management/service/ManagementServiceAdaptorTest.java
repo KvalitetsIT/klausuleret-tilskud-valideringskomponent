@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionDslMapper;
@@ -8,7 +9,6 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoExpressionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
-import dk.kvalitetsit.itukt.common.model.Clause;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.BinaryExpression;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.management.MockFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,6 +65,23 @@ public class ManagementServiceAdaptorTest {
         var expected_model = new Clause(clauseModel.name(), Optional.empty(), clauseModel.expression());
         assertEquals(expected_model, actual_model);
     }
+
+    @Test
+    void testRead() {
+        var uuid = clauseModel.uuid().get();
+        Mockito.when(concreteService.read(uuid)).thenReturn(Optional.of(clauseModel));
+        var result = adaptor.read(uuid);
+        assertEquals(clauseDto, result.get());
+    }
+
+    @Test
+    void testReadAll() {
+        Mockito.when(concreteService.readAll()).thenReturn(List.of(clauseModel));
+        var result = adaptor.read_all();
+        assertEquals(List.of(clauseDto), result);
+    }
+
+
 }
 
 

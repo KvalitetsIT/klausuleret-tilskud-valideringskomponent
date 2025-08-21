@@ -16,6 +16,11 @@ public class ClauseEntityMapper implements Mapper<Clause, ClauseEntity> {
 
     @Override
     public ClauseEntity map(Clause entry) {
-        return new ClauseEntity(null, null, entry.name(), this.expressionEntityMapper.map(entry.expression()));
+        return new ClauseEntity(
+                null,
+                entry.uuid().orElse(null),
+                entry.name(),
+                this.expressionEntityMapper.map(entry.expression())
+        );
     }
 }

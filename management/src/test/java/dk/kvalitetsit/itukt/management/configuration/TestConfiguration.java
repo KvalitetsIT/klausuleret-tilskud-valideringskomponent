@@ -14,10 +14,6 @@ import javax.sql.DataSource;
 public record TestConfiguration() {
     // Configure beans used for test
 
-    @Bean
-    public ClauseRepository<ClauseEntity> clauseRepository(@Qualifier("appDataSource") DataSource dataSource) {
-        return new ClauseRepositoryImpl(dataSource);
-    }
 
 
 

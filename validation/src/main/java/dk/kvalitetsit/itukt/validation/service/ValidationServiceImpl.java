@@ -1,18 +1,17 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 
 public class ValidationServiceImpl implements ValidationService<DataContext> {
 
-    private final ClauseRepository<Clause> clauseRepository;
+    private final ClauseCache clauseCache;
 
     private final Evaluator evaluator = new Evaluator();
 
-    public ValidationServiceImpl(ClauseRepository<Clause> clauseRepository) {
-        this.clauseRepository = clauseRepository;
+    public ValidationServiceImpl(ClauseCache clauseCache) {
+        this.clauseCache = clauseCache;
     }
 
     @Override

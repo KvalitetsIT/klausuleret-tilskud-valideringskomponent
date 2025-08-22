@@ -3,7 +3,6 @@ package dk.kvalitetsit.itukt.management.repository;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 
 import java.util.List;

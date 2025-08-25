@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
+import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.validation.service.model.*;
 
 import java.util.Optional;
@@ -26,8 +27,8 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
 
     @Override
     public ValidationResult validate(ValidationInput validationInput) {
-        Optional<Clause> clause = stamDataCache.getClauseCodeByDrugId(validationInput.drugId())
-                .flatMap(clauseCache::getClause);
+        Optional<ClauseEntity> stamDataClause = stamDataCache.getClauseByDrugId(validationInput.drugId());
+        Optional<Clause> clause = stamDataClause.flatMap(c -> clauseCache.getClause(c.kode()));
 
         return clause.map(c -> validateClause(c, validationInput)).orElse(new ValidationSuccess());
     }

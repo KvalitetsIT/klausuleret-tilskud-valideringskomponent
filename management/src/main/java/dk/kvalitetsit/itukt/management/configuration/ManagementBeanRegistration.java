@@ -11,7 +11,6 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoExpressionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
-import dk.kvalitetsit.itukt.management.repository.ClauseCacheImpl;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
@@ -47,7 +46,7 @@ public class ManagementBeanRegistration {
         // Hardcoded clause for phase 1
         Expression.Condition expression = new Expression.Condition("ALDER", Operator.GREATER_THAN, List.of("50"));
         Clause clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
-        return new ClauseCacheImpl(List.of(clause));
+        return new ClauseCache(List.of(clause));
     }
 
     @Bean

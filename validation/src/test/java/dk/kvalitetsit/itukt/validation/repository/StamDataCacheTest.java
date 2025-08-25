@@ -6,11 +6,11 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StamDataCacheImplTest {
+class StamDataCacheTest {
 
     @Test
     void getClauseNameByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
-        StamDataCacheImpl stamDataCache = new StamDataCacheImpl(Map.of(1L, "clause"));
+        StamDataCache stamDataCache = new StamDataCache(Map.of(1L, "clause"));
 
         var result = stamDataCache.getClauseNameByDrugId(2L);
 
@@ -19,7 +19,7 @@ class StamDataCacheImplTest {
 
     @Test
     void getClauseNameByDrugId_WhenDrugIdIsInCache_ReturnsClauseName() {
-        StamDataCacheImpl stamDataCache = new StamDataCacheImpl(Map.of(1L, "clause1", 2L, "clause2"));
+        StamDataCache stamDataCache = new StamDataCache(Map.of(1L, "clause1", 2L, "clause2"));
 
         var result = stamDataCache.getClauseNameByDrugId(1L);
 

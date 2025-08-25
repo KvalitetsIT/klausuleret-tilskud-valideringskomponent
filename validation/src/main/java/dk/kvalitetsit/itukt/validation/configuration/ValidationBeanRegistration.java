@@ -4,7 +4,6 @@ import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.boundary.mapping.ValidationDataContextMapper;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
-import dk.kvalitetsit.itukt.validation.repository.StamDataCacheImpl;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
@@ -48,7 +47,7 @@ public class ValidationBeanRegistration {
     @Bean
     public StamDataCache stamDataCache() {
         // Hardcoded stamdata until we implement IUAKT-80
-        return new StamDataCacheImpl(Map.of(1L, "KRINI"));
+        return new StamDataCache(Map.of(1L, "KRINI"));
     }
 
     @Bean

@@ -1,7 +1,9 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Operator;
+import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionDslMapper;
@@ -9,6 +11,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoClauseMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoExpressionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -25,6 +28,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Configuration
 public class ManagementBeanRegistration {
@@ -33,6 +39,14 @@ public class ManagementBeanRegistration {
 
     public ManagementBeanRegistration(ManagementConfiguration configuration) {
         this.configuration = configuration;
+    }
+
+    @Bean
+    public ClauseCache clauseCache() {
+        // Hardcoded clause for phase 1
+        Expression.Condition expression = new Expression.Condition("ALDER", Operator.GREATER_THAN, List.of("50"));
+        Clause clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
+        return new ClauseCache(List.of(clause));
     }
 
     @Bean

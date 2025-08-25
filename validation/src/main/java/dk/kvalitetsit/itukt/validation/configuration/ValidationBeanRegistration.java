@@ -1,9 +1,9 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.boundary.mapping.ValidationDataContextMapper;
+import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
@@ -18,6 +18,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.util.Map;
 
 @Configuration
 public class ValidationBeanRegistration {
@@ -44,9 +45,15 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public ValidationService<ValidationRequest> validationService(@Autowired ClauseRepository<Clause> clauseRepository) {
+    public StamDataCache stamDataCache() {
+        // Hardcoded stamdata until we implement IUAKT-80
+        return new StamDataCache(Map.of(1L, "KRINI"));
+    }
+
+    @Bean
+    public ValidationService<ValidationRequest> validationService(@Autowired ClauseCache clauseCache) {
         return new ValidationServiceAdaptor(
-                new ValidationServiceImpl(clauseRepository),
+                new ValidationServiceImpl(clauseCache),
                 new ValidationDataContextMapper()
         );
     }

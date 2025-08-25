@@ -1,8 +1,7 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
 
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
-
+import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import org.springframework.beans.factory.annotation.Qualifier;

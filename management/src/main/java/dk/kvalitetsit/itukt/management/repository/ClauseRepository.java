@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.common.repository;
+package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.CRUD;
 

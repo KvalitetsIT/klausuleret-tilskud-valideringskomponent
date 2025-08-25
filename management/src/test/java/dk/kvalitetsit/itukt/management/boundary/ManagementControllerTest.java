@@ -31,7 +31,7 @@ class ManagementControllerTest {
 
     @Test
     void call20250801clausesPost_CreatesClause() {
-        Mockito.when(clauseService.create(Mockito.any(Clause.class))).thenReturn(Optional.of(CLAUSE_1_DTO));
+        Mockito.when(clauseService.create(Mockito.any(Clause.class))).thenReturn(CLAUSE_1_DTO);
 
         managementController.call20250801clausesPost(CLAUSE_1_DTO);
 
@@ -40,7 +40,7 @@ class ManagementControllerTest {
 
     @Test
     void call20250801clausesDslPost_CreatesClause() {
-        Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(Optional.of(CLAUSE_1_DSL));
+        Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(CLAUSE_1_DSL);
 
         DslInput dslInput = new DslInput().dsl(CLAUSE_1_DSL);
         managementController.call20250801clausesDslPost(dslInput);

@@ -21,8 +21,8 @@ public class ClauseRepositoryAdaptor implements ClauseRepository<Clause> {
         this.entityMapper = entityMapper;
     }
 
-    public Optional<Clause> create(Clause entry) throws ServiceException {
-        return clauseRepository.create(modelMapper.map(entry)).map(entityMapper::map);
+    public Clause create(Clause entry) throws ServiceException {
+        return entityMapper.map(clauseRepository.create(modelMapper.map(entry)));
     }
 
     public Optional<Clause> read(UUID id) throws ServiceException {

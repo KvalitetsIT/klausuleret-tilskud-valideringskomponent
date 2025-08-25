@@ -26,7 +26,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         var clauses = List.of(MockFactory.CLAUSE_1_ENTITY, MockFactory.CLAUSE_1_ENTITY);
 
-        var written = clauses.stream().map(this.repository::create).map(Optional::get).toList();
+        var written = clauses.stream().map(this.repository::create).toList();
         var read = this.repository.readAll();
 
         for (int i = 0; i < written.size(); i++) {

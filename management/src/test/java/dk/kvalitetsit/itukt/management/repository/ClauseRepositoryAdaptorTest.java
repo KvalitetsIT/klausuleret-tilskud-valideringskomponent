@@ -50,10 +50,10 @@ public class ClauseRepositoryAdaptorTest {
     @Test
     void testCreate() {
         Mockito.when(clauseModelEntityMapper.map(CLAUSE_1_MODEL)).thenReturn(CLAUSE_1_ENTITY);
-        Mockito.when(concreteRepository.create(Mockito.any(ClauseEntity.class))).thenReturn(Optional.of(MockFactory.CLAUSE_1_ENTITY));
+        Mockito.when(concreteRepository.create(Mockito.any(ClauseEntity.class))).thenReturn(MockFactory.CLAUSE_1_ENTITY);
 
         var result = adaptor.create(CLAUSE_1_MODEL);
-        assertEquals(CLAUSE_1_MODEL, result.get());
+        assertEquals(CLAUSE_1_MODEL, result);
 
         var captor = ArgumentCaptor.forClass(ClauseEntity.class);
         Mockito.verify(concreteRepository, Mockito.times(1)).create(captor.capture());

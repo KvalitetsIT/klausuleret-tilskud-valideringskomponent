@@ -28,7 +28,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     }
 
     @Override
-    public Optional<ClauseEntity> create(ClauseEntity clause) throws ServiceException {
+    public ClauseEntity create(ClauseEntity clause) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -49,7 +49,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            return Optional.of(new ClauseEntity(clauseId, uuid, clause.name(), expression));
+            return new ClauseEntity(clauseId, uuid, clause.name(), expression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);

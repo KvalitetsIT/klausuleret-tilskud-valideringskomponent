@@ -2,10 +2,7 @@ package dk.kvalitetsit.itukt.validation.service;
 
 
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
-import dk.kvalitetsit.itukt.validation.repository.entity.DrugEntity;
+import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationInput;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess;
@@ -15,18 +12,18 @@ import java.util.Optional;
 public class ValidationServiceImpl implements ValidationService<ValidationInput, ValidationResult> {
 
     private final ClauseCache clauseCache;
-    private final StamDataRepository stamDataRepository;
+    private final StamDataCache stamDataCache;
 
     private final Evaluator evaluator = new Evaluator();
 
-    public ValidationServiceImpl(ClauseCache clauseCache, StamDataRepository stamDataRepository) {
+    public ValidationServiceImpl(ClauseCache clauseCache, StamDataCache stamDataCache) {
         this.clauseCache = clauseCache;
-        this.stamDataRepository = stamDataRepository;
+        this.stamDataCache = stamDataCache;
     }
 
     @Override
     public ValidationResult validate(ValidationInput validationInput) {
-        Optional<DrugEntity> drug = stamDataRepository.findDrugById(validationInput.drugId());
+        Optional<String> clauseName = stamDataCache.getClauseNameByDrugId(validationInput.drugId());
 
         return new ValidationSuccess();
     }

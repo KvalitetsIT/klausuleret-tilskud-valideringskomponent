@@ -2,9 +2,7 @@ package dk.kvalitetsit.itukt.validation.service;
 
 
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
+import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationInput;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess;
 import org.junit.jupiter.api.Test;
@@ -23,7 +21,7 @@ class ValidationServiceImplTest {
     @Mock
     private ClauseCache clauseCache;
     @Mock
-    private StamDataRepository stamDataRepository;
+    private StamDataCache stamDataCache;
 
     @Test
     void testValidate() {

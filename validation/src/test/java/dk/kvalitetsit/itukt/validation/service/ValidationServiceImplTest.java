@@ -79,7 +79,7 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationFails_ReturnsValidationError() {
         var validationInput = new ValidationInput(5, 1234);
-        var stamdataClause = new ClauseEntity("0000", null, null, null, null, null, null);
+        var stamdataClause = new ClauseEntity("0000", null, null, null, null, "clause text", null);
         var clause = new Clause(stamdataClause.kode(), Optional.empty(), Mockito.mock(Expression.BinaryExpression.class));
         var dataContext = Mockito.mock(DataContext.class);
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
@@ -93,6 +93,7 @@ class ValidationServiceImplTest {
         assertInstanceOf(ValidationError.class, result);
         ValidationError validationError = (ValidationError) result;
         assertEquals(clause.name(), validationError.clauseCode());
+        assertEquals(stamdataClause.tekst(), validationError.clauseText());
     }
 
 }

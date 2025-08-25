@@ -27,15 +27,19 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
 
     @Override
     public ValidationResult validate(ValidationInput validationInput) {
-        Optional<ClauseEntity> stamDataClause = stamDataCache.getClauseByDrugId(validationInput.drugId());
-        Optional<Clause> clause = stamDataClause.flatMap(c -> clauseCache.getClause(c.kode()));
-
-        return clause.map(c -> validateClause(c, validationInput)).orElse(new ValidationSuccess());
+        return stamDataCache.getClauseByDrugId(validationInput.drugId())
+                .flatMap(stamDataClause -> validateStamDataClause(validationInput, stamDataClause))
+                .orElse(new ValidationSuccess());
     }
 
-    private ValidationResult validateClause(Clause clause, ValidationInput validationInput) {
+    private Optional<ValidationResult> validateStamDataClause(ValidationInput validationInput, ClauseEntity stamDataClause) {
+        return clauseCache.getClause(stamDataClause.kode())
+                .map(clause -> validateClause(clause, stamDataClause.tekst(), validationInput));
+    }
+
+    private ValidationResult validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
         DataContext dataContext = validationDataContextMapper.map(validationInput);
         boolean success = evaluator.eval(clause.expression(), dataContext);
-        return success ? new ValidationSuccess() : new ValidationError(clause.name(), "Validation failed");
+        return success ? new ValidationSuccess() : new ValidationError(clause.name(), clauseText, "Validation failed");
     }
 }

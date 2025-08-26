@@ -71,7 +71,7 @@ public class CommonBeanRegistration {
                     long duration = System.currentTimeMillis() - startTime;
                     System.out.printf(
                             "Request { id: %s, Method: %s, Uri: %s, Response: %d, Time: %d ms }\n",
-                            UUID.randomUUID(),
+                            request.getRequestId(),
                             request.getMethod(),
                             request.getRequestURI(),
                             response.getStatus(),

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @ExtendWith(MockitoExtension.class)
 class ClauseDslModelMapperTest {
 
@@ -15,6 +17,9 @@ class ClauseDslModelMapperTest {
 
     @Test
     void map() {
-        Assertions.assertEquals(MockFactory.CLAUSE_1_DTO.uuid(null), mapper.map(MockFactory.CLAUSE_1_DSL));
+        assertThat(mapper.map(MockFactory.CLAUSE_1_DSL))
+                .usingRecursiveComparison()
+                .ignoringFields("uuid")
+                .isEqualTo(MockFactory.CLAUSE_1_DTO);
     }
 }

@@ -7,8 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.DslInput;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_DTO;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class ManagementIT extends BaseTest {
@@ -29,7 +30,10 @@ public class ManagementIT extends BaseTest {
         var clauses = api.call20250801clausesGet();
 
         assertEquals(1, clauses.size());
-        assertEquals(CLAUSE_1_DTO.uuid(clauses.getFirst().getUuid()), clauses.getFirst());
+        assertThat(clauses.getFirst())
+                .usingRecursiveComparison()
+                .ignoringFields("uuid")
+                .isEqualTo(CLAUSE_1_DTO);
     }
 
     @Test
@@ -39,7 +43,11 @@ public class ManagementIT extends BaseTest {
 
         assertEquals(1, clauses.size());
         var clause = clauses.getFirst();
-        assertEquals(CLAUSE_1_DTO.uuid(clause.getUuid()), clause);
+
+        assertThat(clause)
+                .usingRecursiveComparison()
+                .ignoringFields("uuid")
+                .isEqualTo(CLAUSE_1_DTO);
     }
 
 }

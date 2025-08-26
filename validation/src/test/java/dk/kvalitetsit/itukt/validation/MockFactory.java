@@ -1,17 +1,11 @@
 package dk.kvalitetsit.itukt.validation;
 
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
-import org.openapitools.model.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 public class MockFactory {
-
-
-    public static final String dsl = "Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)";
 
     public static final dk.kvalitetsit.itukt.common.model.Expression expressionModel = new dk.kvalitetsit.itukt.common.model.Expression.BinaryExpression(
             new dk.kvalitetsit.itukt.common.model.Expression.Condition(
@@ -34,18 +28,6 @@ public class MockFactory {
                     )
             )
     );
-
-    public static final dk.kvalitetsit.itukt.common.model.Clause clauseModel = new dk.kvalitetsit.itukt.common.model.Clause("CHOL", Optional.of(UUID.randomUUID()), expressionModel);
-
-    public static final Expression expressionDto = new BinaryExpression()
-            .type("BinaryExpression")
-            .operator(BinaryOperator.OR)
-            .left(new Condition().type("Condition").field("ATC").operator(Operator.EQUAL).values(List.of("C10BA03")))
-            .right(new BinaryExpression().type("BinaryExpression").operator(BinaryOperator.AND)
-                    .left(new Condition().type("Condition").field("ATC").operator(Operator.I).values(List.of("C10BA02", "C10BA05")))
-                    .right(new Condition().type("Condition").field("ALDER").operator(Operator.GREATER_THAN_OR_EQUAL_TO).values(List.of("13"))
-                    )
-            );
 
     public static DataContext ctx = new DataContext(Map.of(
             "ALDER", List.of("13"),

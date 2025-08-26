@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.validation.boundary.mapping;
 
 import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.common.model.ClauseField;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationInput;
 
@@ -11,7 +12,7 @@ public class ValidationDataContextMapper implements Mapper<ValidationInput, Data
     @Override
     public DataContext map(ValidationInput validationInput) {
         return new DataContext(Map.of(
-                "ALDER", List.of(Integer.toString(validationInput.citizenAge())))
+                ClauseField.AGE.name(), List.of(Integer.toString(validationInput.citizenAge())))
         );
     }
 

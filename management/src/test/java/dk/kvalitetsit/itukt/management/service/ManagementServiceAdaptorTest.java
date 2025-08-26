@@ -2,13 +2,10 @@ package dk.kvalitetsit.itukt.management.service;
 
 
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslClauseMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionDslMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoClauseMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoExpressionMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ClauseDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,15 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openapitools.model.BinaryExpression;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.management.MockFactory.*;
+import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_DTO;
+import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_MODEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @ExtendWith(MockitoExtension.class)
 public class ManagementServiceAdaptorTest {
@@ -34,48 +29,54 @@ public class ManagementServiceAdaptorTest {
     private ManagementServiceAdaptor adaptor;
 
     @Mock
-    private ManagementServiceImpl concreteService;
+    private ManagementServiceImpl managementServiceImpl;
 
+    @Mock
+    private ClauseModelDtoMapper clauseModelDtoMapper;
+
+    @Mock
+    private ClauseDtoModelMapper clauseDtoModelMapper;
+
+    @Mock
+    private ClauseDslModelMapper clauseDslModelMapper;
+
+    @Mock
+    private ClauseModelDslMapper clauseModelDslMapper;
 
     @BeforeEach
     void setUp() {
-        var modelMapper = new ClauseModelDtoMapper(new ExpressionModelDtoMapper());
-        var clauseMapper = new DtoClauseMapper(new DtoExpressionMapper());
-        var dslMapper = new DslClauseMapper();
-        var dslModelMapper = new ClauseDslMapper(new ExpressionDslMapper());
-
-        adaptor = new ManagementServiceAdaptor(concreteService, clauseMapper, modelMapper, dslMapper, dslModelMapper);
+        adaptor = new ManagementServiceAdaptor(managementServiceImpl, clauseDtoModelMapper, clauseModelDtoMapper, clauseDslModelMapper, clauseModelDslMapper);
+        Mockito.when(clauseModelDtoMapper.map(CLAUSE_1_MODEL)).thenReturn(CLAUSE_1_DTO);
     }
 
     @Test
     void testCreate() {
-        Mockito.when(concreteService.create(Mockito.any(Clause.class))).thenReturn(Optional.of(clauseModel));
-        var result = adaptor.create(clauseDto);
-        assertEquals(clauseDto, result.get());
+        Mockito.when(clauseDtoModelMapper.map(CLAUSE_1_DTO)).thenReturn(CLAUSE_1_MODEL);
+        Mockito.when(managementServiceImpl.create(Mockito.any(Clause.class))).thenReturn(Optional.of(CLAUSE_1_MODEL));
+        var result = adaptor.create(CLAUSE_1_DTO);
+        assertEquals(CLAUSE_1_DTO, result.get());
 
         var captor = ArgumentCaptor.forClass(Clause.class);
-        Mockito.verify(concreteService, Mockito.times(1)).create(captor.capture());
+        Mockito.verify(managementServiceImpl, Mockito.times(1)).create(captor.capture());
         Clause actual_model = captor.getValue();
 
-        assertEquals(clauseModel, actual_model);
+        assertEquals(CLAUSE_1_MODEL, actual_model);
     }
 
     @Test
     void testRead() {
-        var uuid = clauseModel.uuid().get();
-        Mockito.when(concreteService.read(uuid)).thenReturn(Optional.of(clauseModel));
+        var uuid = CLAUSE_1_MODEL.uuid().get();
+        Mockito.when(managementServiceImpl.read(uuid)).thenReturn(Optional.of(CLAUSE_1_MODEL));
         var result = adaptor.read(uuid);
-        assertEquals(clauseDto, result.get());
+        assertEquals(CLAUSE_1_DTO, result.get());
     }
 
     @Test
     void testReadAll() {
-        Mockito.when(concreteService.readAll()).thenReturn(List.of(clauseModel));
+        Mockito.when(managementServiceImpl.readAll()).thenReturn(List.of(CLAUSE_1_MODEL));
         var result = adaptor.read_all();
-        assertEquals(List.of(clauseDto), result);
+        assertEquals(List.of(CLAUSE_1_DTO), result);
     }
-
-
 }
 
 

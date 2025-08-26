@@ -27,7 +27,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void testPostValidation() throws RestClientResponseException {
-        managementApi.call20250801clausesDslPost(new DslInput().dsl(MockFactory.dsl));
+        managementApi.call20250801clausesDslPost(new DslInput().dsl(MockFactory.CLAUSE_1_DSL));
         var existingDrugMedication = new ExistingDrugMedication()
                 .atcCode("C10BA05")
                 .drugIdentifier(123456789L)

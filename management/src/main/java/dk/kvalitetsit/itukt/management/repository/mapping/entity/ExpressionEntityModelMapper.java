@@ -4,7 +4,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 
-public class EntityExpressionMapper implements Mapper<ExpressionEntity, Expression> {
+public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Expression> {
 
     @Override
     public Expression map(ExpressionEntity expression) {

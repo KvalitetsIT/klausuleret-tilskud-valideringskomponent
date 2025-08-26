@@ -17,7 +17,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     public void testReadAll(){
-        var clause_1 = this.repository.create(MockFactory.clauseEntity);
+        var clause_1 = this.repository.create(MockFactory.CLAUSE_1_ENTITY);
 
         var clauses = this.repository.readAll();
 

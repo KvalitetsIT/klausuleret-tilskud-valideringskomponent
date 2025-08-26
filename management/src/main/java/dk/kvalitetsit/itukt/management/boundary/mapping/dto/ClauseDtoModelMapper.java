@@ -4,10 +4,10 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import org.openapitools.model.Clause;
 
-public class DtoClauseMapper implements Mapper<Clause, dk.kvalitetsit.itukt.common.model.Clause> {
+public class ClauseDtoModelMapper implements Mapper<Clause, dk.kvalitetsit.itukt.common.model.Clause> {
     private final Mapper<org.openapitools.model.Expression, Expression> expressionMapper;
 
-    public DtoClauseMapper(Mapper<org.openapitools.model.Expression, Expression> expressionMapper) {
+    public ClauseDtoModelMapper(Mapper<org.openapitools.model.Expression, Expression> expressionMapper) {
         this.expressionMapper = expressionMapper;
     }
 

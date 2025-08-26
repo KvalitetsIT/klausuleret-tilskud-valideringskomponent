@@ -79,9 +79,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(expressionId, e);
             case ExpressionEntity.ParenthesizedExpressionEntity e -> insertParenthesized(expressionId, e);
         };
-
-        // Return a copy with the correct ID
-//        return expression.withId(expressionId); // Make sure ExpressionEntity has `withId(long)` method
     }
 
     @Override

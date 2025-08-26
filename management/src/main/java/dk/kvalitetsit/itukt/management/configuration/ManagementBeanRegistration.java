@@ -4,21 +4,21 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslClauseMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionDslMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoClauseMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dto.DtoExpressionMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
+
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ClauseDtoModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityClauseMapper;
-import dk.kvalitetsit.itukt.management.repository.mapping.entity.EntityExpressionMapper;
-import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseEntityMapper;
-import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionEntityMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseModelEntityMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
@@ -56,7 +56,7 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
-        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityMapper(new ExpressionEntityMapper()), new EntityClauseMapper(new EntityExpressionMapper()));
+        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseModelEntityMapper(new ExpressionModelEntityMapper()), new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
     }
 
     @Bean
@@ -68,10 +68,10 @@ public class ManagementBeanRegistration {
     public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService<Clause> managementService) {
         return new ManagementServiceAdaptor(
                 managementService,
-                new DtoClauseMapper(new DtoExpressionMapper()),
-                new ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
-                new DslClauseMapper(),
-                new ClauseDslMapper(new ExpressionDslMapper())
+                new ClauseDtoModelMapper(new ExpressionDtoModelMapper()),
+                new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
+                new ClauseDslModelMapper(),
+                new ClauseModelDslMapper(new ExpressionModelDslMapper())
         );
     }
 

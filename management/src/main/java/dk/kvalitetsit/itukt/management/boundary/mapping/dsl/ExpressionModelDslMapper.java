@@ -4,7 +4,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 
-public class ExpressionDslMapper implements Mapper<Expression, String> {
+public class ExpressionModelDslMapper implements Mapper<Expression, String> {
 
     @Override
     public String map(Expression entry) {

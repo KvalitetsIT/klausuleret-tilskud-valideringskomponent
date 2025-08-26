@@ -14,7 +14,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-public class ValidationIT extends BaseTest {
+class ValidationIT extends BaseTest {
 
     private ValidationApi validationApi;
     private ManagementApi managementApi;

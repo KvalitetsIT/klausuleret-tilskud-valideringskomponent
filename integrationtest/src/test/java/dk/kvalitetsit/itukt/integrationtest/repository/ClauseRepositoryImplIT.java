@@ -7,19 +7,21 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class ClauseRepositoryImplIT extends BaseTest {
+class ClauseRepositoryImplIT extends BaseTest {
 
     private final ClauseRepositoryImpl repository;
 
-    public ClauseRepositoryImplIT(@Autowired ClauseRepositoryImpl repository) {
+    ClauseRepositoryImplIT(@Autowired ClauseRepositoryImpl repository) {
         this.repository = repository;
     }
 
     @Test
-    public void testReadAll(){
+    void testReadAll(){
         var clause_1 = this.repository.create(MockFactory.CLAUSE_1_ENTITY);
 
         var clauses = this.repository.readAll();
+        Assertions.assertNotEquals(MockFactory.CLAUSE_1_ENTITY.uuid(), clause_1.get().uuid());
+        Assertions.assertEquals(clauses.get(0).uuid(), clause_1.get().uuid());
 
         Assertions.assertEquals(clause_1.get(), clauses.get(0));
     }

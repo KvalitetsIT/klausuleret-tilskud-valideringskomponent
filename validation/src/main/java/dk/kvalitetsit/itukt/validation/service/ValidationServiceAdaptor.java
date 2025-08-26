@@ -1,11 +1,8 @@
 package dk.kvalitetsit.itukt.validation.service;
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationInput;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
-import org.openapitools.model.ValidationRequest;
-import org.openapitools.model.ValidationResponse;
-import org.openapitools.model.ValidationSuccess;
+import org.openapitools.model.*;
 
 import java.util.List;
 
@@ -16,16 +13,57 @@ import java.util.List;
  */
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
-    private final ValidationService<ValidationInput, ValidationResult> service;
-    private final Mapper<ValidationRequest, List<ValidationInput>> mapper;
+    private final ValidationService<ValidationInput, ValidationResult> validationService;
 
-    public ValidationServiceAdaptor(ValidationService<ValidationInput, ValidationResult> service, Mapper<ValidationRequest, List<ValidationInput>> mapper) {
-        this.service = service;
-        this.mapper = mapper;
+    public ValidationServiceAdaptor(ValidationService<ValidationInput, ValidationResult> validationService) {
+        this.validationService = validationService;
     }
 
     @Override
     public ValidationResponse validate(ValidationRequest request) {
-        return new ValidationSuccess();
+        var responses = request.getValidate().stream()
+                .map(validate -> validate(request, validate))
+                .toList();
+        return combineResponses(responses);
+    }
+
+    private ValidationResponse validate(ValidationRequest request, Validate validate) {
+        var validationInput = mapToValidationInput(request, validate);
+        var result = validationService.validate(validationInput);
+        return switch (result) {
+            case dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess ignored -> new ValidationSuccess();
+            case dk.kvalitetsit.itukt.validation.service.model.ValidationError error -> mapValidationError(validate, error);
+        };
+    }
+
+    private ValidationResponse combineResponses(List<ValidationResponse> responses) {
+        if (responses.stream().allMatch(resp -> resp instanceof ValidationSuccess)) {
+            return new ValidationSuccess();
+        } else {
+            var validationErrors = responses.stream()
+                    .filter(resp -> resp instanceof ValidationFailed)
+                    .flatMap(failed -> ((ValidationFailed) failed).getValidationErrors().stream())
+                    .toList();
+            return new ValidationFailed()
+                    .validationErrors(validationErrors);
+        }
+    }
+
+    private ValidationResponse mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {
+        var validationError = new ValidationError()
+                .errorCode(0)
+                .errorMessage(modelValidationError.errorMessage())
+                .elementPath(validateInput.getElementPath())
+                .clauseCode(modelValidationError.clauseCode())
+                .clauseText(modelValidationError.clauseText())
+                .warningQuestion("TODO: IUAKT-78");
+        return new ValidationFailed()
+                .addValidationErrorsItem(validationError);
+    }
+
+    private ValidationInput mapToValidationInput(ValidationRequest validationRequest, Validate validate) {
+        return new ValidationInput(
+                validationRequest.getAge(),
+                validate.getNewDrugMedication().getDrugIdentifier());
     }
 }

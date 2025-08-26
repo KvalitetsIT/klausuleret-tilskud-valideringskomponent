@@ -40,6 +40,6 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     private ValidationResult validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
         DataContext dataContext = validationDataContextMapper.map(validationInput);
         boolean success = evaluator.eval(clause.expression(), dataContext);
-        return success ? new ValidationSuccess() : new ValidationError(clause.name(), clauseText, "Validation failed");
+        return success ? new ValidationSuccess() : new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76");
     }
 }

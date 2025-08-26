@@ -15,15 +15,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.management.MockFactory.clauseDto;
-import static dk.kvalitetsit.itukt.management.MockFactory.dsl;
+import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_DTO;
+import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_DSL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class ManagementControllerTest {
-
 
     @InjectMocks
     private ManagementController managementController;
@@ -32,18 +31,18 @@ class ManagementControllerTest {
 
     @Test
     void call20250801clausesPost_CreatesClause() {
-        Mockito.when(clauseService.create(Mockito.any(Clause.class))).thenReturn(Optional.of(clauseDto));
+        Mockito.when(clauseService.create(Mockito.any(Clause.class))).thenReturn(Optional.of(CLAUSE_1_DTO));
 
-        managementController.call20250801clausesPost(clauseDto);
+        managementController.call20250801clausesPost(CLAUSE_1_DTO);
 
-        Mockito.verify(clauseService, times(1)).create(clauseDto);
+        Mockito.verify(clauseService, times(1)).create(CLAUSE_1_DTO);
     }
 
     @Test
     void call20250801clausesDslPost_CreatesClause() {
-        Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(Optional.of(dsl));
+        Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(Optional.of(CLAUSE_1_DSL));
 
-        DslInput dslInput = new DslInput().dsl(dsl);
+        DslInput dslInput = new DslInput().dsl(CLAUSE_1_DSL);
         managementController.call20250801clausesDslPost(dslInput);
 
         Mockito.verify(clauseService, times(1)).createDSL(dslInput);
@@ -52,11 +51,11 @@ class ManagementControllerTest {
     @Test
     void call20250801clausesIdGet_WhenClauseExists_ReturnsClause() {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(clauseService.read(uuid)).thenReturn(Optional.of(clauseDto));
+        Mockito.when(clauseService.read(uuid)).thenReturn(Optional.of(CLAUSE_1_DTO));
 
         var clauseResponse = managementController.call20250801clausesIdGet(uuid);
 
-        assertEquals(clauseDto, clauseResponse.getBody());
+        assertEquals(CLAUSE_1_DTO, clauseResponse.getBody());
     }
 
     @Test
@@ -70,10 +69,10 @@ class ManagementControllerTest {
 
     @Test
     void call20250801clausesGet_ReturnsClausesFromService() {
-        Mockito.when(clauseService.read_all()).thenReturn(List.of(clauseDto));
+        Mockito.when(clauseService.read_all()).thenReturn(List.of(CLAUSE_1_DTO));
 
         var clausesResponse = managementController.call20250801clausesGet();
 
-        assertEquals(List.of(clauseDto), clausesResponse.getBody());
+        assertEquals(List.of(CLAUSE_1_DTO), clausesResponse.getBody());
     }
 }

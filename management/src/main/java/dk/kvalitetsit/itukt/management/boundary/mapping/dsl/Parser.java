@@ -25,7 +25,7 @@ class Parser {
      *
      * @param tokens the tokens to parse
      */
-    public Parser(List<Token> tokens) {
+    protected Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
@@ -78,7 +78,7 @@ class Parser {
      *
      * @return the parsed {@code Expression}
      */
-    public Clause parseClause() {
+    protected Clause parseClause() {
         expect("Klausul");
         Token name = next();
         expect(":");
@@ -90,7 +90,7 @@ class Parser {
      *
      * @return the parsed {@code Expression}
      */
-    public Expression parseExpression() {
+    protected Expression parseExpression() {
         return parseOrExpression();
     }
 

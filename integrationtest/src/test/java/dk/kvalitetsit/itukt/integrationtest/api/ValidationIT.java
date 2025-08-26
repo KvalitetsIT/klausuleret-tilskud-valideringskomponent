@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
+import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
@@ -13,7 +14,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-public class ValidationIT extends BaseTest {
+class ValidationIT extends BaseTest {
 
     private ValidationApi validationApi;
     private ManagementApi managementApi;
@@ -26,7 +27,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void testPostValidation() {
-        managementApi.call20250801clausesDslPost(new DslInput().dsl("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)"));
+        managementApi.call20250801clausesDslPost(new DslInput().dsl(MockFactory.CLAUSE_1_DSL));
         var existingDrugMedication = new ExistingDrugMedication()
                 .atcCode("C10BA05")
                 .drugIdentifier(123456789L)

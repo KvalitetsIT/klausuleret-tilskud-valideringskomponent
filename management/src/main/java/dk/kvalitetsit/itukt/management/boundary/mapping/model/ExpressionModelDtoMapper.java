@@ -23,7 +23,7 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
     }
 
     private BinaryExpression map(Expression.BinaryExpression b) {
-        return new BinaryExpression(this.map(b.left()), BinaryOperator.fromValue(b.operator().getValue()), this.map((b.right())), "BinaryExpression");
+        return new BinaryExpression(this.map(b.left()), BinaryOperator.fromValue(b.operator().toString()), this.map((b.right())), "BinaryExpression");
     }
 
     private ParenthesizedExpression map(Expression.ParenthesizedExpression b) {

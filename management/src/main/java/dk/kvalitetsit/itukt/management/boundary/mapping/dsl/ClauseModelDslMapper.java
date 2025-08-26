@@ -5,10 +5,10 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 
 
-public class ClauseDslMapper implements Mapper<Clause, String> {
+public class ClauseModelDslMapper implements Mapper<Clause, String> {
     private final Mapper<Expression, String> expressionDslMapper;
 
-    public ClauseDslMapper(Mapper<Expression, String> expressionDslMapper) {
+    public ClauseModelDslMapper(Mapper<Expression, String> expressionDslMapper) {
         this.expressionDslMapper = expressionDslMapper;
     }
 

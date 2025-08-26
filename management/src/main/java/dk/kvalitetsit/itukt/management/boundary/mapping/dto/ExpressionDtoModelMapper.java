@@ -8,7 +8,7 @@ import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.Condition;
 import org.openapitools.model.ParenthesizedExpression;
 
-public class DtoExpressionMapper implements Mapper<org.openapitools.model.Expression, Expression> {
+public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.Expression, Expression> {
 
     private final OperatorDtoModelMapper operatorDtoModelMapper = new OperatorDtoModelMapper();
 
@@ -27,7 +27,7 @@ public class DtoExpressionMapper implements Mapper<org.openapitools.model.Expres
     }
 
     private Expression.BinaryExpression map(BinaryExpression b) {
-        return new Expression.BinaryExpression(this.map(b.getLeft()), Expression.BinaryExpression.BinaryOperator.fromValue(b.getOperator().getValue()), this.map((b.getRight())));
+        return new Expression.BinaryExpression(this.map(b.getLeft()), Expression.BinaryExpression.BinaryOperator.valueOf(b.getOperator().getValue()), this.map((b.getRight())));
     }
 
     private Expression.ParenthesizedExpression map(ParenthesizedExpression b) {

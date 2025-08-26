@@ -23,7 +23,7 @@ class ValidationServiceImplTest {
     private ClauseCache clauseCache;
 
     @Test
-    void testCreate() {
+    void testValidate() {
         var request = new DataContext(Map.of("ALDER", List.of("20")));
         var result = service.validate(request);
         assertTrue(result);

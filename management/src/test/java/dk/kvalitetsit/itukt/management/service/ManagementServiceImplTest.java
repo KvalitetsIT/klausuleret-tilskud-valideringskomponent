@@ -28,12 +28,10 @@ class ManagementServiceImplTest {
 
     @Test
     void testCreate() {
-        var expression = new Expression.Condition("field", Operator.EQUAL, List.of());
-        var input = new Clause("CHOL", null, expression);
-        Mockito.when(dao.create(Mockito.any(Clause.class))).thenReturn(Optional.of(input));
-
-        var result = service.create(input);
-        assertNotNull(result);
+        var model = MockFactory.CLAUSE_1_MODEL;
+        Mockito.when(dao.create(Mockito.any(Clause.class))).thenReturn(Optional.of(model));
+        var result = service.create(model);
+        assertEquals(Optional.of(model), result);
     }
 
     @Test

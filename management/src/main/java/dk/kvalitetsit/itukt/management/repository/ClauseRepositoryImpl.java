@@ -94,7 +94,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             Long id = ((Number) row.get("id")).longValue();
             String name = (String) row.get("name");
             ExpressionType type = ExpressionType.valueOf((String) row.get("type"));
-            Long expression_id = ((Number) row.get("expression_id")).longValue();
+            Long expressionId = ((Number) row.get("expression_id")).longValue();
 
             ExpressionEntity expression = switch (type) {
                 case ExpressionType.CONDITION -> readCondition(expression_id);

@@ -9,9 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClauseRepositoryImplIT extends BaseTest {
@@ -39,7 +38,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
             Assertions.assertNotEquals(clause.uuid(), writtenClause.uuid(), "The uuid of the given clause is expected to be replaced");
             Assertions.assertNotEquals(clause.uuid(), readClause.uuid(), "The uuid of the given clause is expected to be replaced");
-            assertEquals(writtenClause, readClause, "The clause read from the database is expected to match the one written beforehand");
-        }
+            assertThat(readClause)
+                    .usingRecursiveComparison()
+                    .ignoringFields("id", "uuid", "expression.id", "expression.left.id", "expression.right.id", "expression.right.left.id", "expression.right.right.id")
+                    .isEqualTo(clause);
+        assertEquals(writtenClause, readClause, "The clause read from the database is expected to match the one written beforehand");
     }
+}
 }

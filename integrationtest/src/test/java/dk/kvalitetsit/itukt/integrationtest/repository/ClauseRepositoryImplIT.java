@@ -33,7 +33,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
             ClauseEntity clause = clauses.get(i);
 
-            ClauseEntity written_clause = written.get(i);
+            ClauseEntity writtenClause = written.get(i);
             ClauseEntity read_clause = read.get(i);
 
             Assertions.assertNotEquals(clause.uuid(), written_clause.uuid());

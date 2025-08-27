@@ -6,4 +6,10 @@ public record ClauseEntity(
         Long id,
         UUID uuid,
         String name,
-        ExpressionEntity expression) {}
+        ExpressionEntity expression) {
+
+
+    public ClauseEntity(UUID uuid, String name, ExpressionEntity expression) {
+        this(null, uuid, name, expression);
+    }
+}

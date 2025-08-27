@@ -4,7 +4,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 
-public class ExpressionEntityMapper implements Mapper<Expression, ExpressionEntity> {
+public class ExpressionModelEntityMapper implements Mapper<Expression, ExpressionEntity> {
     @Override
     public ExpressionEntity map(Expression expression) {
         return switch (expression) {
@@ -19,7 +19,7 @@ public class ExpressionEntityMapper implements Mapper<Expression, ExpressionEnti
     }
 
     private ExpressionEntity.BinaryExpressionEntity map(Expression.BinaryExpression b) {
-        return new ExpressionEntity.BinaryExpressionEntity(null, this.map(b.left()), b.operator().getValue(), this.map((b.right())));
+        return new ExpressionEntity.BinaryExpressionEntity(null, this.map(b.left()), b.operator(), this.map((b.right())));
     }
 
     private ExpressionEntity.ParenthesizedExpressionEntity map(Expression.ParenthesizedExpression b) {

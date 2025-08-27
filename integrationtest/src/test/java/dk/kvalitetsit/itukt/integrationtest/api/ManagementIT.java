@@ -1,21 +1,18 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
+import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
-import org.openapitools.client.model.Condition;
 import org.openapitools.client.model.DslInput;
-import org.openapitools.client.model.Operator;
 
-import java.util.List;
-
+import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_DTO;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static dk.kvalitetsit.itukt.integrationtest.MockFactory.clauseDto;
 
 
-public class ManagementIT extends BaseTest {
+class ManagementIT extends BaseTest {
 
     private ManagementApi api;
 
@@ -27,30 +24,30 @@ public class ManagementIT extends BaseTest {
 
     @Test
     void testPostAndGetClauseDsl() {
-        var dslInput = new DslInput().dsl("Klausul CHOL: (ALDER >= 13)");
+        var dsl = new DslInput().dsl(MockFactory.CLAUSE_1_DSL);
 
-        api.call20250801clausesDslPost(dslInput);
+        api.call20250801clausesDslPost(dsl);
         var clauses = api.call20250801clausesGet();
 
         assertEquals(1, clauses.size());
-        var clause = clauses.getFirst();
-        assertEquals("CHOL", clause.getName());
-        assertInstanceOf(Condition.class, clause.getExpression());
-        var condition = (Condition) clause.getExpression();
-        assertEquals("ALDER", condition.getField());
-        assertEquals(List.of("13"), condition.getValues());
-        assertEquals(Operator.GREATER_THAN_OR_EQUAL_TO, condition.getOperator());
+        assertThat(clauses.getFirst())
+                .usingRecursiveComparison()
+                .ignoringFields("uuid")
+                .isEqualTo(CLAUSE_1_DTO);
     }
 
     @Test
     void testPostAndGetClause() {
-        api.call20250801clausesPost(clauseDto);
+        api.call20250801clausesPost(CLAUSE_1_DTO);
         var clauses = api.call20250801clausesGet();
 
         assertEquals(1, clauses.size());
         var clause = clauses.getFirst();
-        assertEquals(clauseDto.getName(), clause.getName());
-        assertEquals(clauseDto.getExpression(), clause.getExpression());
+
+        assertThat(clause)
+                .usingRecursiveComparison()
+                .ignoringFields("uuid")
+                .isEqualTo(CLAUSE_1_DTO);
     }
 
 }

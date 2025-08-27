@@ -4,4 +4,6 @@ CREATE TABLE clause (
     name VARCHAR(255) NOT NULL,
     expression_id INT NOT NULL UNIQUE,
     FOREIGN KEY (expression_id) REFERENCES expression(id) ON DELETE CASCADE
-);
+)
+DEFAULT CHARSET=utf8 COLLATE=utf8_bin
+COMMENT='Represents a clause linked to an expression';

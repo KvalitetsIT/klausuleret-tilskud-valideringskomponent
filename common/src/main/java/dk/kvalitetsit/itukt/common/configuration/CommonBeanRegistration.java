@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.common.configuration;
 
+import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,6 +77,22 @@ public class CommonBeanRegistration {
                             response.getStatus(),
                             duration
                     );
+                }
+            }
+        };
+    }
+
+    @Bean
+    public OncePerRequestFilter genericExceptionHandler(){
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+                try {
+                    filterChain.doFilter(request, response);
+                } catch (ServiceException ex) {
+                    throw ex;
+                } catch (Throwable t) {
+                    throw new ServiceException();
                 }
             }
         };

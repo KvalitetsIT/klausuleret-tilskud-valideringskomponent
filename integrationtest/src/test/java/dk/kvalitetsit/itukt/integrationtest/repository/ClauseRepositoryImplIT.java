@@ -28,7 +28,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         var written = clauses.stream().map(this.repository::create).toList();
         var read = this.repository.readAll();
-
+        assertEquals(clauses.size(), read.size());
         for (int i = 0; i < written.size(); i++) {
 
             ClauseEntity clause = clauses.get(i);

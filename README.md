@@ -228,3 +228,12 @@ Database-forbindelsespoolen er sat op ved hjælp af HikariCP og benytter dens st
 ## 7. Opdatering af afhængigheder
 Som standard bruger vi GitHub Actions som vores CI/CD-platform, og den kan også håndtere opdateringer af afhængigheder. Vi benytter GitHubs [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuring-dependabot-version-updates)
 til at oprette pull requests med opdateringer af afhængigheder. 
+
+## 8. Udvikler-guide
+
+### Datamodel
+I stedet for at gemme rå DSL’er som tekststrenge er det valgt at modellere udtrykkene relationelt, som vist i det nedenstående [ER-Diagram](./documentation/src/main/resources/images/data_model.svg). Denne tilgang muliggør validering, type-sikkerhed og en tættere kobling til den anvendte domænemodel. 
+
+Datamodellen er bygget op omkring klausuler (clauses), der udgør kernen i projektet. Hver klausul indeholder et rekursivt udtryk (expression), som kan antage tre former: et binært udtryk (binary_expression), et udtryk omsluttet af parenteser (parenthesized_expression) eller en betingelse (condition_expression).
+
+![ER-Diagram](./documentation/src/main/resources/images/data_model.svg)

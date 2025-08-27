@@ -1,11 +1,16 @@
 package dk.kvalitetsit.itukt.common.configuration;
 
+import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
@@ -14,17 +19,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CommonBeanRegistrationTest {
 
 
-    @Test
-    void oncePerRequestFilter_shouldLogRequestDetails() throws Exception {
-        // Arrange
-        var config = new CommonConfiguration(
-                List.of(""),
-                new DatasourceConfiguration("", "", "",
-                        new ConnectionConfiguration("", null, null)
-                )
-        );
+    private static CommonConfiguration CONFIG = new CommonConfiguration(
+            List.of(""),
+            new DatasourceConfiguration("", "", "",
+                    new ConnectionConfiguration("", null, null)
+            )
+    );
 
-        var registration = new CommonBeanRegistration(config);
+    @Test
+    void oncePerRequestFilter_shouldLogRequestDetails() throws ServletException, IOException {
+        var registration = new CommonBeanRegistration(CONFIG);
 
         var filter = registration.oncePerRequestFilter();
 
@@ -52,4 +56,41 @@ class CommonBeanRegistrationTest {
                 .contains("Response: 200")
                 .contains("Time:");
     }
+
+    @Test
+    void testGenericExceptionHandlerHandlesRuntimeExceptions() {
+        var registration = new CommonBeanRegistration(CONFIG);
+        var filter = registration.genericExceptionHandler();
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/whatever");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        FilterChain chain = (req, res) -> {
+            throw new RuntimeException();
+        };
+
+        ServiceException thrown = Assertions.assertThrows(ServiceException.class, () -> filter.doFilter(request, response, chain));
+        Assertions.assertEquals(new ServiceException().getMessage(), thrown.getMessage());
+
+    }
+
+    @Test
+    void testGenericExceptionHandlerThrowsServiceExceptions() {
+        var registration = new CommonBeanRegistration(CONFIG);
+        var filter = registration.genericExceptionHandler();
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/whatever");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        var se = new ServiceException("TEST MESSAGE");
+
+        FilterChain chain = (req, res) -> {
+            throw se;
+        };
+        ServiceException thrown = Assertions.assertThrows(ServiceException.class, () -> filter.doFilter(request, response, chain));
+
+        Assertions.assertEquals("TEST MESSAGE", thrown.getMessage());
+    }
+
+
 }

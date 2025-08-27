@@ -29,9 +29,9 @@ class ManagementServiceImplTest {
     @Test
     void testCreate() {
         var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.create(Mockito.any(Clause.class))).thenReturn(Optional.of(model));
+        Mockito.when(dao.create(Mockito.any(Clause.class))).thenReturn(model);
         var result = service.create(model);
-        assertEquals(Optional.of(model), result);
+        assertEquals(model, result);
     }
 
     @Test

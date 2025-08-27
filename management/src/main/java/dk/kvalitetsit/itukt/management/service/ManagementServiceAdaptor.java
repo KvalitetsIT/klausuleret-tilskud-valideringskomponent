@@ -31,15 +31,15 @@ public class ManagementServiceAdaptor {
         this.clauseDslMapper = clauseDslMapper;
     }
 
-    public Optional<Clause> create(Clause entry) throws ServiceException {
+    public Clause create(Clause entry) throws ServiceException {
         var model = dtoClauseMapper.map(entry);
-        return clauseService.create(model).map(clauseDtoMapper::map);
+        return clauseDtoMapper.map(clauseService.create(model));
     }
 
-    public Optional<String> createDSL(DslInput dsl) throws ServiceException {
+    public String createDSL(DslInput dsl) throws ServiceException {
         var clause = this.dslClauseMapper.map(dsl.getDsl());
         var model = this.dtoClauseMapper.map(clause);
-        return clauseService.create(model).map(clauseDslMapper::map);
+        return clauseDslMapper.map(clauseService.create(model));
     }
 
     public Optional<Clause> read(UUID id) throws ServiceException {

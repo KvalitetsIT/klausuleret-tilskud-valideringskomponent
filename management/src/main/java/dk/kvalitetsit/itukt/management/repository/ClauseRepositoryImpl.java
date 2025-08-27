@@ -28,12 +28,11 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     }
 
     @Override
-    public Optional<ClauseEntity> create(ClauseEntity clause) throws ServiceException {
+    public ClauseEntity create(ClauseEntity clause) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            // Create expression with fresh expression ID = clause ID
             ExpressionEntity expression = create(clause.expression());
 
             template.update(
@@ -50,7 +49,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            return Optional.of(new ClauseEntity(clauseId, uuid, clause.name(), expression));
+            return new ClauseEntity(clauseId, uuid, clause.name(), expression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
@@ -62,7 +61,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        // Use provided ID directly, do not use GeneratedKeyHolder here
         template.update(
                 "INSERT INTO expression (type) VALUES (:type)",
                 new MapSqlParameterSource().addValue("type", expression.type().toString()),
@@ -74,10 +72,10 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 .orElseThrow(() -> new ServiceException("Failed to get expression primary key"))
                 .longValue();
 
-        return switch (expression) {
-            case ExpressionEntity.ConditionEntity e -> insertCondition(expressionId, e);
-            case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(expressionId, e);
-            case ExpressionEntity.ParenthesizedExpressionEntity e -> insertParenthesized(expressionId, e);
+        return switch (expression.withId(expressionId)) {
+            case ExpressionEntity.ConditionEntity e -> insertCondition(e);
+            case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(e);
+            case ExpressionEntity.ParenthesizedExpressionEntity e -> insertParenthesized(e);
         };
     }
 
@@ -85,9 +83,9 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, e.type
+                        SELECT c.id, c.name, c.expression_id, e.type
                         FROM clause c
-                        JOIN expression e ON c.id = e.id
+                        JOIN expression e ON c.expression_id = e.id
                         WHERE c.uuid = :uuid
                     """;
 
@@ -96,11 +94,12 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             Long id = ((Number) row.get("id")).longValue();
             String name = (String) row.get("name");
             ExpressionType type = ExpressionType.valueOf((String) row.get("type"));
+            Long expressionId = ((Number) row.get("expression_id")).longValue();
 
             ExpressionEntity expression = switch (type) {
-                case ExpressionType.CONDITION -> readCondition(id);
-                case ExpressionType.BINARY -> readBinary(id);
-                case ExpressionType.PARENTHESIZED -> readParenthesized(id);
+                case ExpressionType.CONDITION -> readCondition(expressionId);
+                case ExpressionType.BINARY -> readBinary(expressionId);
+                case ExpressionType.PARENTHESIZED -> readParenthesized(expressionId);
             };
 
             return Optional.of(new ClauseEntity(id, uuid, name, expression));
@@ -120,7 +119,8 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        JOIN expression e ON c.id = e.id
+                        JOIN expression e ON c.expression_id = e.id
+                        ORDER BY c.id
                     """;
 
             List<UUID> uuids = template.query(sql, Collections.emptyMap(), (rs, rowNum) ->
@@ -138,12 +138,12 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         }
     }
 
-    private ExpressionEntity.ConditionEntity insertCondition(long parentId, ExpressionEntity.ConditionEntity condition) {
+    private ExpressionEntity.ConditionEntity insertCondition(ExpressionEntity.ConditionEntity condition) {
 
         template.update(
                 "INSERT INTO condition_expression(expression_id, field, operator) VALUES (:expression_id, :field, :operator)",
                 Map.of(
-                        "expression_id", parentId,
+                        "expression_id", condition.id(),
                         "field", condition.field(),
                         "operator", condition.operator().getValue()
                 ));
@@ -152,43 +152,42 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             template.update(
                     "INSERT INTO condition_value(condition_id, value) VALUES (:condition_id, :value)",
                     Map.of(
-                            "condition_id", parentId,
+                            "condition_id", condition.id(),
                             "value", value
                     ));
         }
-        return condition.withId(parentId);
+        return condition;
     }
 
-    // Note the new 'clauseId' parameter
-    private ExpressionEntity.BinaryExpressionEntity insertBinary(long parentId, ExpressionEntity.BinaryExpressionEntity binary) {
-        // Pass the original clauseId, not the parent expression's ID
+    private ExpressionEntity.BinaryExpressionEntity insertBinary(ExpressionEntity.BinaryExpressionEntity binary) {
         ExpressionEntity left = create(binary.left());
         ExpressionEntity right = create(binary.right());
 
         template.update(
                 "INSERT INTO binary_expression(expression_id, left_id, operator, right_id) VALUES (:expression_id, :left_id, :operator, :right_id)",
                 Map.of(
-                        "expression_id", parentId,
+                        "expression_id", binary.id(),
                         "left_id", left.id(),
                         "operator", binary.operator().toString(),
                         "right_id", right.id()
-                ));
-        return new ExpressionEntity.BinaryExpressionEntity(parentId, left, binary.operator(), right);
+                )
+        );
+
+        return new ExpressionEntity.BinaryExpressionEntity(binary.id(), left, binary.operator(), right);
     }
 
-    // Note the new 'clauseId' parameter
-    private ExpressionEntity.ParenthesizedExpressionEntity insertParenthesized(long parentId, ExpressionEntity.ParenthesizedExpressionEntity paren) {
-        // Pass the original clauseId
+
+    private ExpressionEntity.ParenthesizedExpressionEntity insertParenthesized(ExpressionEntity.ParenthesizedExpressionEntity paren) {
         var inner = create(paren.inner());
 
         template.update(
                 "INSERT INTO parenthesized_expression(expression_id, inner_id) VALUES (:expression_id, :inner_id)",
                 Map.of(
-                        "expression_id", parentId,
+                        "expression_id", paren.id(),
                         "inner_id", inner.id()
                 ));
 
-        return new ExpressionEntity.ParenthesizedExpressionEntity(parentId, inner);
+        return new ExpressionEntity.ParenthesizedExpressionEntity(paren.id(), inner);
     }
 
     private ExpressionEntity.ConditionEntity readCondition(long expressionId) {
@@ -228,7 +227,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         );
 
         ExpressionEntity inner = readById(innerId).orElseThrow();
-        return new ExpressionEntity.ParenthesizedExpressionEntity(innerId, inner);
+        return new ExpressionEntity.ParenthesizedExpressionEntity(id, inner);
     }
 
 

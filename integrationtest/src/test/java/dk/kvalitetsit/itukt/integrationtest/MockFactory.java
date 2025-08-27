@@ -95,7 +95,7 @@ public class MockFactory {
     );
 
     // Note: This clause(clause_1_entity) matches: clause_1_dsl
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(UUID.randomUUID(), "CHOL", EXPRESSION_1_ENTITY);
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", EXPRESSION_1_ENTITY);
 
     public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), Optional.of(CLAUSE_1_ENTITY.uuid()), EXPRESSION_1_MODEL);
 

@@ -52,9 +52,9 @@ public class ManagementServiceAdaptorTest {
     @Test
     void testCreate() {
         Mockito.when(clauseDtoModelMapper.map(CLAUSE_1_DTO)).thenReturn(CLAUSE_1_MODEL);
-        Mockito.when(managementServiceImpl.create(Mockito.any(Clause.class))).thenReturn(Optional.of(CLAUSE_1_MODEL));
+        Mockito.when(managementServiceImpl.create(Mockito.any(Clause.class))).thenReturn(CLAUSE_1_MODEL);
         var result = adaptor.create(CLAUSE_1_DTO);
-        assertEquals(CLAUSE_1_DTO, result.get());
+        assertEquals(CLAUSE_1_DTO, result);
 
         var captor = ArgumentCaptor.forClass(Clause.class);
         Mockito.verify(managementServiceImpl, Mockito.times(1)).create(captor.capture());

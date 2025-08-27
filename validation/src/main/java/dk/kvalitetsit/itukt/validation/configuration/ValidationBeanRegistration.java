@@ -50,7 +50,7 @@ public class ValidationBeanRegistration {
     @Bean
     public StamDataCache stamDataCache() {
         // Hardcoded stamdata until we implement IUAKT-80
-        return new StamDataCache(Map.of(1L, new ClauseEntity("KRINI", null, null, null, null, "asdf", null)));
+        return new StamDataCache(Map.of(1L, new ClauseEntity("KRINI", null, null, null, null, "Kronisk Rhinitis.", null)));
     }
 
     @Bean

@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.ClauseField;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
@@ -44,7 +45,7 @@ public class ManagementBeanRegistration {
     @Bean
     public ClauseCache clauseCache() {
         // Hardcoded clause for phase 1
-        Expression.Condition expression = new Expression.Condition("ALDER", Operator.GREATER_THAN, List.of("50"));
+        Expression.Condition expression = new Expression.Condition(ClauseField.AGE.name(), Operator.GREATER_THAN, List.of("50"));
         Clause clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
         return new ClauseCache(List.of(clause));
     }

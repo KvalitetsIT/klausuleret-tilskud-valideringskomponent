@@ -12,7 +12,7 @@ public interface StamDataRepository {
 
     Optional<DrugEntity> findDrugById(long drugId) throws ServiceException;
 
-    Optional<PackingEnitity> findPackageById(long id) throws ServiceException;
+    List<PackingEnitity> findPackagesByDrugId(long drugId) throws ServiceException;
 
     Optional<ClauseEntity> findClausesByID(long id) throws ServiceException;
 

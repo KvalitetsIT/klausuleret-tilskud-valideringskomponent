@@ -4,13 +4,10 @@ import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.validation.repository.entity.DrugEntity;
 import dk.kvalitetsit.itukt.validation.repository.entity.PackingEnitity;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -48,18 +45,16 @@ public class StamDataRepositoryImpl implements StamDataRepository {
     }
 
     @Override
-    public Optional<PackingEnitity> findPackageById(long id) throws ServiceException {
+    public List<PackingEnitity> findPackagesByDrugId(long drugId) throws ServiceException {
         try {
-            String sql = "SELECT * FROM Pakning WHERE pakningpid = :packagePID";
-            return Optional.ofNullable(template.queryForObject(
+            String sql = "SELECT * FROM Pakning WHERE drugid = :drugId";
+            return template.query(
                     sql,
-                    new MapSqlParameterSource("packagePID", id),
+                    new MapSqlParameterSource("drugId", drugId),
                     packageRowMapper
-            ));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
+            );
         } catch (Exception e) {
-            throw new ServiceException("Failed to fetch package by id", e);
+            throw new ServiceException("Failed to fetch package by drugId", e);
         }
     }
 

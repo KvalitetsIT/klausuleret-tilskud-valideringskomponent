@@ -1,26 +1,19 @@
 package dk.kvalitetsit.itukt.validation.boundary.mapping;
 
 import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.common.model.ClauseField;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
-import org.openapitools.model.ExistingDrugMedication;
-import org.openapitools.model.ValidationRequest;
+import dk.kvalitetsit.itukt.validation.service.model.ValidationInput;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ValidationDataContextMapper implements Mapper<ValidationRequest, DataContext> {
+public class ValidationDataContextMapper implements Mapper<ValidationInput, DataContext> {
     @Override
-    public DataContext map(ValidationRequest entry) {
-
-        HashMap<String, List<String>> map = new HashMap<>();
-
-        map.put("ALDER", List.of(entry.getAge().toString()));
-
-        entry.getExistingDrugMedications().ifPresent(x -> {
-            if (!x.isEmpty()) map.put("ATC", x.stream().map(ExistingDrugMedication::getAtcCode).toList());
-        });
-
-        return new DataContext(map);
+    public DataContext map(ValidationInput validationInput) {
+        return new DataContext(Map.of(
+                ClauseField.AGE.name(), List.of(Integer.toString(validationInput.citizenAge())))
+        );
     }
 
 }

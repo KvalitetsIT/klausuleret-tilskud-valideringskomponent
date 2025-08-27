@@ -1,13 +1,13 @@
 package dk.kvalitetsit.itukt.validation.boundary.mapping;
 
+import dk.kvalitetsit.itukt.common.model.ClauseField;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
+import dk.kvalitetsit.itukt.validation.service.model.ValidationInput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openapitools.model.ValidationRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -21,8 +21,11 @@ class ValidationDataContextMapperTest {
 
     @Test
     void map() {
-        var request = new ValidationRequest().age(20);
-        var ctx = new DataContext(Map.of("ALDER", List.of("20")));
-        Assertions.assertEquals(ctx, mapper.map(request));
+        var validationInput = new ValidationInput(20, 1L);
+
+        DataContext dataContext = mapper.map(validationInput);
+
+        var expectedDataContext = new DataContext(Map.of(ClauseField.AGE.name(), List.of("20")));
+        Assertions.assertEquals(expectedDataContext, dataContext);
     }
 }

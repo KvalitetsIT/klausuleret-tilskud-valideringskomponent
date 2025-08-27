@@ -37,9 +37,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
             ClauseEntity writtenClause = written.get(i);
             ClauseEntity readClause = read.get(i);
 
-            Assertions.assertNotEquals(clause.uuid(), writtenClause.uuid());
-            Assertions.assertNotEquals(clause.uuid(), readClause.uuid());
-            assertEquals(writtenClause, readClause);
+            Assertions.assertNotEquals(clause.uuid(), writtenClause.uuid(), "The uuid of the given clause is expected to be replaced");
+            Assertions.assertNotEquals(clause.uuid(), readClause.uuid(), "The uuid of the given clause is expected to be replaced");
+            assertEquals(writtenClause, readClause, "The clause read from the database is expected to match the one written beforehand");
         }
     }
 }

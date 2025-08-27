@@ -44,10 +44,6 @@ public class ClauseRepositoryImplIT extends BaseTest {
                     .ignoringFields("id", "uuid", "expression.id", "expression.left.id", "expression.right.id", "expression.right.left.id", "expression.right.right.id")
                     .isEqualTo(clause);
 
-            assertThat(read_clause)
-                    .usingRecursiveComparison()
-                    .ignoringFields("id", "uuid", "expression.id", "expression.left.id", "expression.right.id", "expression.right.left.id", "expression.right.right.id")
-                    .isEqualTo(clause);
-        }
+            assertEquals(written_clause, read_clause);
     }
 }

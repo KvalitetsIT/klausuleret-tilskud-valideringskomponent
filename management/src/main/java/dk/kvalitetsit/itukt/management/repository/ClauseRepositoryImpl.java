@@ -97,9 +97,9 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             Long expressionId = ((Number) row.get("expression_id")).longValue();
 
             ExpressionEntity expression = switch (type) {
-                case ExpressionType.CONDITION -> readCondition(expression_id);
-                case ExpressionType.BINARY -> readBinary(expression_id);
-                case ExpressionType.PARENTHESIZED -> readParenthesized(expression_id);
+                case ExpressionType.CONDITION -> readCondition(expressionId);
+                case ExpressionType.BINARY -> readBinary(expressionId);
+                case ExpressionType.PARENTHESIZED -> readParenthesized(expressionId);
             };
 
             return Optional.of(new ClauseEntity(id, uuid, name, expression));

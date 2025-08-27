@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClauseRepositoryImplIT extends BaseTest {
 
@@ -34,16 +35,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
             ClauseEntity clause = clauses.get(i);
 
             ClauseEntity writtenClause = written.get(i);
-            ClauseEntity read_clause = read.get(i);
+            ClauseEntity readClause = read.get(i);
 
-            Assertions.assertNotEquals(clause.uuid(), written_clause.uuid());
-            Assertions.assertNotEquals(clause.uuid(), read_clause.uuid());
-
-            assertThat(written_clause)
-                    .usingRecursiveComparison()
-                    .ignoringFields("id", "uuid", "expression.id", "expression.left.id", "expression.right.id", "expression.right.left.id", "expression.right.right.id")
-                    .isEqualTo(clause);
-
-            assertEquals(written_clause, read_clause);
+            Assertions.assertNotEquals(clause.uuid(), writtenClause.uuid());
+            Assertions.assertNotEquals(clause.uuid(), readClause.uuid());
+            assertEquals(writtenClause, readClause);
+        }
     }
 }

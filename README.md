@@ -230,7 +230,7 @@ Som standard bruger vi GitHub Actions som vores CI/CD-platform, og den kan også
 til at oprette pull requests med opdateringer af afhængigheder. 
 
 ## 8. Udvikler-guide
-Formålet for denne sektion er at give eventuelle udviklere et overblik over systemets logiske komponenter samt aktørernes relation hertil. Overblikket formidles gennem en række diagrammer; et abstrakt "boksdiagram", der illustrerer den overordnede arkitektur, et par sekvensdiagrammer, som viser de centrale interaktioner, og til sidst et ER-diagram, der visualiserer den anvendte datamodel.
+Formålet for denne sektion er at give eventuelle udviklere et overblik over systemets logiske komponenter samt aktørernes relation hertil. Overblikket formidles gennem en række diagrammer; et abstrakt "boksdiagram", der illustrerer den overordnede arkitektur, et par sekvensdiagrammer, som viser de centrale interaktioner, og til sidst et diagram, der visualiserer den anvendte datamodel.
 
 ### Arkitektur
 Systemet består af en række services, som fremgår af [boksdiagrammet](./documentation/src/main/resources/images/sequence_diagram_management.svg). I dette projekt er det særligt komponenterne placeret på venstre side af den stiplede linje, der er relevante. Komponenten for klausuleret tilskud har til formål at indkapsle den logik, der håndterer validering af lægemiddelordinationer i forhold til eventuelle klausuler. Stamdata-databasen er markeret med en stiplet linje for at illustrere, at der er tale om en kopi, som opdateres periodisk.

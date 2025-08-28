@@ -248,7 +248,7 @@ Valideringsmodulet fungerer som grænseflade til FMK og benytter i den forbindel
 ![Sekvens digram: Validation](./documentation/src/main/resources/images/sequence_diagram_validation.svg)
 
 ### Datamodel
-I stedet for at gemme rå DSL’er som tekststrenge er det valgt at modellere udtrykkene relationelt, som vist i det nedenstående [ER-Diagram](./documentation/src/main/resources/images/data_model.svg). Denne tilgang muliggør validering, type-sikkerhed og en tættere kobling til den anvendte domænemodel. 
+I stedet for at gemme rå DSL’er som tekststrenge er det valgt at modellere udtrykkene relationelt, som vist i den nedenstående [Datamodel](./documentation/src/main/resources/images/data_model.svg). Denne tilgang muliggør validering, type-sikkerhed og en tættere kobling til den anvendte domænemodel. 
 
 Datamodellen er bygget op omkring klausuler (clauses), der udgør kernen i projektet. Hver klausul indeholder et rekursivt udtryk (expression), som kan antage tre former: et binært udtryk (binary_expression), et udtryk omsluttet af parenteser (parenthesized_expression) eller en betingelse (condition_expression).
 

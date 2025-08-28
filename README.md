@@ -239,6 +239,7 @@ Systemet består af en række services, som fremgår af [boksdiagrammet](./docum
 
 #### Management
 Som navnet management antyder, er dette moduls formål at understøtte håndteringen af klausuloprettelse. Gennem brugergrænsefladen kan Lægemiddelstyrelsen (LMS) oprette og administrere klausuler, der efterfølgende indgår i valideringen af kommende ordinationer. Denne proces er illustreret i diagrammet nedenfor.
+
 ![Sekvens digram: Management](./documentation/src/main/resources/images/sequence_diagram_management.svg)
 
 #### Validation

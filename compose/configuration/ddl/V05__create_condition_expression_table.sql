@@ -5,4 +5,3 @@ CREATE TABLE `condition_expression` (
     FOREIGN KEY (expression_id) REFERENCES expression(id) ON DELETE CASCADE
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_bin
   COMMENT='Specialized expression representing a condition (field + operator + values)';
-;

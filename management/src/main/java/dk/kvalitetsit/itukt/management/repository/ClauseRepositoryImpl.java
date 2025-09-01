@@ -27,6 +27,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         template = new NamedParameterJdbcTemplate(dataSource);
     }
 
+
     @Override
     public ClauseEntity create(ClauseEntity clause) throws ServiceException {
         try {
@@ -49,12 +50,21 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
+            createErrorCode(clauseId);
+
             return new ClauseEntity(clauseId, uuid, clause.name(), expression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
             throw new ServiceException("Failed to create clause", e);
         }
+    }
+
+    private void createErrorCode(long clauseId) {
+        template.update(
+                "INSERT INTO error_code (error_code, clause_id) VALUES (NEXTVAL(error_code_seq), :clause_id)",
+                new MapSqlParameterSource().addValue("clause_id", clauseId)
+        );
     }
 
     private ExpressionEntity create(ExpressionEntity expression) {

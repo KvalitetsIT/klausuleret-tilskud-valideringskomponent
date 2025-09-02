@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
 import org.openapitools.model.*;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * The {@code ValidationServiceAdaptor} class is responsible for adapting between the boundary layer and the service layer {@link ValidationServiceImpl}.
@@ -39,14 +40,13 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
     private ValidationResponse combineResponses(List<ValidationResponse> responses) {
         if (responses.stream().allMatch(resp -> resp instanceof ValidationSuccess)) {
             return new ValidationSuccess();
-        } else {
-            var validationErrors = responses.stream()
-                    .filter(resp -> resp instanceof ValidationFailed)
-                    .flatMap(failed -> ((ValidationFailed) failed).getValidationErrors().stream())
-                    .toList();
-            return new ValidationFailed()
-                    .validationErrors(validationErrors);
         }
+
+        var validationErrors = responses.stream()
+                .flatMap(resp -> resp instanceof ValidationFailed failed ?
+                        failed.getValidationErrors().stream() : Stream.of())
+                .toList();
+        return new ValidationFailed().validationErrors(validationErrors);
     }
 
     private ValidationResponse mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {

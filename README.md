@@ -229,7 +229,7 @@ Database-forbindelsespoolen er sat op ved hjælp af HikariCP og benytter dens st
 Som standard bruger vi GitHub Actions som vores CI/CD-platform, og den kan også håndtere opdateringer af afhængigheder. Vi benytter GitHubs [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuring-dependabot-version-updates)
 til at oprette pull requests med opdateringer af afhængigheder. 
 
-## 8. Udvikler-guide
+## 8. Design og Arkitektur
 Formålet for denne sektion er at give eventuelle udviklere et overblik over systemets logiske komponenter samt aktørernes relation hertil. Overblikket formidles gennem en række diagrammer; et abstrakt "boksdiagram", der illustrerer den overordnede arkitektur, et par sekvensdiagrammer, som viser de centrale interaktioner, og til sidst et diagram, der visualiserer den anvendte datamodel.
 
 ### Arkitektur

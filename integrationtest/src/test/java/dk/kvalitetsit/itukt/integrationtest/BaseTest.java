@@ -98,8 +98,6 @@ public abstract class BaseTest {
             }
         }
 
-        jdbcTemplate.execute("ALTER SEQUENCE error_code_seq RESTART WITH 10800;");
-
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
     }
 

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -52,7 +53,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     void assertExceptionWhen199IsExceeded() {
         Assertions.assertThrowsExactly(
                 ServiceException.class,
-                () -> IntStream.rangeClosed(10800, 11000).mapToObj((i) -> MockFactory.CLAUSE_1_ENTITY).forEach(this.repository::create),
+                () -> IntStream.rangeClosed(10800, 11000).parallel().mapToObj((i) -> MockFactory.CLAUSE_1_ENTITY).forEach(this.repository::create),
                 "An error is expected since only 199 clauses should be creatable as the limit of error code would be exceeded otherwise"
         );
     }
@@ -62,13 +63,17 @@ public class ClauseRepositoryImplIT extends BaseTest {
         final int OFFSET = 10800;
         final int LIMIT = 200;
 
-        var written = IntStream.range(OFFSET, OFFSET + LIMIT).mapToObj((i) -> MockFactory.CLAUSE_1_ENTITY).map(this.repository::create).toList();
+        var written = IntStream.range(OFFSET, OFFSET + LIMIT).parallel().mapToObj((i) -> MockFactory.CLAUSE_1_ENTITY).map(this.repository::create).toList();
 
         Assertions.assertEquals(LIMIT, written.size(), LIMIT + " written clauses is expected since FMK only allocates error codes from " + LIMIT + " - " + (OFFSET + LIMIT - 1));
 
         var read = this.repository.readAll();
         Assertions.assertEquals(LIMIT, read.size(), LIMIT + " clauses is expected to be read since this amount was written");
 
-        Assertions.assertEquals(written, read, "Clauses read is expected to be the same as written clauses");
+        Assertions.assertEquals(
+                written.stream().sorted(Comparator.comparing(ClauseEntity::id)).toList(),
+                read,
+                "Clauses read is expected to be the same as written clauses"
+        );
     }
 }

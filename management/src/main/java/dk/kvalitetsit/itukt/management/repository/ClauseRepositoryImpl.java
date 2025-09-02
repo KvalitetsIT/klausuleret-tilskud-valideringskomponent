@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -27,7 +28,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         template = new NamedParameterJdbcTemplate(dataSource);
     }
 
-
+    @Transactional("clauseTransactionManager")
     @Override
     public ClauseEntity create(ClauseEntity clause) throws ServiceException {
         try {
@@ -50,7 +51,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            createErrorCode(clauseId);
+            long ignored = createErrorCode(uuid);
 
             return new ClauseEntity(clauseId, uuid, clause.name(), expression);
 
@@ -60,11 +61,33 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         }
     }
 
-    private void createErrorCode(long clauseId) {
-        template.update(
-                "INSERT INTO error_code (error_code, clause_id) VALUES (NEXTVAL(error_code_seq), :clause_id)",
-                new MapSqlParameterSource().addValue("clause_id", clauseId)
-        );
+
+    public long createErrorCode(UUID uuid) {
+        template.getJdbcTemplate().execute("LOCK TABLES error_code WRITE");
+
+        try {
+            Long max = template.getJdbcTemplate().queryForObject(
+                    "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
+                    Long.class
+            );
+
+            long next = max + 1;
+
+            if (next > 10999) {
+                throw new IllegalStateException("Exceeded the maximum number of allocated error codes (10800–10999 exhausted)");
+            }
+
+            template.update(
+                    "INSERT INTO error_code (error_code, clause_uuid) VALUES (:error_code, :clause_uuid)",
+                    new MapSqlParameterSource()
+                            .addValue("error_code", next)
+                            .addValue("clause_uuid", uuid.toString())
+            );
+
+            return next;
+        } finally {
+            template.getJdbcTemplate().execute("UNLOCK TABLES");
+        }
     }
 
     private ExpressionEntity create(ExpressionEntity expression) {

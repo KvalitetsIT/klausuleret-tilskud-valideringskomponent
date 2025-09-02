@@ -1,9 +1,22 @@
-# Installationsvejledning
+# Udvikler-vejledning 
+---
+## 1. Byg og test
 
-Følg nedenstående trin for at installere og starte *Klausuleret Tilskud – Valideringskomponent*
+Eksekvering af test med fungerende debugging:\
+`mvn clean install`
+
+Eksekvering af selvsamme test-sæt imod docker-compose:\
+`mvn clean install -Pdocker-test`
+
+Debugging vil i dette tilfælde ikke virke fordi tjenesten kører i en container som bygges on-demand af test-kørslen.
 
 ---
-## Trin 1 – Klargør miljøet
+## 2. Kørsel af komponenten 
+
+Følg nedenstående trin for at starte *Klausuleret Tilskud – Valideringskomponent* og dertilhørende afhængigheder
+
+---
+### Trin 1 – Klargør miljøet
 
 1. Sørg for, at **Docker** og **Docker Compose** er installeret og fungerer.
     - [Docker Installationsvejledning](https://docs.docker.com/get-docker/)
@@ -15,12 +28,12 @@ Følg nedenstående trin for at installere og starte *Klausuleret Tilskud – Va
     - [kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:0.0.1](https://hub.docker.com/r/kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation)
 
 ---
-## Trin 2 – Justér nedenstående docker-compose og opsæt miljøvariabler
+### Trin 2 – Justér nedenstående docker-compose og opsæt miljøvariabler
 
 Opret en `docker-compose.yml` eller indsæt de korrekte værdier for miljøvariablerne (se **Konfiguration** i afsnit 6) i
 nedenstående eksempel. Sørg for, at JDBC-brugeroplysningerne er korrekte, og at de matcher databaseinstanserne.
 
-### Docker Compose
+#### Docker Compose
 
 Hermed et eksempel på en *Docker Compose*-opsætning, som kan anvendes til at starte komponenten med tilhørende
 databaseinstanser.
@@ -88,13 +101,13 @@ databaseinstanser.
 ```
 
 ---
-## Trin 3 – Start applikationen
+### Trin 3 – Start applikationen
 
 1. Naviger til mappen med `docker-compose.yml`.
 2. Kør følgende kommando: `docker-compose up -d`
 
 ---
-## Trin 4 – Verificér korrekt respons fra komponenten
+### Trin 4 – Verificér korrekt respons fra komponenten
 
 Nedenstående anmodning omfatter de forventede oplysninger fra FMK og kan i øvrigt anvendes med henblik på at verificere
 at komponenten returnerer hvad der forventes.
@@ -149,4 +162,10 @@ Respons:
   "validationStatus": "validationSuccess"
 }
 ```
+---
 
+### 3. Opdatering af afhængigheder
+Som standard bruger vi GitHub Actions som vores CI/CD-platform, og den kan også håndtere opdateringer af afhængigheder. Vi benytter GitHubs [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuring-dependabot-version-updates)
+til at oprette pull requests med opdateringer af afhængigheder.
+
+---

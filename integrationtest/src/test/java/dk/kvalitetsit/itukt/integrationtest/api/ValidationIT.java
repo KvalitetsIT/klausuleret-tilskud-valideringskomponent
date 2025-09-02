@@ -41,8 +41,7 @@ public class ValidationIT extends BaseTest {
 
         var response = validationApi.call20250801validatePost(request);
 
-        assertInstanceOf(ValidationFailed.class, response);
-        var failedResponse = (ValidationFailed) response;
+        var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().get(0);
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache

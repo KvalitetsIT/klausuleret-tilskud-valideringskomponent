@@ -1,5 +1,9 @@
 package dk.kvalitetsit.itukt.common.configuration;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,8 +13,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.util.UUID;
 
 @Configuration
 @EnableTransactionManagement
@@ -51,4 +58,27 @@ public class CommonBeanRegistration {
         return new CorsFilter(source);
     }
 
+    @Bean
+    public OncePerRequestFilter oncePerRequestFilter() {
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+                long startTime = System.currentTimeMillis();
+
+                try {
+                    filterChain.doFilter(request, response);
+                } finally {
+                    long duration = System.currentTimeMillis() - startTime;
+                    System.out.printf(
+                            "Request { id: %s, Method: %s, Uri: %s, Response: %d, Time: %d ms }\n",
+                            request.getRequestId(),
+                            request.getMethod(),
+                            request.getRequestURI(),
+                            response.getStatus(),
+                            duration
+                    );
+                }
+            }
+        };
+    }
 }

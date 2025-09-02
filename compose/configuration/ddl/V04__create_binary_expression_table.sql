@@ -6,4 +6,6 @@ CREATE TABLE binary_expression (
     FOREIGN KEY (expression_id) REFERENCES expression(id) ON DELETE CASCADE,
     FOREIGN KEY (left_id) REFERENCES expression(id),
     FOREIGN KEY (right_id) REFERENCES expression(id)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_bin
+  COMMENT='Specialized expression combining two expressions with an operator (AND/OR/etc.)';
+;

@@ -18,7 +18,7 @@ public class ManagementServiceImpl implements ManagementService<Clause> {
     }
 
     @Override
-    public Optional<Clause> create(Clause entry) throws ServiceException {
+    public Clause create(Clause entry) throws ServiceException {
         return repository.create(entry);
     }
 

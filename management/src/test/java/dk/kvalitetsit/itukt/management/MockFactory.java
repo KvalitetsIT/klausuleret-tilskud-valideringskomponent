@@ -85,7 +85,7 @@ public class MockFactory {
             EXPRESSION_5_ENTITY
     );
 
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(UUID.randomUUID(), "CHOL", EXPRESSION_1_ENTITY);
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", EXPRESSION_1_ENTITY);
     public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), Optional.of(CLAUSE_1_ENTITY.uuid()), EXPRESSION_1_MODEL);
     public static final org.openapitools.model.Clause CLAUSE_1_DTO = new org.openapitools.model.Clause(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO).uuid(CLAUSE_1_MODEL.uuid().get());
     public static String EXPRESSION_1_DSL = "(ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)";

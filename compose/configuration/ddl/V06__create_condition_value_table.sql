@@ -3,4 +3,5 @@ CREATE TABLE condition_value (
     condition_id INT NOT NULL,
     value VARCHAR(255) NOT NULL,
     FOREIGN KEY (condition_id) REFERENCES `condition_expression`(expression_id) ON DELETE CASCADE
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_bin
+ COMMENT='Values belonging to a condition expression';

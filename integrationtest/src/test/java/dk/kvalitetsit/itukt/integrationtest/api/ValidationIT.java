@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
@@ -15,7 +15,7 @@ public class ValidationIT extends BaseTest {
 
     private ValidationApi validationApi;
 
-    @BeforeEach
+    @BeforeAll
     void setup() {
         this.validationApi = new ValidationApi(client);
     }

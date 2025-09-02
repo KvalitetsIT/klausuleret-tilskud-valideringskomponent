@@ -1,12 +1,9 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dto;
 
-
-
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.Condition;
-import org.openapitools.model.ParenthesizedExpression;
 
 public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.Expression, Expression> {
 
@@ -17,7 +14,6 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
         return switch (expression) {
             case BinaryExpression b -> this.map(b);
             case Condition c -> this.map(c);
-            case ParenthesizedExpression p -> this.map(p);
             default -> throw new IllegalStateException("Unexpected value: " + expression);
         };
     }
@@ -28,9 +24,5 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
 
     private Expression.BinaryExpression map(BinaryExpression b) {
         return new Expression.BinaryExpression(this.map(b.getLeft()), Expression.BinaryExpression.BinaryOperator.valueOf(b.getOperator().getValue()), this.map((b.getRight())));
-    }
-
-    private Expression.ParenthesizedExpression map(ParenthesizedExpression b) {
-        return new Expression.ParenthesizedExpression(this.map(b.getInner()));
     }
 }

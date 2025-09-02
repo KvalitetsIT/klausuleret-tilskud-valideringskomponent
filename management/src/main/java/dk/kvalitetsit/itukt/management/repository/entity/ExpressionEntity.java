@@ -7,8 +7,7 @@ import java.util.List;
 
 public sealed interface ExpressionEntity
         permits ExpressionEntity.ConditionEntity,
-        ExpressionEntity.BinaryExpressionEntity,
-        ExpressionEntity.ParenthesizedExpressionEntity {
+        ExpressionEntity.BinaryExpressionEntity {
 
     ExpressionType type();
 
@@ -53,22 +52,6 @@ public sealed interface ExpressionEntity
         }
     }
 
-    record ParenthesizedExpressionEntity(Long id, ExpressionEntity inner)
-            implements ExpressionEntity {
-        public ParenthesizedExpressionEntity(ExpressionEntity inner) {
-            this(null, inner);
-        }
-
-        @Override
-        public ExpressionType type() {
-            return ExpressionType.PARENTHESIZED;
-        }
-
-        @Override
-        public ParenthesizedExpressionEntity withId(Long newId) {
-            return new ParenthesizedExpressionEntity(newId, inner);
-        }
-    }
 }
 
 

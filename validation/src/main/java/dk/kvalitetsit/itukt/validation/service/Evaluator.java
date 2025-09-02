@@ -34,7 +34,6 @@ public class Evaluator {
                     case OR -> left || right;
                 };
             }
-            case Expression.ParenthesizedExpression p -> eval(p.inner(), ctx);
         };
     }
 

@@ -147,7 +147,7 @@ class Parser {
     private Expression parseLogicalGroup() {
         Expression inner = parseExpression();
         expect(")");
-        return new ParenthesizedExpression(inner, "ParenthesizedExpression");
+        return inner;
     }
 
     /**

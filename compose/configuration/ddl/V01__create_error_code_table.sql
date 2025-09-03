@@ -1,5 +1,5 @@
 CREATE TABLE error_code (
-    error_code INT PRIMARY KEY AUTO_INCREMENT,
+    error_code INT PRIMARY KEY,
     clause_uuid VARCHAR(36) NOT NULL
 ) AUTO_INCREMENT = 10800
 DEFAULT CHARSET=utf8 COLLATE=utf8_bin

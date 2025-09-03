@@ -10,9 +10,9 @@
 ---
 
 ## Oversigt 
-1. [Udvikler-vejledning](./documentation/developer_guide.md)
-2. [Design og arkitektur](./documentation/design_and_architecture.md)
-3. [Konfiguration](./documentation/configuration.md)
+- [Udvikler-vejledning](./documentation/developer_guide.md)
+- [Design og arkitektur](./documentation/design_and_architecture.md)
+- [Konfiguration](./documentation/configuration.md)
 
 ## 1. Formål
 
@@ -23,16 +23,16 @@ udviklere og driftsteams hurtigt kan etablere og afprøve løsningen i relevante
 
 ---
 
-## 3. Endpoints
+## 2. Endpoints
 
-### 3.1 Komponent
+### 2.1 Komponent
 
 Tjenesten lytter efter forbindelser på port 8080.
 
 Spring Boot Actuator lytter efter forbindelser på port 8081 (dette bruges som Prometheus scrape-endpoint og til
 sundhedsovervågning).
 
-### 3.2 Api specifikation
+### 2.2 Api specifikation
 
 En OpenAPI/Swagger-UI kan findes på nedenstående
 [adresse](http://localhost:80/openapi), hvor yderligere beskrivelser af felter, endpoints osv. kan ses:

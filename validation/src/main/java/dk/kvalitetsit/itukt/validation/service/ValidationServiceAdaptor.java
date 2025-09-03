@@ -4,8 +4,7 @@ import dk.kvalitetsit.itukt.validation.service.model.ValidationInput;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
 import org.openapitools.model.*;
 
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 /**
  * The {@code ValidationServiceAdaptor} class is responsible for adapting between the boundary layer and the service layer {@link ValidationServiceImpl}.
@@ -22,43 +21,31 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
 
     @Override
     public ValidationResponse validate(ValidationRequest request) {
-        var responses = request.getValidate().stream()
-                .map(validate -> validate(request, validate))
+        var validationErrors = request.getValidate().stream()
+                .flatMap(validate -> validate(request, validate).stream())
                 .toList();
-        return combineResponses(responses);
+        return validationErrors.isEmpty() ?
+                new ValidationSuccess() :
+                new ValidationFailed().validationErrors(validationErrors);
     }
 
-    private ValidationResponse validate(ValidationRequest request, Validate validate) {
+    private Optional<ValidationError> validate(ValidationRequest request, Validate validate) {
         var validationInput = mapToValidationInput(request, validate);
         var result = validationService.validate(validationInput);
         return switch (result) {
-            case dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess ignored -> new ValidationSuccess();
-            case dk.kvalitetsit.itukt.validation.service.model.ValidationError error -> mapValidationError(validate, error);
+            case dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess ignored -> Optional.empty();
+            case dk.kvalitetsit.itukt.validation.service.model.ValidationError error -> Optional.of(mapValidationError(validate, error));
         };
     }
 
-    private ValidationResponse combineResponses(List<ValidationResponse> responses) {
-        if (responses.stream().allMatch(resp -> resp instanceof ValidationSuccess)) {
-            return new ValidationSuccess();
-        }
-
-        var validationErrors = responses.stream()
-                .flatMap(resp -> resp instanceof ValidationFailed failed ?
-                        failed.getValidationErrors().stream() : Stream.of())
-                .toList();
-        return new ValidationFailed().validationErrors(validationErrors);
-    }
-
-    private ValidationResponse mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {
-        var validationError = new ValidationError()
+    private ValidationError mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {
+        return new ValidationError()
                 .errorCode(0)
                 .errorMessage(modelValidationError.errorMessage())
                 .elementPath(validateInput.getElementPath())
                 .clauseCode(modelValidationError.clauseCode())
                 .clauseText(modelValidationError.clauseText())
                 .warningQuestion("TODO: IUAKT-78");
-        return new ValidationFailed()
-                .addValidationErrorsItem(validationError);
     }
 
     private ValidationInput mapToValidationInput(ValidationRequest validationRequest, Validate validate) {

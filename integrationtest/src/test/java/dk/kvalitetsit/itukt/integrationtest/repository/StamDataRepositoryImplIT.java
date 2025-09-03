@@ -46,7 +46,7 @@ class StamDataRepositoryImplIT extends BaseTest {
 
     @Test
     void testFindPackageByItemNumber(){
-        var packing = this.dao.findPackageById(7438234L);
+        var packing = this.dao.findPackagesByDrugId(28103023098L);
         Assertions.assertFalse(packing.isEmpty());
     }
 

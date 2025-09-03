@@ -14,7 +14,7 @@ import java.util.List;
  * This class is typically used in a rule engine or query language parser to evaluate
  * whether a set of data satisfies a logical expression tree.
  */
-class Evaluator {
+public class Evaluator {
 
     /**
      * Evaluates an expression against the provided data context.

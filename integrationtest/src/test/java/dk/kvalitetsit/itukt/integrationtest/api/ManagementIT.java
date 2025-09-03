@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.DslInput;
@@ -16,7 +16,7 @@ class ManagementIT extends BaseTest {
 
     private ManagementApi api;
 
-    @BeforeEach
+    @BeforeAll
     void setup() {
         this.api = new ManagementApi(client);
     }

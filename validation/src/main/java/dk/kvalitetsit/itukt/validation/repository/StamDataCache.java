@@ -1,16 +1,18 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
+import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
+
 import java.util.Map;
 import java.util.Optional;
 
 public class StamDataCache {
-    private final Map<Long, String> drugIdToClauseNameMap;
+    private final Map<Long, ClauseEntity> drugIdToClauseMap;
 
-    public StamDataCache(Map<Long, String> drugIdToClauseNameMap) {
-        this.drugIdToClauseNameMap = drugIdToClauseNameMap;
+    public StamDataCache(Map<Long, ClauseEntity> drugIdToClauseMap) {
+        this.drugIdToClauseMap = drugIdToClauseMap;
     }
 
-    public Optional<String> getClauseNameByDrugId(long drugId) {
-        return Optional.ofNullable(drugIdToClauseNameMap.get(drugId));
+    public Optional<ClauseEntity> getClauseByDrugId(long drugId) {
+        return Optional.ofNullable(drugIdToClauseMap.get(drugId));
     }
 }

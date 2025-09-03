@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.Application;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
@@ -101,7 +101,7 @@ public abstract class BaseTest {
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
     }
 
-    @BeforeEach
+    @BeforeAll
     void setupApiClient() {
         String host = runInDocker ? environment.getServiceHost("validation-component", 8080) : "localhost";
         String port = runInDocker ? environment.getServicePort("validation-component", 8080).toString() : String.valueOf(localServerPort);

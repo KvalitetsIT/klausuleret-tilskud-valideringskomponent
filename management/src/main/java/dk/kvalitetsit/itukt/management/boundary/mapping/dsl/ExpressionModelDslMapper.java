@@ -9,7 +9,6 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
     @Override
     public String map(Expression entry) {
         return switch (entry) {
-            case Expression.ParenthesizedExpression c -> map(c);
             case Expression.BinaryExpression b -> map(b);
             case Expression.Condition c -> map(c);
         };
@@ -17,10 +16,6 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
 
     private String map(Expression.Condition c) {
         return "(" + c.field() + " " + c.operator().getValue() + " " + String.join(", ", c.values()) + ")";
-    }
-
-    private String map(Expression.ParenthesizedExpression c) {
-        return "(" + map(c.inner()) + ")";
     }
 
     private String map(Expression.BinaryExpression expression) {

@@ -198,17 +198,15 @@ components:
 
     Expression:
       type: object
-      description: "A polymorphic interface that represents an expression. It can be a simple condition, a binary expression combining other expressions, or a parenthesized expression"
+      description: "A polymorphic interface that represents an expression. It can be a simple condition and a binary expression combining other expressions"
       oneOf:
         - $ref: '#/components/schemas/Condition'
         - $ref: '#/components/schemas/BinaryExpression'
-        - $ref: '#/components/schemas/ParenthesizedExpression'
       discriminator:
         propertyName: type
         mapping:
           Condition: '#/components/schemas/Condition'
           BinaryExpression: '#/components/schemas/BinaryExpression'
-          ParenthesizedExpression: '#/components/schemas/ParenthesizedExpression'
 
     Operator:
       description: "The operator used in the condition"
@@ -265,18 +263,6 @@ components:
         type:
           type: string
           description: "Identifies this object as a BinaryExpression"
-
-    ParenthesizedExpression:
-      description: "An expression wrapped in parentheses to group it logically within a larger expression"
-      type: object
-      required: [ type, inner ]
-      properties:
-        inner:
-          description: "The inner expression contained within the parentheses"
-          $ref: '#/components/schemas/Expression'
-        type:
-          description: "Identifies this object as a ParenthesizedExpression."
-          type: string
 
     dslInput:
       type: object

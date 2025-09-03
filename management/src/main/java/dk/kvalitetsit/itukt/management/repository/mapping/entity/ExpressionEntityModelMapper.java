@@ -11,7 +11,6 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
         return switch (expression) {
             case ExpressionEntity.BinaryExpressionEntity b -> this.map(b);
             case ExpressionEntity.ConditionEntity c -> this.map(c);
-            case ExpressionEntity.ParenthesizedExpressionEntity p -> this.map(p);
         };
     }
 
@@ -23,8 +22,5 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
         return new Expression.BinaryExpression(this.map(b.left()), b.operator(), this.map((b.right())));
     }
 
-    private Expression.ParenthesizedExpression map(ExpressionEntity.ParenthesizedExpressionEntity b) {
-        return new Expression.ParenthesizedExpression(this.map(b.inner()));
-    }
 
 }

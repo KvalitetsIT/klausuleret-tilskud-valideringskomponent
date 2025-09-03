@@ -10,8 +10,7 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
         return switch (expression) {
             case Expression.BinaryExpression b -> this.map(b);
             case Expression.Condition c -> this.map(c);
-            case Expression.ParenthesizedExpression p -> this.map(p);
-        };
+       };
     }
 
     private ExpressionEntity.ConditionEntity map(Expression.Condition b) {
@@ -22,8 +21,5 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
         return new ExpressionEntity.BinaryExpressionEntity(null, this.map(b.left()), b.operator(), this.map((b.right())));
     }
 
-    private ExpressionEntity.ParenthesizedExpressionEntity map(Expression.ParenthesizedExpression b) {
-        return new ExpressionEntity.ParenthesizedExpressionEntity(null, this.map(b.inner()));
-    }
 
 }

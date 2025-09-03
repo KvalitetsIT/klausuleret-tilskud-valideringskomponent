@@ -14,8 +14,7 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
         return switch (expression) {
             case Expression.BinaryExpression b -> this.map(b);
             case Expression.Condition c -> this.map(c);
-            case Expression.ParenthesizedExpression p -> this.map(p);
-        };
+       };
     }
 
     private Condition map(Expression.Condition b) {
@@ -26,7 +25,4 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
         return new BinaryExpression(this.map(b.left()), BinaryOperator.fromValue(b.operator().toString()), this.map((b.right())), "BinaryExpression");
     }
 
-    private ParenthesizedExpression map(Expression.ParenthesizedExpression b) {
-        return new ParenthesizedExpression(this.map(b.inner()), "ParenthesizedExpression");
-    }
 }

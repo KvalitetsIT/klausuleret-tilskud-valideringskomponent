@@ -75,7 +75,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         return switch (expression.withId(expressionId)) {
             case ExpressionEntity.ConditionEntity e -> insertCondition(e);
             case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(e);
-            case ExpressionEntity.ParenthesizedExpressionEntity e -> insertParenthesized(e);
         };
     }
 
@@ -99,7 +98,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             ExpressionEntity expression = switch (type) {
                 case ExpressionType.CONDITION -> readCondition(expressionId);
                 case ExpressionType.BINARY -> readBinary(expressionId);
-                case ExpressionType.PARENTHESIZED -> readParenthesized(expressionId);
             };
 
             return Optional.of(new ClauseEntity(id, uuid, name, expression));
@@ -177,18 +175,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     }
 
 
-    private ExpressionEntity.ParenthesizedExpressionEntity insertParenthesized(ExpressionEntity.ParenthesizedExpressionEntity paren) {
-        var inner = create(paren.inner());
-
-        template.update(
-                "INSERT INTO parenthesized_expression(expression_id, inner_id) VALUES (:expression_id, :inner_id)",
-                Map.of(
-                        "expression_id", paren.id(),
-                        "inner_id", inner.id()
-                ));
-
-        return new ExpressionEntity.ParenthesizedExpressionEntity(paren.id(), inner);
-    }
 
     private ExpressionEntity.ConditionEntity readCondition(long expressionId) {
         var cond = template.queryForObject(
@@ -219,17 +205,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         );
     }
 
-    private ExpressionEntity readParenthesized(Long id) {
-        Long innerId = template.queryForObject(
-                "SELECT inner_id FROM parenthesized_expression WHERE expression_id = :id",
-                Map.of("id", id),
-                Long.class
-        );
-
-        ExpressionEntity inner = readById(innerId).orElseThrow();
-        return new ExpressionEntity.ParenthesizedExpressionEntity(id, inner);
-    }
-
 
     private Optional<ExpressionEntity> readById(Long id) {
         try {
@@ -239,7 +214,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             return Optional.of(switch (type) {
                 case CONDITION -> readCondition(id);
                 case BINARY -> readBinary(id);
-                case PARENTHESIZED -> readParenthesized(id);
             });
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

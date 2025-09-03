@@ -12,6 +12,12 @@
     <artifactId>application</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
             <artifactId>validation</artifactId>

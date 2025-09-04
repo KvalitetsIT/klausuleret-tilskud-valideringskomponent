@@ -28,7 +28,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         template = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Transactional("clauseTransactionManager")
     @Override
     public ClauseEntity create(ClauseEntity clause) throws ServiceException {
         try {

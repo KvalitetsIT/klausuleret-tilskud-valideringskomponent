@@ -51,7 +51,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            long ignored = createErrorCode(uuid);
+            long ignored = createErrorCode(clause.name());
 
             return new ClauseEntity(clauseId, uuid, clause.name(), expression);
 
@@ -62,7 +62,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     }
 
 
-    public long createErrorCode(UUID uuid) {
+    public long createErrorCode(String clauseName) {
         template.getJdbcTemplate().execute("LOCK TABLES error_code WRITE");
 
         try {
@@ -78,10 +78,10 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             }
 
             template.update(
-                    "INSERT INTO error_code (error_code, clause_uuid) VALUES (:error_code, :clause_uuid)",
+                    "INSERT INTO error_code (error_code, clause_name) VALUES (:error_code, :clause_name)",
                     new MapSqlParameterSource()
                             .addValue("error_code", next)
-                            .addValue("clause_uuid", uuid.toString())
+                            .addValue("clause_name", clauseName)
             );
 
             return next;

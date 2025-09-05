@@ -21,11 +21,14 @@ class ValidationDataContextMapperTest {
 
     @Test
     void map() {
-        var validationInput = new ValidationInput(20, 1L);
+        var indication = "1234";
+        var validationInput = new ValidationInput(20, 1L, indication);
 
         DataContext dataContext = mapper.map(validationInput);
 
-        var expectedDataContext = new DataContext(Map.of(ClauseField.AGE.name(), List.of("20")));
+        var expectedDataContext = new DataContext(Map.of(
+                ClauseField.AGE.name(), List.of("20"),
+                ClauseField.INDICATION.name(), List.of(indication)));
         Assertions.assertEquals(expectedDataContext, dataContext);
     }
 }

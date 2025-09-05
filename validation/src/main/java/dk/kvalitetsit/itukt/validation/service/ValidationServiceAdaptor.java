@@ -51,6 +51,7 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
     private ValidationInput mapToValidationInput(ValidationRequest validationRequest, Validate validate) {
         return new ValidationInput(
                 validationRequest.getAge(),
-                validate.getNewDrugMedication().getDrugIdentifier());
+                validate.getNewDrugMedication().getDrugIdentifier(),
+                validate.getNewDrugMedication().getIndicationCode());
     }
 }

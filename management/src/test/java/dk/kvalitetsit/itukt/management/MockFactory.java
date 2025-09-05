@@ -6,11 +6,9 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.ConditionEntity;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.BinaryOperator;
-import org.openapitools.model.Condition;
-import org.openapitools.model.Operator;
+import org.openapitools.model.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -87,11 +85,14 @@ public class MockFactory {
 
     public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", EXPRESSION_1_ENTITY);
     public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), Optional.of(CLAUSE_1_ENTITY.uuid()), EXPRESSION_1_MODEL);
-    public static final org.openapitools.model.Clause CLAUSE_1_DTO = new org.openapitools.model.Clause(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO).uuid(CLAUSE_1_MODEL.uuid().get());
+    public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, null, CLAUSE_1_MODEL.uuid().get());
+    public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO);
     public static String EXPRESSION_1_DSL = "(ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)";
 
     // Note: This clause(CLAUSE_1_DSL) matches: clause_1_*
-    public static final String CLAUSE_1_DSL = "Klausul CHOL: " + EXPRESSION_1_DSL;
+
+    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput("Klausul CHOL: " + EXPRESSION_1_DSL);
+    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput(CLAUSE_1_MODEL.uuid().get(), CLAUSE_1_DSL_INPUT.getDsl());
 
     private static Expression.BinaryExpression EXPRESSION_5_MODEL() {
         return new Expression.BinaryExpression(

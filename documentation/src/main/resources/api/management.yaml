@@ -35,10 +35,50 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/dslInput'
+              $ref: '#/components/schemas/DslInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DslOutput'
+        '400':
+          $ref: '#/components/responses/400'
+    get:
+      tags:
+        - management
+      description: "Retrieves all clauses as dsl"
       responses:
         '200':
           description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DslOutput'
+        '400':
+          $ref: '#/components/responses/400'
+
+  /2025/08/01/clauses/dsl/{id}:
+    get:
+      tags:
+        - management
+      summary: "Retrieves the clause associated with the specified id "
+      description: "Retrieves the clause associated with the specified id"
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DslOutput'
+            text/plain:
+              schema:
+                type: string
         '400':
           $ref: '#/components/responses/400'
 
@@ -52,10 +92,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Clause'
+              $ref: '#/components/schemas/ClauseInput'
       responses:
-        '200':
-          description: Ok
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClauseOutput'
         '400':
           $ref: '#/components/responses/400'
 
@@ -73,7 +117,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Clause'
+                  $ref: '#/components/schemas/ClauseOutput'
             text/plain:
               schema:
                 type: string
@@ -94,7 +138,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Clause'
+                $ref: '#/components/schemas/ClauseOutput'
             text/plain:
               schema:
                 type: string
@@ -180,21 +224,37 @@ components:
           type: string
           format: date-time
 
-    Clause:
+    ClauseInput:
       type: object
       required:
         - name
         - expression
       properties:
-        uuid:
-          type: string
-          format: uuid
         name:
           type: string
           description: "The name of the clause"
           example: "CHOL"
         expression:
           $ref: '#/components/schemas/Expression'
+
+    ClauseOutput:
+      allOf:
+        - $ref: "#/components/schemas/ClauseInput"
+        - type: object
+          required:
+            - version
+            - uuid
+          properties:
+            version:
+              type: number
+              description: the version of the clause
+              example: 3
+              minimum: 1
+            uuid:
+              type: string
+              format: uuid
+              description: an unique id which addresses the single clause
+              example: 3d1006d3-3d2a-4361-b9b2-8f255d2aeaae
 
     Expression:
       type: object
@@ -264,14 +324,32 @@ components:
           type: string
           description: "Identifies this object as a BinaryExpression"
 
-    dslInput:
+    DslInput:
       type: object
       required:
         - dsl
       properties:
         dsl:
-          $ref: '#/components/schemas/dsl'
-    dsl:
+          $ref: '#/components/schemas/Dsl'
+
+    DslOutput:
+      type: object
+      required:
+        - dsl
+        - number
+        - uuid
+      properties:
+        uuid:
+          type: string
+          description: An unique id which is used to address a single clause
+          format: uuid
+        version:
+          type: number
+          description: the version of the clause
+        dsl:
+          $ref: '#/components/schemas/Dsl'
+
+    Dsl:
       description: "A clause specified in a domain specific language (DSL)"
       type: string
 #      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"

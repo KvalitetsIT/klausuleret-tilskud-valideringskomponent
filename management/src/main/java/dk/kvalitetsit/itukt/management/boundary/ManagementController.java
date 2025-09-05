@@ -3,13 +3,17 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
-import org.openapitools.model.Clause;
+import org.openapitools.model.ClauseInput;
+import org.openapitools.model.ClauseOutput;
 import org.openapitools.model.DslInput;
+import org.openapitools.model.DslOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,27 +28,55 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<Void> call20250801clausesDslPost(DslInput dslInput) {
-        this.service.createDSL(dslInput);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<DslOutput>> call20250801clausesDslGet() {
+        return ResponseEntity.ok(service.readAllDsl());
     }
 
     @Override
-    public ResponseEntity<List<Clause>> call20250801clausesGet() {
-        return ResponseEntity.ok(service.read_all());
+    public ResponseEntity<DslOutput> call20250801clausesDslIdGet(UUID id) {
+        return service.readDsl(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new RuntimeException("Clause was not found"));
     }
 
     @Override
-    public ResponseEntity<Clause> call20250801clausesIdGet(UUID id) {
+    public ResponseEntity<DslOutput> call20250801clausesDslPost(DslInput dslInput) {
+        var created = this.service.createDSL(dslInput);
+
+        UUID uuid = created.getUuid();
+
+        URI location = MvcUriComponentsBuilder
+                .fromMethodCall(MvcUriComponentsBuilder.on(ManagementController.class).call20250801clausesDslIdGet(uuid))
+                .buildAndExpand(uuid)
+                .toUri();
+
+        return ResponseEntity.created(location).body(created);
+    }
+
+    @Override
+    public ResponseEntity<List<ClauseOutput>> call20250801clausesGet() {
+        return ResponseEntity.ok(service.readAll());
+    }
+
+    @Override
+    public ResponseEntity<ClauseOutput> call20250801clausesIdGet(UUID id) {
         return service.read(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RuntimeException("Clause was not found"));
     }
 
     @Override
-    public ResponseEntity<Void> call20250801clausesPost(Clause clause) {
-        service.create(clause);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ClauseOutput> call20250801clausesPost(ClauseInput clause) {
+        var created = service.create(clause);
+
+        UUID uuid = created.getUuid();
+
+        URI location = MvcUriComponentsBuilder
+                .fromMethodCall(MvcUriComponentsBuilder.on(ManagementController.class).call20250801clausesIdGet(uuid))
+                .buildAndExpand(uuid)
+                .toUri();
+
+        return ResponseEntity.created(location).body(created);
     }
 
 }

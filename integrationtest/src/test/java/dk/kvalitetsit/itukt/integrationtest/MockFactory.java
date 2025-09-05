@@ -6,6 +6,9 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.ConditionEntity;
+import org.openapitools.client.model.ClauseInput;
+import org.openapitools.client.model.ClauseOutput;
+import org.openapitools.client.model.DslInput;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +19,7 @@ import static dk.kvalitetsit.itukt.common.model.Operator.*;
 public class MockFactory {
 
     // Note: This clause(clause_1_dsl) matches: clause_1_*
-    public static final String CLAUSE_1_DSL = "Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)";
+    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput().dsl("Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)");
 
     public static final ConditionEntity EXPRESSION_2_ENTITY = new ConditionEntity(2L, "ATC", EQUAL, List.of("C10BA03"));
 
@@ -97,11 +100,14 @@ public class MockFactory {
 
     public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), Optional.of(CLAUSE_1_ENTITY.uuid()), EXPRESSION_1_MODEL);
 
-    public static final org.openapitools.client.model.Clause CLAUSE_1_DTO = new org.openapitools.client.model.Clause()
+    public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
             .uuid(CLAUSE_1_MODEL.uuid().get());
 
+    public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
+            .name("CHOL")
+            .expression(EXPRESSION_1_DTO);
 
 }
 

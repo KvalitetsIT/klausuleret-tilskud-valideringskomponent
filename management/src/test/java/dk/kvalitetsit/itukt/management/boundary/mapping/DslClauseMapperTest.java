@@ -19,12 +19,12 @@ public class DslClauseMapperTest {
 
     @Test
     void testDSLToModel() {
-        assertEquals(CLAUSE_1_DTO.getExpression(), mapper.map(CLAUSE_1_DSL).getExpression());
+        assertEquals(CLAUSE_1_OUTPUT.getExpression(), mapper.map(CLAUSE_1_DSL_INPUT.getDsl()).getExpression());
     }
 
     @Test
     void testModelToDSL() {
-        assertEquals(CLAUSE_1_DSL, clauseModelDslMapper.map(CLAUSE_1_MODEL));
+        assertEquals(CLAUSE_1_DSL_OUTPUT, clauseModelDslMapper.map(CLAUSE_1_MODEL));
     }
 
 }

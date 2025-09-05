@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.DslInput;
 
-import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_DTO;
+import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
+import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,7 +25,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testPostAndGetClauseDsl() {
-        var dsl = new DslInput().dsl(MockFactory.CLAUSE_1_DSL);
+        var dsl = MockFactory.CLAUSE_1_DSL_INPUT;
 
         api.call20250801clausesDslPost(dsl);
         var clauses = api.call20250801clausesGet();
@@ -33,12 +34,12 @@ class ManagementIT extends BaseTest {
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
                 .ignoringFields("uuid")
-                .isEqualTo(CLAUSE_1_DTO);
+                .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
     @Test
     void testPostAndGetClause() {
-        api.call20250801clausesPost(CLAUSE_1_DTO);
+        api.call20250801clausesPost(CLAUSE_1_INPUT);
         var clauses = api.call20250801clausesGet();
 
         assertEquals(1, clauses.size());
@@ -47,7 +48,7 @@ class ManagementIT extends BaseTest {
         assertThat(clause)
                 .usingRecursiveComparison()
                 .ignoringFields("uuid")
-                .isEqualTo(CLAUSE_1_DTO);
+                .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
 }

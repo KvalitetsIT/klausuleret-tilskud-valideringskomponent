@@ -18,8 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_DTO;
-import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_MODEL;
+import static dk.kvalitetsit.itukt.management.MockFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,15 +45,15 @@ public class ManagementServiceAdaptorTest {
     @BeforeEach
     void setUp() {
         adaptor = new ManagementServiceAdaptor(managementServiceImpl, clauseDtoModelMapper, clauseModelDtoMapper, clauseDslModelMapper, clauseModelDslMapper);
-        Mockito.when(clauseModelDtoMapper.map(CLAUSE_1_MODEL)).thenReturn(CLAUSE_1_DTO);
+        Mockito.when(clauseModelDtoMapper.map(CLAUSE_1_MODEL)).thenReturn(CLAUSE_1_OUTPUT);
     }
 
     @Test
     void testCreate() {
-        Mockito.when(clauseDtoModelMapper.map(CLAUSE_1_DTO)).thenReturn(CLAUSE_1_MODEL);
+        Mockito.when(clauseDtoModelMapper.map(CLAUSE_1_INPUT)).thenReturn(CLAUSE_1_MODEL);
         Mockito.when(managementServiceImpl.create(Mockito.any(Clause.class))).thenReturn(CLAUSE_1_MODEL);
-        var result = adaptor.create(CLAUSE_1_DTO);
-        assertEquals(CLAUSE_1_DTO, result);
+        var result = adaptor.create(CLAUSE_1_INPUT);
+        assertEquals(CLAUSE_1_OUTPUT, result);
 
         var captor = ArgumentCaptor.forClass(Clause.class);
         Mockito.verify(managementServiceImpl, Mockito.times(1)).create(captor.capture());
@@ -68,14 +67,14 @@ public class ManagementServiceAdaptorTest {
         var uuid = CLAUSE_1_MODEL.uuid().get();
         Mockito.when(managementServiceImpl.read(uuid)).thenReturn(Optional.of(CLAUSE_1_MODEL));
         var result = adaptor.read(uuid);
-        assertEquals(CLAUSE_1_DTO, result.get());
+        assertEquals(CLAUSE_1_OUTPUT, result.get());
     }
 
     @Test
     void testReadAll() {
         Mockito.when(managementServiceImpl.readAll()).thenReturn(List.of(CLAUSE_1_MODEL));
-        var result = adaptor.read_all();
-        assertEquals(List.of(CLAUSE_1_DTO), result);
+        var result = adaptor.readAll();
+        assertEquals(List.of(CLAUSE_1_OUTPUT), result);
     }
 }
 

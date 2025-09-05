@@ -28,6 +28,6 @@ class ClauseModelDslMapperTest {
 
     @Test
     void map() {
-        assertEquals(MockFactory.CLAUSE_1_DSL, this.mapper.map(MockFactory.CLAUSE_1_MODEL));
+        assertEquals(MockFactory.CLAUSE_1_DSL_OUTPUT, this.mapper.map(MockFactory.CLAUSE_1_MODEL));
     }
 }

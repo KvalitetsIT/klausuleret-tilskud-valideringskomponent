@@ -12,8 +12,8 @@ public class ValidationDataContextMapper implements Mapper<ValidationInput, Data
     @Override
     public DataContext map(ValidationInput validationInput) {
         return new DataContext(Map.of(
-                ClauseField.AGE.name(), List.of(Integer.toString(validationInput.citizenAge())))
-        );
+                ClauseField.AGE.name(), List.of(Integer.toString(validationInput.citizenAge())),
+                ClauseField.INDICATION.name(), List.of(validationInput.indicationCode())
+        ));
     }
-
 }

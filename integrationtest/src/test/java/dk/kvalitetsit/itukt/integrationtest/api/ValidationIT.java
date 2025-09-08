@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ValidationIT extends BaseTest {
 
+    private final String validIndication = "313", // Matches hardcoded value in cache
+                         invalidIndication = "390";
     private ValidationApi validationApi;
 
     @BeforeAll
@@ -25,7 +27,7 @@ public class ValidationIT extends BaseTest {
         long drugId = 1L;// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(drugId, elementPath, age);
+        var request = createValidationRequest(drugId, elementPath, age, validIndication);
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -37,7 +39,7 @@ public class ValidationIT extends BaseTest {
         long drugId = 1L;// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 50;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(drugId, elementPath, age);
+        var request = createValidationRequest(drugId, elementPath, age, validIndication);
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -49,26 +51,43 @@ public class ValidationIT extends BaseTest {
         assertEquals(elementPath, validationError.getElementPath());
     }
 
-    private ValidationRequest createValidationRequest(long drugId, String elementPath, int age) {
-        Validate validate = createValidateElement(drugId, elementPath);
+    @Test
+    void call20250801validatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
+        long drugId = 1L;// Matches hardcoded value in cache
+        String elementPath = "path";
+        int age = 51;  // Hardcoded clause in cache requires age > 50
+        var request = createValidationRequest(drugId, elementPath, age, invalidIndication);
+
+        var response = validationApi.call20250801validatePost(request);
+
+        var failedResponse = assertInstanceOf(ValidationFailed.class, response);
+        assertEquals(1, failedResponse.getValidationErrors().size());
+        var validationError = failedResponse.getValidationErrors().get(0);
+        String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
+        assertEquals(expectedClauseCode, validationError.getClauseCode());
+        assertEquals(elementPath, validationError.getElementPath());
+    }
+
+    private ValidationRequest createValidationRequest(long drugId, String elementPath, int age, String indication) {
+        Validate validate = createValidateElement(drugId, elementPath, indication);
         return new ValidationRequest()
                 .age(age)
                 .personIdentifier("1234567890")
                 .addValidateItem(validate);
     }
 
-    private Validate createValidateElement(long drugId, String path) {
-        NewDrugMedication newDrugMedication = createNewDrugMedication(drugId);
+    private Validate createValidateElement(long drugId, String path, String indication) {
+        NewDrugMedication newDrugMedication = createNewDrugMedication(drugId, indication);
         return new Validate()
                 .action(Validate.ActionEnum.CREATE_DRUG_MEDICATION)
                 .elementPath(path)
                 .newDrugMedication(newDrugMedication);
     }
 
-    private NewDrugMedication createNewDrugMedication(long drugId) {
+    private NewDrugMedication createNewDrugMedication(long drugId, String indication) {
         return new NewDrugMedication()
                 .drugIdentifier(drugId)
-                .indicationCode("")
+                .indicationCode(indication)
                 .createdBy(createActor())
                 .reportedBy(createActor())
                 .createdDateTime(OffsetDateTime.now());

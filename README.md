@@ -29,7 +29,7 @@ udviklere og driftsteams hurtigt kan etablere og afprøve løsningen i relevante
 
 Tjenesten lytter efter forbindelser på port 8080.
 
-Spring Boot Actuator lytter efter forbindelser på port 8081 (dette bruges som Prometheus scrape-endpoint og til
+Spring Boot Actuator lytter efter forbindelser på `/actuator/health` (dette bruges som Prometheus scrape-endpoint og til
 sundhedsovervågning).
 
 ### 2.2 Api specifikation

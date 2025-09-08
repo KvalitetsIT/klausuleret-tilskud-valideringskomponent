@@ -6,7 +6,6 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.ConditionEntity;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -79,8 +78,7 @@ public class MockFactory {
                     .right(EXPRESSION_4_DTO)
             );
 
-    @NotNull
-    private static BinaryExpressionEntity EXPRESSION_5_ENTITY = new BinaryExpressionEntity(
+    private static final BinaryExpressionEntity EXPRESSION_5_ENTITY = new BinaryExpressionEntity(
             5L,
             EXPRESSION_3_ENTITY,
             Expression.BinaryExpression.BinaryOperator.AND,

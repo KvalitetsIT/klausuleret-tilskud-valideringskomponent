@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -49,11 +50,41 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
+            createErrorCode(clause.name());
+
             return new ClauseEntity(clauseId, uuid, clause.name(), expression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
             throw new ServiceException("Failed to create clause", e);
+        }
+    }
+
+
+    public void createErrorCode(String clauseName) {
+        template.getJdbcTemplate().execute("LOCK TABLES error_code WRITE");
+
+        try {
+            Long max = template.getJdbcTemplate().queryForObject(
+                    "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
+                    Long.class
+            );
+
+            long next = max + 1;
+
+            if (next > 10999) {
+                throw new IllegalStateException("Exceeded the maximum number of allocated error codes (10800–10999 exhausted)");
+            }
+
+            template.update(
+                    "INSERT INTO error_code (error_code, clause_name) VALUES (:error_code, :clause_name)",
+                    new MapSqlParameterSource()
+                            .addValue("error_code", next)
+                            .addValue("clause_name", clauseName)
+            );
+
+        } finally {
+            template.getJdbcTemplate().execute("UNLOCK TABLES");
         }
     }
 

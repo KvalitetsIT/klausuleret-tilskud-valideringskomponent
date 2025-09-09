@@ -70,7 +70,7 @@ class CommonBeanRegistrationTest {
         };
 
         ServiceException thrown = Assertions.assertThrows(ServiceException.class, () -> filter.doFilter(request, response, chain));
-        Assertions.assertEquals(new ServiceException().getMessage(), thrown.getMessage());
+        Assertions.assertEquals(new ServiceException().getMessage(), thrown.getMessage(), "Expected the message of the default ServiceException");
 
     }
 

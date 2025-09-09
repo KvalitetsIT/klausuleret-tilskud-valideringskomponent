@@ -1,5 +1,8 @@
 package dk.kvalitetsit.itukt.common.configuration;
 
+import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.filters.GenericExceptionHandler;
+import dk.kvalitetsit.itukt.common.filters.RequestLogger;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +20,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.UUID;
 
 @Configuration
 @EnableTransactionManagement
@@ -60,25 +62,11 @@ public class CommonBeanRegistration {
 
     @Bean
     public OncePerRequestFilter oncePerRequestFilter() {
-        return new OncePerRequestFilter() {
-            @Override
-            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-                long startTime = System.currentTimeMillis();
+        return new RequestLogger();
+    }
 
-                try {
-                    filterChain.doFilter(request, response);
-                } finally {
-                    long duration = System.currentTimeMillis() - startTime;
-                    System.out.printf(
-                            "Request { id: %s, Method: %s, Uri: %s, Response: %d, Time: %d ms }\n",
-                            request.getRequestId(),
-                            request.getMethod(),
-                            request.getRequestURI(),
-                            response.getStatus(),
-                            duration
-                    );
-                }
-            }
-        };
+    @Bean
+    public OncePerRequestFilter genericExceptionHandler(){
+        return new GenericExceptionHandler();
     }
 }

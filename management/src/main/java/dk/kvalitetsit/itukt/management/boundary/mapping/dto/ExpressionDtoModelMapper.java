@@ -3,7 +3,8 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dto;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.Condition;
+import org.openapitools.model.NumberCondition;
+import org.openapitools.model.StringCondition;
 
 public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.Expression, Expression> {
 
@@ -13,13 +14,18 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
     public Expression map(org.openapitools.model.Expression expression) {
         return switch (expression) {
             case BinaryExpression b -> this.map(b);
-            case Condition c -> this.map(c);
+            case StringCondition s -> this.map(s);
+            case NumberCondition n -> this.map(n);
             default -> throw new IllegalStateException("Unexpected value: " + expression);
         };
     }
 
-    private Expression.Condition map(Condition b) {
-        return new Expression.Condition(b.getField(), operatorDtoModelMapper.map(b.getOperator()), b.getValue());
+    private Expression.StringCondition map(StringCondition b) {
+        return new Expression.StringCondition(b.getField(), b.getValue());
+    }
+
+    private Expression.NumberCondition map(NumberCondition b) {
+        return new Expression.NumberCondition(b.getField(), operatorDtoModelMapper.map(b.getOperator()), b.getValue());
     }
 
     private Expression.BinaryExpression map(BinaryExpression b) {

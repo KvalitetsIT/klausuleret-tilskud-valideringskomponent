@@ -10,12 +10,17 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
     public String map(Expression entry) {
         return switch (entry) {
             case Expression.BinaryExpression b -> map(b);
-            case Expression.Condition c -> map(c);
+            case Expression.StringCondition s -> map(s);
+            case Expression.NumberCondition n -> map(n);
         };
     }
 
-    private String map(Expression.Condition c) {
-        return "(" + c.field() + " " + c.operator().getValue() + " " + String.join(", ", c.value()) + ")";
+    private String map(Expression.StringCondition s) {
+        return "(" + s.field() + " = " + s.value() + ")";
+    }
+
+    private String map(Expression.NumberCondition n) {
+        return "(" + n.field() + " " + n.operator().getValue() + " " + n.value() + ")";
     }
 
     private String map(Expression.BinaryExpression expression) {

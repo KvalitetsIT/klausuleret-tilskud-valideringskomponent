@@ -5,45 +5,40 @@ import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.ConditionEntity;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.BinaryOperator;
-import org.openapitools.model.Condition;
-import org.openapitools.model.Operator;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
+import org.openapitools.model.*;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.common.model.Operator.EQUAL;
 import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_TO;
 
 public class MockFactory {
 
-    private static final ConditionEntity EXPRESSION_2_ENTITY = new ConditionEntity(2L, "ATC", EQUAL, "C10BA03");
-    private static final ConditionEntity EXPRESSION_3_ENTITY = new ConditionEntity(3L, "ATC", EQUAL, "C10BA02");
-    private static final ConditionEntity EXPRESSION_4_ENTITY = new ConditionEntity(4L, "ATC", EQUAL, "C10BA05");
+    private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, "ATC", "C10BA03");
+    private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, "ATC", "C10BA02");
+    private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, "ATC", "C10BA05");
     private static final BinaryExpressionEntity EXPRESSION_5_ENTITY = new BinaryExpressionEntity(EXPRESSION_3_ENTITY, Expression.BinaryExpression.BinaryOperator.OR, EXPRESSION_4_ENTITY);
-    private static final ConditionEntity EXPRESSION_6_ENTITY = new ConditionEntity(5L, "ALDER", GREATER_THAN_OR_EQUAL_TO, "13");
+    private static final NumberConditionEntity EXPRESSION_6_ENTITY = new NumberConditionEntity(5L, "ALDER", GREATER_THAN_OR_EQUAL_TO, 13);
     
-    private static final Expression.Condition EXPRESSION_6_MODEL = new Expression.Condition(
+    private static final Expression.NumberCondition EXPRESSION_6_MODEL = new Expression.NumberCondition(
             EXPRESSION_6_ENTITY.field(),
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()
     );
 
-    private static final Condition EXPRESSION_6_DTO = new Condition().type("Condition")
+    private static final NumberCondition EXPRESSION_6_DTO = new NumberCondition().type("NumberCondition")
             .field(EXPRESSION_6_MODEL.field())
             .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
             .value(EXPRESSION_6_MODEL.value());
 
-    private static final Expression.Condition EXPRESSION_3_MODEL = new Expression.Condition(
+    private static final Expression.StringCondition EXPRESSION_3_MODEL = new Expression.StringCondition(
             EXPRESSION_3_ENTITY.field(),
-            EXPRESSION_3_ENTITY.operator(),
             EXPRESSION_3_ENTITY.value());
 
-    private static final Expression.Condition EXPRESSION_4_MODEL = new Expression.Condition(
+    private static final Expression.StringCondition EXPRESSION_4_MODEL = new Expression.StringCondition(
             EXPRESSION_4_ENTITY.field(),
-            EXPRESSION_4_ENTITY.operator(),
             EXPRESSION_4_ENTITY.value());
 
     private static final Expression.BinaryExpression EXPRESSION_5_MODEL = new Expression.BinaryExpression(
@@ -51,14 +46,12 @@ public class MockFactory {
             EXPRESSION_5_ENTITY.operator(),
             EXPRESSION_4_MODEL);
 
-    private static final Condition EXPRESSION_3_DTO = new Condition().type("Condition")
+    private static final StringCondition EXPRESSION_3_DTO = new StringCondition().type("StringCondition")
             .field(EXPRESSION_3_MODEL.field())
-            .operator(Operator.fromValue(EXPRESSION_3_MODEL.operator().getValue()))
             .value((EXPRESSION_3_MODEL.value()));
 
-    private static final Condition EXPRESSION_4_DTO = new Condition().type("Condition")
+    private static final StringCondition EXPRESSION_4_DTO = new StringCondition().type("StringCondition")
             .field(EXPRESSION_4_MODEL.field())
-            .operator(Operator.fromValue(EXPRESSION_4_MODEL.operator().getValue()))
             .value((EXPRESSION_4_MODEL.value()));
 
     private static final BinaryExpression EXPRESSION_5_DTO = new BinaryExpression()
@@ -67,9 +60,8 @@ public class MockFactory {
             .operator(BinaryOperator.fromValue(EXPRESSION_5_MODEL.operator().name()))
             .right(EXPRESSION_4_DTO);
 
-    private static final Expression.Condition EXPRESSION_2_MODEL = new Expression.Condition(
+    private static final Expression.StringCondition EXPRESSION_2_MODEL = new Expression.StringCondition(
             EXPRESSION_2_ENTITY.field(),
-            EXPRESSION_2_ENTITY.operator(),
             EXPRESSION_2_ENTITY.value()
     );
     public static final Expression.BinaryExpression EXPRESSION_1_MODEL = new Expression.BinaryExpression(
@@ -77,10 +69,9 @@ public class MockFactory {
             Expression.BinaryExpression.BinaryOperator.OR,
             EXPRESSION_7_MODEL()
     );
-    private static final Condition EXPRESSION_2_DTO = new Condition()
-            .type("Condition")
+    private static final StringCondition EXPRESSION_2_DTO = new StringCondition()
+            .type("StringCondition")
             .field(EXPRESSION_2_MODEL.field())
-            .operator(Operator.EQUAL)
             .value((EXPRESSION_2_MODEL.value()));
 
     private static final BinaryExpression EXPRESSION_7_DTO = new BinaryExpression()

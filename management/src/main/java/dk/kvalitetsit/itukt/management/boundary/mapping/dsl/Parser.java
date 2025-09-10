@@ -8,6 +8,7 @@ import org.openapitools.model.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The {@code Parser} class is responsible for parsing a sequence of {@link Token} objects
@@ -200,14 +201,32 @@ class Parser {
         Iterator<String> valuesIterator = values.iterator();
         Expression currentExpression = createCondition(field, operator, valuesIterator.next());
         while (valuesIterator.hasNext()) {
-            Condition nextCond = createCondition(field, operator, valuesIterator.next());
+            Expression nextCond = createCondition(field, operator, valuesIterator.next());
             currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, "BinaryExpression");
         }
         return currentExpression;
     }
 
-    private Condition createCondition(String field, Operator operator, String value) {
-        return new Condition(field, operator, value, "Condition");
+    private Expression createCondition(String field, Operator operator, String value) {
+        return tryParseInt(value)
+                .map(intValue -> createNumberCondition(field, operator, intValue))
+                .orElseGet(() -> createStringCondition(field, value));
+    }
+
+    private Expression createStringCondition(String field, String value) {
+        return new StringCondition(field, value, "StringCondition");
+    }
+
+    private Expression createNumberCondition(String field, Operator operator, int value) {
+        return new NumberCondition(field, operator, value, "NumberCondition");
+    }
+
+    private Optional<Integer> tryParseInt(String value) {
+        try {
+            return Optional.of(Integer.parseInt(value));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 }
 

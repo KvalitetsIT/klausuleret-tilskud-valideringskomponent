@@ -31,8 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.common.model.Expression.BinaryExpression;
-import static dk.kvalitetsit.itukt.common.model.Expression.Condition;
+import static dk.kvalitetsit.itukt.common.model.Expression.*;
 
 @Configuration
 public class ManagementBeanRegistration {
@@ -47,9 +46,9 @@ public class ManagementBeanRegistration {
     public ClauseCache clauseCache() {
         // Hardcoded clause for phase 1
         var expression = new BinaryExpression(
-                new Condition(ClauseField.AGE.name(), Operator.GREATER_THAN, "50"),
+                new NumberCondition(ClauseField.AGE.name(), Operator.GREATER_THAN, 50),
                 BinaryExpression.BinaryOperator.AND,
-                new Condition(ClauseField.INDICATION.name(), Operator.EQUAL, "313"));
+                new StringCondition(ClauseField.INDICATION.name(), "313"));
         var clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
         return new ClauseCache(List.of(clause));
     }

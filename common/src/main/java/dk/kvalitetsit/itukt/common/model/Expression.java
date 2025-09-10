@@ -1,9 +1,12 @@
 package dk.kvalitetsit.itukt.common.model;
 
 
-public sealed interface Expression permits Expression.Condition, Expression.BinaryExpression {
+public sealed interface Expression permits Expression.StringCondition, Expression.NumberCondition, Expression.BinaryExpression {
 
-    record Condition(String field, Operator operator, String value) implements Expression {
+    record StringCondition(String field, String value) implements Expression {
+    }
+
+    record NumberCondition(String field, Operator operator, int value) implements Expression {
     }
 
     record BinaryExpression(Expression left, BinaryOperator operator, Expression right) implements Expression {

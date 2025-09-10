@@ -3,8 +3,9 @@ package dk.kvalitetsit.itukt.management.repository.entity;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 
-public sealed interface ExpressionEntity
-        permits ExpressionEntity.ConditionEntity,
+public sealed interface ExpressionEntity permits
+        ExpressionEntity.StringConditionEntity,
+        ExpressionEntity.NumberConditionEntity,
         ExpressionEntity.BinaryExpressionEntity {
 
     ExpressionType type();
@@ -13,21 +14,39 @@ public sealed interface ExpressionEntity
 
     ExpressionEntity withId(Long newId);
 
-    record ConditionEntity(Long id, String field, Operator operator, String value)
+    record StringConditionEntity(Long id, String field, String value)
             implements ExpressionEntity {
 
-        public ConditionEntity(String field, Operator operator, String value) {
+        public StringConditionEntity(String field, String value) {
+            this(null, field, value);
+        }
+
+        @Override
+        public ExpressionType type() {
+            return ExpressionType.STRING_CONDITION;
+        }
+
+        @Override
+        public StringConditionEntity withId(Long newId) {
+            return new StringConditionEntity(newId, field, value);
+        }
+    }
+
+    record NumberConditionEntity(Long id, String field, Operator operator, int value)
+            implements ExpressionEntity {
+
+        public NumberConditionEntity(String field, Operator operator, int value) {
             this(null, field, operator, value);
         }
 
         @Override
         public ExpressionType type() {
-            return ExpressionType.CONDITION;
+            return ExpressionType.NUMBER_CONDITION;
         }
 
         @Override
-        public ConditionEntity withId(Long newId) {
-            return new ConditionEntity(newId, field, operator, value);
+        public NumberConditionEntity withId(Long newId) {
+            return new NumberConditionEntity(newId, field, operator, value);
         }
     }
 

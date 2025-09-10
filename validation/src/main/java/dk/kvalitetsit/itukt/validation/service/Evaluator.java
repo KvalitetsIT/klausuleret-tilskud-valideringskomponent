@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The {@code Evaluator} class is responsible for evaluating logical expressions
@@ -25,7 +26,8 @@ public class Evaluator {
      */
     public boolean eval(Expression expr, DataContext ctx) {
         return switch (expr) {
-            case Expression.Condition c -> evalCondition(c, ctx);
+            case Expression.StringCondition c -> evalStringCondition(c, ctx);
+            case Expression.NumberCondition c -> evalNumberCondition(c, ctx);
             case Expression.BinaryExpression b -> {
                 boolean left = eval(b.left(), ctx);
                 boolean right = eval(b.right(), ctx);
@@ -38,37 +40,38 @@ public class Evaluator {
     }
 
     /**
-     * Evaluates a single condition expression against the data context.
+     * Evaluates a single number condition expression against the data context.
      *
-     * Supported operators include:
-     * <ul>
-     *     <li>{@code =} - true if any actual value equals the expected value</li>
-     *     <li>{@code i} - true if any actual value is contained in the expected list</li>
-     *     <li>{@code >=}, {@code <=}, {@code >}, {@code <} - numeric comparisons</li>
-     * </ul>
-     *
-     * @param c   the condition to evaluate
+     * @param condition   the condition to evaluate
      * @param ctx the context containing data values
      * @return {@code true} if the condition is satisfied; otherwise {@code false}
      * @throws RuntimeException if the operator is unknown or parsing fails
      */
-    private boolean evalCondition(Expression.Condition c, DataContext ctx) {
-        List<String> actualValues = ctx.get(c.field());
+    private boolean evalNumberCondition(Expression.NumberCondition condition, DataContext ctx) {
+        List<String> actualValues = ctx.get(condition.field());
+        if (actualValues.size() != 1) return false;
+        Optional<Integer> actualValue = tryParseInt(actualValues.getFirst());
+        if (actualValue.isEmpty()) return false;
 
-        return switch (c.operator()) {
-            case EQUAL -> actualValues.stream().anyMatch(v -> v.equals(c.value()));
-            case GREATER_THAN_OR_EQUAL_TO, LESS_THAN_OR_EQUAL_TO, GREATER_THAN, LESS_THAN -> {
-                int target = Integer.parseInt(c.value());
-                yield actualValues.stream()
-                        .mapToInt(Integer::parseInt)
-                        .anyMatch(actual -> switch (c.operator()) {
-                            case GREATER_THAN_OR_EQUAL_TO -> actual >= target;
-                            case LESS_THAN_OR_EQUAL_TO -> actual <= target;
-                            case GREATER_THAN -> actual > target;
-                            case LESS_THAN -> actual < target;
-                            default -> false;
-                        });
-            }
+        return switch (condition.operator()) {
+            case EQUAL -> actualValue.get() == condition.value();
+            case GREATER_THAN_OR_EQUAL_TO -> actualValue.get() >= condition.value();
+            case LESS_THAN_OR_EQUAL_TO -> actualValue.get() <= condition.value();
+            case GREATER_THAN -> actualValue.get() > condition.value();
+            case LESS_THAN -> actualValue.get() < condition.value();
         };
+    }
+
+    private boolean evalStringCondition(Expression.StringCondition c, DataContext ctx) {
+        List<String> actualValues = ctx.get(c.field());
+        return actualValues.size() == 1 && actualValues.getFirst().equals(c.value());
+    }
+
+    private Optional<Integer> tryParseInt(String value) {
+        try {
+            return Optional.of(Integer.parseInt(value));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 }

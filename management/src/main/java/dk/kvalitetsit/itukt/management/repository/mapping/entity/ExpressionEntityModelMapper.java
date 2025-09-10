@@ -10,12 +10,17 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
     public Expression map(ExpressionEntity expression) {
         return switch (expression) {
             case ExpressionEntity.BinaryExpressionEntity b -> this.map(b);
-            case ExpressionEntity.ConditionEntity c -> this.map(c);
+            case ExpressionEntity.StringConditionEntity s -> this.map(s);
+            case ExpressionEntity.NumberConditionEntity n -> this.map(n);
         };
     }
 
-    private Expression.Condition map(ExpressionEntity.ConditionEntity b) {
-        return new Expression.Condition(b.field(), b.operator(), b.value());
+    private Expression.StringCondition map(ExpressionEntity.StringConditionEntity b) {
+        return new Expression.StringCondition(b.field(), b.value());
+    }
+
+    private Expression.NumberCondition map(ExpressionEntity.NumberConditionEntity n) {
+        return new Expression.NumberCondition(n.field(), n.operator(), n.value());
     }
 
     private Expression.BinaryExpression map(ExpressionEntity.BinaryExpressionEntity b) {

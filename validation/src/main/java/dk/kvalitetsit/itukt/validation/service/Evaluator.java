@@ -4,7 +4,6 @@ package dk.kvalitetsit.itukt.validation.service;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -48,30 +47,22 @@ public class Evaluator {
      * @throws RuntimeException if the operator is unknown or parsing fails
      */
     private boolean evalNumberCondition(Expression.NumberCondition condition, DataContext ctx) {
-        List<String> actualValues = ctx.get(condition.field());
-        if (actualValues.size() != 1) return false;
-        Optional<Integer> actualValue = tryParseInt(actualValues.getFirst());
-        if (actualValue.isEmpty()) return false;
+        Optional<Object> actualValue = ctx.get(condition.field());
 
-        return switch (condition.operator()) {
-            case EQUAL -> actualValue.get() == condition.value();
-            case GREATER_THAN_OR_EQUAL_TO -> actualValue.get() >= condition.value();
-            case LESS_THAN_OR_EQUAL_TO -> actualValue.get() <= condition.value();
-            case GREATER_THAN -> actualValue.get() > condition.value();
-            case LESS_THAN -> actualValue.get() < condition.value();
-        };
+        if (actualValue.isPresent() && actualValue.get() instanceof Integer intValue) {
+            return switch (condition.operator()) {
+                case EQUAL -> intValue == condition.value();
+                case GREATER_THAN_OR_EQUAL_TO -> intValue >= condition.value();
+                case LESS_THAN_OR_EQUAL_TO -> intValue <= condition.value();
+                case GREATER_THAN -> intValue > condition.value();
+                case LESS_THAN -> intValue < condition.value();
+            };
+        }
+        return false;
     }
 
     private boolean evalStringCondition(Expression.StringCondition c, DataContext ctx) {
-        List<String> actualValues = ctx.get(c.field());
-        return actualValues.size() == 1 && actualValues.getFirst().equals(c.value());
-    }
-
-    private Optional<Integer> tryParseInt(String value) {
-        try {
-            return Optional.of(Integer.parseInt(value));
-        } catch (NumberFormatException e) {
-            return Optional.empty();
-        }
+        return ctx.get(c.field())
+                .map(actualValue -> actualValue.equals(c.value())).orElse(false);
     }
 }

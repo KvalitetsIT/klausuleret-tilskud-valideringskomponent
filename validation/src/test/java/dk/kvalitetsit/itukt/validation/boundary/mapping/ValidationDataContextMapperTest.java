@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Map;
 
 
@@ -27,8 +26,8 @@ class ValidationDataContextMapperTest {
         DataContext dataContext = mapper.map(validationInput);
 
         var expectedDataContext = new DataContext(Map.of(
-                ClauseField.AGE.name(), List.of("20"),
-                ClauseField.INDICATION.name(), List.of(indication)));
+                ClauseField.AGE.name(), 20,
+                ClauseField.INDICATION.name(), indication));
         Assertions.assertEquals(expectedDataContext, dataContext);
     }
 }

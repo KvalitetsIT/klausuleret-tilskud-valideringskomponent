@@ -1,10 +1,10 @@
 package dk.kvalitetsit.itukt.validation.service.model;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public record DataContext(Map<String, List<String>> fields) {
-    public List<String> get(String field) {
-        return fields.getOrDefault(field, List.of());
+public record DataContext(Map<String, Object> fields) {
+    public Optional<Object> get(String field) {
+        return Optional.ofNullable(fields.get(field));
     }
 }

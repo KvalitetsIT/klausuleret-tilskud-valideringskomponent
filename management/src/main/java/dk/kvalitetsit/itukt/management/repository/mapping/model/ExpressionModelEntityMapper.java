@@ -14,7 +14,7 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
     }
 
     private ExpressionEntity.ConditionEntity map(Expression.Condition b) {
-        return new ExpressionEntity.ConditionEntity(null, b.field(), b.operator(), b.values());
+        return new ExpressionEntity.ConditionEntity(null, b.field(), b.operator(), b.value());
     }
 
     private ExpressionEntity.BinaryExpressionEntity map(Expression.BinaryExpression b) {

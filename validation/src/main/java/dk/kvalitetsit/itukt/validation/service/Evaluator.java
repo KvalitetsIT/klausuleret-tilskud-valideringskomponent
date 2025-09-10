@@ -56,10 +56,9 @@ public class Evaluator {
         List<String> actualValues = ctx.get(c.field());
 
         return switch (c.operator()) {
-            case EQUAL -> actualValues.stream().anyMatch(v -> v.equals(c.values().getFirst()));
-            case IN -> actualValues.stream().anyMatch(c.values()::contains);
+            case EQUAL -> actualValues.stream().anyMatch(v -> v.equals(c.value()));
             case GREATER_THAN_OR_EQUAL_TO, LESS_THAN_OR_EQUAL_TO, GREATER_THAN, LESS_THAN -> {
-                int target = Integer.parseInt(c.values().getFirst());
+                int target = Integer.parseInt(c.value());
                 yield actualValues.stream()
                         .mapToInt(Integer::parseInt)
                         .anyMatch(actual -> switch (c.operator()) {

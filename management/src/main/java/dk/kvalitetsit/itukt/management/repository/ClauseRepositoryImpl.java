@@ -162,21 +162,13 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     private ExpressionEntity.ConditionEntity insertCondition(ExpressionEntity.ConditionEntity condition) {
 
         template.update(
-                "INSERT INTO condition_expression(expression_id, field, operator) VALUES (:expression_id, :field, :operator)",
+                "INSERT INTO condition_expression(expression_id, field, operator, value) VALUES (:expression_id, :field, :operator, :value)",
                 Map.of(
                         "expression_id", condition.id(),
                         "field", condition.field(),
-                        "operator", condition.operator().getValue()
+                        "operator", condition.operator().getValue(),
+                        "value", condition.value()
                 ));
-
-        for (String value : condition.values()) {
-            template.update(
-                    "INSERT INTO condition_value(condition_id, value) VALUES (:condition_id, :value)",
-                    Map.of(
-                            "condition_id", condition.id(),
-                            "value", value
-                    ));
-        }
         return condition;
     }
 
@@ -200,17 +192,12 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
     private ExpressionEntity.ConditionEntity readCondition(long expressionId) {
         var cond = template.queryForObject(
-                "SELECT field, operator FROM condition_expression WHERE expression_id = :id",
+                "SELECT field, operator, value FROM condition_expression WHERE expression_id = :id",
                 Map.of("id", expressionId),
-                (rs, rowNum) -> new Object[]{rs.getString("field"), rs.getString("operator")}
+                (rs, rowNum) -> new Object[]{rs.getString("field"), rs.getString("operator"), rs.getString("value")}
         );
 
-        List<String> values = template.query(
-                "SELECT value FROM condition_value WHERE condition_id = :id ORDER BY id",
-                Map.of("id", expressionId),
-                (rs, rowNum) -> rs.getString("value"));
-
-        return new ExpressionEntity.ConditionEntity(expressionId, (String) cond[0], Operator.fromValue((String) cond[1]), values);
+        return new ExpressionEntity.ConditionEntity(expressionId, (String) cond[0], Operator.fromValue((String) cond[1]), (String) cond[2]);
     }
 
 

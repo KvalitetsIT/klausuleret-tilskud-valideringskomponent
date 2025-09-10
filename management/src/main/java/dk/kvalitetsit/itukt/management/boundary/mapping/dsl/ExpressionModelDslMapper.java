@@ -15,7 +15,7 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
     }
 
     private String map(Expression.Condition c) {
-        return "(" + c.field() + " " + c.operator().getValue() + " " + String.join(", ", c.values()) + ")";
+        return "(" + c.field() + " " + c.operator().getValue() + " " + String.join(", ", c.value()) + ")";
     }
 
     private String map(Expression.BinaryExpression expression) {

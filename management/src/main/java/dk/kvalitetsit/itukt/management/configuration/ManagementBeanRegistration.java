@@ -2,12 +2,10 @@ package dk.kvalitetsit.itukt.management.configuration;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ClauseField;
-import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
-
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ClauseDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
@@ -33,7 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.common.model.Expression.*;
+import static dk.kvalitetsit.itukt.common.model.Expression.BinaryExpression;
+import static dk.kvalitetsit.itukt.common.model.Expression.Condition;
 
 @Configuration
 public class ManagementBeanRegistration {
@@ -48,9 +47,9 @@ public class ManagementBeanRegistration {
     public ClauseCache clauseCache() {
         // Hardcoded clause for phase 1
         var expression = new BinaryExpression(
-                new Condition(ClauseField.AGE.name(), Operator.GREATER_THAN, List.of("50")),
+                new Condition(ClauseField.AGE.name(), Operator.GREATER_THAN, "50"),
                 BinaryExpression.BinaryOperator.AND,
-                new Condition(ClauseField.INDICATION.name(), Operator.EQUAL, List.of("313")));
+                new Condition(ClauseField.INDICATION.name(), Operator.EQUAL, "313"));
         var clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
         return new ClauseCache(List.of(clause));
     }

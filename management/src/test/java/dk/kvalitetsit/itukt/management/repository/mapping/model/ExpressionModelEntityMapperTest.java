@@ -23,7 +23,7 @@ public class ExpressionModelEntityMapperTest {
     public void testMapping() {
         Assertions.assertThat(mapper.map(MockFactory.EXPRESSION_1_MODEL))
                 .usingRecursiveComparison()
-                .ignoringFields("id", "left.id", "right.id", "right.left.id", "right.right.id")
+                .ignoringFields("id", "left.id", "right.id", "right.left.id", "right.right.id", "right.left.left.id", "right.left.right.id")
                 .isEqualTo(MockFactory.EXPRESSION_1_ENTITY);
     }
 }

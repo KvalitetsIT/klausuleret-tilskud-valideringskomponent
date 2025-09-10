@@ -43,7 +43,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
             Assertions.assertNotEquals(clause.uuid(), readClause.uuid(), "The uuid of the given clause is expected to be replaced");
             assertThat(readClause)
                     .usingRecursiveComparison()
-                    .ignoringFields("id", "uuid", "expression.id", "expression.left.id", "expression.right.id", "expression.right.left.id", "expression.right.right.id")
+                    .ignoringFields("id", "uuid", "expression.id", "expression.left.id", "expression.right.id", "expression.right.left.id", "expression.right.right.id", "expression.right.left.left.id", "expression.right.left.right.id")
                     .isEqualTo(clause);
             assertEquals(writtenClause, readClause, "The clause read from the database is expected to match the one written beforehand");
         }

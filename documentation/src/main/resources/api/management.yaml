@@ -214,7 +214,6 @@ components:
       example: "<="
       enum:
         - "="
-        - "i"
         - ">="
         - "<="
         - ">"
@@ -231,18 +230,16 @@ components:
     Condition:
       description: "A basic condition consisting of a field, an operator, and a list of values. This represents the most atomic form of an expression"
       type: object
-      required: [ type, field, operator, values ]
+      required: [ type, field, operator, value ]
       properties:
         field:
           description: "The name of the field the condition applies to"
           type: string
         operator:
           $ref: '#/components/schemas/Operator'
-        values:
-          description: "A list of values the field is compared against"
-          type: array
-          items:
-            type: string
+        value:
+          description: "The value, that the field is compared against"
+          type: string
         type:
           type: string
           description: "Identifies this object as a Condition expression"

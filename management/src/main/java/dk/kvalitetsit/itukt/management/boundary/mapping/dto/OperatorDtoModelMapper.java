@@ -8,7 +8,6 @@ public class OperatorDtoModelMapper implements Mapper<Operator, dk.kvalitetsit.i
     public dk.kvalitetsit.itukt.common.model.Operator map(Operator entry) {
         return switch (entry){
             case EQUAL -> dk.kvalitetsit.itukt.common.model.Operator.EQUAL;
-            case I -> dk.kvalitetsit.itukt.common.model.Operator.IN;
             case GREATER_THAN_OR_EQUAL_TO -> dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_TO;
             case LESS_THAN_OR_EQUAL_TO -> dk.kvalitetsit.itukt.common.model.Operator.LESS_THAN_OR_EQUAL_TO;
             case GREATER_THAN -> dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN;

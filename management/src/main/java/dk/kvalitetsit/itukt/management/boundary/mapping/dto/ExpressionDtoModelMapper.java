@@ -19,7 +19,7 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
     }
 
     private Expression.Condition map(Condition b) {
-        return new Expression.Condition(b.getField(), operatorDtoModelMapper.map(b.getOperator()), b.getValues());
+        return new Expression.Condition(b.getField(), operatorDtoModelMapper.map(b.getOperator()), b.getValue());
     }
 
     private Expression.BinaryExpression map(BinaryExpression b) {

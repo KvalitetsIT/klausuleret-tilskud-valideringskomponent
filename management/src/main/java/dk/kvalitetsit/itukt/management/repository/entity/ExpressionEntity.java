@@ -3,8 +3,6 @@ package dk.kvalitetsit.itukt.management.repository.entity;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 
-import java.util.List;
-
 public sealed interface ExpressionEntity
         permits ExpressionEntity.ConditionEntity,
         ExpressionEntity.BinaryExpressionEntity {
@@ -15,11 +13,11 @@ public sealed interface ExpressionEntity
 
     ExpressionEntity withId(Long newId);
 
-    record ConditionEntity(Long id, String field, Operator operator, List<String> values)
+    record ConditionEntity(Long id, String field, Operator operator, String value)
             implements ExpressionEntity {
 
-        public ConditionEntity(String field, Operator operator, List<String> values) {
-            this(null, field, operator, values);
+        public ConditionEntity(String field, Operator operator, String value) {
+            this(null, field, operator, value);
         }
 
         @Override
@@ -29,7 +27,7 @@ public sealed interface ExpressionEntity
 
         @Override
         public ConditionEntity withId(Long newId) {
-            return new ConditionEntity(newId, field, operator, values);
+            return new ConditionEntity(newId, field, operator, value);
         }
     }
 

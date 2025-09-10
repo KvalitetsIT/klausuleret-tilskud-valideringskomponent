@@ -6,6 +6,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 import org.openapitools.model.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -177,15 +178,36 @@ class Parser {
      *
      * @return the parsed {@code Expression.Condition}
      */
-    private Condition parseCondition() {
-        Token field = next();    // IDENTIFIER
-        Token op = next();       // OPERATOR
+    private Expression parseCondition() {
+        String field = next().text();
+        String operatorString = next().text();
+        Operator operator = operatorString.equals("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
+        List<String> values = parseValues();
+        expect(")");
+
+        return createExpressionFromMultiValueCondition(field, operator, values);
+    }
+
+    private List<String> parseValues() {
         List<String> values = new ArrayList<>();
         do {
             values.add(next().text());
         } while (match(","));
-        expect(")");
-        return new Condition(field.text(), Operator.fromValue(op.text()), values, "Condition");
+        return values;
+    }
+
+    private Expression createExpressionFromMultiValueCondition(String field, Operator operator, List<String> values) {
+        Iterator<String> valuesIterator = values.iterator();
+        Expression currentExpression = createCondition(field, operator, valuesIterator.next());
+        while (valuesIterator.hasNext()) {
+            Condition nextCond = createCondition(field, operator, valuesIterator.next());
+            currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, "BinaryExpression");
+        }
+        return currentExpression;
+    }
+
+    private Condition createCondition(String field, Operator operator, String value) {
+        return new Condition(field, operator, value, "Condition");
     }
 }
 

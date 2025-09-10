@@ -4,7 +4,6 @@ import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.validation.service.model.DataContext;
 
-import java.util.List;
 import java.util.Map;
 
 public class MockFactory {
@@ -30,7 +29,7 @@ public class MockFactory {
     );
 
     public static DataContext ctx = new DataContext(Map.of(
-            "ALDER", List.of("13"),
-            "ATC", List.of("C10BA02")
+            "ALDER", 13,
+            "ATC", "C10BA02"
     ));
 }

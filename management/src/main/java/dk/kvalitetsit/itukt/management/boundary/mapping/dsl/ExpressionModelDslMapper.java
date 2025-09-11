@@ -2,10 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
-import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
+import dk.kvalitetsit.itukt.common.model.*;
 
 public class ExpressionModelDslMapper implements Mapper<Expression, String> {
 
@@ -15,6 +12,7 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
             case BinaryExpression b -> map(b);
             case StringConditionExpression s -> map(s);
             case NumberConditionExpression n -> map(n);
+            case PreviousOrdinationConditionExpression previousOrdinationConditionExpression -> null; // TODO: IUAKT-106
         };
     }
 

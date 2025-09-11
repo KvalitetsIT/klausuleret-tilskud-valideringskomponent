@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 @RestController
 @Transactional
@@ -45,10 +46,8 @@ public class ManagementController implements ManagementApi {
 
         UUID uuid = created.getUuid();
 
-        URI location = MvcUriComponentsBuilder
-                .fromMethodCall(MvcUriComponentsBuilder.on(ManagementController.class).call20250801clausesDslIdGet(uuid))
-                .buildAndExpand(uuid)
-                .toUri();
+
+        URI location = getLocation(c -> c.call20250801clausesDslIdGet(uuid), uuid);
 
         return ResponseEntity.created(location).body(created);
     }
@@ -70,13 +69,16 @@ public class ManagementController implements ManagementApi {
         var created = service.create(clause);
 
         UUID uuid = created.getUuid();
-
-        URI location = MvcUriComponentsBuilder
-                .fromMethodCall(MvcUriComponentsBuilder.on(ManagementController.class).call20250801clausesIdGet(uuid))
-                .buildAndExpand(uuid)
-                .toUri();
+        URI location = getLocation(c -> c.call20250801clausesIdGet(uuid), uuid);
 
         return ResponseEntity.created(location).body(created);
+    }
+
+    private URI getLocation(Function<ManagementController, Object> methodRef, UUID uuid) {
+        return MvcUriComponentsBuilder
+                .fromMethodCall(methodRef.apply(MvcUriComponentsBuilder.on(ManagementController.class)))
+                .buildAndExpand(uuid)
+                .toUri();
     }
 
 }

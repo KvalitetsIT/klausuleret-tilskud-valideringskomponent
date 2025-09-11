@@ -245,11 +245,6 @@ components:
             - version
             - uuid
           properties:
-            version:
-              type: number
-              description: the version of the clause
-              example: 3
-              minimum: 1
             uuid:
               type: string
               format: uuid

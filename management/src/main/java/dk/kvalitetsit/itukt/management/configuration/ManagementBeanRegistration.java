@@ -43,10 +43,16 @@ public class ManagementBeanRegistration {
     @Bean
     public ClauseCache clauseCache() {
         // Hardcoded clause for phase 1
-        var expression = new BinaryExpression(
+        var ageAndIndication = new BinaryExpression(
                 new NumberConditionExpression(Condition.Field.AGE, Operator.GREATER_THAN, 50),
                 BinaryExpression.Operator.AND,
                 new StringConditionExpression(Condition.Field.INDICATION, "313"));
+        var existingDrugMedication = new ExistingDrugMedicationConditionExpression("ATC123", "*", "*");
+        var expression = new BinaryExpression(
+                ageAndIndication,
+                BinaryExpression.Operator.OR,
+                existingDrugMedication
+        );
         var clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
         return new ClauseCache(List.of(clause));
     }

@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import dk.kvalitetsit.itukt.management.MockFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,9 +16,9 @@ class ClauseDslModelMapperTest {
 
     @Test
     void map() {
-        assertThat(mapper.map(MockFactory.CLAUSE_1_DSL))
+        assertThat(mapper.map(MockFactory.CLAUSE_1_DSL_INPUT.getDsl()))
                 .usingRecursiveComparison()
                 .ignoringFields("uuid")
-                .isEqualTo(MockFactory.CLAUSE_1_DTO);
+                .isEqualTo(MockFactory.CLAUSE_1_OUTPUT);
     }
 }

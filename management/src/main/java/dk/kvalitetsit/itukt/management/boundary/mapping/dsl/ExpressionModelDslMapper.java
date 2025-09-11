@@ -12,7 +12,7 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
             case BinaryExpression b -> map(b);
             case StringConditionExpression s -> map(s);
             case NumberConditionExpression n -> map(n);
-            case PreviousOrdinationConditionExpression previousOrdinationConditionExpression -> null; // TODO: IUAKT-106
+            case ExistingDrugMedicationConditionExpression e -> null; // TODO: IUAKT-106
         };
     }
 

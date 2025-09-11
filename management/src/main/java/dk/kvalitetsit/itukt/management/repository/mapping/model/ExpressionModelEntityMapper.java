@@ -11,7 +11,7 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
             case BinaryExpression b -> this.map(b);
             case StringConditionExpression s -> this.map(s);
             case NumberConditionExpression n -> this.map(n);
-            case PreviousOrdinationConditionExpression p -> this.map(p);
+            case ExistingDrugMedicationConditionExpression p -> this.map(p);
         };
     }
 
@@ -23,8 +23,8 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
         return new ExpressionEntity.NumberConditionEntity(null, b.field(), b.operator(), b.value());
     }
 
-    private ExpressionEntity.PreviousOrdinationEntity map(PreviousOrdinationConditionExpression p) {
-        return new ExpressionEntity.PreviousOrdinationEntity(null, p.atcCode(), p.formCode(), p.routeOfAdministrationCode());
+    private ExpressionEntity.ExistingDrugMedicationConditionEntity map(ExistingDrugMedicationConditionExpression e) {
+        return new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, e.atcCode(), e.formCode(), e.routeOfAdministrationCode());
     }
 
     private ExpressionEntity.BinaryExpressionEntity map(BinaryExpression b) {

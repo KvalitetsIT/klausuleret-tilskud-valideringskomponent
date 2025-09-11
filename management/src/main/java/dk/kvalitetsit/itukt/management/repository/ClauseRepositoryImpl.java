@@ -24,11 +24,11 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
-    private final DataClassRowMapper<ExpressionEntity.PreviousOrdinationEntity> previousOrdinationRowMapper;
+    private final DataClassRowMapper<ExpressionEntity.ExistingDrugMedicationConditionEntity> existingDrugMedicationRowMapper;
 
     public ClauseRepositoryImpl(DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
-        previousOrdinationRowMapper = new DataClassRowMapper<>(ExpressionEntity.PreviousOrdinationEntity.class);
+        existingDrugMedicationRowMapper = new DataClassRowMapper<>(ExpressionEntity.ExistingDrugMedicationConditionEntity.class);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             case ExpressionEntity.StringConditionEntity e -> insertStringCondition(e);
             case ExpressionEntity.NumberConditionEntity e -> insertNumberCondition(e);
             case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(e);
-            case ExpressionEntity.PreviousOrdinationEntity e -> insertPreviousOrdination(e);
+            case ExpressionEntity.ExistingDrugMedicationConditionEntity e -> insertExistingDrugMedication(e);
         };
     }
 
@@ -141,7 +141,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             case ExpressionType.STRING_CONDITION -> readStringCondition(expressionId);
             case ExpressionType.NUMBER_CONDITION -> readNumberCondition(expressionId);
             case ExpressionType.BINARY -> readBinary(expressionId);
-            case PREVIOUS_ORDINATION -> readPreviousOrdination(expressionId);
+            case EXISTING_DRUG_MEDICATION -> readExistingDrugMedicationCondition(expressionId);
         };
     }
 
@@ -196,17 +196,17 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         return condition;
     }
 
-    private ExpressionEntity.PreviousOrdinationEntity insertPreviousOrdination(ExpressionEntity.PreviousOrdinationEntity previousOrdination) {
+    private ExpressionEntity.ExistingDrugMedicationConditionEntity insertExistingDrugMedication(ExpressionEntity.ExistingDrugMedicationConditionEntity existingDrugMedication) {
 
         template.update(
-                "INSERT INTO previous_ordination_expression(expression_id, atc_code, form_code, route_of_administration_code) VALUES (:expression_id, :atc_code, :form_code, :route_of_administration_code)",
+                "INSERT INTO existing_drug_medication_condition_expression(expression_id, atc_code, form_code, route_of_administration_code) VALUES (:expression_id, :atc_code, :form_code, :route_of_administration_code)",
                 Map.of(
-                        "expression_id", previousOrdination.id(),
-                        "atc_code", previousOrdination.atcCode(),
-                        "form_code", previousOrdination.formCode(),
-                        "route_of_administration_code", previousOrdination.routeOfAdministrationCode()
+                        "expression_id", existingDrugMedication.id(),
+                        "atc_code", existingDrugMedication.atcCode(),
+                        "form_code", existingDrugMedication.formCode(),
+                        "route_of_administration_code", existingDrugMedication.routeOfAdministrationCode()
                 ));
-        return previousOrdination;
+        return existingDrugMedication;
     }
 
     private ExpressionEntity.BinaryExpressionEntity insertBinary(ExpressionEntity.BinaryExpressionEntity binary) {
@@ -248,11 +248,11 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                         rs.getInt("value")));
     }
 
-    private ExpressionEntity.PreviousOrdinationEntity readPreviousOrdination(long expressionId) {
+    private ExpressionEntity.ExistingDrugMedicationConditionEntity readExistingDrugMedicationCondition(long expressionId) {
         return template.queryForObject(
-                "SELECT expression_id as id, atc_code, form_code, route_of_administration_code FROM previous_ordination_expression WHERE expression_id = :id",
+                "SELECT expression_id as id, atc_code, form_code, route_of_administration_code FROM existing_drug_medication_condition_expression WHERE expression_id = :id",
                 Map.of("id", expressionId),
-                previousOrdinationRowMapper
+                existingDrugMedicationRowMapper
         );
     }
 
@@ -279,7 +279,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 case STRING_CONDITION -> readStringCondition(id);
                 case NUMBER_CONDITION -> readNumberCondition(id);
                 case BINARY -> readBinary(id);
-                case PREVIOUS_ORDINATION -> readPreviousOrdination(id);
+                case EXISTING_DRUG_MEDICATION -> readExistingDrugMedicationCondition(id);
             });
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

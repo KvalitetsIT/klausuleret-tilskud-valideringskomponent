@@ -4,7 +4,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
-import dk.kvalitetsit.itukt.common.model.PreviousOrdinationConditionExpression;
+import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
 import org.openapitools.model.*;
 
@@ -18,7 +18,7 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
             case dk.kvalitetsit.itukt.common.model.BinaryExpression b -> this.map(b);
             case StringConditionExpression s -> this.map(s);
             case NumberConditionExpression n -> this.map(n);
-            case PreviousOrdinationConditionExpression p -> this.map(p);
+            case ExistingDrugMedicationConditionExpression e -> this.map(e);
         };
     }
 
@@ -30,8 +30,8 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
         return new NumberCondition(n.field().name(), mapper.map(n.operator()), n.value(), "NumberCondition");
     }
 
-    private PreviousOrdination map(PreviousOrdinationConditionExpression p) {
-        return new PreviousOrdination(p.atcCode(), p.formCode(), p.routeOfAdministrationCode(), "PreviousOrdination");
+    private ExistingDrugMedicationCondition map(ExistingDrugMedicationConditionExpression e) {
+        return new ExistingDrugMedicationCondition(e.atcCode(), e.formCode(), e.routeOfAdministrationCode(), "ExistingDrugMedicationCondition");
     }
 
     private BinaryExpression map(dk.kvalitetsit.itukt.common.model.BinaryExpression b) {

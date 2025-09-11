@@ -8,7 +8,7 @@ public sealed interface ExpressionEntity permits
         ExpressionEntity.StringConditionEntity,
         ExpressionEntity.NumberConditionEntity,
         ExpressionEntity.BinaryExpressionEntity,
-        ExpressionEntity.PreviousOrdinationEntity {
+        ExpressionEntity.ExistingDrugMedicationConditionEntity {
 
     ExpressionType type();
 
@@ -71,17 +71,17 @@ public sealed interface ExpressionEntity permits
         }
     }
 
-    record PreviousOrdinationEntity(Long id, String atcCode, String formCode, String routeOfAdministrationCode)
+    record ExistingDrugMedicationConditionEntity(Long id, String atcCode, String formCode, String routeOfAdministrationCode)
             implements ExpressionEntity {
 
         @Override
         public ExpressionType type() {
-            return ExpressionType.PREVIOUS_ORDINATION;
+            return ExpressionType.EXISTING_DRUG_MEDICATION;
         }
 
         @Override
-        public PreviousOrdinationEntity withId(Long newId) {
-            return new PreviousOrdinationEntity(newId, atcCode, formCode, routeOfAdministrationCode);
+        public ExistingDrugMedicationConditionEntity withId(Long newId) {
+            return new ExistingDrugMedicationConditionEntity(newId, atcCode, formCode, routeOfAdministrationCode);
         }
     }
 

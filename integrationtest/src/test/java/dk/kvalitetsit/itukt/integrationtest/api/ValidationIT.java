@@ -25,7 +25,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithoutExistingDrugMedicationWithInputThatMatchesClauseAndValidatesAgeAndIndication_ReturnsSuccess() {
-        long drugId = 28103139399L;// Matches hardcoded value in cache
+        long drugId = getDrugId();// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, validIndication, null);
@@ -37,7 +37,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithoutExistingDrugMedicationWhenItIsRequired_ReturnsValidationNotPossible() {
-        long drugId = 28103139399L;// Matches hardcoded value in cache
+        long drugId = getDrugId();
         String elementPath = "path";
         int age = 20;  // Hardcoded clause in cache requires age > 50 or existing drug medication
         var request = createValidationRequest(drugId, elementPath, age, validIndication, null);
@@ -52,7 +52,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndValidatesExistingDrugMedication_ReturnsSuccess() {
-        long drugId = 28103139399L;// Matches hardcoded value in cache
+        long drugId = getDrugId();
         int age = 1;  // Hardcoded clause in cache requires age > 50
         var existingDrugMedication = new ExistingDrugMedication()
                 .drugIdentifier(0L)
@@ -66,9 +66,14 @@ public class ValidationIT extends BaseTest {
         assertInstanceOf(ValidationSuccess.class, response);
     }
 
+    private static long getDrugId() {
+        // Matches hardcoded value in cache
+        return 28103139399L;
+    }
+
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsValidation_ReturnsValidationError() {
-        long drugId = 28103139399L; // Matches value in stamdata database with clause code = "KRINI"
+        long drugId = getDrugId();
         String elementPath = "path";
         int age = 50;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, validIndication, List.of());
@@ -87,7 +92,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
-        long drugId = 28103139399L; // Matches value in stamdata database with clause code = "KRINI"
+        long drugId = getDrugId();
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, invalidIndication, List.of());

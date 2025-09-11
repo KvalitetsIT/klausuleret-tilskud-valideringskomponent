@@ -49,9 +49,17 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
     }
 
     private ValidationInput mapToValidationInput(ValidationRequest validationRequest, Validate validate) {
+        var existingDrugMedication = validationRequest.getExistingDrugMedications().get().stream()
+                .map(this::mapExistingDrugMedication)
+                .toList();
         return new ValidationInput(
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),
-                validate.getNewDrugMedication().getIndicationCode());
+                validate.getNewDrugMedication().getIndicationCode(),
+                existingDrugMedication);
+    }
+
+    private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedication existing) {
+        return new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existing.getAtcCode(), existing.getFormCode(), existing.getRouteOfAdministrationCode());
     }
 }

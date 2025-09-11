@@ -323,13 +323,13 @@ components:
       required: [ type, atcCode, formCode, routeOfAdministrationCode ]
       properties:
         atcCode:
-          description: "ATC code for the ordination"
+          description: "ATC code for the ordination. '*' can be used as a wildcard to match any string"
           type: string
         formCode:
-          description: "Form code for the ordination"
+          description: "Form code for the ordination. '*' can be used as a wildcard to match any string"
           type: string
         routeOfAdministrationCode:
-          description: "Route of administration code for the ordination"
+          description: "Route of administration code for the ordination. '*' can be used as a wildcard to match any string"
           type: string
         type:
           type: string

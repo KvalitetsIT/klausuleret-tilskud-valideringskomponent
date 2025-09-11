@@ -1,0 +1,47 @@
+package dk.kvalitetsit.itukt.validation.repository;
+
+import dk.kvalitetsit.itukt.validation.configuration.CacheConfiguration;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public class ScheduledStamDataCache {
+
+    private final Logger logger = LoggerFactory.getLogger(ScheduledStamDataCache.class);
+    private final CacheConfiguration configuration;
+
+    private final StamDataRepository concreteStamDataRepository;
+    private Map<Long, StamdataEntity> drugIdToClauseMap = new HashMap<>();
+
+    public ScheduledStamDataCache(CacheConfiguration configuration, StamDataRepository concreteStamDataRepository) {
+        this.configuration = configuration;
+        this.concreteStamDataRepository = concreteStamDataRepository;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.drugIdToClauseMap = load();
+    }
+
+    @Scheduled(cron = "#{configuration.cron}")
+    public void reload() {
+        this.drugIdToClauseMap = load();
+    }
+
+    public Optional<StamdataEntity> getClauseByDrugId(long drugId) {
+        return Optional.ofNullable(drugIdToClauseMap.get(drugId));
+    }
+
+    private Map<Long, StamdataEntity> load() {
+        var result = concreteStamDataRepository.findAll();
+        logger.info("Loaded {} entries into cache", result.size());
+        return result.stream().collect(Collectors.toMap(x -> x.drug().id(), x -> x, (x, y) -> x));
+    }
+}

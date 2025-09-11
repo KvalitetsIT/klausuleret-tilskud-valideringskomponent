@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ClauseRepositoryImplIT extends BaseTest {
 
@@ -75,5 +78,20 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 read,
                 "Clauses read is expected to be the same as written clauses"
         );
+    }
+
+    @Test
+    void testCreateAndReadPreviousOrdinationExpression() {
+        var previousOrdination = new ExpressionEntity.PreviousOrdinationEntity(null, "ATC", "form", "adm");
+        ClauseEntity clauseInput = new ClauseEntity("CLAUSE", previousOrdination);
+
+        UUID clauseUuid = repository.create(clauseInput).uuid();
+        var readClause = repository.read(clauseUuid);
+
+        assertTrue(readClause.isPresent());
+        assertThat(readClause.get())
+                .usingRecursiveComparison()
+                .ignoringFields("id", "uuid", "expression.id")
+                .isEqualTo(clauseInput);
     }
 }

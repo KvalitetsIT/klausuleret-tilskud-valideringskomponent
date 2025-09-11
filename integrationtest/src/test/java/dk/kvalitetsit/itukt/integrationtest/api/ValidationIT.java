@@ -7,6 +7,7 @@ import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -73,7 +74,8 @@ public class ValidationIT extends BaseTest {
         return new ValidationRequest()
                 .age(age)
                 .personIdentifier("1234567890")
-                .addValidateItem(validate);
+                .addValidateItem(validate)
+                .existingDrugMedications(List.of());
     }
 
     private Validate createValidateElement(long drugId, String path, String indication) {

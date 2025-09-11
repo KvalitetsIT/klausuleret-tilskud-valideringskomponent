@@ -81,9 +81,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void testCreateAndReadPreviousOrdinationExpression() {
-        var previousOrdination = new ExpressionEntity.PreviousOrdinationEntity(null, "ATC", "form", "adm");
-        ClauseEntity clauseInput = new ClauseEntity("CLAUSE", previousOrdination);
+    void testCreateAndReadExistingDrugMedicationCondition() {
+        var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
+        var clauseInput = new ClauseEntity("CLAUSE", existingDrugMedicationCondition);
 
         UUID clauseUuid = repository.create(clauseInput).uuid();
         var readClause = repository.read(clauseUuid);

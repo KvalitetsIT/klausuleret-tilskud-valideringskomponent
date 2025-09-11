@@ -55,19 +55,19 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void testPostAndGetClauseWithPreviousOrdinations() {
+    void testPostAndGetClauseWithExistingDrugMedicationConditions() {
         var expression = new BinaryExpression()
-                .left(new PreviousOrdination()
+                .left(new ExistingDrugMedicationCondition()
                         .atcCode("atc1")
                         .formCode("form1")
                         .routeOfAdministrationCode("adm1")
-                        .type("PreviousOrdination"))
+                        .type("ExistingDrugMedicationCondition"))
                 .operator(BinaryOperator.AND)
-                .right(new PreviousOrdination()
+                .right(new ExistingDrugMedicationCondition()
                         .atcCode("atc2")
                         .formCode("form2")
                         .routeOfAdministrationCode("adm2")
-                        .type("PreviousOrdination"))
+                        .type("ExistingDrugMedicationCondition"))
                 .type("BinaryExpression");
         var clauseInput = new ClauseInput()
                 .name("test")

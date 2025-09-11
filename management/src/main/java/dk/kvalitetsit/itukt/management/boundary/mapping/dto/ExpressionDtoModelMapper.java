@@ -3,11 +3,11 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dto;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
-import dk.kvalitetsit.itukt.common.model.PreviousOrdinationConditionExpression;
+import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
 import org.openapitools.model.BinaryExpression;
+import org.openapitools.model.ExistingDrugMedicationCondition;
 import org.openapitools.model.NumberCondition;
-import org.openapitools.model.PreviousOrdination;
 import org.openapitools.model.StringCondition;
 
 public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.Expression, Expression> {
@@ -20,7 +20,7 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
             case BinaryExpression b -> this.map(b);
             case StringCondition s -> this.map(s);
             case NumberCondition n -> this.map(n);
-            case PreviousOrdination p -> this.map(p);
+            case ExistingDrugMedicationCondition e -> this.map(e);
             default -> throw new IllegalStateException("Unexpected value: " + expression);
         };
     }
@@ -33,8 +33,8 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
         return new NumberConditionExpression(Expression.Condition.Field.valueOf(b.getField()), operatorDtoModelMapper.map(b.getOperator()), b.getValue());
     }
 
-    private PreviousOrdinationConditionExpression map(PreviousOrdination p) {
-        return new PreviousOrdinationConditionExpression(p.getAtcCode(), p.getFormCode(), p.getRouteOfAdministrationCode());
+    private ExistingDrugMedicationConditionExpression map(ExistingDrugMedicationCondition e) {
+        return new ExistingDrugMedicationConditionExpression(e.getAtcCode(), e.getFormCode(), e.getRouteOfAdministrationCode());
     }
 
     private dk.kvalitetsit.itukt.common.model.BinaryExpression map(BinaryExpression b) {

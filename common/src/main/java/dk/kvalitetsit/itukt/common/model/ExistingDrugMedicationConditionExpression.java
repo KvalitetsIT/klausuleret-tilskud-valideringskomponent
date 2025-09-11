@@ -1,13 +1,13 @@
 package dk.kvalitetsit.itukt.common.model;
 
-public record PreviousOrdinationConditionExpression(
+public record ExistingDrugMedicationConditionExpression(
         String atcCode,
         String formCode,
         String routeOfAdministrationCode) implements Expression.Condition {
 
     @Override
     public Field field() {
-        return Field.PREVIOUS_ORDINATION;
+        return Field.EXISTING_DRUG_MEDICATION;
     }
 
     @Override

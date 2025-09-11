@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 
+import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.BinaryOperator;
-import org.openapitools.model.PreviousOrdination;
+import org.openapitools.model.ExistingDrugMedicationCondition;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,19 +25,19 @@ class ExpressionModelDtoMapperTest {
     }
 
     @Test
-    void testMapWithPreviousOrdinations() {
-        var expression = new Expression.BinaryExpression(
-                new Expression.PreviousOrdination("atc1", "form1", "adm1"),
-                Expression.BinaryExpression.BinaryOperator.AND,
-                new Expression.PreviousOrdination("atc2", "form2", "adm2")
+    void testMapWithExistingDrugMedicationConditions() {
+        var expression = new dk.kvalitetsit.itukt.common.model.BinaryExpression(
+                new ExistingDrugMedicationConditionExpression("atc1", "form1", "adm1"),
+                dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND,
+                new ExistingDrugMedicationConditionExpression("atc2", "form2", "adm2")
         );
 
         var mappedExpression = mapper.map(expression);
 
         var expectedExpression = new BinaryExpression(
-                new PreviousOrdination("atc1", "form1", "adm1", "PreviousOrdination"),
+                new ExistingDrugMedicationCondition("atc1", "form1", "adm1", "ExistingDrugMedicationCondition"),
                 BinaryOperator.AND,
-                new PreviousOrdination("atc2", "form2", "adm2", "PreviousOrdination"),
+                new ExistingDrugMedicationCondition("atc2", "form2", "adm2", "ExistingDrugMedicationCondition"),
                 "BinaryExpression"
         );
         assertEquals(expectedExpression, mappedExpression);

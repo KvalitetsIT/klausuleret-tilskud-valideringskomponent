@@ -1,5 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.mapping.entity;
 
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
@@ -29,18 +31,18 @@ public class ExpressionEntityModelMapperTest {
     }
 
     @Test
-    public void testMappingWithPreviousOrdinations(){
+    public void testMappingWithExistingDrugMedicationConditions(){
         var expressionEntity = new ExpressionEntity.BinaryExpressionEntity(
-                new ExpressionEntity.PreviousOrdinationEntity(null, "atc1", "form1", "adm1"),
-                Expression.BinaryExpression.BinaryOperator.AND,
-                new ExpressionEntity.PreviousOrdinationEntity(null, "atc2", "form2", "adm2"));
+                new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "atc1", "form1", "adm1"),
+                BinaryExpression.Operator.AND,
+                new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "atc2", "form2", "adm2"));
 
         var mappedExpression = mapper.map(expressionEntity);
 
-        var expectedExpression = new Expression.BinaryExpression(
-                new Expression.PreviousOrdination("atc1", "form1", "adm1"),
-                Expression.BinaryExpression.BinaryOperator.AND,
-                new Expression.PreviousOrdination("atc2", "form2", "adm2")
+        var expectedExpression = new BinaryExpression(
+                new ExistingDrugMedicationConditionExpression("atc1", "form1", "adm1"),
+                BinaryExpression.Operator.AND,
+                new ExistingDrugMedicationConditionExpression("atc2", "form2", "adm2")
         );
         assertEquals(expectedExpression, mappedExpression);
     }

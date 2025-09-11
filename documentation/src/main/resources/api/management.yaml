@@ -256,14 +256,14 @@ components:
       oneOf:
         - $ref: '#/components/schemas/StringCondition'
         - $ref: '#/components/schemas/NumberCondition'
-        - $ref: '#/components/schemas/PreviousOrdination'
+        - $ref: '#/components/schemas/ExistingDrugMedicationCondition'
         - $ref: '#/components/schemas/BinaryExpression'
       discriminator:
         propertyName: type
         mapping:
           StringCondition: '#/components/schemas/StringCondition'
           NumberCondition: '#/components/schemas/NumberCondition'
-          PreviousOrdination: '#/components/schemas/PreviousOrdination'
+          ExistingDrugMedicationCondition: '#/components/schemas/ExistingDrugMedicationCondition'
           BinaryExpression: '#/components/schemas/BinaryExpression'
 
     Operator:
@@ -317,8 +317,8 @@ components:
           type: string
           description: "Identifies this object as a NumberCondition expression"
 
-    PreviousOrdination:
-      description: "A condition for a previous ordination"
+    ExistingDrugMedicationCondition:
+      description: "A condition for existing drug medication"
       type: object
       required: [ type, atcCode, formCode, routeOfAdministrationCode ]
       properties:
@@ -333,7 +333,7 @@ components:
           type: string
         type:
           type: string
-          description: "Identifies this object as a PreviousOrdination expression"
+          description: "Identifies this object as a ExistingDrugMedicationCondition expression"
 
     BinaryExpression:
       description: "A compound expression combining two expressions with a binary operator such as AND or OR"

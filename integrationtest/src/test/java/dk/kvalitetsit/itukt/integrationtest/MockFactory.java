@@ -1,95 +1,113 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.ConditionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.common.model.Operator.*;
+import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_TO;
 
 public class MockFactory {
 
     // Note: This clause(clause_1_dsl) matches: clause_1_*
-    public static final String CLAUSE_1_DSL = "Klausul CHOL: (ATC = C10BA03) eller (ATC i C10BA02, C10BA05) og (ALDER >= 13)";
+    public static final String CLAUSE_1_DSL = "Klausul CHOL: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)";
 
-    public static final ConditionEntity EXPRESSION_2_ENTITY = new ConditionEntity(2L, "ATC", EQUAL, List.of("C10BA03"));
+    private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Expression.Condition.Field.INDICATION, "C10BA03");
 
-    public static final ConditionEntity EXPRESSION_3_ENTITY = new ConditionEntity(3L, "ATC", IN, List.of("C10BA02", "C10BA05"));
+    private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Expression.Condition.Field.INDICATION, "C10BA02");
 
-    public static final ConditionEntity EXPRESSION_4_ENTITY = new ConditionEntity(3L, "ALDER", GREATER_THAN_OR_EQUAL_TO, List.of("13"));
+    private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, Expression.Condition.Field.INDICATION, "C10BA05");
 
-    public static final Expression.Condition EXPRESSION_4_MODEL = new Expression.Condition(
-            EXPRESSION_4_ENTITY.field(),
-            EXPRESSION_4_ENTITY.operator(),
-            EXPRESSION_4_ENTITY.values()
+    private static final BinaryExpressionEntity EXPRESSION_5_ENTITY = new BinaryExpressionEntity(EXPRESSION_3_ENTITY, BinaryExpression.Operator.OR, EXPRESSION_4_ENTITY);
+
+    private static final NumberConditionEntity EXPRESSION_6_ENTITY = new NumberConditionEntity(6L, Expression.Condition.Field.AGE, GREATER_THAN_OR_EQUAL_TO, 13);
+
+    private static final NumberConditionExpression EXPRESSION_6_MODEL = new NumberConditionExpression(
+            EXPRESSION_6_ENTITY.field(),
+            EXPRESSION_6_ENTITY.operator(),
+            EXPRESSION_6_ENTITY.value()
     );
 
-    public static final org.openapitools.client.model.Condition EXPRESSION_4_DTO = new org.openapitools.client.model.Condition().type("Condition")
-            .field(EXPRESSION_4_MODEL.field())
+    private static final org.openapitools.client.model.NumberCondition EXPRESSION_6_DTO = new org.openapitools.client.model.NumberCondition().type("NumberCondition")
+            .field(EXPRESSION_6_MODEL.field().name())
             .operator(org.openapitools.client.model.Operator.GREATER_THAN_OR_EQUAL_TO)
-            .values(EXPRESSION_4_MODEL.values());
+            .value(EXPRESSION_6_MODEL.value());
 
-    public static final Expression.Condition EXPRESSION_3_MODEL = new Expression.Condition(
+    private static final StringConditionExpression EXPRESSION_3_MODEL = new StringConditionExpression(
             EXPRESSION_3_ENTITY.field(),
-            EXPRESSION_3_ENTITY.operator(),
-            EXPRESSION_3_ENTITY.values());
+            EXPRESSION_3_ENTITY.value());
 
-    public static final org.openapitools.client.model.Condition EXPRESSION_3_DTO = new org.openapitools.client.model.Condition().type("Condition")
-            .field(EXPRESSION_3_MODEL.field())
-            .operator(org.openapitools.client.model.Operator.I)
-            .values((EXPRESSION_3_MODEL.values()));
+    private static final StringConditionExpression EXPRESSION_4_MODEL = new StringConditionExpression(
+            EXPRESSION_4_ENTITY.field(),
+            EXPRESSION_4_ENTITY.value());
 
-    public static final Expression.Condition EXPRESSION_2_MODEL = new Expression.Condition(
+    private static final BinaryExpression EXPRESSION_5_MODEL = new BinaryExpression(
+            EXPRESSION_3_MODEL,
+            EXPRESSION_5_ENTITY.operator(),
+            EXPRESSION_4_MODEL);
+
+    private static final org.openapitools.client.model.StringCondition EXPRESSION_3_DTO = new org.openapitools.client.model.StringCondition().type("StringCondition")
+            .field(EXPRESSION_3_MODEL.field().name())
+            .value((EXPRESSION_3_MODEL.requiredValue()));
+
+    private static final org.openapitools.client.model.StringCondition EXPRESSION_4_DTO = new org.openapitools.client.model.StringCondition().type("StringCondition")
+            .field(EXPRESSION_4_MODEL.field().name())
+            .value(EXPRESSION_4_MODEL.requiredValue());
+
+    private static final org.openapitools.client.model.BinaryExpression EXPRESSION_5_DTO = new org.openapitools.client.model.BinaryExpression()
+            .type("BinaryExpression")
+            .left(EXPRESSION_3_DTO)
+            .operator(org.openapitools.client.model.BinaryOperator.fromValue(EXPRESSION_5_MODEL.operator().name()))
+            .right(EXPRESSION_4_DTO);
+
+    private static final StringConditionExpression EXPRESSION_2_MODEL = new StringConditionExpression(
             EXPRESSION_2_ENTITY.field(),
-            EXPRESSION_2_ENTITY.operator(),
-            EXPRESSION_2_ENTITY.values()
+            EXPRESSION_2_ENTITY.value()
     );
 
-    public static final Expression.BinaryExpression EXPRESSION_1_MODEL = new Expression.BinaryExpression(
+    private static final BinaryExpression EXPRESSION_1_MODEL = new BinaryExpression(
             EXPRESSION_2_MODEL,
-            Expression.BinaryExpression.BinaryOperator.OR,
-            new Expression.BinaryExpression(
-                    EXPRESSION_3_MODEL,
-                    Expression.BinaryExpression.BinaryOperator.AND,
-                    EXPRESSION_4_MODEL
+            BinaryExpression.Operator.OR,
+            new BinaryExpression(
+                    EXPRESSION_5_MODEL,
+                    BinaryExpression.Operator.AND,
+                    EXPRESSION_6_MODEL
             )
     );
 
-    public static final org.openapitools.client.model.Condition EXPRESSION_2_DTO = new org.openapitools.client.model.Condition()
-            .type("Condition")
-            .field(EXPRESSION_2_MODEL.field())
-            .operator(org.openapitools.client.model.Operator.EQUAL)
-            .values((EXPRESSION_2_MODEL.values()));
+    private static final org.openapitools.client.model.StringCondition EXPRESSION_2_DTO = new org.openapitools.client.model.StringCondition()
+            .type("StringCondition")
+            .field(EXPRESSION_2_MODEL.field().name())
+            .value((EXPRESSION_2_MODEL.requiredValue()));
 
-    public static final org.openapitools.client.model.Expression EXPRESSION_1_DTO = new org.openapitools.client.model.BinaryExpression()
+    private static final org.openapitools.client.model.Expression EXPRESSION_1_DTO = new org.openapitools.client.model.BinaryExpression()
             .type("BinaryExpression")
             .operator(org.openapitools.client.model.BinaryOperator.OR)
             .left(EXPRESSION_2_DTO)
             .right(new org.openapitools.client.model.BinaryExpression()
                     .type("BinaryExpression")
-                    .left(EXPRESSION_3_DTO)
+                    .left(EXPRESSION_5_DTO)
                     .operator(org.openapitools.client.model.BinaryOperator.AND)
-                    .right(EXPRESSION_4_DTO)
+                    .right(EXPRESSION_6_DTO)
             );
 
-    private static final BinaryExpressionEntity EXPRESSION_5_ENTITY = new BinaryExpressionEntity(
+    private static final BinaryExpressionEntity EXPRESSION_7_ENTITY = new BinaryExpressionEntity(
             5L,
-            EXPRESSION_3_ENTITY,
-            Expression.BinaryExpression.BinaryOperator.AND,
-            EXPRESSION_4_ENTITY
+            EXPRESSION_5_ENTITY,
+            BinaryExpression.Operator.AND,
+            EXPRESSION_6_ENTITY
     );
 
     private static final ExpressionEntity EXPRESSION_1_ENTITY = new BinaryExpressionEntity(
             1L,
             EXPRESSION_2_ENTITY,
-            Expression.BinaryExpression.BinaryOperator.OR,
-            EXPRESSION_5_ENTITY
+            BinaryExpression.Operator.OR,
+            EXPRESSION_7_ENTITY
     );
 
     // Note: This clause(clause_1_entity) matches: clause_1_dsl

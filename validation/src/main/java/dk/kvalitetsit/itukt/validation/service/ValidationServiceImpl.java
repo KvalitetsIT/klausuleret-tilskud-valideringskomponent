@@ -1,12 +1,14 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
 import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.validation.service.model.*;
+import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
+import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
+import dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess;
 
 import java.util.Optional;
 
@@ -14,15 +16,10 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
 
     private final ClauseCache clauseCache;
     private final StamDataCache stamDataCache;
-    private final Mapper<ValidationInput, DataContext> validationDataContextMapper;
 
-    private final Evaluator evaluator;
-
-    public ValidationServiceImpl(ClauseCache clauseCache, StamDataCache stamDataCache, Mapper<ValidationInput, DataContext> validationDataContextMapper, Evaluator evaluator) {
+    public ValidationServiceImpl(ClauseCache clauseCache, StamDataCache stamDataCache) {
         this.clauseCache = clauseCache;
         this.stamDataCache = stamDataCache;
-        this.validationDataContextMapper = validationDataContextMapper;
-        this.evaluator = evaluator;
     }
 
     @Override
@@ -38,8 +35,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private ValidationResult validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
-        DataContext dataContext = validationDataContextMapper.map(validationInput);
-        boolean success = evaluator.eval(clause.expression(), dataContext);
+        boolean success = clause.expression().validates(validationInput);
         return success ? new ValidationSuccess() : new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76");
     }
 }

@@ -6,7 +6,9 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 import org.openapitools.model.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The {@code Parser} class is responsible for parsing a sequence of {@link Token} objects
@@ -177,15 +179,54 @@ class Parser {
      *
      * @return the parsed {@code Expression.Condition}
      */
-    private Condition parseCondition() {
-        Token field = next();    // IDENTIFIER
-        Token op = next();       // OPERATOR
+    private Expression parseCondition() {
+        String field = next().text();
+        String operatorString = next().text();
+        Operator operator = operatorString.equals("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
+        List<String> values = parseValues();
+        expect(")");
+
+        return createExpressionFromMultiValueCondition(field, operator, values);
+    }
+
+    private List<String> parseValues() {
         List<String> values = new ArrayList<>();
         do {
             values.add(next().text());
         } while (match(","));
-        expect(")");
-        return new Condition(field.text(), Operator.fromValue(op.text()), values, "Condition");
+        return values;
+    }
+
+    private Expression createExpressionFromMultiValueCondition(String field, Operator operator, List<String> values) {
+        Iterator<String> valuesIterator = values.iterator();
+        Expression currentExpression = createCondition(field, operator, valuesIterator.next());
+        while (valuesIterator.hasNext()) {
+            Expression nextCond = createCondition(field, operator, valuesIterator.next());
+            currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, "BinaryExpression");
+        }
+        return currentExpression;
+    }
+
+    private Expression createCondition(String field, Operator operator, String value) {
+        return tryParseInt(value)
+                .map(intValue -> createNumberCondition(field, operator, intValue))
+                .orElseGet(() -> createStringCondition(field, value));
+    }
+
+    private Expression createStringCondition(String field, String value) {
+        return new StringCondition(field, value, "StringCondition");
+    }
+
+    private Expression createNumberCondition(String field, Operator operator, int value) {
+        return new NumberCondition(field, operator, value, "NumberCondition");
+    }
+
+    private Optional<Integer> tryParseInt(String value) {
+        try {
+            return Optional.of(Integer.parseInt(value));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 }
 

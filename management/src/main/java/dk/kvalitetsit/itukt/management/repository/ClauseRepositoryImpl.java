@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -167,7 +168,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 "INSERT INTO string_condition_expression(expression_id, field, value) VALUES (:expression_id, :field, :value)",
                 Map.of(
                         "expression_id", condition.id(),
-                        "field", condition.field(),
+                        "field", condition.field().name(),
                         "value", condition.value()
                 ));
         return condition;
@@ -179,7 +180,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 "INSERT INTO number_condition_expression(expression_id, field, operator, value) VALUES (:expression_id, :field, :operator, :value)",
                 Map.of(
                         "expression_id", condition.id(),
-                        "field", condition.field(),
+                        "field", condition.field().name(),
                         "operator", condition.operator().getValue(),
                         "value", condition.value()
                 ));
@@ -209,7 +210,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 Map.of("id", expressionId),
                 (rs, rowNum) -> new ExpressionEntity.StringConditionEntity(
                         expressionId,
-                        rs.getString("field"),
+                        Expression.Condition.Field.valueOf(rs.getString("field")),
                         rs.getString("value"))
         );
     }
@@ -220,7 +221,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 Map.of("id", expressionId),
                 (rs, rowNum) -> new ExpressionEntity.NumberConditionEntity(
                         expressionId,
-                        rs.getString("field"),
+                        Expression.Condition.Field.valueOf(rs.getString("field")),
                         Operator.fromValue(rs.getString("operator")),
                         rs.getInt("value")));
     }
@@ -232,7 +233,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 (rs, rowNum) -> new ExpressionEntity.BinaryExpressionEntity(
                         id,
                         readById(rs.getLong("left_id")).orElseThrow(),
-                        Expression.BinaryExpression.BinaryOperator.valueOf(rs.getString("operator")),
+                        BinaryExpression.Operator.valueOf(rs.getString("operator")),
                         readById(rs.getLong("right_id")).orElseThrow()
                 )
         );

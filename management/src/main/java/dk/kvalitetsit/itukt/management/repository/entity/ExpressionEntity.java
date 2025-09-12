@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 
@@ -14,10 +15,10 @@ public sealed interface ExpressionEntity permits
 
     ExpressionEntity withId(Long newId);
 
-    record StringConditionEntity(Long id, String field, String value)
+    record StringConditionEntity(Long id, Expression.Condition.Field field, String value)
             implements ExpressionEntity {
 
-        public StringConditionEntity(String field, String value) {
+        public StringConditionEntity(Expression.Condition.Field field, String value) {
             this(null, field, value);
         }
 
@@ -32,10 +33,10 @@ public sealed interface ExpressionEntity permits
         }
     }
 
-    record NumberConditionEntity(Long id, String field, Operator operator, int value)
+    record NumberConditionEntity(Long id, Expression.Condition.Field field, Operator operator, int value)
             implements ExpressionEntity {
 
-        public NumberConditionEntity(String field, Operator operator, int value) {
+        public NumberConditionEntity(Expression.Condition.Field field, Operator operator, int value) {
             this(null, field, operator, value);
         }
 
@@ -50,11 +51,11 @@ public sealed interface ExpressionEntity permits
         }
     }
 
-    record BinaryExpressionEntity(Long id, ExpressionEntity left, Expression.BinaryExpression.BinaryOperator operator,
+    record BinaryExpressionEntity(Long id, ExpressionEntity left, BinaryExpression.Operator operator,
                                   ExpressionEntity right)
             implements ExpressionEntity {
 
-        public BinaryExpressionEntity(ExpressionEntity left, Expression.BinaryExpression.BinaryOperator operator, ExpressionEntity right) {
+        public BinaryExpressionEntity(ExpressionEntity left, BinaryExpression.Operator operator, ExpressionEntity right) {
             this(null, left, operator, right);
         }
 

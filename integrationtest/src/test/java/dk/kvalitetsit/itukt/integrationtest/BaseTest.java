@@ -51,6 +51,7 @@ public abstract class BaseTest {
         setupAndRegisterProperties("stamdata-db", "validation.stamdata.stamdatadb", "sdm_krs_a", "", registry);
         setupAndRegisterProperties("itukt-db", "common.ituktdb", "itukt_db", "rootroot", registry);
         registry.add("itukt.validation.stamdata.cache.cron", () -> "0 0 0 * * *");
+        registry.add("itukt.management.cache.cron", () -> "0 0 0 * * *");
     }
 
     private static void setupAndRegisterProperties(

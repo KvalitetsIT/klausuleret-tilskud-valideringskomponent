@@ -3,9 +3,9 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.repository.ClauseCache;
-import dk.kvalitetsit.itukt.validation.repository.ScheduledStamDataCache;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
+import dk.kvalitetsit.itukt.common.model.StamdataEntity;
+import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
+import dk.kvalitetsit.itukt.common.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.service.model.*;
 
 import java.util.Optional;
@@ -13,22 +13,22 @@ import java.util.Optional;
 public class ValidationServiceImpl implements ValidationService<ValidationInput, ValidationResult> {
 
     private final ClauseCache clauseCache;
-    private final ScheduledStamDataCache scheduledStamDataCache;
+    private final StamdataCache stamdataCache;
     private final Mapper<ValidationInput, DataContext> validationDataContextMapper;
 
     private final Evaluator evaluator;
 
-    public ValidationServiceImpl(ClauseCache clauseCache, ScheduledStamDataCache scheduledStamDataCache, Mapper<ValidationInput, DataContext> validationDataContextMapper, Evaluator evaluator) {
+    public ValidationServiceImpl(ClauseCache clauseCache, StamdataCache stamdataCache, Mapper<ValidationInput, DataContext> validationDataContextMapper, Evaluator evaluator) {
         this.clauseCache = clauseCache;
-        this.scheduledStamDataCache = scheduledStamDataCache;
+        this.stamdataCache = stamdataCache;
         this.validationDataContextMapper = validationDataContextMapper;
         this.evaluator = evaluator;
     }
 
     @Override
     public ValidationResult validate(ValidationInput validationInput) {
-        return scheduledStamDataCache.getClauseByDrugId(validationInput.drugId())
-                .flatMap(clause -> clause.clause().stream()
+        return stamdataCache.get(validationInput.drugId())
+                .flatMap(stamdata -> stamdata.clause().stream()
                         .map(c -> validateStamDataClause(validationInput, c))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
@@ -37,7 +37,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private Optional<ValidationResult> validateStamDataClause(ValidationInput validationInput, StamdataEntity.Clause stamDataClause) {
-        return clauseCache.getClause(stamDataClause.code())
+        return clauseCache.get(stamDataClause.code())
                 .map(clause -> validateClause(clause, stamDataClause.text(), validationInput));
     }
 

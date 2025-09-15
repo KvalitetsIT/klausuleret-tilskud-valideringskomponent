@@ -1,8 +1,7 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
-import dk.kvalitetsit.itukt.validation.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
+import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
+import dk.kvalitetsit.itukt.common.model.StamdataEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class ScheduledStamDataCacheTest {
+class StamdataCacheImplTest {
 
     @Mock
     private StamDataRepository mock;
@@ -23,12 +22,12 @@ class ScheduledStamDataCacheTest {
     void getClauseByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
         StamdataEntity data = new StamdataEntity(new StamdataEntity.Drug(1L), List.of(new StamdataEntity.Clause("clauseCode", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
-        ScheduledStamDataCache scheduledStamDataCache = new ScheduledStamDataCache(new CacheConfiguration(""), mock);
-        scheduledStamDataCache.init();
+        StamdataCacheImpl stamdataCacheImpl = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        stamdataCacheImpl.load();
 
-        var result = scheduledStamDataCache.getClauseByDrugId(2L);
+        var result = stamdataCacheImpl.get(2L);
 
-        assertFalse(result.isPresent());
+        assertNotNull(result);
     }
 
     @Test
@@ -37,10 +36,10 @@ class ScheduledStamDataCacheTest {
         StamdataEntity data = new StamdataEntity(new StamdataEntity.Drug(drugId), List.of(new StamdataEntity.Clause("clauseCode", "long clause text")));
 
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
-        ScheduledStamDataCache scheduledStamDataCache = new ScheduledStamDataCache(new CacheConfiguration(""), mock);
-        scheduledStamDataCache.init();
+        StamdataCacheImpl stamdataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        stamdataCache.load();
 
-        var result = scheduledStamDataCache.getClauseByDrugId(drugId);
+        var result = stamdataCache.get(drugId);
 
         assertTrue(result.isPresent());
         assertEquals(data, result.get());

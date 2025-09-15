@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.validation.repository.entity;
+package dk.kvalitetsit.itukt.common.model;
 
 
 import java.util.List;

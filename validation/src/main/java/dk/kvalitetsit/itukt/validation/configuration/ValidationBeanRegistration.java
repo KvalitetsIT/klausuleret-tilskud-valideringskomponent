@@ -1,9 +1,9 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
-import dk.kvalitetsit.itukt.common.repository.ClauseCache;
+import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
 import dk.kvalitetsit.itukt.validation.boundary.mapping.ValidationDataContextMapper;
-import dk.kvalitetsit.itukt.validation.repository.ScheduledStamDataCache;
+import dk.kvalitetsit.itukt.validation.repository.StamdataCacheImpl;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.Evaluator;
@@ -46,19 +46,19 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public ScheduledStamDataCache stamDataCache(StamDataRepository stamDataRepository) {
-        return new ScheduledStamDataCache(configuration.stamdata().cache(), stamDataRepository);
+    public StamdataCacheImpl stamDataCache(StamDataRepository stamDataRepository) {
+        return new StamdataCacheImpl(configuration.stamdata().cache(), stamDataRepository);
     }
 
     @Bean
     public ValidationService<ValidationRequest, ValidationResponse> validationService(@Autowired ClauseCache clauseCache,
-                                                                                      @Autowired ScheduledStamDataCache scheduledStamDataCache) {
+                                                                                      @Autowired StamdataCacheImpl stamdataCacheImpl) {
         var validationDataContextMapper = new ValidationDataContextMapper();
         var evaluator = new Evaluator();
 
         return new ValidationServiceAdaptor(new ValidationServiceImpl(
                 clauseCache,
-                scheduledStamDataCache,
+                stamdataCacheImpl,
                 validationDataContextMapper,
                 evaluator
         ));

@@ -3,12 +3,12 @@ package dk.kvalitetsit.itukt.common.exceptions;
 import org.openapitools.model.DetailedError;
 import org.springframework.http.HttpStatus;
 
-public class AbstractApiException extends RuntimeException {
+public abstract class ApiException extends RuntimeException {
     private final HttpStatus httpStatus;
     private final DetailedError.DetailedErrorCodeEnum detailedErrorCodeEnum;
     private final String detailedError;
 
-    public AbstractApiException(HttpStatus httpStatus, DetailedError.DetailedErrorCodeEnum detailedErrorCodeEnum, String detailedErrorCode) {
+    public ApiException(HttpStatus httpStatus, DetailedError.DetailedErrorCodeEnum detailedErrorCodeEnum, String detailedErrorCode) {
         this.httpStatus = httpStatus;
         this.detailedErrorCodeEnum = detailedErrorCodeEnum;
         this.detailedError = detailedErrorCode;

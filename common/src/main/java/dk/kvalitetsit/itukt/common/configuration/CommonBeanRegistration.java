@@ -1,5 +1,7 @@
 package dk.kvalitetsit.itukt.common.configuration;
 
+import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
+import dk.kvalitetsit.itukt.common.repository.cache.CacheScheduler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.UUID;
+import java.util.List;
 
 @Configuration
 @EnableTransactionManagement
@@ -80,5 +82,10 @@ public class CommonBeanRegistration {
                 }
             }
         };
+    }
+
+    @Bean
+    public CacheScheduler cacheScheduler(List<CacheLoader> loaders){
+        return new CacheScheduler(loaders);
     }
 }

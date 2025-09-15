@@ -1,30 +1,38 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
+
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
+import dk.kvalitetsit.itukt.integrationtest.ClauseLoader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
+import org.springframework.context.annotation.Import;
 
 import java.time.OffsetDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
+@Import(ClauseLoader.class)
 public class ValidationIT extends BaseTest {
 
     private final String validIndication = "313", // Matches hardcoded value in cache
-                         invalidIndication = "390";
+            invalidIndication = "390";
     private ValidationApi validationApi;
+
 
     @BeforeAll
     void setup() {
         this.validationApi = new ValidationApi(client);
     }
 
+
+
+
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndValidates_ReturnsSuccess() {
-        long drugId = 1L;// Matches hardcoded value in cache
+        long drugId = 28103139399L; // Matches value in stamdata database with clause code = "KRINI"
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, validIndication);
@@ -36,16 +44,15 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsValidation_ReturnsValidationError() {
-        long drugId = 1L;// Matches hardcoded value in cache
+        long drugId = 28103139399L; // Matches value in stamdata database with clause code = "KRINI"
         String elementPath = "path";
         int age = 50;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, validIndication);
-
         var response = validationApi.call20250801validatePost(request);
 
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
-        var validationError = failedResponse.getValidationErrors().get(0);
+        var validationError = failedResponse.getValidationErrors().getFirst();
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
         assertEquals(expectedClauseCode, validationError.getClauseCode());
         assertEquals(elementPath, validationError.getElementPath());
@@ -53,7 +60,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
-        long drugId = 1L;// Matches hardcoded value in cache
+        long drugId = 28103139399L; // Matches value in stamdata database with clause code = "KRINI"
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, invalidIndication);
@@ -62,7 +69,7 @@ public class ValidationIT extends BaseTest {
 
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
-        var validationError = failedResponse.getValidationErrors().get(0);
+        var validationError = failedResponse.getValidationErrors().getFirst();
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
         assertEquals(expectedClauseCode, validationError.getClauseCode());
         assertEquals(elementPath, validationError.getElementPath());

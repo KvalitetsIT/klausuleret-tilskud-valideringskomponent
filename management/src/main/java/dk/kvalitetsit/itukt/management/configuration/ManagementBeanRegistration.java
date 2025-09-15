@@ -1,17 +1,15 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.ClauseField;
-import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.Operator;
-import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 
+import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ClauseDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
+import dk.kvalitetsit.itukt.management.repository.ClauseCacheImpl;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
@@ -29,11 +27,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static dk.kvalitetsit.itukt.common.model.Expression.*;
 
 @Configuration
 public class ManagementBeanRegistration {
@@ -45,14 +38,8 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseCache clauseCache() {
-        // Hardcoded clause for phase 1
-        var expression = new BinaryExpression(
-                new Condition(ClauseField.AGE.name(), Operator.GREATER_THAN, List.of("50")),
-                BinaryExpression.BinaryOperator.AND,
-                new Condition(ClauseField.INDICATION.name(), Operator.EQUAL, List.of("313")));
-        var clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
-        return new ClauseCache(List.of(clause));
+    public ClauseCache clauseCache(ClauseRepository<Clause>  clauseRepository) {
+        return new ClauseCacheImpl(configuration.cache(), clauseRepository);
     }
 
     @Bean
@@ -61,7 +48,7 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
+    public ClauseRepository<Clause> clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
         return new ClauseRepositoryAdaptor(clauseRepository, new ClauseModelEntityMapper(new ExpressionModelEntityMapper()), new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
     }
 

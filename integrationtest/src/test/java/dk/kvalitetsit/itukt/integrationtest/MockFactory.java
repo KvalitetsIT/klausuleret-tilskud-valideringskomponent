@@ -95,13 +95,11 @@ public class MockFactory {
     // Note: This clause(clause_1_entity) matches: clause_1_dsl
     public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", EXPRESSION_1_ENTITY);
 
-    public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), Optional.of(CLAUSE_1_ENTITY.uuid()), EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), EXPRESSION_1_MODEL);
 
     public static final org.openapitools.client.model.Clause CLAUSE_1_DTO = new org.openapitools.client.model.Clause()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
             .uuid(CLAUSE_1_MODEL.uuid().get());
-
-
 }
 

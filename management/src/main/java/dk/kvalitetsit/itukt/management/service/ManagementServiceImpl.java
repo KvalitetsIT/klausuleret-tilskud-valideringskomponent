@@ -18,7 +18,6 @@ public class ManagementServiceImpl implements ManagementService<Clause> {
         this.repository = repository;
     }
 
-    @Transactional("clauseTransactionManager")
     @Override
     public Clause create(Clause entry) throws ServiceException {
         return repository.create(entry);

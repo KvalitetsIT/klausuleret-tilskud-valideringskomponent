@@ -17,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.UUID;
 
 @Configuration
 @EnableTransactionManagement
@@ -40,7 +39,7 @@ public class CommonBeanRegistration {
     }
 
     @Bean
-    public PlatformTransactionManager clauseTransactionManager(@Qualifier("appDataSource") DataSource dataSource) {
+    public PlatformTransactionManager appTransactionManager(@Qualifier("appDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 

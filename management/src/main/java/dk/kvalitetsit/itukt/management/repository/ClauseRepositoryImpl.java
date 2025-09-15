@@ -14,7 +14,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -61,31 +60,24 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     }
 
 
-    public void createErrorCode(String clauseName) {
-        template.getJdbcTemplate().execute("LOCK TABLES error_code WRITE");
+    public synchronized void createErrorCode(String clauseName) {
+        Long max = template.getJdbcTemplate().queryForObject(
+                "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
+                Long.class
+        );
 
-        try {
-            Long max = template.getJdbcTemplate().queryForObject(
-                    "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
-                    Long.class
-            );
+        long next = max + 1;
 
-            long next = max + 1;
-
-            if (next > 10999) {
-                throw new IllegalStateException("Exceeded the maximum number of allocated error codes (10800–10999 exhausted)");
-            }
-
-            template.update(
-                    "INSERT INTO error_code (error_code, clause_name) VALUES (:error_code, :clause_name)",
-                    new MapSqlParameterSource()
-                            .addValue("error_code", next)
-                            .addValue("clause_name", clauseName)
-            );
-
-        } finally {
-            template.getJdbcTemplate().execute("UNLOCK TABLES");
+        if (next > 10999) {
+            throw new IllegalStateException("Exceeded the maximum number of allocated error codes (10800–10999 exhausted)");
         }
+
+        template.update(
+                "INSERT INTO error_code (error_code, clause_name) VALUES (:error_code, :clause_name)",
+                new MapSqlParameterSource()
+                        .addValue("error_code", next)
+                        .addValue("clause_name", clauseName)
+        );
     }
 
     private ExpressionEntity create(ExpressionEntity expression) {
@@ -204,7 +196,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
         return new ExpressionEntity.BinaryExpressionEntity(binary.id(), left, binary.operator(), right);
     }
-
 
 
     private ExpressionEntity.ConditionEntity readCondition(long expressionId) {

@@ -1,8 +1,8 @@
 package dk.kvalitetsit.itukt.validation;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamDataEntity;
-import dk.kvalitetsit.itukt.validation.service.model.StamData;
+import dk.kvalitetsit.itukt.common.model.StamData;
+import dk.kvalitetsit.itukt.validation.repository.StamDataEntity;
 
 import java.util.List;
 import java.util.Set;

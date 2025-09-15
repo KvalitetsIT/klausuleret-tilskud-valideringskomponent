@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamDataEntity;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -18,7 +17,6 @@ public class StamDataRepositoryImpl implements StamDataRepository<StamDataEntity
         this.template = new NamedParameterJdbcTemplate(dataSource);
         clauseRowMapper = DataClassRowMapper.newInstance(StamDataEntity.class);
     }
-
 
     @Override
     public List<StamDataEntity> findAll() throws ServiceException {

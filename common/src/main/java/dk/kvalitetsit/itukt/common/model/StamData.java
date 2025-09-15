@@ -1,5 +1,4 @@
-package dk.kvalitetsit.itukt.validation.service.model;
-
+package dk.kvalitetsit.itukt.common.model;
 
 
 import java.util.Set;

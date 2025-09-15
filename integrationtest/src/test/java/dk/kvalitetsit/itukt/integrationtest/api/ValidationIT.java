@@ -1,10 +1,13 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
+
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
+import dk.kvalitetsit.itukt.integrationtest.ClauseLoader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
+import org.springframework.context.annotation.Import;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -12,11 +15,17 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
+@Import(ClauseLoader.class)
 public class ValidationIT extends BaseTest {
 
     private final String validIndication = "313", // Matches hardcoded value in cache
-                         invalidIndication = "390";
+            invalidIndication = "390";
     private ValidationApi validationApi;
+
+    private static long getDrugId() {
+        // Matches hardcoded value in cache
+        return 28103139399L;
+    }
 
     @BeforeAll
     void setup() {
@@ -66,11 +75,6 @@ public class ValidationIT extends BaseTest {
         assertInstanceOf(ValidationSuccess.class, response);
     }
 
-    private static long getDrugId() {
-        // Matches hardcoded value in cache
-        return 28103139399L;
-    }
-
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsValidation_ReturnsValidationError() {
         long drugId = getDrugId();
@@ -82,7 +86,7 @@ public class ValidationIT extends BaseTest {
 
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
-        var validationError = failedResponse.getValidationErrors().get(0);
+        var validationError = failedResponse.getValidationErrors().getFirst();
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
         assertEquals(expectedClauseCode, validationError.getClauseCode());
         assertEquals(elementPath, validationError.getElementPath());
@@ -101,7 +105,7 @@ public class ValidationIT extends BaseTest {
 
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
-        var validationError = failedResponse.getValidationErrors().get(0);
+        var validationError = failedResponse.getValidationErrors().getFirst();
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
         assertEquals(expectedClauseCode, validationError.getClauseCode());
         assertEquals(elementPath, validationError.getElementPath());

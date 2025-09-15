@@ -1,16 +1,18 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
-import dk.kvalitetsit.itukt.common.model.*;
-import dk.kvalitetsit.itukt.common.repository.ClauseCache;
+import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
+import dk.kvalitetsit.itukt.management.repository.ClauseCacheImpl;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
@@ -23,10 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.UUID;
-
-import static dk.kvalitetsit.itukt.common.model.Expression.Condition;
 
 @Configuration
 public class ManagementBeanRegistration {
@@ -38,34 +36,22 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseCache clauseCache() {
-        // Hardcoded clause for phase 1
-        var ageAndIndication = new BinaryExpression(
-                new NumberConditionExpression(Condition.Field.AGE, Operator.GREATER_THAN, 50),
-                BinaryExpression.Operator.AND,
-                new StringConditionExpression(Condition.Field.INDICATION, "313"));
-        var existingDrugMedication = new ExistingDrugMedicationConditionExpression("ATC123", "*", "*");
-        var expression = new BinaryExpression(
-                ageAndIndication,
-                BinaryExpression.Operator.OR,
-                existingDrugMedication
-        );
-        var clause = new Clause("KRINI", UUID.randomUUID(), 10800, expression);
-        return new ClauseCache(List.of(clause));
+    public ClauseCache clauseCache(ClauseRepository<Clause> clauseRepository) {
+        return new ClauseCacheImpl(configuration.cache(), clauseRepository);
     }
 
     @Bean
-    public ClauseRepository clauseRepository(@Qualifier("appDataSource") DataSource dataSource){
+    public ClauseRepository<ClauseEntity> clauseRepository(@Qualifier("appDataSource") DataSource dataSource) {
         return new ClauseRepositoryImpl(dataSource);
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository) {
-        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
+    public ClauseRepository<Clause> clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
+        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseModelEntityMapper(new ExpressionModelEntityMapper()), new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
     }
 
     @Bean
-    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
+    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository) {
         return new ManagementServiceImpl(clauseRepository);
     }
 

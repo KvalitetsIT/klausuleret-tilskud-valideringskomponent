@@ -1,12 +1,9 @@
 package dk.kvalitetsit.itukt.common.configuration;
 
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.filters.GenericExceptionHandler;
 import dk.kvalitetsit.itukt.common.filters.RequestLogger;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
+import dk.kvalitetsit.itukt.common.repository.cache.CacheScheduler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +16,7 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.sql.DataSource;
-import java.io.IOException;
+import java.util.List;
 
 @Configuration
 @EnableTransactionManagement
@@ -66,7 +63,12 @@ public class CommonBeanRegistration {
     }
 
     @Bean
-    public OncePerRequestFilter genericExceptionHandler(){
+    public OncePerRequestFilter genericExceptionHandler() {
         return new GenericExceptionHandler();
+    }
+
+    @Bean
+    public CacheScheduler cacheScheduler(List<CacheLoader> loaders) {
+        return new CacheScheduler(loaders);
     }
 }

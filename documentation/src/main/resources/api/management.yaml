@@ -242,7 +242,6 @@ components:
         - $ref: "#/components/schemas/ClauseInput"
         - type: object
           required:
-            - version
             - uuid
           properties:
             uuid:
@@ -345,16 +344,12 @@ components:
       type: object
       required:
         - dsl
-        - number
         - uuid
       properties:
         uuid:
           type: string
           description: An unique id which is used to address a single clause
           format: uuid
-        version:
-          type: number
-          description: the version of the clause
         dsl:
           $ref: '#/components/schemas/Dsl'
 

@@ -19,7 +19,7 @@ public class GenericExceptionHandler extends OncePerRequestFilter {
         } catch (ApiException a) {
             throw a;
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t); // <- logger den oprindelige fejl, mens nedenstående "default" ServiceException kastes i stedet
+            logger.error(t.getMessage(), t);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Der skete en ukendt fejl\"}");

@@ -12,6 +12,6 @@ public record ExistingDrugMedicationConditionExpression(
 
     @Override
     public boolean matches(Object value) {
-        return false;
+        return false; // TODO: IUAKT-40
     }
 }

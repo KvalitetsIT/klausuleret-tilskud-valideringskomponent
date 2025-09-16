@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
 public enum ExpressionType {
-    CONDITION,
+    STRING_CONDITION,
+    NUMBER_CONDITION,
     BINARY
 }

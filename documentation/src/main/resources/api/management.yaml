@@ -253,23 +253,24 @@ components:
 
     Expression:
       type: object
-      description: "A polymorphic interface that represents an expression. It can be a simple condition and a binary expression combining other expressions"
+      description: "A polymorphic interface that represents an expression. It can be a condition or a binary expression combining other expressions"
       oneOf:
-        - $ref: '#/components/schemas/Condition'
+        - $ref: '#/components/schemas/StringCondition'
+        - $ref: '#/components/schemas/NumberCondition'
         - $ref: '#/components/schemas/BinaryExpression'
       discriminator:
         propertyName: type
         mapping:
-          Condition: '#/components/schemas/Condition'
+          StringCondition: '#/components/schemas/StringCondition'
+          NumberCondition: '#/components/schemas/NumberCondition'
           BinaryExpression: '#/components/schemas/BinaryExpression'
 
     Operator:
-      description: "The operator used in the condition"
+      description: "The operator used in a number condition"
       type: string
       example: "<="
       enum:
         - "="
-        - "i"
         - ">="
         - "<="
         - ">"
@@ -283,24 +284,37 @@ components:
         - "AND"
         - "OR"
 
-    Condition:
-      description: "A basic condition consisting of a field, an operator, and a list of values. This represents the most atomic form of an expression"
+    StringCondition:
+      description: "A basic condition consisting of a field and a string value. This represents the most atomic form of an expression"
       type: object
-      required: [ type, field, operator, values ]
+      required: [ type, field, value ]
+      properties:
+        field:
+          description: "The name of the field the condition applies to"
+          type: string
+        value:
+          description: "The value, that the field is compared against"
+          type: string
+        type:
+          type: string
+          description: "Identifies this object as a StringCondition expression"
+
+    NumberCondition:
+      description: "A basic condition consisting of a field, an operation and a number value. This represents the most atomic form of an expression"
+      type: object
+      required: [ type, field, operator, value ]
       properties:
         field:
           description: "The name of the field the condition applies to"
           type: string
         operator:
           $ref: '#/components/schemas/Operator'
-        values:
-          description: "A list of values the field is compared against"
-          type: array
-          items:
-            type: string
+        value:
+          description: "The value, that the field is compared against"
+          type: integer
         type:
           type: string
-          description: "Identifies this object as a Condition expression"
+          description: "Identifies this object as a StringCondition expression"
 
     BinaryExpression:
       description: "A compound expression combining two expressions with a binary operator such as AND or OR"

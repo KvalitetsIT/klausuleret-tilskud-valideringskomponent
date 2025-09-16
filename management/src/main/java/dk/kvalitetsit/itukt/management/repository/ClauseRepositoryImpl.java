@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -96,7 +97,8 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 .longValue();
 
         return switch (expression.withId(expressionId)) {
-            case ExpressionEntity.ConditionEntity e -> insertCondition(e);
+            case ExpressionEntity.StringConditionEntity e -> insertStringCondition(e);
+            case ExpressionEntity.NumberConditionEntity e -> insertNumberCondition(e);
             case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(e);
         };
     }
@@ -118,10 +120,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             ExpressionType type = ExpressionType.valueOf((String) row.get("type"));
             Long expressionId = ((Number) row.get("expression_id")).longValue();
 
-            ExpressionEntity expression = switch (type) {
-                case ExpressionType.CONDITION -> readCondition(expressionId);
-                case ExpressionType.BINARY -> readBinary(expressionId);
-            };
+            ExpressionEntity expression = readExpression(type, expressionId);
 
             return Optional.of(new ClauseEntity(id, uuid, name, expression));
 
@@ -131,6 +130,14 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             logger.error("Failed to read expression {}", uuid, e);
             throw new ServiceException("Failed to read expression", e);
         }
+    }
+
+    private ExpressionEntity readExpression(ExpressionType type, Long expressionId) {
+        return switch (type) {
+            case ExpressionType.STRING_CONDITION -> readStringCondition(expressionId);
+            case ExpressionType.NUMBER_CONDITION -> readNumberCondition(expressionId);
+            case ExpressionType.BINARY -> readBinary(expressionId);
+        };
     }
 
 
@@ -159,24 +166,28 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         }
     }
 
-    private ExpressionEntity.ConditionEntity insertCondition(ExpressionEntity.ConditionEntity condition) {
+    private ExpressionEntity.StringConditionEntity insertStringCondition(ExpressionEntity.StringConditionEntity condition) {
 
         template.update(
-                "INSERT INTO condition_expression(expression_id, field, operator) VALUES (:expression_id, :field, :operator)",
+                "INSERT INTO string_condition_expression(expression_id, field, value) VALUES (:expression_id, :field, :value)",
                 Map.of(
                         "expression_id", condition.id(),
-                        "field", condition.field(),
-                        "operator", condition.operator().getValue()
+                        "field", condition.field().name(),
+                        "value", condition.value()
                 ));
+        return condition;
+    }
 
-        for (String value : condition.values()) {
-            template.update(
-                    "INSERT INTO condition_value(condition_id, value) VALUES (:condition_id, :value)",
-                    Map.of(
-                            "condition_id", condition.id(),
-                            "value", value
-                    ));
-        }
+    private ExpressionEntity.NumberConditionEntity insertNumberCondition(ExpressionEntity.NumberConditionEntity condition) {
+
+        template.update(
+                "INSERT INTO number_condition_expression(expression_id, field, operator, value) VALUES (:expression_id, :field, :operator, :value)",
+                Map.of(
+                        "expression_id", condition.id(),
+                        "field", condition.field().name(),
+                        "operator", condition.operator().getValue(),
+                        "value", condition.value()
+                ));
         return condition;
     }
 
@@ -197,22 +208,27 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         return new ExpressionEntity.BinaryExpressionEntity(binary.id(), left, binary.operator(), right);
     }
 
-
-    private ExpressionEntity.ConditionEntity readCondition(long expressionId) {
-        var cond = template.queryForObject(
-                "SELECT field, operator FROM condition_expression WHERE expression_id = :id",
+    private ExpressionEntity.StringConditionEntity readStringCondition(long expressionId) {
+        return template.queryForObject(
+                "SELECT field, value FROM string_condition_expression WHERE expression_id = :id",
                 Map.of("id", expressionId),
-                (rs, rowNum) -> new Object[]{rs.getString("field"), rs.getString("operator")}
+                (rs, rowNum) -> new ExpressionEntity.StringConditionEntity(
+                        expressionId,
+                        Expression.Condition.Field.valueOf(rs.getString("field")),
+                        rs.getString("value"))
         );
-
-        List<String> values = template.query(
-                "SELECT value FROM condition_value WHERE condition_id = :id ORDER BY id",
-                Map.of("id", expressionId),
-                (rs, rowNum) -> rs.getString("value"));
-
-        return new ExpressionEntity.ConditionEntity(expressionId, (String) cond[0], Operator.fromValue((String) cond[1]), values);
     }
 
+    private ExpressionEntity.NumberConditionEntity readNumberCondition(long expressionId) {
+        return template.queryForObject(
+                "SELECT field, operator, value FROM number_condition_expression WHERE expression_id = :id",
+                Map.of("id", expressionId),
+                (rs, rowNum) -> new ExpressionEntity.NumberConditionEntity(
+                        expressionId,
+                        Expression.Condition.Field.valueOf(rs.getString("field")),
+                        Operator.fromValue(rs.getString("operator")),
+                        rs.getInt("value")));
+    }
 
     private ExpressionEntity readBinary(Long id) {
         return template.queryForObject(
@@ -221,7 +237,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 (rs, rowNum) -> new ExpressionEntity.BinaryExpressionEntity(
                         id,
                         readById(rs.getLong("left_id")).orElseThrow(),
-                        Expression.BinaryExpression.BinaryOperator.valueOf(rs.getString("operator")),
+                        BinaryExpression.Operator.valueOf(rs.getString("operator")),
                         readById(rs.getLong("right_id")).orElseThrow()
                 )
         );
@@ -234,7 +250,8 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             ExpressionType type = template.queryForObject(sql, Map.of("id", id), ExpressionType.class);
 
             return Optional.of(switch (type) {
-                case CONDITION -> readCondition(id);
+                case STRING_CONDITION -> readStringCondition(id);
+                case NUMBER_CONDITION -> readNumberCondition(id);
                 case BINARY -> readBinary(id);
             });
         } catch (EmptyResultDataAccessException e) {

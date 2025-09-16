@@ -1,12 +1,14 @@
 package dk.kvalitetsit.itukt.management.boundary;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.AbstractApiException;
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
-import org.openapitools.model.*;
+import org.openapitools.model.ClauseInput;
+import org.openapitools.model.ClauseOutput;
+import org.openapitools.model.DslInput;
+import org.openapitools.model.DslOutput;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,11 +38,7 @@ public class ManagementController implements ManagementApi {
     public ResponseEntity<DslOutput> call20250801clausesDslIdGet(UUID id) {
         return service.readDsl(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new AbstractApiException(
-                        HttpStatus.NOT_FOUND,
-                        DetailedError.DetailedErrorCodeEnum._10,
-                        "Clause was not found")
-                );
+                .orElseThrow(() -> new NotFoundException("Clause was not found"));
     }
 
     @Override
@@ -60,11 +58,7 @@ public class ManagementController implements ManagementApi {
     public ResponseEntity<ClauseOutput> call20250801clausesIdGet(UUID id) {
         return service.read(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new AbstractApiException(
-                        HttpStatus.NOT_FOUND,
-                        DetailedError.DetailedErrorCodeEnum._10,
-                        "Clause was not found"
-                ));
+                .orElseThrow(() -> new NotFoundException("Clause was not found"));
     }
 
     @Override

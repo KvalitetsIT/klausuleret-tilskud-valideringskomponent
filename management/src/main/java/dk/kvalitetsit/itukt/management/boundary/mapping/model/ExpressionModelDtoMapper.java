@@ -3,6 +3,8 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
+import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
 import org.openapitools.model.*;
 
 public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapitools.model.Expression> {
@@ -12,16 +14,21 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
     @Override
     public org.openapitools.model.Expression map(Expression expression) {
         return switch (expression) {
-            case Expression.BinaryExpression b -> this.map(b);
-            case Expression.Condition c -> this.map(c);
+            case dk.kvalitetsit.itukt.common.model.BinaryExpression b -> this.map(b);
+            case StringConditionExpression s -> this.map(s);
+            case NumberConditionExpression n -> this.map(n);
        };
     }
 
-    private Condition map(Expression.Condition b) {
-        return new Condition(b.field(), mapper.map(b.operator()), b.values(), "Condition");
+    private StringCondition map(StringConditionExpression s) {
+        return new StringCondition(s.field().name(), s.requiredValue(), "StringCondition");
     }
 
-    private BinaryExpression map(Expression.BinaryExpression b) {
+    private NumberCondition map(NumberConditionExpression n) {
+        return new NumberCondition(n.field().name(), mapper.map(n.operator()), n.value(), "NumberCondition");
+    }
+
+    private BinaryExpression map(dk.kvalitetsit.itukt.common.model.BinaryExpression b) {
         return new BinaryExpression(this.map(b.left()), BinaryOperator.fromValue(b.operator().toString()), this.map((b.right())), "BinaryExpression");
     }
 

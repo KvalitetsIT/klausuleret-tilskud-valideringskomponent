@@ -1,12 +1,12 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
 
-import java.util.List;
-
-public sealed interface ExpressionEntity
-        permits ExpressionEntity.ConditionEntity,
+public sealed interface ExpressionEntity permits
+        ExpressionEntity.StringConditionEntity,
+        ExpressionEntity.NumberConditionEntity,
         ExpressionEntity.BinaryExpressionEntity {
 
     ExpressionType type();
@@ -15,29 +15,47 @@ public sealed interface ExpressionEntity
 
     ExpressionEntity withId(Long newId);
 
-    record ConditionEntity(Long id, String field, Operator operator, List<String> values)
+    record StringConditionEntity(Long id, Expression.Condition.Field field, String value)
             implements ExpressionEntity {
 
-        public ConditionEntity(String field, Operator operator, List<String> values) {
-            this(null, field, operator, values);
+        public StringConditionEntity(Expression.Condition.Field field, String value) {
+            this(null, field, value);
         }
 
         @Override
         public ExpressionType type() {
-            return ExpressionType.CONDITION;
+            return ExpressionType.STRING_CONDITION;
         }
 
         @Override
-        public ConditionEntity withId(Long newId) {
-            return new ConditionEntity(newId, field, operator, values);
+        public StringConditionEntity withId(Long newId) {
+            return new StringConditionEntity(newId, field, value);
         }
     }
 
-    record BinaryExpressionEntity(Long id, ExpressionEntity left, Expression.BinaryExpression.BinaryOperator operator,
+    record NumberConditionEntity(Long id, Expression.Condition.Field field, Operator operator, int value)
+            implements ExpressionEntity {
+
+        public NumberConditionEntity(Expression.Condition.Field field, Operator operator, int value) {
+            this(null, field, operator, value);
+        }
+
+        @Override
+        public ExpressionType type() {
+            return ExpressionType.NUMBER_CONDITION;
+        }
+
+        @Override
+        public NumberConditionEntity withId(Long newId) {
+            return new NumberConditionEntity(newId, field, operator, value);
+        }
+    }
+
+    record BinaryExpressionEntity(Long id, ExpressionEntity left, BinaryExpression.Operator operator,
                                   ExpressionEntity right)
             implements ExpressionEntity {
 
-        public BinaryExpressionEntity(ExpressionEntity left, Expression.BinaryExpression.BinaryOperator operator, ExpressionEntity right) {
+        public BinaryExpressionEntity(ExpressionEntity left, BinaryExpression.Operator operator, ExpressionEntity right) {
             this(null, left, operator, right);
         }
 

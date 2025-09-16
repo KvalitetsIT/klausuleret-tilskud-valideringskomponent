@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.common.model;
 
 public enum Operator {
     EQUAL("="),
-    IN("i"),
     GREATER_THAN_OR_EQUAL_TO(">="),
     LESS_THAN_OR_EQUAL_TO("<="),
     GREATER_THAN(">"),

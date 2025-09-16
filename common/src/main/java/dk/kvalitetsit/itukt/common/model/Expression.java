@@ -1,15 +1,18 @@
 package dk.kvalitetsit.itukt.common.model;
 
 
-import java.util.List;
+public sealed interface Expression permits Expression.Condition, BinaryExpression {
+    boolean validates(ValidationInput validationInput);
 
-public sealed interface Expression permits Expression.Condition, Expression.BinaryExpression {
+    sealed interface Condition extends Expression permits StringConditionExpression, NumberConditionExpression {
+        enum Field {AGE, INDICATION}
 
-    record Condition(String field, Operator operator, List<String> values) implements Expression {
+        boolean matches(Object value);
+        Field field();
+
+        @Override
+        default boolean validates(ValidationInput validationInput) {
+            return matches(validationInput.getByField(field()));
+        }
     }
-
-    record BinaryExpression(Expression left, BinaryOperator operator, Expression right) implements Expression {
-        public enum BinaryOperator {OR, AND}
-    }
-
 }

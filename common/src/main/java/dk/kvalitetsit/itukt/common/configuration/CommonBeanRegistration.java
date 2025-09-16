@@ -61,7 +61,7 @@ public class CommonBeanRegistration {
     }
 
     @Bean
-    public OncePerRequestFilter oncePerRequestFilter() {
+    public OncePerRequestFilter requestLogger() {
         return new RequestLogger();
     }
 

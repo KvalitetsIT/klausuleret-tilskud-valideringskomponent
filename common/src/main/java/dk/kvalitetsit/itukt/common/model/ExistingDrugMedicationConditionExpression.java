@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.common.model;
 
-import java.util.Collection;
+import java.util.List;
 
 public record ExistingDrugMedicationConditionExpression(
         String atcCode,
@@ -8,16 +8,12 @@ public record ExistingDrugMedicationConditionExpression(
         String routeOfAdministrationCode) implements Expression.Condition {
 
     @Override
-    public Field field() {
-        return Field.EXISTING_DRUG_MEDICATION;
+    public boolean validates(ValidationInput validationInput) {
+        List<ExistingDrugMedication> existingDrugMedication = validationInput.existingDrugMedication();
+        return existingDrugMedication.stream().anyMatch(this::itemMatches);
     }
 
-    @Override
-    public boolean matches(Object value) {
-        return value instanceof Collection<?> valueList && valueList.stream().anyMatch(this::itemMatches);
-    }
-
-    private boolean itemMatches(Object value) {
+    private boolean itemMatches(ExistingDrugMedication value) {
         return value instanceof ExistingDrugMedication(String atcCodeValue, String formCodeValue, String routeOfAdministrationCodeValue) &&
                 valueMatchesCondition(atcCodeValue, this.atcCode) &&
                 valueMatchesCondition(formCodeValue, this.formCode) &&

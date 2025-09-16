@@ -1,13 +1,12 @@
 package dk.kvalitetsit.itukt.management.boundary;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.AbstractApiException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
-import org.openapitools.model.ClauseInput;
-import org.openapitools.model.ClauseOutput;
-import org.openapitools.model.DslInput;
-import org.openapitools.model.DslOutput;
+import org.openapitools.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,18 +36,18 @@ public class ManagementController implements ManagementApi {
     public ResponseEntity<DslOutput> call20250801clausesDslIdGet(UUID id) {
         return service.readDsl(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new RuntimeException("Clause was not found"));
+                .orElseThrow(() -> new AbstractApiException(
+                        HttpStatus.NOT_FOUND,
+                        DetailedError.DetailedErrorCodeEnum._10,
+                        "Clause was not found")
+                );
     }
 
     @Override
     public ResponseEntity<DslOutput> call20250801clausesDslPost(DslInput dslInput) {
         var created = this.service.createDSL(dslInput);
-
         UUID uuid = created.getUuid();
-
-
         URI location = getLocation(c -> c.call20250801clausesDslIdGet(uuid), uuid);
-
         return ResponseEntity.created(location).body(created);
     }
 
@@ -67,10 +66,8 @@ public class ManagementController implements ManagementApi {
     @Override
     public ResponseEntity<ClauseOutput> call20250801clausesPost(ClauseInput clause) {
         var created = service.create(clause);
-
         UUID uuid = created.getUuid();
         URI location = getLocation(c -> c.call20250801clausesIdGet(uuid), uuid);
-
         return ResponseEntity.created(location).body(created);
     }
 

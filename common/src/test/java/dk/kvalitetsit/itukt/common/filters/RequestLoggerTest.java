@@ -32,6 +32,7 @@ class RequestLoggerTest {
         try (MockedStatic<LoggerFactory> mockedFactory = Mockito.mockStatic(LoggerFactory.class)) {
             // Change this line to handle any logger request
             mockedFactory.when(() -> LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(mockLogger);
+            mockedFactory.when(() -> LoggerFactory.getLogger(Mockito.any(String.class))).thenReturn(mockLogger);
 
             var registration = new CommonBeanRegistration(CONFIG);
             var filter = registration.oncePerRequestFilter();

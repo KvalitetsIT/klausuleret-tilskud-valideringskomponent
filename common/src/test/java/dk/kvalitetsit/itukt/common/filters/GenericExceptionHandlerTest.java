@@ -1,22 +1,17 @@
 package dk.kvalitetsit.itukt.common.filters;
 
-import dk.kvalitetsit.itukt.common.configuration.CommonBeanRegistration;
 import dk.kvalitetsit.itukt.common.exceptions.GenericApiException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import static dk.kvalitetsit.itukt.common.Mock.CONFIG;
-
 class GenericExceptionHandlerTest {
 
     @Test
     void testGenericExceptionHandlerHandlesRuntimeExceptions() {
-        var registration = new CommonBeanRegistration(CONFIG);
-        var filter = registration.genericExceptionHandler();
+        var filter = new GenericExceptionHandler();
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/whatever");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -31,8 +26,7 @@ class GenericExceptionHandlerTest {
 
     @Test
     void testGenericExceptionHandlerThrowsServiceExceptions() {
-        var registration = new CommonBeanRegistration(CONFIG);
-        var filter = registration.genericExceptionHandler();
+        var filter = new GenericExceptionHandler();
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/whatever");
         MockHttpServletResponse response = new MockHttpServletResponse();

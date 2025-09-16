@@ -120,11 +120,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             ExpressionType type = ExpressionType.valueOf((String) row.get("type"));
             Long expressionId = ((Number) row.get("expression_id")).longValue();
 
-            ExpressionEntity expression = switch (type) {
-                case ExpressionType.STRING_CONDITION -> readStringCondition(expressionId);
-                case ExpressionType.NUMBER_CONDITION -> readNumberCondition(expressionId);
-                case ExpressionType.BINARY -> readBinary(expressionId);
-            };
+            ExpressionEntity expression = readExpression(type, expressionId);
 
             return Optional.of(new ClauseEntity(id, uuid, name, expression));
 
@@ -134,6 +130,14 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             logger.error("Failed to read expression {}", uuid, e);
             throw new ServiceException("Failed to read expression", e);
         }
+    }
+
+    private ExpressionEntity readExpression(ExpressionType type, Long expressionId) {
+        return switch (type) {
+            case ExpressionType.STRING_CONDITION -> readStringCondition(expressionId);
+            case ExpressionType.NUMBER_CONDITION -> readNumberCondition(expressionId);
+            case ExpressionType.BINARY -> readBinary(expressionId);
+        };
     }
 
 

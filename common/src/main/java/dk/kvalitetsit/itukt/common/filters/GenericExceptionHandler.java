@@ -1,11 +1,9 @@
 package dk.kvalitetsit.itukt.common.filters;
 
 import dk.kvalitetsit.itukt.common.exceptions.ApiException;
-import dk.kvalitetsit.itukt.common.exceptions.GenericApiException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.openapitools.model.DetailedError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 

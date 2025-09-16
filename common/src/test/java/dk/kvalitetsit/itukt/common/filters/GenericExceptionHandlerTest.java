@@ -1,16 +1,16 @@
 package dk.kvalitetsit.itukt.common.filters;
 
-import dk.kvalitetsit.itukt.common.exceptions.GenericApiException;
+import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 class GenericExceptionHandlerTest {
 
@@ -38,14 +38,17 @@ class GenericExceptionHandlerTest {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/whatever");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        var se = new GenericApiException();
+        var se = Mockito.mock(ApiException.class);
+
+        Mockito.when(se.getMessage()).thenReturn("blah");
 
         FilterChain chain = (req, res) -> {
             throw se;
         };
-        GenericApiException thrown = Assertions.assertThrows(GenericApiException.class, () -> filter.doFilter(request, response, chain));
 
-        Assertions.assertEquals(new GenericApiException().getMessage(), thrown.getMessage());
+        ApiException thrown = Assertions.assertThrows(ApiException.class, () -> filter.doFilter(request, response, chain));
+
+        Assertions.assertEquals("blah", thrown.getMessage());
     }
 
 }

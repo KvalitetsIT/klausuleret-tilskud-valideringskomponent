@@ -60,7 +60,11 @@ public class ManagementController implements ManagementApi {
     public ResponseEntity<ClauseOutput> call20250801clausesIdGet(UUID id) {
         return service.read(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new RuntimeException("Clause was not found"));
+                .orElseThrow(() -> new AbstractApiException(
+                        HttpStatus.NOT_FOUND,
+                        DetailedError.DetailedErrorCodeEnum._10,
+                        "Clause was not found")
+                );
     }
 
     @Override

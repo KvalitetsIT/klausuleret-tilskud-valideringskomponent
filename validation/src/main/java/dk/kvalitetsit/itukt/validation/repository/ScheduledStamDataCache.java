@@ -18,7 +18,7 @@ public class ScheduledStamDataCache {
     private final CacheConfiguration configuration;
 
     private final StamDataRepository concreteStamDataRepository;
-    private Map<Long, StamdataEntity> drugIdToClauseMap = new HashMap<>();
+    private Map<Long, StamdataEntity.Clause> drugIdToClauseMap = new HashMap<>();
 
     public ScheduledStamDataCache(CacheConfiguration configuration, StamDataRepository concreteStamDataRepository) {
         this.configuration = configuration;

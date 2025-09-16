@@ -4,7 +4,10 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 
-public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.model.Clause> {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.model.ClauseOutput> {
 
     private final Mapper<Expression, org.openapitools.model.Expression> expressionModelMapper;
 
@@ -13,10 +16,12 @@ public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.mod
     }
 
     @Override
-    public org.openapitools.model.Clause map(Clause entry) {
-        var dto = new org.openapitools.model.Clause(
+    public org.openapitools.model.ClauseOutput map(Clause entry) {
+        var dto = new org.openapitools.model.ClauseOutput(
                 entry.name(),
-                this.expressionModelMapper.map(entry.expression()));
+                this.expressionModelMapper.map(entry.expression()),
+                entry.uuid().get()
+        );
         entry.uuid().ifPresent(dto::uuid);
         return dto;
     }

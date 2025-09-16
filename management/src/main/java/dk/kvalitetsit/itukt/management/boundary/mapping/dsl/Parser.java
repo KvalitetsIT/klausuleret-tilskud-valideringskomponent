@@ -80,11 +80,11 @@ class Parser {
      *
      * @return the parsed {@code Expression}
      */
-    protected Clause parseClause() {
+    protected ClauseInput parseClause() {
         expect("Klausul");
         Token name = next();
         expect(":");
-        return new Clause(name.text(), parseExpression());
+        return new ClauseInput(name.text(), parseExpression());
     }
 
     /**

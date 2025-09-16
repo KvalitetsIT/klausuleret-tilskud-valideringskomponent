@@ -30,7 +30,7 @@ class ClauseModelDtoMapperTest {
 
     @Test
     void map() {
-        Assertions.assertEquals(MockFactory.CLAUSE_1_DTO, this.mapper.map(MockFactory.CLAUSE_1_MODEL));
+        Assertions.assertEquals(MockFactory.CLAUSE_1_OUTPUT, this.mapper.map(MockFactory.CLAUSE_1_MODEL));
     }
 
 }

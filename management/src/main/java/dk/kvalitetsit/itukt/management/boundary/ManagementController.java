@@ -63,8 +63,8 @@ public class ManagementController implements ManagementApi {
                 .orElseThrow(() -> new AbstractApiException(
                         HttpStatus.NOT_FOUND,
                         DetailedError.DetailedErrorCodeEnum._10,
-                        "Clause was not found")
-                );
+                        "Clause was not found"
+                ));
     }
 
     @Override

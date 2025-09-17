@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.validation.service;
 
+import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.openapitools.model.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,8 +47,8 @@ class ValidationServiceAdaptorTest {
         validationServiceAdaptor.validate(request);
 
         var expectedExistingDrugMedication = new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existingDrugMedication.getAtcCode(), existingDrugMedication.getFormCode(), existingDrugMedication.getRouteOfAdministrationCode());
-        ValidationInput expectedValidationInput1 = new ValidationInput(request.getAge(), validate1.getNewDrugMedication().getDrugIdentifier(), validate1.getNewDrugMedication().getIndicationCode(), List.of(expectedExistingDrugMedication));
-        ValidationInput expectedValidationInput2 = new ValidationInput(request.getAge(), validate2.getNewDrugMedication().getDrugIdentifier(), validate2.getNewDrugMedication().getIndicationCode(), List.of(expectedExistingDrugMedication));
+        ValidationInput expectedValidationInput1 = new ValidationInput(request.getAge(), validate1.getNewDrugMedication().getDrugIdentifier(), validate1.getNewDrugMedication().getIndicationCode(), Optional.of(List.of(expectedExistingDrugMedication)));
+        ValidationInput expectedValidationInput2 = new ValidationInput(request.getAge(), validate2.getNewDrugMedication().getDrugIdentifier(), validate2.getNewDrugMedication().getIndicationCode(), Optional.of(List.of(expectedExistingDrugMedication)));
         Mockito.verify(validationService).validate(Mockito.eq(expectedValidationInput1));
         Mockito.verify(validationService).validate(Mockito.eq(expectedValidationInput2));
     }
@@ -95,6 +97,19 @@ class ValidationServiceAdaptorTest {
         var responseError2 = responseErrors.get(validationError2.clauseCode());
         assertEquals(validationError2.clauseText(), responseError2.getClauseText());
         assertEquals(validate2.getElementPath(), responseError2.getElementPath());
+    }
+
+    @Test
+    void validate_WhenExistingDrugMedicationsRequiredExceptionIsThrown_ReturnsValidationNotPossible() {
+        Validate validate = createValidate(1L, "1234", "path1");
+        ValidationRequest request = createValidationRequest(10, List.of(), validate);
+        Mockito.when(validationService.validate(Mockito.any()))
+                .thenThrow(ExistingDrugMedicationRequiredException.class);
+
+        ValidationResponse response = validationServiceAdaptor.validate(request);
+
+        var notPossibleResponse = assertInstanceOf(ValidationNotPossible.class, response);
+        assertEquals(ValidationNotPossible.ReasonEnum.EXISTING_DRUG_MEDICATIONS_REQUIRED, notPossibleResponse.getReason());
     }
 
     private ValidationRequest createValidationRequest(int age, List<ExistingDrugMedication> existingDrugMedication, Validate ... validates) {

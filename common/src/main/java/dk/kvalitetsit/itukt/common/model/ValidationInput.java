@@ -1,12 +1,13 @@
 package dk.kvalitetsit.itukt.common.model;
 
 import java.util.List;
+import java.util.Optional;
 
 public record ValidationInput(
         int citizenAge,
         long drugId,
         String indicationCode,
-        List<ExistingDrugMedication> existingDrugMedication) {
+        Optional<List<ExistingDrugMedication>> existingDrugMedication) {
 
     public Object getByField(Expression.Condition.Field field) {
         return switch (field) {

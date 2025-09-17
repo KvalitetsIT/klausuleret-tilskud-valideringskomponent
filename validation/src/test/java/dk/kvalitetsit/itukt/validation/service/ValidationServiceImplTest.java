@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +33,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {
-        var validationInput = new ValidationInput(5, 1234, "", List.of());
+        var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.empty());
 
         var result = service.validate(validationInput);
@@ -44,7 +43,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenClauseCacheDoesNotContainClauseForDrugId_ReturnsSuccess() {
-        var validationInput = new ValidationInput(5, 1234, "", List.of());
+        var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
         var stamdataClause = new ClauseEntity("0000", null, null, null, null, null, null);
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(stamdataClause.kode())).thenReturn(Optional.empty());
@@ -56,7 +55,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationSucceeds_ReturnsSuccess() {
-        var validationInput = new ValidationInput(5, 1234, "", List.of());
+        var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
         var stamdataClause = new ClauseEntity("0000", null, null, null, null, null, null);
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(stamdataClause.kode(), Optional.empty(), expression);
@@ -73,7 +72,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationFails_ReturnsValidationError() {
-        var validationInput = new ValidationInput(5, 1234, "", List.of());
+        var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
         var stamdataClause = new ClauseEntity("0000", null, null, null, null, "clause text", null);
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(stamdataClause.kode(), Optional.empty(), expression);

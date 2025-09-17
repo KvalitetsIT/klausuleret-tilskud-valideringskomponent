@@ -32,7 +32,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         var clauses = List.of(MockFactory.CLAUSE_1_ENTITY, MockFactory.CLAUSE_1_ENTITY);
 
-        var written = clauses.stream().map(this.repository::create).toList();
+        var written = clauses.stream().map(clause -> repository.create(clause.name(), clause.expression())).toList();
         var read = this.repository.readAll();
         assertEquals(clauses.size(), read.size());
         for (int i = 0; i < written.size(); i++) {
@@ -56,7 +56,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     void assertExceptionWhen199IsExceeded() {
         Assertions.assertThrowsExactly(
                 ServiceException.class,
-                () -> IntStream.rangeClosed(10800, 11000).parallel().mapToObj((i) -> MockFactory.CLAUSE_1_ENTITY).forEach(this.repository::create),
+                () -> IntStream.rangeClosed(10800, 11000).parallel().mapToObj((i) -> MockFactory.CLAUSE_1_ENTITY).forEach(clause -> repository.create(clause.name(), clause.expression())),
                 "An error is expected since only 199 clauses should be creatable as the limit of error code would be exceeded otherwise"
         );
     }
@@ -66,7 +66,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         final int OFFSET = 10800;
         final int LIMIT = 200;
 
-        var written = IntStream.range(OFFSET, OFFSET + LIMIT).parallel().mapToObj((i) -> MockFactory.CLAUSE_1_ENTITY).map(this.repository::create).toList();
+        var written = IntStream.range(OFFSET, OFFSET + LIMIT).parallel().mapToObj((i) -> MockFactory.CLAUSE_1_ENTITY).map(clause -> repository.create(clause.name(), clause.expression())).toList();
 
         Assertions.assertEquals(LIMIT, written.size(), LIMIT + " written clauses is expected since FMK only allocates error codes from " + LIMIT + " - " + (OFFSET + LIMIT - 1));
 

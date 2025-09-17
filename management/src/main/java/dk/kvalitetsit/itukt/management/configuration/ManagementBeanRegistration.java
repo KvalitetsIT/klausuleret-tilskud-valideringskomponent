@@ -11,10 +11,8 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDto
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
-import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseModelEntityMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
@@ -58,22 +56,22 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseRepository<ClauseEntity> clauseRepository(@Qualifier("appDataSource") DataSource dataSource){
+    public ClauseRepository clauseRepository(@Qualifier("appDataSource") DataSource dataSource){
         return new ClauseRepositoryImpl(dataSource);
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
-        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseModelEntityMapper(new ExpressionModelEntityMapper()), new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
+    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository) {
+        return new ClauseRepositoryAdaptor(clauseRepository, new ExpressionModelEntityMapper(), new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
     }
 
     @Bean
-    public ManagementService<Clause> managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
+    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
         return new ManagementServiceImpl(clauseRepository);
     }
 
     @Bean
-    public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService<Clause> managementService) {
+    public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService managementService) {
         return new ManagementServiceAdaptor(
                 managementService,
                 new ClauseDtoModelMapper(new ExpressionDtoModelMapper()),

@@ -20,7 +20,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import javax.sql.DataSource;
 import java.util.*;
 
-public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
+public class ClauseRepositoryImpl implements ClauseRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
@@ -32,19 +32,19 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     }
 
     @Override
-    public ClauseEntity create(ClauseEntity clause) throws ServiceException {
+    public ClauseEntity create(String name, ExpressionEntity expression) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            ExpressionEntity expression = create(clause.expression());
+            ExpressionEntity createdExpression = create(expression);
 
             template.update(
                     "INSERT INTO clause (uuid, name, expression_id) VALUES (:uuid, :name, :expression_id)",
                     new MapSqlParameterSource()
                             .addValue("uuid", uuid.toString())
-                            .addValue("name", clause.name())
-                            .addValue("expression_id", expression.id()),
+                            .addValue("name", name)
+                            .addValue("expression_id", createdExpression.id()),
                     keyHolder,
                     new String[]{"id"}
             );
@@ -53,9 +53,9 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            createErrorCode(clause.name());
+            createErrorCode(name);
 
-            return new ClauseEntity(clauseId, uuid, clause.name(), expression);
+            return new ClauseEntity(clauseId, uuid, name, createdExpression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);

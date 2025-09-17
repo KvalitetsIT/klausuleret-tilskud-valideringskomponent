@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.Expression;
 import org.openapitools.model.ClauseInput;
 import org.openapitools.model.ClauseOutput;
 import org.openapitools.model.DslInput;
@@ -15,34 +16,33 @@ import java.util.UUID;
 public class ManagementServiceAdaptor {
 
     private final ManagementService clauseService;
-    private final Mapper<ClauseInput, dk.kvalitetsit.itukt.common.model.Clause> dtoClauseMapper;
+    private final Mapper<org.openapitools.model.Expression, Expression> expressionMapper;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
     private final Mapper<String, ClauseInput> dslClauseMapper;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper;
 
     public ManagementServiceAdaptor(
-            ManagementService clauseService,
-            Mapper<ClauseInput, dk.kvalitetsit.itukt.common.model.Clause> dtoModelMapper,
+            ManagementService clauseService, Mapper<org.openapitools.model.Expression, Expression> expressionMapper,
             Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
             Mapper<String, ClauseInput> dslClauseMapper,
             Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper
     ) {
         this.clauseService = clauseService;
-        this.dtoClauseMapper = dtoModelMapper;
+        this.expressionMapper = expressionMapper;
         this.clauseDtoMapper = modelDtoMapper;
         this.dslClauseMapper = dslClauseMapper;
         this.clauseDslMapper = clauseDslMapper;
     }
 
     public ClauseOutput create(ClauseInput entry) throws ServiceException {
-        var model = dtoClauseMapper.map(entry);
-        return clauseDtoMapper.map(clauseService.create(model));
+        Expression expression = expressionMapper.map(entry.getExpression());
+        return clauseDtoMapper.map(clauseService.create(entry.getName(), expression));
     }
 
     public DslOutput createDSL(DslInput dsl) throws ServiceException {
         var clause = this.dslClauseMapper.map(dsl.getDsl());
-        var model = this.dtoClauseMapper.map(clause);
-        return clauseDslMapper.map(clauseService.create(model));
+        Expression expression = expressionMapper.map(clause.getExpression());
+        return clauseDslMapper.map(clauseService.create(clause.getName(), expression));
     }
 
     public Optional<ClauseOutput> read(UUID id) throws ServiceException {

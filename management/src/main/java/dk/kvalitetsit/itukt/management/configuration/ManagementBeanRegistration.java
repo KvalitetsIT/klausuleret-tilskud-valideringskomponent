@@ -5,7 +5,6 @@ import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ClauseDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
@@ -24,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.common.model.Expression.Condition;
@@ -51,7 +49,7 @@ public class ManagementBeanRegistration {
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
-        var clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
+        var clause = new Clause("KRINI", UUID.randomUUID(), expression);
         return new ClauseCache(List.of(clause));
     }
 
@@ -74,7 +72,7 @@ public class ManagementBeanRegistration {
     public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService managementService) {
         return new ManagementServiceAdaptor(
                 managementService,
-                new ClauseDtoModelMapper(new ExpressionDtoModelMapper()),
+                new ExpressionDtoModelMapper(),
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
                 new ClauseDslModelMapper(),
                 new ClauseModelDslMapper(new ExpressionModelDslMapper())

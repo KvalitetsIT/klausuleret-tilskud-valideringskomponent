@@ -23,9 +23,9 @@ public class ClauseRepositoryAdaptor {
         this.entityMapper = entityMapper;
     }
 
-    public Clause create(Clause entry) throws ServiceException {
-        var expression = expressionMapper.map(entry.expression());
-        var createdClause = clauseRepository.create(entry.name(), expression);
+    public Clause create(String name, Expression expression) throws ServiceException {
+        var expressionEntity = expressionMapper.map(expression);
+        var createdClause = clauseRepository.create(name, expressionEntity);
         return entityMapper.map(createdClause);
     }
 

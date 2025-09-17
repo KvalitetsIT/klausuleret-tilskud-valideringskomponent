@@ -1,9 +1,6 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import org.junit.jupiter.api.Test;
@@ -17,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 class ManagementServiceImplTest {
@@ -29,16 +25,16 @@ class ManagementServiceImplTest {
     @Test
     void testCreate() {
         var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.create(Mockito.any(Clause.class))).thenReturn(model);
-        var result = service.create(model);
+        Mockito.when(dao.create(model.name(), model.expression())).thenReturn(model);
+        var result = service.create(model.name(), model.expression());
         assertEquals(model, result);
     }
 
     @Test
     void testRead() {
         var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.read(model.uuid().get())).thenReturn(Optional.of(model));
-        var result = service.read(model.uuid().get());
+        Mockito.when(dao.read(model.uuid())).thenReturn(Optional.of(model));
+        var result = service.read(model.uuid());
         assertEquals(Optional.of(model), result);
     }
 

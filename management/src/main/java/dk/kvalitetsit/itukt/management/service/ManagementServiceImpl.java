@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 
 import java.util.List;
@@ -18,8 +19,8 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause create(Clause entry) throws ServiceException {
-        return repository.create(entry);
+    public Clause create(String name, Expression expression) throws ServiceException {
+        return repository.create(name, expression);
     }
 
     @Override

@@ -58,7 +58,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
         var stamdataClause = new ClauseEntity("0000", null, null, null, null, null, null);
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(stamdataClause.kode(), Optional.empty(), expression);
+        var clause = new Clause(stamdataClause.kode(), null, expression);
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(true);
@@ -75,7 +75,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
         var stamdataClause = new ClauseEntity("0000", null, null, null, null, "clause text", null);
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(stamdataClause.kode(), Optional.empty(), expression);
+        var clause = new Clause(stamdataClause.kode(), null, expression);
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(false);

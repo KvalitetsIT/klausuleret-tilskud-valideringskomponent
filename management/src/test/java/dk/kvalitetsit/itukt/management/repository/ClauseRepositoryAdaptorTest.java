@@ -47,21 +47,20 @@ public class ClauseRepositoryAdaptorTest {
 
     @Test
     void testCreate() {
-        var inputClause = Mockito.mock(Clause.class);
+        var name = "test";
+        var expression = Mockito.mock(StringConditionExpression.class);
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var expressionEntity = Mockito.mock(ExpressionEntity.StringConditionEntity.class);
-        Mockito.when(inputClause.expression()).thenReturn(Mockito.mock(StringConditionExpression.class));
-        Mockito.when(inputClause.name()).thenReturn("testName");
-        Mockito.when(expressionMapper.map(inputClause.expression())).thenReturn(expressionEntity);
-        Mockito.when(concreteRepository.create(inputClause.name(), expressionEntity)).thenReturn(clauseEntity);
+        Mockito.when(expressionMapper.map(expression)).thenReturn(expressionEntity);
+        Mockito.when(concreteRepository.create(name, expressionEntity)).thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 
-        var result = adaptor.create(inputClause);
+        var result = adaptor.create(name, expression);
 
         assertEquals(outputClause, result);
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).create(inputClause.name(), expressionEntity);
+        Mockito.verify(concreteRepository, Mockito.times(1)).create(name, expressionEntity);
     }
 
     @Test

@@ -15,6 +15,6 @@ public class ClauseModelDslMapper implements Mapper<Clause, DslOutput> {
 
     @Override
     public DslOutput map(Clause entry) {
-        return new DslOutput(entry.uuid().get(), "Klausul " + entry.name() + ": " + this.expressionDslMapper.map(entry.expression()));
+        return new DslOutput(entry.uuid(), "Klausul " + entry.name() + ": " + this.expressionDslMapper.map(entry.expression()));
     }
 }

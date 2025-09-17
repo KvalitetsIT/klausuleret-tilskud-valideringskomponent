@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.common;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.AbstractApiException;
+import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
 import org.openapitools.model.BasicError;
@@ -36,8 +36,8 @@ public class ErrorController {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler(AbstractApiException.class)
-    public ResponseEntity<DetailedError> handleApiException(AbstractApiException e, HttpServletRequest request) {
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<DetailedError> handleApiException(ApiException e, HttpServletRequest request) {
         logger.debug("Handling ApiException: {}", e.getHttpStatus(), e);
         var error = new DetailedError()
                 .path(request.getRequestURI())

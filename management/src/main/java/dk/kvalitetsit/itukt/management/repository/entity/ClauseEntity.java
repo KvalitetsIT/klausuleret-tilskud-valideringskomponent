@@ -7,9 +7,4 @@ public record ClauseEntity(
         UUID uuid,
         String name,
         ExpressionEntity expression) {
-
-
-    public ClauseEntity(String name, ExpressionEntity expression) {
-        this(null, null, name, expression);
-    }
 }

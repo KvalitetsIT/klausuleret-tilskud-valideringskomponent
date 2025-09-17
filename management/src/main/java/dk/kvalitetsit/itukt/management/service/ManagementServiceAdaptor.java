@@ -14,14 +14,14 @@ import java.util.UUID;
 
 public class ManagementServiceAdaptor {
 
-    private final ManagementService<dk.kvalitetsit.itukt.common.model.Clause> clauseService;
+    private final ManagementService clauseService;
     private final Mapper<ClauseInput, dk.kvalitetsit.itukt.common.model.Clause> dtoClauseMapper;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
     private final Mapper<String, ClauseInput> dslClauseMapper;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper;
 
     public ManagementServiceAdaptor(
-            ManagementService<dk.kvalitetsit.itukt.common.model.Clause> clauseService,
+            ManagementService clauseService,
             Mapper<ClauseInput, dk.kvalitetsit.itukt.common.model.Clause> dtoModelMapper,
             Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
             Mapper<String, ClauseInput> dslClauseMapper,

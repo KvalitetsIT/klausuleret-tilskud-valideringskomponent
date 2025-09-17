@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.common.model;
 
-import java.util.List;
+import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 
 public record ExistingDrugMedicationConditionExpression(
         String atcCode,
@@ -9,7 +9,8 @@ public record ExistingDrugMedicationConditionExpression(
 
     @Override
     public boolean validates(ValidationInput validationInput) {
-        List<ExistingDrugMedication> existingDrugMedication = validationInput.existingDrugMedication();
+        var existingDrugMedication = validationInput.existingDrugMedication()
+                .orElseThrow(ExistingDrugMedicationRequiredException::new);
         return existingDrugMedication.stream().anyMatch(this::itemMatches);
     }
 

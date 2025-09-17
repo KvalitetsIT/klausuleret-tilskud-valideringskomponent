@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.validation.service;
 
+import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
 import org.openapitools.model.*;
@@ -21,6 +22,14 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
 
     @Override
     public ValidationResponse validate(ValidationRequest request) {
+        try {
+            return validateAll(request);
+        } catch (ExistingDrugMedicationRequiredException e) {
+            return new ValidationNotPossible().reason(ValidationNotPossible.ReasonEnum.EXISTING_DRUG_MEDICATIONS_REQUIRED);
+        }
+    }
+
+    private ValidationResponse validateAll(ValidationRequest request) {
         var validationErrors = request.getValidate().stream()
                 .flatMap(validate -> validate(request, validate).stream())
                 .toList();
@@ -34,7 +43,8 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
         var result = validationService.validate(validationInput);
         return switch (result) {
             case dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess ignored -> Optional.empty();
-            case dk.kvalitetsit.itukt.validation.service.model.ValidationError error -> Optional.of(mapValidationError(validate, error));
+            case dk.kvalitetsit.itukt.validation.service.model.ValidationError error ->
+                    Optional.of(mapValidationError(validate, error));
         };
     }
 
@@ -49,9 +59,10 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
     }
 
     private ValidationInput mapToValidationInput(ValidationRequest validationRequest, Validate validate) {
-        var existingDrugMedication = validationRequest.getExistingDrugMedications().get().stream()
-                .map(this::mapExistingDrugMedication)
-                .toList();
+        var existingDrugMedication = Optional.ofNullable(validationRequest.getExistingDrugMedications().orElse(null))
+                .map(e -> e.stream()
+                        .map(this::mapExistingDrugMedication)
+                        .toList());
         return new ValidationInput(
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),

@@ -1,119 +1,96 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
-import dk.kvalitetsit.itukt.Application;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 
-@SuppressWarnings("resource")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Application.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class BaseTest {
+
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
-    private static final boolean runInDocker = Boolean.getBoolean("runInDocker");
 
-    private static final ComposeContainer environment = createEnvironment();
-    protected static ApiClient client;
-    @LocalServerPort
-    protected int localServerPort;
+    protected static final ComposeContainer environment = new ComposeContainer(getComposeFile())
+            .withServices("itukt-db", "stamdata-db")
+            .withExposedService("itukt-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+            .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+            .withLogConsumer("itukt-db", new Slf4jLogConsumer(logger).withPrefix("itukt-db"))
+            .withLogConsumer("stamdata-db", new Slf4jLogConsumer(logger).withPrefix("stamdata-db"))
+            .withLocalCompose(true);
 
-    private static ComposeContainer createEnvironment() {
+    protected static Component component;
+    protected ApiClient client;
+
+    protected Database appDatabase;
+    protected Database stamDatabase;
+
+    public static File getComposeFile() {
         var testWorkingDir = System.getProperty("user.dir");
         var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
-        var composeFile = new File(projectRoot, "compose/development/docker-compose.yml");
-
-        return runInDocker ? runInDocker(composeFile) : runOutsideDocker(composeFile);
-    }
-
-    @DynamicPropertySource
-    static void overrideProps(DynamicPropertyRegistry registry) {
-        environment.start();
-        setupAndRegisterProperties("stamdata-db", "validation.stamdata.stamdatadb", "sdm_krs_a", "", registry);
-        setupAndRegisterProperties("itukt-db", "common.ituktdb", "itukt_db", "rootroot", registry);
-        registry.add("itukt.validation.stamdata.cache.cron", () -> "0 0 0 * * *");
-        registry.add("itukt.management.cache.cron", () -> "0 0 0 * * *");
-    }
-
-    private static void setupAndRegisterProperties(
-            String serviceName,
-            String prefix,
-            String db,
-            String password,
-            DynamicPropertyRegistry registry
-    ) {
-        String host = environment.getServiceHost(serviceName, 3306);
-        Integer port = environment.getServicePort(serviceName, 3306);
-        registry.add("itukt." + prefix + ".url", () -> "jdbc:mariadb://" + host + ":" + port + "/" + db);
-        registry.add("itukt." + prefix + ".username", () -> "root");
-        registry.add("itukt." + prefix + ".password", () -> password);
-    }
-
-    private static ComposeContainer runOutsideDocker(File composeFile) {
-        return new ComposeContainer(composeFile)
-                .withServices("itukt-db", "stamdata-db")
-                .withExposedService("itukt-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLocalCompose(true);
-    }
-
-    private static ComposeContainer runInDocker(File composeFile) {
-        return new ComposeContainer(composeFile)
-                .withServices("itukt-db", "stamdata-db", "validation-component")
-                .withExposedService("itukt-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer("itukt-db", new Slf4jLogConsumer(logger).withPrefix("itukt-db"))
-                .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer("stamdata-db", new Slf4jLogConsumer(logger).withPrefix("stamdata-db"))
-                .withExposedService("validation-component", 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer("validation-component", new Slf4jLogConsumer(logger).withPrefix("validation-component"))
-                .withLocalCompose(false);
-    }
-
-    private static void resetDB(DataSource dataSource) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
-
-        for (Map<String, Object> row : rows) {
-            String tableName = (String) row.values().toArray()[0];
-            if (!tableName.endsWith("_seq")) {
-                jdbcTemplate.execute("TRUNCATE TABLE " + tableName);
-            }
-        }
-
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+        return new File(projectRoot, "compose/development/docker-compose.yml");
     }
 
     @BeforeAll
-    void setupApiClient() {
-        String host = runInDocker ? environment.getServiceHost("validation-component", 8080) : "localhost";
-        String port = runInDocker ? environment.getServicePort("validation-component", 8080).toString() : String.valueOf(localServerPort);
-        client = new ApiClient().setBasePath(String.format("http://%s:%s", host, port));
+    void beforeAll() {
+        environment.start();
+        // Init database helper
+        appDatabase = getDatabase("itukt-db", "itukt_db", "rootroot");
+        stamDatabase = getDatabase("stamdata-db", "sdm_krs_a", "");
+
+        boolean runInDocker = Boolean.getBoolean("runInDocker");
+        component = runInDocker ? new InDockerComponent(logger) : new OutsideDockerComponent();
+
+        // Loads data berfore component initialization
+        logger.info("Loading data into datasource");
+
+        this.load(new ClauseRepositoryImpl(appDatabase.getDatasource()));
+
+        logger.info("Starting component");
+        component.start();
+
+        // Configure API client
+        client = new ApiClient().setBasePath(String.format("http://%s:%s", component.getHost(), component.getPort()));
+    }
+
+    private Database getDatabase(String serviceName, String dbName, String password) {
+        var host = environment.getServiceHost(serviceName, 3306);
+        var port = environment.getServicePort(serviceName, 3306);
+        return new Database(host, port, dbName, "root", password);
     }
 
     @AfterEach
-    void cleanup(@Autowired @Qualifier("appDataSource") DataSource dataSource) {
-        resetDB(dataSource);
+    void cleanup() {
+        appDatabase.clear();
     }
+
+    @AfterAll
+    void afterAll() {
+        if (component != null) {
+            component.stop();
+        }
+    }
+
+    /**
+     * Loads data before component initialization
+     * This is required since the caches is loaded during bean initialization on startup
+     * NOTE: this is invoked before the component has been initialized
+     *
+     * @param repository with a datasource injected
+     */
+    protected abstract void load(ClauseRepository<ClauseEntity> repository);
 
 
 }

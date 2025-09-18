@@ -19,9 +19,7 @@ class CommonBeanRegistrationTest {
         // Arrange
         var config = new CommonConfiguration(
                 List.of(""),
-                new DatasourceConfiguration("", "", "",
-                        new ConnectionConfiguration("", null, null)
-                )
+                new DatasourceConfiguration("", "", "", new ConnectionConfiguration("", null, null))
         );
 
         var registration = new CommonBeanRegistration(config);

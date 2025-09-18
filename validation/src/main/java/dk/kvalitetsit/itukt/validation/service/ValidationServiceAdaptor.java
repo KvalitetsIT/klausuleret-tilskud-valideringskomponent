@@ -50,7 +50,7 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
 
     private ValidationError mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {
         return new ValidationError()
-                .errorCode(0)
+                .errorCode(modelValidationError.errorCode())
                 .errorMessage(modelValidationError.errorMessage())
                 .elementPath(validateInput.getElementPath())
                 .clauseCode(modelValidationError.clauseCode())

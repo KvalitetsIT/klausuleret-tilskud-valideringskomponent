@@ -81,6 +81,8 @@ public class ValidationIT extends BaseTest {
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
         assertEquals(expectedClauseCode, validationError.getClauseCode());
         assertEquals(elementPath, validationError.getElementPath());
+        int expectedErrorCode = 10800; // Hardcoded error code in clause cache
+        assertEquals(expectedErrorCode, validationError.getErrorCode());
     }
 
     @Test

@@ -49,7 +49,7 @@ public class ManagementBeanRegistration {
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
-        var clause = new Clause("KRINI", UUID.randomUUID(), expression);
+        var clause = new Clause("KRINI", UUID.randomUUID(), 10800, expression);
         return new ClauseCache(List.of(clause));
     }
 

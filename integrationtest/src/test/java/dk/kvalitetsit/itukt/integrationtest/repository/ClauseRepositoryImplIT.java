@@ -3,13 +3,14 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,10 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ClauseRepositoryImplIT extends BaseTest {
 
-    private final ClauseRepositoryImpl repository;
+    private ClauseRepositoryImpl repository;
 
-    ClauseRepositoryImplIT(@Autowired ClauseRepositoryImpl repository) {
-        this.repository = repository;
+    @BeforeAll
+    void setup() {
+        this.repository = new ClauseRepositoryImpl(appDatabase.getDatasource());
     }
 
     @Test
@@ -55,6 +57,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
                     .isEqualTo(clauseForCreation.expression());
             assertEquals(writtenClause, readClause, "The clause read from the database is expected to match the one written beforehand");
         }
+    }
+
+    @Override
+    protected void load(ClauseRepository<ClauseEntity> repository) {
+        // Load data before component initialization
     }
 
     @Test

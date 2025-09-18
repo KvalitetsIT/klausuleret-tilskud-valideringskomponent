@@ -2,6 +2,8 @@ package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
@@ -12,16 +14,19 @@ import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 class ManagementIT extends BaseTest {
 
-    private ManagementApi api;
+    private static ManagementApi api;
 
     @BeforeAll
     void setup() {
-        this.api = new ManagementApi(client);
+        api = new ManagementApi(client);
     }
 
+    @Override
+    protected void load(ClauseRepository<ClauseEntity> repository) {
+        // Load data before component initialization
+    }
 
     @Test
     void testPostAndGetClauseDsl() {
@@ -71,5 +76,6 @@ class ManagementIT extends BaseTest {
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
+
 
 }

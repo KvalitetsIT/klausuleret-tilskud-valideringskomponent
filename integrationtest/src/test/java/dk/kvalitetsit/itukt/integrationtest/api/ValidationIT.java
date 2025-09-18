@@ -1,35 +1,53 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 
+import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
-import dk.kvalitetsit.itukt.integrationtest.ClauseLoader;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
-import org.springframework.context.annotation.Import;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import static dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND;
+import static dk.kvalitetsit.itukt.common.model.Operator.EQUAL;
+import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-@Import(ClauseLoader.class)
 public class ValidationIT extends BaseTest {
 
-    private final String validIndication = "313", // Matches hardcoded value in cache
-            invalidIndication = "390";
-    private ValidationApi validationApi;
+    // Matches hardcoded value in cache
+    private static final String VALID_INDICATION = "313", INVALID_INDICATION = "390";
+    private static ValidationApi validationApi;
 
     private static long getDrugId() {
         // Matches hardcoded value in cache
         return 28103139399L;
     }
 
+    @Override
+    protected void load(ClauseRepository<ClauseEntity> repository) {
+        // Hardcoded clause for phase 1
+        var clause = new ClauseEntity(
+                "KRINI",
+                new ExpressionEntity.BinaryExpressionEntity(
+                        new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.AGE, GREATER_THAN, 50),
+                        AND,
+                        new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.INDICATION, EQUAL, 313)
+                )
+        );
+        repository.create(clause);
+    }
+
     @BeforeAll
     void setup() {
-        this.validationApi = new ValidationApi(client);
+        validationApi = new ValidationApi(client);
     }
 
     @Test
@@ -37,7 +55,7 @@ public class ValidationIT extends BaseTest {
         long drugId = getDrugId();// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(drugId, elementPath, age, validIndication, null);
+        var request = createValidationRequest(drugId, elementPath, age, VALID_INDICATION, null);
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -49,7 +67,7 @@ public class ValidationIT extends BaseTest {
         long drugId = getDrugId();
         String elementPath = "path";
         int age = 20;  // Hardcoded clause in cache requires age > 50 or existing drug medication
-        var request = createValidationRequest(drugId, elementPath, age, validIndication, null);
+        var request = createValidationRequest(drugId, elementPath, age, VALID_INDICATION, null);
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -68,7 +86,7 @@ public class ValidationIT extends BaseTest {
                 .atcCode("ATC123") // Matches hardcoded clause
                 .formCode("anything") // Hardcoded clause has wildcard for form
                 .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
-        var request = createValidationRequest(drugId, "path", age, validIndication, List.of(existingDrugMedication));
+        var request = createValidationRequest(drugId, "path", age, VALID_INDICATION, List.of(existingDrugMedication));
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -80,8 +98,7 @@ public class ValidationIT extends BaseTest {
         long drugId = getDrugId();
         String elementPath = "path";
         int age = 50;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(drugId, elementPath, age, validIndication, List.of());
-
+        var request = createValidationRequest(drugId, elementPath, age, VALID_INDICATION, List.of());
         var response = validationApi.call20250801validatePost(request);
 
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
@@ -99,7 +116,7 @@ public class ValidationIT extends BaseTest {
         long drugId = getDrugId();
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(drugId, elementPath, age, invalidIndication, List.of());
+        var request = createValidationRequest(drugId, elementPath, age, INVALID_INDICATION, List.of());
 
         var response = validationApi.call20250801validatePost(request);
 

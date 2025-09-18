@@ -138,9 +138,9 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
     private ExpressionEntity readExpression(ExpressionType type, Long expressionId) {
         return switch (type) {
-            case ExpressionType.STRING_CONDITION -> readStringCondition(expressionId);
-            case ExpressionType.NUMBER_CONDITION -> readNumberCondition(expressionId);
-            case ExpressionType.BINARY -> readBinary(expressionId);
+            case STRING_CONDITION -> readStringCondition(expressionId);
+            case NUMBER_CONDITION -> readNumberCondition(expressionId);
+            case BINARY -> readBinary(expressionId);
             case EXISTING_DRUG_MEDICATION -> readExistingDrugMedicationCondition(expressionId);
         };
     }

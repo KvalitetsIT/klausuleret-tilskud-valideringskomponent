@@ -6,4 +6,3 @@ CREATE TABLE existing_drug_medication_condition_expression (
     FOREIGN KEY (expression_id) REFERENCES expression(id) ON DELETE CASCADE
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_bin
   COMMENT='Specialized expression representing a condition for existing drug medication';
-;

@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
-import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +39,6 @@ class ExpressionModelDtoMapperTest {
                 new ExistingDrugMedicationCondition("atc2", "form2", "adm2", "ExistingDrugMedicationCondition"),
                 "BinaryExpression"
         );
-        assertEquals(expectedExpression, mappedExpression);
+        assertEquals(expectedExpression, mappedExpression, "Values of mapped expression should match the input values");
     }
 }

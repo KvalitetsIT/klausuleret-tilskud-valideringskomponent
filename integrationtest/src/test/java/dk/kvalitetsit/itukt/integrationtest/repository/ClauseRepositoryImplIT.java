@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.IntStream;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,10 +88,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
         UUID clauseUuid = repository.create(clauseInput).uuid();
         var readClause = repository.read(clauseUuid);
 
-        assertTrue(readClause.isPresent());
+        assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
         assertThat(readClause.get())
                 .usingRecursiveComparison()
                 .ignoringFields("id", "uuid", "expression.id")
+                .withFailMessage("The clause read is expected to match the clause created")
                 .isEqualTo(clauseInput);
     }
 }

@@ -1,0 +1,61 @@
+:root {
+  /* Base colors */
+  --color-background: #f5f7fa;
+  --color-surface: #ffffff;
+
+  /* Text */
+  --color-text-primary: #333333;
+  --color-text-secondary: #555555;
+
+  /* Effects */
+  --shadow-card: 0 4px 10px rgba(0,0,0,0.08);
+  --radius-card: 12px;
+  --spacing-card: 1.5rem 2rem;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+  background: var(--color-background);
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1500px;
+  width: 100%;
+}
+
+.content > div {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: var(--spacing-card);
+  box-shadow: var(--shadow-card);
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+}
+
+p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* Syntax highlighting DSL */
+code.dsl { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+code.dsl .k  .id { color: #461d8b; font-weight: 600; }    /* keywords */
+code.dsl .op { color: #2563eb; }                      /* operators */
+code.dsl .num{ color: #059669; }                      /* numbers */
+code.dsl .id { color: #111827; }                      /* identifiers */
+code.dsl .p  { color: #6b7280; }                      /* punctuation */
+
+

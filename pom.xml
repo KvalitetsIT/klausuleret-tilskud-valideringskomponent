@@ -5,6 +5,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>frontend</module>
 		<module>application</module>
 		<module>validation</module>
         <module>integrationtest</module>

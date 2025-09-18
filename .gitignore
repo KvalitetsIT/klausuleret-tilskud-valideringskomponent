@@ -33,3 +33,11 @@ target
 .project
 .settings/
 .classpath
+
+# node and npm stuff
+node_modules/
+frontend/node/
+frontend/dist/
+.angular/
+npm-debug.log
+

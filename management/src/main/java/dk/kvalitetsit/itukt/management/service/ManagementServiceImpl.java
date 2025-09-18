@@ -3,14 +3,14 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ManagementServiceImpl implements ManagementService<Clause> {
+public class ManagementServiceImpl implements ManagementService {
 
     private final ClauseRepositoryAdaptor repository;
 
@@ -19,8 +19,8 @@ public class ManagementServiceImpl implements ManagementService<Clause> {
     }
 
     @Override
-    public Clause create(Clause entry) throws ServiceException {
-        return repository.create(entry);
+    public Clause create(String name, Expression expression) throws ServiceException {
+        return repository.create(name, expression);
     }
 
     @Override

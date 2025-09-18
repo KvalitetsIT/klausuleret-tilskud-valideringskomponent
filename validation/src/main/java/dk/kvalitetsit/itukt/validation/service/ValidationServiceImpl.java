@@ -36,6 +36,6 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
 
     private ValidationResult validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
         boolean success = clause.expression().validates(validationInput);
-        return success ? new ValidationSuccess() : new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76");
+        return success ? new ValidationSuccess() : new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76", clause.errorCode());
     }
 }

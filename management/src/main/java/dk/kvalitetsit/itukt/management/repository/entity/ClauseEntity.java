@@ -6,10 +6,6 @@ public record ClauseEntity(
         Long id,
         UUID uuid,
         String name,
+        Integer errorCode,
         ExpressionEntity expression) {
-
-
-    public ClauseEntity(String name, ExpressionEntity expression) {
-        this(null, null, name, expression);
-    }
 }

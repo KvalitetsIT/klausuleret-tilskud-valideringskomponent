@@ -11,7 +11,7 @@ class ClauseCacheTest {
 
     @Test
     void getClause_WhenClauseIsNotInCache_ReturnsEmptyOptional() {
-        Clause existingClause = new Clause("test", null, null);
+        Clause existingClause = new Clause("test", null, null, null);
         ClauseCache clauseCache = new ClauseCache(List.of(existingClause));
 
         var result = clauseCache.getClause("NonExistentClause");
@@ -21,8 +21,8 @@ class ClauseCacheTest {
 
     @Test
     void getClause_WhenClauseIsInCache_ReturnsClause() {
-        Clause existingClause1 = new Clause("test1", null, null);
-        Clause existingClause2 = new Clause("test2", null, null);
+        Clause existingClause1 = new Clause("test1", null, null, null);
+        Clause existingClause2 = new Clause("test2", null, null, null);
         ClauseCache clauseCache = new ClauseCache(List.of(existingClause1, existingClause2));
 
         var result = clauseCache.getClause(existingClause1.name());

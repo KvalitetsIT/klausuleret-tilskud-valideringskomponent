@@ -30,14 +30,14 @@ public class MockFactory {
             BinaryExpression.Operator.AND,
             EXPRESSION_6_ENTITY
     );
-    private static final ExpressionEntity EXPRESSION_1_ENTITY = new BinaryExpressionEntity(
+    public static final ExpressionEntity EXPRESSION_1_ENTITY = new BinaryExpressionEntity(
             1L,
             EXPRESSION_2_ENTITY,
             BinaryExpression.Operator.OR,
             EXPRESSION_7_ENTITY
     );
     // Note: This clause(clause_1_entity) matches: clause_1_dsl
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", EXPRESSION_1_ENTITY);
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", 0, EXPRESSION_1_ENTITY);
     private static final NumberConditionExpression EXPRESSION_6_MODEL = new NumberConditionExpression(
             EXPRESSION_6_ENTITY.field(),
             EXPRESSION_6_ENTITY.operator(),

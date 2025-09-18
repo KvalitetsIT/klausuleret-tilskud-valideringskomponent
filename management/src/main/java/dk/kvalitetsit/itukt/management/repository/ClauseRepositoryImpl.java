@@ -53,9 +53,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            createErrorCode(name);
+            int errorCode = createErrorCode(name);
 
-            return new ClauseEntity(clauseId, uuid, name, createdExpression);
+            return new ClauseEntity(clauseId, uuid, name, errorCode, createdExpression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
@@ -64,13 +64,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
 
-    public synchronized void createErrorCode(String clauseName) {
-        Long max = template.getJdbcTemplate().queryForObject(
+    public synchronized int createErrorCode(String clauseName) {
+        Integer max = template.getJdbcTemplate().queryForObject(
                 "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
-                Long.class
+                Integer.class
         );
 
-        long next = max + 1;
+        int next = max + 1;
 
         if (next > 10999) {
             throw new IllegalStateException("Exceeded the maximum number of allocated error codes (10800–10999 exhausted)");
@@ -82,6 +82,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         .addValue("error_code", next)
                         .addValue("clause_name", clauseName)
         );
+        return next;
     }
 
     private ExpressionEntity create(ExpressionEntity expression) {
@@ -111,22 +112,31 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.expression_id, e.type
+                        SELECT c.id, c.name, c.expression_id, e.type, error_code.error_code
                         FROM clause c
                         JOIN expression e ON c.expression_id = e.id
+                        JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
                     """;
 
-            Map<String, Object> row = template.queryForMap(sql, Map.of("uuid", uuid.toString()));
+            var clause = template.queryForObject(
+                    sql,
+                    Map.of("uuid", uuid.toString()),
+                    (rs, rowNum) -> {
+                        var expressionType = ExpressionType.valueOf(rs.getString("type"));
+                        long expressionId = rs.getLong("expression_id");
+                        var expression = readExpression(expressionType, expressionId);
 
-            Long id = ((Number) row.get("id")).longValue();
-            String name = (String) row.get("name");
-            ExpressionType type = ExpressionType.valueOf((String) row.get("type"));
-            Long expressionId = ((Number) row.get("expression_id")).longValue();
+                        return new ClauseEntity(
+                                rs.getLong("id"),
+                                uuid,
+                                rs.getString("name"),
+                                rs.getInt("error_code"),
+                                expression
+                        );
+                    });
 
-            ExpressionEntity expression = readExpression(type, expressionId);
-
-            return Optional.of(new ClauseEntity(id, uuid, name, expression));
+            return Optional.of(clause);
 
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

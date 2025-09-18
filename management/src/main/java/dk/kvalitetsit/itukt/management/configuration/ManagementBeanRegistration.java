@@ -43,7 +43,7 @@ public class ManagementBeanRegistration {
                 new NumberConditionExpression(Condition.Field.AGE, Operator.GREATER_THAN, 50),
                 BinaryExpression.Operator.AND,
                 new StringConditionExpression(Condition.Field.INDICATION, "313"));
-        var clause = new Clause("KRINI", UUID.randomUUID(), expression);
+        var clause = new Clause("KRINI", UUID.randomUUID(), 10800, expression);
         return new ClauseCache(List.of(clause));
     }
 

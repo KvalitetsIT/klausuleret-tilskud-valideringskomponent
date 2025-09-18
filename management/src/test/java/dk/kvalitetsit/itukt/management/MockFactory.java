@@ -34,7 +34,7 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_ENTITY
     );
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", 0, EXPRESSION_1_ENTITY);
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", 10800, EXPRESSION_1_ENTITY);
     private static final NumberConditionExpression EXPRESSION_6_MODEL = new NumberConditionExpression(
             EXPRESSION_6_ENTITY.field(),
             EXPRESSION_6_ENTITY.operator(),
@@ -79,7 +79,7 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_MODEL()
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), 10800, EXPRESSION_1_MODEL);
     private static final StringCondition EXPRESSION_2_DTO = new StringCondition()
             .type("StringCondition")
             .field(EXPRESSION_2_MODEL.field().name())

@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
+import org.openapitools.client.model.BinaryOperator;
 import org.openapitools.client.model.ClauseInput;
 import org.openapitools.client.model.ClauseOutput;
 import org.openapitools.client.model.DslInput;
@@ -104,6 +105,29 @@ public class MockFactory {
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO);
+
+    public static org.openapitools.client.model.ExistingDrugMedicationCondition createExistingDrugMedicationCondition(
+            String atcCode,
+            String formCode,
+            String routeOfAdministrationCode
+    ) {
+        return new org.openapitools.client.model.ExistingDrugMedicationCondition()
+                .type("ExistingDrugMedicationCondition")
+                .atcCode(atcCode)
+                .formCode(formCode)
+                .routeOfAdministrationCode(routeOfAdministrationCode);
+    }
+
+    public static org.openapitools.client.model.BinaryExpression createBinaryAndExpression(
+            org.openapitools.client.model.Expression left,
+            org.openapitools.client.model.Expression right
+    ) {
+        return new org.openapitools.client.model.BinaryExpression()
+                .type("BinaryExpression")
+                .left(left)
+                .operator(BinaryOperator.AND)
+                .right(right);
+    }
 
 }
 

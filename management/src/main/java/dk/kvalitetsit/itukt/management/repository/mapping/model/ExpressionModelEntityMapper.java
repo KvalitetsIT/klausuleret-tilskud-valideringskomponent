@@ -1,10 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.mapping.model;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
-import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 
 public class ExpressionModelEntityMapper implements Mapper<Expression, ExpressionEntity> {
@@ -14,6 +11,7 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
             case BinaryExpression b -> this.map(b);
             case StringConditionExpression s -> this.map(s);
             case NumberConditionExpression n -> this.map(n);
+            case ExistingDrugMedicationConditionExpression p -> this.map(p);
         };
     }
 
@@ -23,6 +21,10 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
 
     private ExpressionEntity.NumberConditionEntity map(NumberConditionExpression b) {
         return new ExpressionEntity.NumberConditionEntity(null, b.field(), b.operator(), b.value());
+    }
+
+    private ExpressionEntity.ExistingDrugMedicationConditionEntity map(ExistingDrugMedicationConditionExpression e) {
+        return new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, e.atcCode(), e.formCode(), e.routeOfAdministrationCode());
     }
 
     private ExpressionEntity.BinaryExpressionEntity map(BinaryExpression b) {

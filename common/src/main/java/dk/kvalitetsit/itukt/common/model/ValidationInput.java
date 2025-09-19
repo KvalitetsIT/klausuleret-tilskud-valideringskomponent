@@ -9,6 +9,7 @@ public record ValidationInput(
         return switch (field) {
             case AGE -> citizenAge;
             case INDICATION -> indicationCode;
+            case EXISTING_DRUG_MEDICATION -> null;
         };
     }
 }

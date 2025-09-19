@@ -5,7 +5,7 @@ import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
-import org.openapitools.client.model.DslInput;
+import org.openapitools.client.model.ClauseInput;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
@@ -49,6 +49,27 @@ class ManagementIT extends BaseTest {
                 .usingRecursiveComparison()
                 .ignoringFields("uuid")
                 .isEqualTo(CLAUSE_1_OUTPUT);
+    }
+
+    @Test
+    void testPostAndGetClauseWithExistingDrugMedicationConditions() {
+        var expression = MockFactory.createBinaryAndExpression(
+                MockFactory.createExistingDrugMedicationCondition("atc1", "form1", "adm1"),
+                MockFactory.createExistingDrugMedicationCondition("atc2", "form2", "adm2"));
+        var clauseInput = new ClauseInput()
+                .name("test")
+                .expression(expression);
+
+        api.call20250801clausesPost(clauseInput);
+        var clauses = api.call20250801clausesGet();
+
+        assertEquals(1, clauses.size(), "Expected the same number of clauses as were created");
+        var clause = clauses.getFirst();
+        assertThat(clause)
+                .usingRecursiveComparison()
+                .ignoringFields("uuid")
+                .withFailMessage("The clause read is expected to match the clause created")
+                .isEqualTo(clauseInput);
     }
 
 }

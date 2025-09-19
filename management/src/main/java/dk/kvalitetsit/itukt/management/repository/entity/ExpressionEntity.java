@@ -7,7 +7,8 @@ import dk.kvalitetsit.itukt.common.model.Operator;
 public sealed interface ExpressionEntity permits
         ExpressionEntity.StringConditionEntity,
         ExpressionEntity.NumberConditionEntity,
-        ExpressionEntity.BinaryExpressionEntity {
+        ExpressionEntity.BinaryExpressionEntity,
+        ExpressionEntity.ExistingDrugMedicationConditionEntity {
 
     ExpressionType type();
 
@@ -67,6 +68,20 @@ public sealed interface ExpressionEntity permits
         @Override
         public BinaryExpressionEntity withId(Long newId) {
             return new BinaryExpressionEntity(newId, left, operator, right);
+        }
+    }
+
+    record ExistingDrugMedicationConditionEntity(Long id, String atcCode, String formCode, String routeOfAdministrationCode)
+            implements ExpressionEntity {
+
+        @Override
+        public ExpressionType type() {
+            return ExpressionType.EXISTING_DRUG_MEDICATION;
+        }
+
+        @Override
+        public ExistingDrugMedicationConditionEntity withId(Long newId) {
+            return new ExistingDrugMedicationConditionEntity(newId, atcCode, formCode, routeOfAdministrationCode);
         }
     }
 

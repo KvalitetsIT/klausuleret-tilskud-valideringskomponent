@@ -11,6 +11,7 @@ import dk.kvalitetsit.itukt.management.repository.entity.ExpressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -23,9 +24,11 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
+    private final DataClassRowMapper<ExpressionEntity.ExistingDrugMedicationConditionEntity> existingDrugMedicationRowMapper;
 
     public ClauseRepositoryImpl(DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
+        existingDrugMedicationRowMapper = new DataClassRowMapper<>(ExpressionEntity.ExistingDrugMedicationConditionEntity.class);
     }
 
     @Override
@@ -100,6 +103,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
             case ExpressionEntity.StringConditionEntity e -> insertStringCondition(e);
             case ExpressionEntity.NumberConditionEntity e -> insertNumberCondition(e);
             case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(e);
+            case ExpressionEntity.ExistingDrugMedicationConditionEntity e -> insertExistingDrugMedication(e);
         };
     }
 
@@ -134,9 +138,10 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
     private ExpressionEntity readExpression(ExpressionType type, Long expressionId) {
         return switch (type) {
-            case ExpressionType.STRING_CONDITION -> readStringCondition(expressionId);
-            case ExpressionType.NUMBER_CONDITION -> readNumberCondition(expressionId);
-            case ExpressionType.BINARY -> readBinary(expressionId);
+            case STRING_CONDITION -> readStringCondition(expressionId);
+            case NUMBER_CONDITION -> readNumberCondition(expressionId);
+            case BINARY -> readBinary(expressionId);
+            case EXISTING_DRUG_MEDICATION -> readExistingDrugMedicationCondition(expressionId);
         };
     }
 
@@ -191,6 +196,19 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
         return condition;
     }
 
+    private ExpressionEntity.ExistingDrugMedicationConditionEntity insertExistingDrugMedication(ExpressionEntity.ExistingDrugMedicationConditionEntity existingDrugMedication) {
+
+        template.update(
+                "INSERT INTO existing_drug_medication_condition_expression(expression_id, atc_code, form_code, route_of_administration_code) VALUES (:expression_id, :atc_code, :form_code, :route_of_administration_code)",
+                Map.of(
+                        "expression_id", existingDrugMedication.id(),
+                        "atc_code", existingDrugMedication.atcCode(),
+                        "form_code", existingDrugMedication.formCode(),
+                        "route_of_administration_code", existingDrugMedication.routeOfAdministrationCode()
+                ));
+        return existingDrugMedication;
+    }
+
     private ExpressionEntity.BinaryExpressionEntity insertBinary(ExpressionEntity.BinaryExpressionEntity binary) {
         ExpressionEntity left = create(binary.left());
         ExpressionEntity right = create(binary.right());
@@ -230,6 +248,14 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                         rs.getInt("value")));
     }
 
+    private ExpressionEntity.ExistingDrugMedicationConditionEntity readExistingDrugMedicationCondition(long expressionId) {
+        return template.queryForObject(
+                "SELECT expression_id as id, atc_code, form_code, route_of_administration_code FROM existing_drug_medication_condition_expression WHERE expression_id = :id",
+                Map.of("id", expressionId),
+                existingDrugMedicationRowMapper
+        );
+    }
+
     private ExpressionEntity readBinary(Long id) {
         return template.queryForObject(
                 "SELECT left_id, operator, right_id FROM binary_expression WHERE expression_id = :id",
@@ -253,6 +279,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
                 case STRING_CONDITION -> readStringCondition(id);
                 case NUMBER_CONDITION -> readNumberCondition(id);
                 case BINARY -> readBinary(id);
+                case EXISTING_DRUG_MEDICATION -> readExistingDrugMedicationCondition(id);
             });
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

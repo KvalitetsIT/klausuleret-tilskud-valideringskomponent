@@ -2,10 +2,15 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": []
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@api/*": ["./target/generated-sources/openapi/*"]
+    }
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "target/generated-sources/openapi/**/*.ts"
   ],
   "exclude": [
     "src/**/*.spec.ts"

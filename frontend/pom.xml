@@ -11,6 +11,47 @@
 
     <build>
         <plugins>
+            <!-- Generate TS API Client for Angular -->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.15.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-api-client</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/../documentation/src/main/resources/api/management.yaml</inputSpec>
+                            <generatorName>typescript-angular</generatorName>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+                            <apiPackage>api</apiPackage>
+                            <additionalProperties>
+                                <additionalProperty>stringEnums=true</additionalProperty>
+                                <additionalProperty>providedInRoot=true</additionalProperty>
+                                <additionalProperty>ngVersion=20</additionalProperty>
+                                <additionalProperty>withInterfaces=true</additionalProperty>
+                            </additionalProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Ryd op ved clean -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}/src/app/api</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
             <!-- Byg Angular app -->
             <plugin>
                 <groupId>com.github.eirslett</groupId>

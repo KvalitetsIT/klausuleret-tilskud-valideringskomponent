@@ -5,12 +5,12 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>documentation</module>
 		<module>frontend</module>
 		<module>application</module>
 		<module>validation</module>
         <module>integrationtest</module>
 		<module>testreport</module>
-		<module>documentation</module>
 		<module>management</module>
 		<module>common</module>
 	</modules>

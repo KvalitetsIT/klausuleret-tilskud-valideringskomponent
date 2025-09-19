@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ClausesService, ClauseOutput } from '../../services/clauses';
+import { ClausesService } from '../../services/clauses';
+import { ClauseOutput } from '@api/model/clauseOutput'; 
 import { DslHighlightPipe } from '../../shared/dsl-highlight-pipe';
 
-
 // TODO: Der mangler tests.
+// TODO: Split html og css ud i egen fil.
 @Component({
   selector: 'app-clauses',
   standalone: true,
@@ -45,13 +46,14 @@ import { DslHighlightPipe } from '../../shared/dsl-highlight-pipe';
   `]
 })
 export class Clauses{
-  private svc = inject(ClausesService);
+  private service = inject(ClausesService);
 
-  // Signals i stedet for async pipe
+  // Signals i stedet for async pipe (som i gamle dage)
   clauses = toSignal<ClauseOutput[]>(
-    this.svc.getClauses()
+    this.service.getClauses()
   );
 
+  // TODO: Skift til at hente DSL direkte måske?
   summarize(expr: any): string {
     if (!expr) return '';
     if (expr.type === 'StringCondition') return `${expr.field} = "${expr.value}"`;

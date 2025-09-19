@@ -4,7 +4,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ClausesService, ClauseOutput } from '../../services/clauses';
 import { DslHighlightPipe } from '../../shared/dsl-highlight-pipe';
 
-// TODO: Der mangler tests. Opret filen 'clauses.component.spec.ts'.
+
+// TODO: Der mangler tests.
 @Component({
   selector: 'app-clauses',
   standalone: true,
@@ -44,7 +45,7 @@ import { DslHighlightPipe } from '../../shared/dsl-highlight-pipe';
     th { font-weight:600; }
   `]
 })
-export default class ClausesComponent {
+export class Clauses{
   private svc = inject(ClausesService);
 
   // Signals i stedet for async pipe

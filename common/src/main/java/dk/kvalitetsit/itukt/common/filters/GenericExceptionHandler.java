@@ -17,7 +17,7 @@ public class GenericExceptionHandler extends OncePerRequestFilter {
         } catch (ApiException a) {
             throw a;
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+            logger.error("Unhandled exception in request", t);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Der skete en ukendt fejl\"}");

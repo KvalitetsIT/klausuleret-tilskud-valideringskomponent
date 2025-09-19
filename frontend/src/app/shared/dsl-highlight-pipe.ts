@@ -1,7 +1,6 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-
 // TODO: Opret tests
 @Pipe({
   name: 'dslHighlight',
@@ -20,8 +19,8 @@ export class DslHighlightPipe implements PipeTransform {
 
     let out = esc;
 
-
     // operators
+    // TODO: Den rammer ikke '>=' og '<=' korrekt. Skyldes måske de bliver escaped tidligere.
     out = out.replace(/(>=|<=|=|>|<)/gi, '<span class="op">$1</span>');
 
     // keywords

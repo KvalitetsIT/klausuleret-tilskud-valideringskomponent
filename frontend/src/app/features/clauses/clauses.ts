@@ -1,4 +1,3 @@
-// src/app/features/clauses/clauses.component.ts
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ClausesService, ClauseOutput } from '../../services/clauses';

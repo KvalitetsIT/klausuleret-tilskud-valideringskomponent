@@ -1,0 +1,27 @@
+# This docker-compose can be used to run the whole environment both the validation-component and the required dependencies
+include:
+  - docker-compose.db.yaml
+services:
+  validation-component:
+    extends:
+      file: docker-compose.test.yaml
+      service: validation-component
+    depends_on:
+      itukt-db:
+        condition: service_healthy
+      stamdata-db:
+        condition: service_healthy
+
+  documentation-and-test:
+    image: kvalitetsit/klausuleret-tilskud-valideringskomponent-documentation:latest
+    environment:
+      - BASE_URL=/openapi
+      - 'SERVER_URLS=[{"url": "http://localhost:8080", "name": "validation"}]'
+    ports:
+      - 80:8080
+    networks:
+      - ituktnet
+
+networks:
+  ituktnet:
+    driver: bridge

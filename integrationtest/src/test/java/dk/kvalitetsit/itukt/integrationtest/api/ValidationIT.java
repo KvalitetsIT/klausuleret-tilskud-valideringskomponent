@@ -42,6 +42,7 @@ public class ValidationIT extends BaseTest {
                         new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.INDICATION, EQUAL, 313)
                 )
         );
+        System.out.println("Creating clause...");
         repository.create(clause);
     }
 

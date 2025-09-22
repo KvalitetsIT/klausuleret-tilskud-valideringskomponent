@@ -40,6 +40,7 @@ services:
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_USERNAME=root
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD=
       - ITUKT_VALIDATION_STAMDATA_CACHE_CRON=0 0 0 * * *
+      - ITUKT_MANAGEMENT_CACHE_CRON=0 0 0 * * *
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       itukt-db:

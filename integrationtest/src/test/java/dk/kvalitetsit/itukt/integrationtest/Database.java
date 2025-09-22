@@ -9,6 +9,9 @@ import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A simple wrapper class which abstracts away the complexity of the datasource and allows the caller to "clear" the db
+ */
 public class Database {
     private final DataSource dataSource;
 

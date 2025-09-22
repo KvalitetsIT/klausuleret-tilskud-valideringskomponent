@@ -10,14 +10,15 @@ import java.time.Duration;
 import static dk.kvalitetsit.itukt.integrationtest.BaseTest.getComposeFile;
 
 final class InDockerComponent implements Component {
+    private static final String SERVICE_NAME = "validation-component";
     private final ComposeContainer component;
 
     public InDockerComponent(Logger logger) {
         this.component = new ComposeContainer(getComposeFile())
-                .withServices("validation-component")
-                .withExposedService("validation-component", 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer("validation-component", new Slf4jLogConsumer(logger).withPrefix("validation-component"))
-                .withLocalCompose(false);
+                .withServices(SERVICE_NAME)
+                .withExposedService(SERVICE_NAME, 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+                .withLogConsumer(SERVICE_NAME, new Slf4jLogConsumer(logger).withPrefix(SERVICE_NAME))
+                .withLocalCompose(true);
     }
 
     @Override
@@ -32,11 +33,11 @@ final class InDockerComponent implements Component {
 
     @Override
     public String getHost() {
-        return component.getServiceHost("validation-component", 8080);
+        return component.getServiceHost(SERVICE_NAME, 8080);
     }
 
     @Override
     public Integer getPort() {
-        return component.getServicePort("validation-component", 8080);
+        return component.getServicePort(SERVICE_NAME, 8080);
     }
 }

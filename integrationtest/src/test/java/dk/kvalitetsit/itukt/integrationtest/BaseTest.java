@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
+import com.github.dockerjava.api.DockerClient;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -22,39 +24,69 @@ import java.time.Duration;
 public abstract class BaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
-
     protected static final ComposeContainer environment = new ComposeContainer(getComposeFile())
             .withServices("itukt-db", "stamdata-db")
-            .withExposedService("itukt-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+            .withExposedService("itukt-db", 3306, Wait.forListeningPorts(3306))
             .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
             .withLogConsumer("itukt-db", new Slf4jLogConsumer(logger).withPrefix("itukt-db"))
             .withLogConsumer("stamdata-db", new Slf4jLogConsumer(logger).withPrefix("stamdata-db"))
             .withLocalCompose(true);
 
+    private static final String ITUKTNET = "ituktnet";
     protected static Component component;
     protected ApiClient client;
-
     protected Database appDatabase;
     protected Database stamDatabase;
 
     public static File getComposeFile() {
         var testWorkingDir = System.getProperty("user.dir");
         var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
-        return new File(projectRoot, "compose/development/docker-compose.yml");
+        return new File(projectRoot, "compose/development/compose/docker-compose.test.yaml");
+    }
+
+    private static void createNetworkIfNotExists(String networkName) {
+        DockerClient docker = DockerClientFactory.instance().client();
+        boolean exists = docker.listNetworksCmd()
+                .exec()
+                .stream()
+                .anyMatch(n -> networkName.equals(n.getName()));
+
+        if (!exists) {
+            docker.createNetworkCmd()
+                    .withName(networkName)
+                    .withDriver("bridge")
+                    .exec();
+            System.out.println("Created Docker network: " + networkName);
+        } else {
+            System.out.println("Docker network already exists: " + networkName);
+        }
+    }
+
+    private static void deleteNetworkIfNotExists(String networkName) {
+        DockerClient docker = DockerClientFactory.instance().client();
+        boolean exists = docker.listNetworksCmd()
+                .exec()
+                .stream()
+                .anyMatch(n -> networkName.equals(n.getName()));
+
+        if (!exists) {
+            docker.removeNetworkCmd(networkName).exec();
+            System.out.println("Removed Docker network: " + networkName);
+        } else {
+            System.out.println("Docker network already exists: " + networkName);
+        }
     }
 
     @BeforeAll
     void beforeAll() {
+        createNetworkIfNotExists(ITUKTNET);
         environment.start();
-        // Init database helper
+
         appDatabase = getDatabase("itukt-db", "itukt_db", "rootroot");
         stamDatabase = getDatabase("stamdata-db", "sdm_krs_a", "");
 
         boolean runInDocker = Boolean.getBoolean("runInDocker");
         component = runInDocker ? new InDockerComponent(logger) : new OutsideDockerComponent();
-
-        // Loads data berfore component initialization
-        logger.info("Loading data into datasource");
 
         this.load(new ClauseRepositoryImpl(appDatabase.getDatasource()));
 
@@ -78,6 +110,8 @@ public abstract class BaseTest {
 
     @AfterAll
     void afterAll() {
+        deleteNetworkIfNotExists(ITUKTNET);
+
         if (component != null) {
             component.stop();
         }

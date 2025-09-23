@@ -1,7 +1,9 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -13,10 +15,9 @@ import org.openapitools.client.model.*;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND;
-import static dk.kvalitetsit.itukt.common.model.Operator.EQUAL;
-import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
@@ -34,15 +35,19 @@ public class ValidationIT extends BaseTest {
     @Override
     protected void load(ClauseRepository<ClauseEntity> repository) {
         // Hardcoded clause for phase 1
-        var clause = new ClauseEntity(
-                "KRINI",
-                new ExpressionEntity.BinaryExpressionEntity(
-                        new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.AGE, GREATER_THAN, 50),
-                        AND,
-                        new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.INDICATION, EQUAL, 313)
-                )
+        var ageAndIndication = new ExpressionEntity.BinaryExpressionEntity(
+                new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.AGE, Operator.GREATER_THAN, 50),
+                AND,
+                new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "313"));
+
+        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "ATC123", "*", "*");
+        var expression = new ExpressionEntity.BinaryExpressionEntity(
+                ageAndIndication,
+                BinaryExpression.Operator.OR,
+                existingDrugMedication
         );
-        System.out.println("Creating clause...");
+        var clause = new ClauseEntity(1L, UUID.randomUUID(), "KRINI", expression);
+
         repository.create(clause);
     }
 

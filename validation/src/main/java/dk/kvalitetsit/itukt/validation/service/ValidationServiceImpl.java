@@ -43,7 +43,4 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                 .flatMap(c -> validateClause(c, clause.text(), validationInput));
 
     }
-
-
 }
-

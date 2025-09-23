@@ -27,7 +27,7 @@ public class ValidationIT extends BaseTest {
     void call20250801validatePost_WithoutExistingDrugMedicationWithInputThatMatchesClauseAndValidatesAgeAndIndication_ReturnsSuccess() {
         long drugId = 28103139399L;// Matches hardcoded value in cache
         String elementPath = "path";
-        int age = 51;  // Hardcoded clauses in cache requires age > 50
+        int age = 51;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, validIndication, null);
 
         var response = validationApi.call20250801validatePost(request);
@@ -39,7 +39,7 @@ public class ValidationIT extends BaseTest {
     void call20250801validatePost_WithoutExistingDrugMedicationWhenItIsRequired_ReturnsValidationNotPossible() {
         long drugId = 28103139399L;// Matches hardcoded value in cache
         String elementPath = "path";
-        int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
+        int age = 20;  // Hardcoded clause in cache requires age > 50 or existing drug medication
         var request = createValidationRequest(drugId, elementPath, age, validIndication, null);
 
         var response = validationApi.call20250801validatePost(request);
@@ -53,12 +53,12 @@ public class ValidationIT extends BaseTest {
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndValidatesExistingDrugMedication_ReturnsSuccess() {
         long drugId = 28103139399L;// Matches hardcoded value in cache
-        int age = 1;  // Hardcoded clauses in cache requires age > 50
+        int age = 1;  // Hardcoded clause in cache requires age > 50
         var existingDrugMedication = new ExistingDrugMedication()
                 .drugIdentifier(0L)
-                .atcCode("ATC123") // Matches hardcoded clauses
-                .formCode("anything") // Hardcoded clauses has wildcard for form
-                .routeOfAdministrationCode("anything"); // Hardcoded clauses has wildcard for route of administration code
+                .atcCode("ATC123") // Matches hardcoded clause
+                .formCode("anything") // Hardcoded clause has wildcard for form
+                .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
         var request = createValidationRequest(drugId, "path", age, validIndication, List.of(existingDrugMedication));
 
         var response = validationApi.call20250801validatePost(request);
@@ -68,9 +68,9 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsValidation_ReturnsValidationError() {
-        long drugId = 28103139399L; // Matches value in stamdata database with clauses code = "KRINI"
+        long drugId = 28103139399L; // Matches value in stamdata database with clause code = "KRINI"
         String elementPath = "path";
-        int age = 50;  // Hardcoded clauses in cache requires age > 50
+        int age = 50;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, validIndication, List.of());
 
         var response = validationApi.call20250801validatePost(request);
@@ -78,7 +78,7 @@ public class ValidationIT extends BaseTest {
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().get(0);
-        String expectedClauseCode = "KRINI"; // Hardcoded clauses code in stamdata cache
+        String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
         assertEquals(expectedClauseCode, validationError.getClauseCode());
         assertEquals(elementPath, validationError.getElementPath());
         int expectedErrorCode = 10800; // Hardcoded error code in clause cache
@@ -87,9 +87,9 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
-        long drugId = 28103139399L; // Matches value in stamdata database with clauses code = "KRINI"
+        long drugId = 28103139399L; // Matches value in stamdata database with clause code = "KRINI"
         String elementPath = "path";
-        int age = 51;  // Hardcoded clauses in cache requires age > 50
+        int age = 51;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, invalidIndication, List.of());
 
         var response = validationApi.call20250801validatePost(request);
@@ -97,7 +97,7 @@ public class ValidationIT extends BaseTest {
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().get(0);
-        String expectedClauseCode = "KRINI"; // Hardcoded clauses code in stamdata cache
+        String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
         assertEquals(expectedClauseCode, validationError.getClauseCode());
         assertEquals(elementPath, validationError.getElementPath());
     }

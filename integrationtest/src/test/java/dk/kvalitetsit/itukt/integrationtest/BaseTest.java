@@ -56,9 +56,9 @@ public abstract class BaseTest {
                     .withName(networkName)
                     .withDriver("bridge")
                     .exec();
-            System.out.println("Created Docker network: " + networkName);
+            logger.info("Created Docker network: " + networkName);
         } else {
-            System.out.println("Docker network already exists: " + networkName);
+            logger.info("Docker network already exists: " + networkName);
         }
     }
 
@@ -71,9 +71,9 @@ public abstract class BaseTest {
 
         if (!exists) {
             docker.removeNetworkCmd(networkName).exec();
-            System.out.println("Removed Docker network: " + networkName);
+            logger.info("Removed Docker network: " + networkName);
         } else {
-            System.out.println("Docker network already exists: " + networkName);
+            logger.info("Could not remove network since it does not exist: " + networkName);
         }
     }
 

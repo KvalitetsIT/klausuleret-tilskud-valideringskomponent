@@ -50,5 +50,11 @@ class StamDataRepositoryImplIT extends BaseTest {
         Assertions.assertFalse(packing.isEmpty());
     }
 
+    @Test
+    void testFindAll(){
+        var entries = this.dao.findAll();
+        Assertions.assertFalse(entries.isEmpty());
+    }
+
 
 }

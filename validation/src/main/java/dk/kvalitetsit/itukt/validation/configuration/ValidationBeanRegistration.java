@@ -5,7 +5,6 @@ import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
-import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
@@ -17,7 +16,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
-import java.util.Map;
 
 @Configuration
 public class ValidationBeanRegistration {
@@ -41,9 +39,8 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public StamDataCache stamDataCache() {
-        // Hardcoded stamdata until we implement IUAKT-80
-        return new StamDataCache(Map.of(1L, new ClauseEntity("KRINI", null, null, null, null, "Kronisk Rhinitis.", null)));
+    public StamDataCache stamDataCache(StamDataRepository stamDataRepository) {
+        return new StamDataCache(configuration.stamdata().cache(), stamDataRepository);
     }
 
     @Bean

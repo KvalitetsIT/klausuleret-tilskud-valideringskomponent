@@ -6,7 +6,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
-import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess;
 import org.junit.jupiter.api.Test;
@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,9 +45,9 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheDoesNotContainClauseForDrugId_ReturnsSuccess() {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
-        var stamdataClause = new ClauseEntity("0000", null, null, null, null, null, null);
+        var stamdataClause = new StamdataEntity(new StamdataEntity.Drug(1234L), List.of(new StamdataEntity.Clause("0000", null)));
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
-        Mockito.when(clauseCache.getClause(stamdataClause.kode())).thenReturn(Optional.empty());
+        Mockito.when(clauseCache.getClause(stamdataClause.clause().getFirst().code())).thenReturn(Optional.empty());
 
         var result = service.validate(validationInput);
 
@@ -56,13 +57,13 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationSucceeds_ReturnsSuccess() {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
-        var stamdataClause = new ClauseEntity("0000", null, null, null, null, null, null);
+        var stamdataClause = new StamdataEntity(new StamdataEntity.Drug(1234L), List.of(new StamdataEntity.Clause("0000", null)));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(stamdataClause.kode(), null, null, expression);
+        var clause = new Clause(stamdataClause.clause().getFirst().code(), null, null, expression);
+
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(true);
-
 
         var result = service.validate(validationInput);
 
@@ -73,9 +74,9 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationFails_ReturnsValidationError() {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
-        var stamdataClause = new ClauseEntity("0000", null, null, null, null, "clause text", null);
+        var stamdataClause = new StamdataEntity(new StamdataEntity.Drug(null), List.of(new StamdataEntity.Clause("0000", "clause text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(stamdataClause.kode(), null, 123, expression);
+        var clause = new Clause(stamdataClause.clause().getFirst().code(), null, 123, expression);
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(false);
@@ -85,7 +86,7 @@ class ValidationServiceImplTest {
         Mockito.verify(expression).validates(validationInput);
         var validationError = assertInstanceOf(ValidationError.class, result);
         assertEquals(clause.name(), validationError.clauseCode());
-        assertEquals(stamdataClause.tekst(), validationError.clauseText());
+        assertEquals(stamdataClause.clause().getFirst().text(), validationError.clauseText());
         assertEquals(clause.errorCode(), validationError.errorCode());
     }
 

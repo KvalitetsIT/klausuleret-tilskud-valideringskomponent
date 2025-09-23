@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.validation.repository;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.validation.repository.entity.DrugEntity;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
 import dk.kvalitetsit.itukt.validation.repository.entity.PackingEnitity;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface StamDataRepository {
     List<PackingEnitity> findAllPackages() throws ServiceException;
 
     List<ClauseEntity> findAllClauses() throws ServiceException;
+
+    List<StamdataEntity> findAll() throws ServiceException;
 }

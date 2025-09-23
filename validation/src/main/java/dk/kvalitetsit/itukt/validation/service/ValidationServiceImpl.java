@@ -5,7 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
-import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess;
@@ -25,13 +25,17 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     @Override
     public ValidationResult validate(ValidationInput validationInput) {
         return stamDataCache.getClauseByDrugId(validationInput.drugId())
-                .flatMap(stamDataClause -> validateStamDataClause(validationInput, stamDataClause))
+                .flatMap(clause -> clause.clause().stream()
+                        .map(c -> validateStamDataClause(validationInput, c))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .findFirst())
                 .orElse(new ValidationSuccess());
     }
 
-    private Optional<ValidationResult> validateStamDataClause(ValidationInput validationInput, ClauseEntity stamDataClause) {
-        return clauseCache.getClause(stamDataClause.kode())
-                .map(clause -> validateClause(clause, stamDataClause.tekst(), validationInput));
+    private Optional<ValidationResult> validateStamDataClause(ValidationInput validationInput, StamdataEntity.Clause stamDataClause) {
+        return clauseCache.getClause(stamDataClause.code())
+                .map(clause -> validateClause(clause, stamDataClause.text(), validationInput));
     }
 
     private ValidationResult validateClause(Clause clause, String clauseText, ValidationInput validationInput) {

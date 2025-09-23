@@ -29,7 +29,7 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
-    
+
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
@@ -39,6 +39,7 @@ services:
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_URL=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_USERNAME=root
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD=
+      - ITUKT_VALIDATION_STAMDATA_CACHE_CRON=0 0 0 * * *
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       itukt-db:

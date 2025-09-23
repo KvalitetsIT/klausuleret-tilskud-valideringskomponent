@@ -4,5 +4,7 @@ import dk.kvalitetsit.itukt.common.configuration.DatasourceConfiguration;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-public record StamdataConfiguration(@NotNull @Valid DatasourceConfiguration stamdatadb) {
-}
+public record StamdataConfiguration(
+        CacheConfiguration cache,
+        @NotNull @Valid DatasourceConfiguration stamdatadb
+) { }

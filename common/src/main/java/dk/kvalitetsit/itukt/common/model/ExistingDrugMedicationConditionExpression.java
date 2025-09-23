@@ -1,17 +1,26 @@
 package dk.kvalitetsit.itukt.common.model;
 
+import java.util.List;
+
 public record ExistingDrugMedicationConditionExpression(
         String atcCode,
         String formCode,
         String routeOfAdministrationCode) implements Expression.Condition {
 
     @Override
-    public Field field() {
-        return Field.EXISTING_DRUG_MEDICATION;
+    public boolean validates(ValidationInput validationInput) {
+        List<ExistingDrugMedication> existingDrugMedication = validationInput.existingDrugMedication();
+        return existingDrugMedication.stream().anyMatch(this::itemMatches);
     }
 
-    @Override
-    public boolean matches(Object value) {
-        return false; // TODO: IUAKT-40
+    private boolean itemMatches(ExistingDrugMedication value) {
+        return value instanceof ExistingDrugMedication(String atcCodeValue, String formCodeValue, String routeOfAdministrationCodeValue) &&
+                valueMatchesCondition(atcCodeValue, this.atcCode) &&
+                valueMatchesCondition(formCodeValue, this.formCode) &&
+                valueMatchesCondition(routeOfAdministrationCodeValue, this.routeOfAdministrationCode);
+    }
+
+    private boolean valueMatchesCondition(String value, String condition) {
+        return condition.equals(value) || condition.equals("*");
     }
 }

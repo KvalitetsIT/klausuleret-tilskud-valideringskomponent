@@ -7,6 +7,7 @@ import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -23,11 +24,28 @@ public class ValidationIT extends BaseTest {
     }
 
     @Test
-    void call20250801validatePost_WithInputThatMatchesClauseAndValidates_ReturnsSuccess() {
+    void call20250801validatePost_WithInputThatMatchesClauseAndValidatesAgeAndIndication_ReturnsSuccess() {
         long drugId = 1L;// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(drugId, elementPath, age, validIndication);
+
+        var response = validationApi.call20250801validatePost(request);
+
+        assertInstanceOf(ValidationSuccess.class, response);
+    }
+
+    @Test
+    void call20250801validatePost_WithInputThatMatchesClauseAndValidatesExistingDrugMedication_ReturnsSuccess() {
+        long drugId = 1L;// Matches hardcoded value in cache
+        int age = 1;  // Hardcoded clause in cache requires age > 50
+        var existingDrugMedication = new ExistingDrugMedication()
+                .drugIdentifier(0L)
+                .atcCode("ATC123") // Matches hardcoded clause
+                .formCode("anything") // Hardcoded clause has wildcard for form
+                .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
+        var request = createValidationRequest(drugId, "path", age, validIndication)
+                .existingDrugMedications(List.of(existingDrugMedication));
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -73,7 +91,8 @@ public class ValidationIT extends BaseTest {
         return new ValidationRequest()
                 .age(age)
                 .personIdentifier("1234567890")
-                .addValidateItem(validate);
+                .addValidateItem(validate)
+                .existingDrugMedications(List.of());
     }
 
     private Validate createValidateElement(long drugId, String path, String indication) {

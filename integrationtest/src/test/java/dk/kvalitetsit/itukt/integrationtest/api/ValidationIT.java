@@ -44,8 +44,10 @@ public class ValidationIT extends BaseTest {
 
         var response = validationApi.call20250801validatePost(request);
 
-        var validationNotPossible = assertInstanceOf(ValidationNotPossible.class, response);
-        assertEquals(ValidationNotPossible.ReasonEnum.EXISTING_DRUG_MEDICATIONS_REQUIRED, validationNotPossible.getReason());
+        var validationNotPossible = assertInstanceOf(ValidationNotPossible.class, response,
+                "Validation should not be possible when existing drug medication is required but not provided");
+        assertEquals(ValidationNotPossible.ReasonEnum.EXISTING_DRUG_MEDICATIONS_REQUIRED, validationNotPossible.getReason(),
+                "Reason should be that existing drug medications are required");
     }
 
     @Test

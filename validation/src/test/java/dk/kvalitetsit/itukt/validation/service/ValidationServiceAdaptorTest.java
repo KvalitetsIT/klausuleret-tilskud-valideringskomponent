@@ -108,8 +108,10 @@ class ValidationServiceAdaptorTest {
 
         ValidationResponse response = validationServiceAdaptor.validate(request);
 
-        var notPossibleResponse = assertInstanceOf(ValidationNotPossible.class, response);
-        assertEquals(ValidationNotPossible.ReasonEnum.EXISTING_DRUG_MEDICATIONS_REQUIRED, notPossibleResponse.getReason());
+        var notPossibleResponse = assertInstanceOf(ValidationNotPossible.class, response,
+                "ValidationNotPossible expected when ExistingDrugMedicationRequiredException is thrown");
+        assertEquals(ValidationNotPossible.ReasonEnum.EXISTING_DRUG_MEDICATIONS_REQUIRED, notPossibleResponse.getReason(),
+                "Reason should be that existing drug medications are required");
     }
 
     private ValidationRequest createValidationRequest(int age, List<ExistingDrugMedication> existingDrugMedication, Validate ... validates) {

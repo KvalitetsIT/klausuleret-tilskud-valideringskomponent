@@ -89,16 +89,16 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void testCreateAndReadExistingDrugMedicationCondition() {
         var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
-        var clauseInput = new ClauseEntity("CLAUSE", existingDrugMedicationCondition);
 
-        UUID clauseUuid = repository.create(clauseInput).uuid();
+        UUID clauseUuid = repository.create("CLAUSE", existingDrugMedicationCondition).uuid();
         var readClause = repository.read(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
+        var expectedClause = new ClauseEntity(null, null, "CLAUSE", null, existingDrugMedicationCondition);
         assertThat(readClause.get())
                 .usingRecursiveComparison()
-                .ignoringFields("id", "uuid", "expression.id")
+                .ignoringFields("id", "uuid", "errorCode", "expression.id")
                 .withFailMessage("The clause read is expected to match the clause created")
-                .isEqualTo(clauseInput);
+                .isEqualTo(expectedClause);
     }
 }

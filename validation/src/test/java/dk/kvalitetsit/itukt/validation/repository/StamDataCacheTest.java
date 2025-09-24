@@ -44,4 +44,20 @@ class StamDataCacheTest {
         assertTrue(result.isPresent());
         assertEquals(data, result.get());
     }
+
+    @Test
+    void getClauseByDrugId_WithReload_WhenDrugIdIsInCache_ReturnsStamDataName() {
+        long drugId = 1L;
+        StamData data = new StamData(new StamData.Drug(drugId), List.of(new StamData.Clause("clauseCode", "long clause text")));
+
+        Mockito.when(mock.findAll()).thenReturn(List.of(data));
+        StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
+        stamDataCache.reload();
+
+        var result = stamDataCache.getStamDataByDrugId(drugId);
+
+        assertTrue(result.isPresent());
+        assertEquals(data, result.get());
+    }
+
 }

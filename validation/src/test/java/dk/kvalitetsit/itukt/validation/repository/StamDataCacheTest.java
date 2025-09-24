@@ -19,19 +19,19 @@ class StamDataCacheTest {
     private StamDataRepository mock;
 
     @Test
-    void getClauseByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
+    void getStamDataByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
         StamData data = new StamData(new StamData.Drug(1L), List.of(new StamData.Clause("clauseCode", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
         stamDataCache.init();
 
-        var result = stamDataCache.getClauseByDrugId(2L);
+        var result = stamDataCache.getStamDataByDrugId(2L);
 
         assertFalse(result.isPresent());
     }
 
     @Test
-    void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsClauseName() {
+    void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamDataName() {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), List.of(new StamData.Clause("clauseCode", "long clause text")));
 
@@ -39,7 +39,7 @@ class StamDataCacheTest {
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
         stamDataCache.init();
 
-        var result = stamDataCache.getClauseByDrugId(drugId);
+        var result = stamDataCache.getStamDataByDrugId(drugId);
 
         assertTrue(result.isPresent());
         assertEquals(data, result.get());

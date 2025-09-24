@@ -35,7 +35,7 @@ public class StamDataCache {
         this.drugIdToClauseMap = load();
     }
 
-    public Optional<StamData> getClauseByDrugId(long drugId) {
+    public Optional<StamData> getStamDataByDrugId(long drugId) {
         return Optional.ofNullable(drugIdToClauseMap.get(drugId));
     }
 

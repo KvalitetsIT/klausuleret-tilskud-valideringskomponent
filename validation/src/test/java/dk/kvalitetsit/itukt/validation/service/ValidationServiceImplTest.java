@@ -35,7 +35,7 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
-        Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.empty());
+        Mockito.when(stamDataCache.getStamDataByDrugId(validationInput.drugId())).thenReturn(Optional.empty());
 
         var result = service.validate(validationInput);
 
@@ -46,7 +46,7 @@ class ValidationServiceImplTest {
     void validate_WhenClauseCacheDoesNotContainClauseForDrugId_ReturnsSuccess() {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1234L), List.of(new StamData.Clause("0000", null)));
-        Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        Mockito.when(stamDataCache.getStamDataByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(stamdataClause.clause().getFirst().code())).thenReturn(Optional.empty());
 
         var result = service.validate(validationInput);
@@ -61,7 +61,7 @@ class ValidationServiceImplTest {
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(stamdataClause.clause().getFirst().code(), null, null, expression);
 
-        Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        Mockito.when(stamDataCache.getStamDataByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(true);
 
@@ -77,7 +77,7 @@ class ValidationServiceImplTest {
         var stamdataClause = new StamData(new StamData.Drug(null), List.of(new StamData.Clause("0000", "clause text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(stamdataClause.clause().getFirst().code(), null, 123, expression);
-        Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        Mockito.when(stamDataCache.getStamDataByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(false);
 
@@ -89,5 +89,45 @@ class ValidationServiceImplTest {
         assertEquals(stamdataClause.clause().getFirst().text(), validationError.clauseText());
         assertEquals(clause.errorCode(), validationError.errorCode());
     }
+
+
+    @Test
+    void validate_WhenClauseCacheContainsMultipleClausesWhereOneFails_ReturnsValidationError() {
+        // Arrange
+        var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
+
+        // two clauses in stamdata
+        var stamdataClause = new StamData(
+                new StamData.Drug(validationInput.drugId()),
+                List.of(
+                        new StamData.Clause("0001", "clause text"),
+                        new StamData.Clause("0002", "clause text")
+                )
+        );
+
+        var succeedingExpression = Mockito.mock(BinaryExpression.class);
+        Mockito.when(succeedingExpression.validates(validationInput)).thenReturn(true);
+        var clause_1 = new Clause(stamdataClause.clause().get(0).code(), null, null, succeedingExpression);
+
+        var failingExpression = Mockito.mock(BinaryExpression.class);
+        Mockito.when(failingExpression.validates(validationInput)).thenReturn(false);
+        var clause_2 = new Clause(stamdataClause.clause().get(1).code(), null, null, failingExpression);
+
+        Mockito.when(stamDataCache.getStamDataByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        Mockito.when(clauseCache.getClause(stamdataClause.clause().get(0).code())).thenReturn(Optional.of(clause_1));
+        Mockito.when(clauseCache.getClause(stamdataClause.clause().get(1).code())).thenReturn(Optional.of(clause_2));
+
+        var result = service.validate(validationInput);
+
+        Mockito.verify(succeedingExpression, Mockito.times(1)).validates(validationInput);
+        Mockito.verify(failingExpression, Mockito.times(1)).validates(validationInput);
+
+        Mockito.verify(clauseCache, Mockito.times(stamdataClause.clause().size())).getClause(Mockito.any());
+
+        var error = assertInstanceOf(ValidationError.class, result, "Expected the validation to fail and therefor a validation error");
+
+        assertEquals(clause_2.name(), error.clauseCode(), "Expected the name of the failing clause");
+    }
+
 
 }

@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +22,11 @@ public class StamDataRepositoryImpl implements StamDataRepository {
     public StamDataRepositoryImpl(DataSource dataSource) {
         this.template = new NamedParameterJdbcTemplate(dataSource);
         clauseRowMapper = new StamdataMapper();
+    }
+
+    private static StamData merge(StamData x, StamData y) {
+        var clauses = Stream.concat(x.clause().stream(), y.clause().stream()).collect(Collectors.toList());
+        return new StamData(x.drug(), clauses);
     }
 
     @Override
@@ -39,14 +45,9 @@ public class StamDataRepositoryImpl implements StamDataRepository {
 
             var result = template.query(sql, clauseRowMapper);
 
-            return result.stream().collect(Collectors.toMap(
-                    x -> x.drug().id(),
-                    x -> x,
-                    (x, y) -> {
-                        var clauses = Stream.concat(x.clause().stream(), y.clause().stream()).collect(Collectors.toList());
-                        return new StamData(x.drug(), clauses);
-                    }
-            )).values().stream().toList();
+            // group duplicate drugids and merge clauses
+            return result.stream().collect(Collectors.toMap(x -> x.drug().id(), Function.identity(), StamDataRepositoryImpl::merge)).values().stream().toList();
+
         } catch (Exception e) {
             throw new ServiceException("Failed to fetch all StamdataEntities", e);
         }
@@ -55,13 +56,7 @@ public class StamDataRepositoryImpl implements StamDataRepository {
     private static class StamdataMapper implements RowMapper<StamData> {
         @Override
         public StamData mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new StamData(
-                    new StamData.Drug(rs.getLong("d.DrugId")),
-                    List.of(new StamData.Clause(
-                            rs.getString("c.Kode"),
-                            rs.getString("c.Tekst")
-                    ))
-            );
+            return new StamData(new StamData.Drug(rs.getLong("d.DrugId")), List.of(new StamData.Clause(rs.getString("c.Kode"), rs.getString("c.Tekst"))));
         }
     }
 }

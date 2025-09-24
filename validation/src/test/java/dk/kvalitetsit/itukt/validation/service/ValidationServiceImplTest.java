@@ -6,7 +6,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamData;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheDoesNotContainClauseForDrugId_ReturnsSuccess() {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
-        var stamdataClause = new StamdataEntity(new StamdataEntity.Drug(1234L), List.of(new StamdataEntity.Clause("0000", null)));
+        var stamdataClause = new StamData(new StamData.Drug(1234L), List.of(new StamData.Clause("0000", null)));
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseCache.getClause(stamdataClause.clause().getFirst().code())).thenReturn(Optional.empty());
 
@@ -57,7 +57,7 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationSucceeds_ReturnsSuccess() {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
-        var stamdataClause = new StamdataEntity(new StamdataEntity.Drug(1234L), List.of(new StamdataEntity.Clause("0000", null)));
+        var stamdataClause = new StamData(new StamData.Drug(1234L), List.of(new StamData.Clause("0000", null)));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(stamdataClause.clause().getFirst().code(), null, null, expression);
 
@@ -74,7 +74,7 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationFails_ReturnsValidationError() {
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
-        var stamdataClause = new StamdataEntity(new StamdataEntity.Drug(null), List.of(new StamdataEntity.Clause("0000", "clause text")));
+        var stamdataClause = new StamData(new StamData.Drug(null), List.of(new StamData.Clause("0000", "clause text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(stamdataClause.clause().getFirst().code(), null, 123, expression);
         Mockito.when(stamDataCache.getClauseByDrugId(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));

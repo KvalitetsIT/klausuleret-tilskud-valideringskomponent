@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.validation.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,7 +20,7 @@ class StamDataCacheTest {
 
     @Test
     void getClauseByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
-        StamdataEntity data = new StamdataEntity(new StamdataEntity.Drug(1L), List.of(new StamdataEntity.Clause("clauseCode", "long clause text")));
+        StamData data = new StamData(new StamData.Drug(1L), List.of(new StamData.Clause("clauseCode", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
         stamDataCache.init();
@@ -33,7 +33,7 @@ class StamDataCacheTest {
     @Test
     void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsClauseName() {
         long drugId = 1L;
-        StamdataEntity data = new StamdataEntity(new StamdataEntity.Drug(drugId), List.of(new StamdataEntity.Clause("clauseCode", "long clause text")));
+        StamData data = new StamData(new StamData.Drug(drugId), List.of(new StamData.Clause("clauseCode", "long clause text")));
 
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);

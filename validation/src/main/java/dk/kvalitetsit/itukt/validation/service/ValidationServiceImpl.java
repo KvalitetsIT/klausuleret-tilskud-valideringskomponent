@@ -5,7 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamData;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess;
@@ -33,7 +33,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                 .orElse(new ValidationSuccess());
     }
 
-    private Optional<ValidationResult> validateStamDataClause(ValidationInput validationInput, StamdataEntity.Clause stamDataClause) {
+    private Optional<ValidationResult> validateStamDataClause(ValidationInput validationInput, StamData.Clause stamDataClause) {
         return clauseCache.getClause(stamDataClause.code())
                 .map(clause -> validateClause(clause, stamDataClause.text(), validationInput));
     }

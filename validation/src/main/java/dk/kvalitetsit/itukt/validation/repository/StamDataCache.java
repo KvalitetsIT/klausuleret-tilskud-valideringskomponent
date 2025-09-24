@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.validation.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamdataEntity;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamData;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class StamDataCache {
     private final CacheConfiguration configuration;
 
     private final StamDataRepository concreteStamDataRepository;
-    private Map<Long, StamdataEntity> drugIdToClauseMap = new HashMap<>();
+    private Map<Long, StamData> drugIdToClauseMap = new HashMap<>();
 
     public StamDataCache(CacheConfiguration configuration, StamDataRepository concreteStamDataRepository) {
         this.configuration = configuration;
@@ -35,11 +35,11 @@ public class StamDataCache {
         this.drugIdToClauseMap = load();
     }
 
-    public Optional<StamdataEntity> getClauseByDrugId(long drugId) {
+    public Optional<StamData> getClauseByDrugId(long drugId) {
         return Optional.ofNullable(drugIdToClauseMap.get(drugId));
     }
 
-    private Map<Long, StamdataEntity> load() {
+    private Map<Long, StamData> load() {
         var result = concreteStamDataRepository.findAll();
         logger.info("Loaded {} entries into cache", result.size());
         return result.stream().collect(Collectors.toMap(x -> x.drug().id(), x -> x, (x, y) -> x));

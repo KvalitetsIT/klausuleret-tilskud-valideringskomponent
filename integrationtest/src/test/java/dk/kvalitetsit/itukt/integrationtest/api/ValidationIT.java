@@ -37,7 +37,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithoutExistingDrugMedicationWhenItIsRequired_ReturnsValidationNotPossible() {
-        long drugId = 1L;// Matches hardcoded value in cache
+        long drugId = 28103139399L;// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 20;  // Hardcoded clause in cache requires age > 50 or existing drug medication
         var request = createValidationRequest(drugId, elementPath, age, validIndication, null);

@@ -26,7 +26,7 @@ public class StamDataCache {
     }
 
     @PostConstruct
-    public void init() {
+    private void init() {
         this.drugIdToClauseMap = load();
     }
 

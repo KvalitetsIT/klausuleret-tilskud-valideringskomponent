@@ -1,8 +1,10 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,10 +26,13 @@ class ManagementServiceImplTest {
 
     @Test
     void testCreate() {
-        var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.create(model.name(), model.expression())).thenReturn(model);
-        var result = service.create(model.name(), model.expression());
-        assertEquals(model, result);
+        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
+        var clause = Mockito.mock(Clause.class);
+        Mockito.when(dao.create(clauseForCreation)).thenReturn(clause);
+
+        var result = service.create(clauseForCreation);
+
+        assertEquals(clause, result, "Created clause should be returned from service");
     }
 
     @Test

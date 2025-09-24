@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
@@ -60,7 +61,7 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository) {
-        return new ClauseRepositoryAdaptor(clauseRepository, new ExpressionModelEntityMapper(), new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
+        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
     }
 
     @Bean
@@ -72,10 +73,10 @@ public class ManagementBeanRegistration {
     public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService managementService) {
         return new ManagementServiceAdaptor(
                 managementService,
-                new ExpressionDtoModelMapper(),
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
                 new ClauseDslModelMapper(),
-                new ClauseModelDslMapper(new ExpressionModelDslMapper())
+                new ClauseModelDslMapper(new ExpressionModelDslMapper()),
+                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper(), new ExpressionModelEntityMapper())
         );
     }
 

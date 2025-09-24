@@ -3,9 +3,8 @@ package dk.kvalitetsit.itukt.management.repository;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,18 +13,15 @@ import java.util.UUID;
 public class ClauseRepositoryAdaptor {
 
     private final ClauseRepository clauseRepository;
-    private final Mapper<Expression, ExpressionEntity> expressionMapper;
     private final Mapper<ClauseEntity, Clause> entityMapper;
 
-    public ClauseRepositoryAdaptor(ClauseRepository clauseRepository, Mapper<Expression, ExpressionEntity> expressionMapper, Mapper<ClauseEntity, Clause> entityMapper) {
+    public ClauseRepositoryAdaptor(ClauseRepository clauseRepository, Mapper<ClauseEntity, Clause> entityMapper) {
         this.clauseRepository = clauseRepository;
-        this.expressionMapper = expressionMapper;
         this.entityMapper = entityMapper;
     }
 
-    public Clause create(String name, Expression expression) throws ServiceException {
-        var expressionEntity = expressionMapper.map(expression);
-        var createdClause = clauseRepository.create(name, expressionEntity);
+    public Clause create(ClauseForCreation clause) throws ServiceException {
+        var createdClause = clauseRepository.create(clause);
         return entityMapper.map(createdClause);
     }
 

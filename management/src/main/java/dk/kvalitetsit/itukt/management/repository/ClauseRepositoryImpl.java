@@ -8,6 +8,7 @@ import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionType;
+import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -32,18 +33,18 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity create(String name, ExpressionEntity expression) throws ServiceException {
+    public ClauseEntity create(ClauseForCreation clause) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            ExpressionEntity createdExpression = create(expression);
+            ExpressionEntity createdExpression = create(clause.expression());
 
             template.update(
                     "INSERT INTO clause (uuid, name, expression_id) VALUES (:uuid, :name, :expression_id)",
                     new MapSqlParameterSource()
                             .addValue("uuid", uuid.toString())
-                            .addValue("name", name)
+                            .addValue("name", clause.name())
                             .addValue("expression_id", createdExpression.id()),
                     keyHolder,
                     new String[]{"id"}
@@ -53,9 +54,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            int errorCode = createErrorCode(name);
+            int errorCode = createErrorCode(clause.name());
 
-            return new ClauseEntity(clauseId, uuid, name, errorCode, createdExpression);
+            return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, createdExpression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);

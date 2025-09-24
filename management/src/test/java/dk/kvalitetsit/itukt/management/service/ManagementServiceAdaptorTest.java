@@ -1,12 +1,12 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
+import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,9 +32,6 @@ public class ManagementServiceAdaptorTest {
     private ManagementServiceImpl managementServiceImpl;
 
     @Mock
-    private ExpressionDtoModelMapper expressionMapper;
-
-    @Mock
     private ClauseModelDtoMapper clauseModelDtoMapper;
 
     @Mock
@@ -43,19 +40,22 @@ public class ManagementServiceAdaptorTest {
     @Mock
     private ClauseModelDslMapper clauseModelDslMapper;
 
+    @Mock
+    private Mapper<ClauseInput, ClauseForCreation> clauseInputMapper;
+
     @BeforeEach
     void setUp() {
-        adaptor = new ManagementServiceAdaptor(managementServiceImpl, expressionMapper, clauseModelDtoMapper, clauseDslModelMapper, clauseModelDslMapper);
+        adaptor = new ManagementServiceAdaptor(managementServiceImpl, clauseModelDtoMapper, clauseDslModelMapper, clauseModelDslMapper, clauseInputMapper);
     }
 
     @Test
     void testCreate() {
         var clauseInput = new ClauseInput("testName", Mockito.mock(Expression.class));
-        var expression = Mockito.mock(StringConditionExpression.class);
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
-        Mockito.when(expressionMapper.map(clauseInput.getExpression())).thenReturn(expression);
-        Mockito.when(managementServiceImpl.create(clauseInput.getName(), expression)).thenReturn(clause);
+        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
+        Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForCreation);
+        Mockito.when(managementServiceImpl.create(clauseForCreation)).thenReturn(clause);
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
 
         var result = adaptor.create(clauseInput);
@@ -67,12 +67,12 @@ public class ManagementServiceAdaptorTest {
     void testCreateDsl() {
         var dslInput = new DslInput("test");
         var clauseInput = new ClauseInput("testName", Mockito.mock(Expression.class));
-        var expression = Mockito.mock(StringConditionExpression.class);
         var clause = Mockito.mock(Clause.class);
         var dslOutput = Mockito.mock(DslOutput.class);
+        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
+        Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForCreation);
         Mockito.when(clauseDslModelMapper.map(dslInput.getDsl())).thenReturn(clauseInput);
-        Mockito.when(expressionMapper.map(clauseInput.getExpression())).thenReturn(expression);
-        Mockito.when(managementServiceImpl.create(clauseInput.getName(), expression)).thenReturn(clause);
+        Mockito.when(managementServiceImpl.create(clauseForCreation)).thenReturn(clause);
         Mockito.when(clauseModelDslMapper.map(clause)).thenReturn(dslOutput);
 
         var result = adaptor.createDSL(dslInput);

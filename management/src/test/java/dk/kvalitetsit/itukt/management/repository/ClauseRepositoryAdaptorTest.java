@@ -2,11 +2,9 @@ package dk.kvalitetsit.itukt.management.repository;
 
 
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
-import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
+import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,36 +29,29 @@ public class ClauseRepositoryAdaptorTest {
     private ClauseRepositoryImpl concreteRepository;
 
     @Mock
-    private ExpressionModelEntityMapper expressionMapper;
-
-    @Mock
     private ClauseEntityModelMapper clauseEntityModelMapper;
 
     @BeforeEach
     void setUp() {
         adaptor = new ClauseRepositoryAdaptor(
                 concreteRepository,
-                expressionMapper,
                 clauseEntityModelMapper
         );
     }
 
     @Test
     void testCreate() {
-        var name = "test";
-        var expression = Mockito.mock(StringConditionExpression.class);
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var expressionEntity = Mockito.mock(ExpressionEntity.StringConditionEntity.class);
-        Mockito.when(expressionMapper.map(expression)).thenReturn(expressionEntity);
-        Mockito.when(concreteRepository.create(name, expressionEntity)).thenReturn(clauseEntity);
+        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
+        Mockito.when(concreteRepository.create(clauseForCreation)).thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 
-        var result = adaptor.create(name, expression);
+        var result = adaptor.create(clauseForCreation);
 
         assertEquals(outputClause, result);
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).create(name, expressionEntity);
+        Mockito.verify(concreteRepository, Mockito.times(1)).create(clauseForCreation);
     }
 
     @Test

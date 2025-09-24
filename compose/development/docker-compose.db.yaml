@@ -15,7 +15,7 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ../../configuration/ddl:/docker-entrypoint-initdb.d
+      - ../configuration/ddl:/docker-entrypoint-initdb.d
     networks:
       - ituktnet
 

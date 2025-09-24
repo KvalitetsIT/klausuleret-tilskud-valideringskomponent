@@ -41,7 +41,7 @@ public abstract class BaseTest {
     public static File getComposeFile() {
         var testWorkingDir = System.getProperty("user.dir");
         var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
-        return new File(projectRoot, "compose/development/compose/docker-compose.test.yaml");
+        return new File(projectRoot, "compose/development/docker-compose.test.yaml");
     }
 
     private static void createNetworkIfNotExists(String networkName) {

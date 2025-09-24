@@ -1,11 +1,11 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.validation.configuration.CacheConfiguration;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
-import dk.kvalitetsit.itukt.validation.service.model.StamData;
 
 import java.util.HashMap;
 import java.util.Map;

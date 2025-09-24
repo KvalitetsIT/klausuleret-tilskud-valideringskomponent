@@ -24,15 +24,30 @@ public class ValidationIT extends BaseTest {
     }
 
     @Test
-    void call20250801validatePost_WithInputThatMatchesClauseAndValidatesAgeAndIndication_ReturnsSuccess() {
+    void call20250801validatePost_WithoutExistingDrugMedicationWithInputThatMatchesClauseAndValidatesAgeAndIndication_ReturnsSuccess() {
         long drugId = 1L;// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(drugId, elementPath, age, validIndication);
+        var request = createValidationRequest(drugId, elementPath, age, validIndication, null);
 
         var response = validationApi.call20250801validatePost(request);
 
         assertInstanceOf(ValidationSuccess.class, response);
+    }
+
+    @Test
+    void call20250801validatePost_WithoutExistingDrugMedicationWhenItIsRequired_ReturnsValidationNotPossible() {
+        long drugId = 1L;// Matches hardcoded value in cache
+        String elementPath = "path";
+        int age = 20;  // Hardcoded clause in cache requires age > 50 or existing drug medication
+        var request = createValidationRequest(drugId, elementPath, age, validIndication, null);
+
+        var response = validationApi.call20250801validatePost(request);
+
+        var validationNotPossible = assertInstanceOf(ValidationNotPossible.class, response,
+                "Validation should not be possible when existing drug medication is required but not provided");
+        assertEquals(ValidationNotPossible.ReasonEnum.EXISTING_DRUG_MEDICATIONS_REQUIRED, validationNotPossible.getReason(),
+                "Reason should be that existing drug medications are required");
     }
 
     @Test
@@ -44,8 +59,7 @@ public class ValidationIT extends BaseTest {
                 .atcCode("ATC123") // Matches hardcoded clause
                 .formCode("anything") // Hardcoded clause has wildcard for form
                 .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
-        var request = createValidationRequest(drugId, "path", age, validIndication)
-                .existingDrugMedications(List.of(existingDrugMedication));
+        var request = createValidationRequest(drugId, "path", age, validIndication, List.of(existingDrugMedication));
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -57,7 +71,7 @@ public class ValidationIT extends BaseTest {
         long drugId = 1L;// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 50;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(drugId, elementPath, age, validIndication);
+        var request = createValidationRequest(drugId, elementPath, age, validIndication, List.of());
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -74,7 +88,7 @@ public class ValidationIT extends BaseTest {
         long drugId = 1L;// Matches hardcoded value in cache
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(drugId, elementPath, age, invalidIndication);
+        var request = createValidationRequest(drugId, elementPath, age, invalidIndication, List.of());
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -86,13 +100,13 @@ public class ValidationIT extends BaseTest {
         assertEquals(elementPath, validationError.getElementPath());
     }
 
-    private ValidationRequest createValidationRequest(long drugId, String elementPath, int age, String indication) {
+    private ValidationRequest createValidationRequest(long drugId, String elementPath, int age, String indication, List<ExistingDrugMedication> existingDrugMedication) {
         Validate validate = createValidateElement(drugId, elementPath, indication);
         return new ValidationRequest()
                 .age(age)
                 .personIdentifier("1234567890")
                 .addValidateItem(validate)
-                .existingDrugMedications(List.of());
+                .existingDrugMedications(existingDrugMedication);
     }
 
     private Validate createValidateElement(long drugId, String path, String indication) {

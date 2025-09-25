@@ -5,16 +5,14 @@ import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ClauseDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
-import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseModelEntityMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
@@ -26,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.common.model.Expression.Condition;
@@ -53,33 +50,33 @@ public class ManagementBeanRegistration {
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
-        var clause = new Clause("KRINI", Optional.of(UUID.randomUUID()), expression);
+        var clause = new Clause("KRINI", UUID.randomUUID(), 10800, expression);
         return new ClauseCache(List.of(clause));
     }
 
     @Bean
-    public ClauseRepository<ClauseEntity> clauseRepository(@Qualifier("appDataSource") DataSource dataSource){
+    public ClauseRepository clauseRepository(@Qualifier("appDataSource") DataSource dataSource){
         return new ClauseRepositoryImpl(dataSource);
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
-        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseModelEntityMapper(new ExpressionModelEntityMapper()), new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
+    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository) {
+        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
     }
 
     @Bean
-    public ManagementService<Clause> managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
+    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
         return new ManagementServiceImpl(clauseRepository);
     }
 
     @Bean
-    public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService<Clause> managementService) {
+    public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService managementService) {
         return new ManagementServiceAdaptor(
                 managementService,
-                new ClauseDtoModelMapper(new ExpressionDtoModelMapper()),
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
                 new ClauseDslModelMapper(),
-                new ClauseModelDslMapper(new ExpressionModelDslMapper())
+                new ClauseModelDslMapper(new ExpressionModelDslMapper()),
+                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper(), new ExpressionModelEntityMapper())
         );
     }
 

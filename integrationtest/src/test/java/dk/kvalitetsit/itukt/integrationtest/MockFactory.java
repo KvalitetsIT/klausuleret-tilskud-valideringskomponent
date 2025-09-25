@@ -11,7 +11,6 @@ import org.openapitools.client.model.ClauseInput;
 import org.openapitools.client.model.ClauseOutput;
 import org.openapitools.client.model.DslInput;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_TO;
@@ -31,14 +30,14 @@ public class MockFactory {
             BinaryExpression.Operator.AND,
             EXPRESSION_6_ENTITY
     );
-    private static final ExpressionEntity EXPRESSION_1_ENTITY = new BinaryExpressionEntity(
+    public static final ExpressionEntity EXPRESSION_1_ENTITY = new BinaryExpressionEntity(
             1L,
             EXPRESSION_2_ENTITY,
             BinaryExpression.Operator.OR,
             EXPRESSION_7_ENTITY
     );
     // Note: This clause(clause_1_entity) matches: clause_1_dsl
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", EXPRESSION_1_ENTITY);
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", 0, EXPRESSION_1_ENTITY);
     private static final NumberConditionExpression EXPRESSION_6_MODEL = new NumberConditionExpression(
             EXPRESSION_6_ENTITY.field(),
             EXPRESSION_6_ENTITY.operator(),
@@ -82,7 +81,7 @@ public class MockFactory {
                     EXPRESSION_6_MODEL
             )
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), Optional.of(CLAUSE_1_ENTITY.uuid()), EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), 10800, EXPRESSION_1_MODEL);
     private static final org.openapitools.client.model.StringCondition EXPRESSION_2_DTO = new org.openapitools.client.model.StringCondition()
             .type("StringCondition")
             .field(EXPRESSION_2_MODEL.field().name())
@@ -100,7 +99,7 @@ public class MockFactory {
     public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
-            .uuid(CLAUSE_1_MODEL.uuid().get());
+            .uuid(CLAUSE_1_MODEL.uuid());
 
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")

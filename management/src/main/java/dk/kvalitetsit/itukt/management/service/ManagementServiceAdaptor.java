@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.openapitools.model.ClauseInput;
 import org.openapitools.model.ClauseOutput;
 import org.openapitools.model.DslInput;
@@ -14,35 +15,35 @@ import java.util.UUID;
 
 public class ManagementServiceAdaptor {
 
-    private final ManagementService<dk.kvalitetsit.itukt.common.model.Clause> clauseService;
-    private final Mapper<ClauseInput, dk.kvalitetsit.itukt.common.model.Clause> dtoClauseMapper;
+    private final ManagementService clauseService;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
     private final Mapper<String, ClauseInput> dslClauseMapper;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper;
+    private final Mapper<ClauseInput, ClauseForCreation> clauseInputMapper;
 
     public ManagementServiceAdaptor(
-            ManagementService<dk.kvalitetsit.itukt.common.model.Clause> clauseService,
-            Mapper<ClauseInput, dk.kvalitetsit.itukt.common.model.Clause> dtoModelMapper,
+            ManagementService clauseService,
             Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
             Mapper<String, ClauseInput> dslClauseMapper,
-            Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper
+            Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper,
+            Mapper<ClauseInput, ClauseForCreation> clauseInputMapper
     ) {
         this.clauseService = clauseService;
-        this.dtoClauseMapper = dtoModelMapper;
         this.clauseDtoMapper = modelDtoMapper;
         this.dslClauseMapper = dslClauseMapper;
         this.clauseDslMapper = clauseDslMapper;
+        this.clauseInputMapper = clauseInputMapper;
     }
 
-    public ClauseOutput create(ClauseInput entry) throws ServiceException {
-        var model = dtoClauseMapper.map(entry);
-        return clauseDtoMapper.map(clauseService.create(model));
+    public ClauseOutput create(ClauseInput clauseInput) throws ServiceException {
+        var clauseForCreation = clauseInputMapper.map(clauseInput);
+        return clauseDtoMapper.map(clauseService.create(clauseForCreation));
     }
 
     public DslOutput createDSL(DslInput dsl) throws ServiceException {
-        var clause = this.dslClauseMapper.map(dsl.getDsl());
-        var model = this.dtoClauseMapper.map(clause);
-        return clauseDslMapper.map(clauseService.create(model));
+        var clauseInput = this.dslClauseMapper.map(dsl.getDsl());
+        var clauseForCreation = clauseInputMapper.map(clauseInput);
+        return clauseDslMapper.map(clauseService.create(clauseForCreation));
     }
 
     public Optional<ClauseOutput> read(UUID id) throws ServiceException {

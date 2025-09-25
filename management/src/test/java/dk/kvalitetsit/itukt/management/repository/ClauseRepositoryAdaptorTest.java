@@ -1,14 +1,13 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
-import dk.kvalitetsit.itukt.management.MockFactory;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
-import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseModelEntityMapper;
+import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -16,10 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_ENTITY;
-import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_MODEL;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,52 +29,53 @@ public class ClauseRepositoryAdaptorTest {
     private ClauseRepositoryImpl concreteRepository;
 
     @Mock
-    private ClauseModelEntityMapper clauseModelEntityMapper;
-
-    @Mock
     private ClauseEntityModelMapper clauseEntityModelMapper;
 
     @BeforeEach
     void setUp() {
         adaptor = new ClauseRepositoryAdaptor(
                 concreteRepository,
-                clauseModelEntityMapper,
                 clauseEntityModelMapper
         );
-        Mockito.when(clauseEntityModelMapper.map(CLAUSE_1_ENTITY)).thenReturn(CLAUSE_1_MODEL);
     }
 
     @Test
     void testCreate() {
-        Mockito.when(clauseModelEntityMapper.map(CLAUSE_1_MODEL)).thenReturn(CLAUSE_1_ENTITY);
-        Mockito.when(concreteRepository.create(Mockito.any(ClauseEntity.class))).thenReturn(MockFactory.CLAUSE_1_ENTITY);
+        var outputClause = Mockito.mock(Clause.class);
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
+        Mockito.when(concreteRepository.create(clauseForCreation)).thenReturn(clauseEntity);
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 
-        var result = adaptor.create(CLAUSE_1_MODEL);
-        assertEquals(CLAUSE_1_MODEL, result);
+        var result = adaptor.create(clauseForCreation);
 
-        var captor = ArgumentCaptor.forClass(ClauseEntity.class);
-        Mockito.verify(concreteRepository, Mockito.times(1)).create(captor.capture());
-        ClauseEntity actual_model = captor.getValue();
+        assertEquals(outputClause, result);
 
-        assertThat(actual_model)
-                .usingRecursiveComparison()
-                .ignoringFields("id", "expression.left.id", "expression.right.id", "expression.right.left.id", "expression.right.right.id")
-                .isEqualTo(MockFactory.CLAUSE_1_ENTITY);
+        Mockito.verify(concreteRepository, Mockito.times(1)).create(clauseForCreation);
     }
 
     @Test
     void testRead() {
-        var uuid = CLAUSE_1_MODEL.uuid().get();
-        Mockito.when(concreteRepository.read(uuid)).thenReturn(Optional.of(CLAUSE_1_ENTITY));
+        var uuid = UUID.randomUUID();
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        Mockito.when(concreteRepository.read(uuid)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
         var result = adaptor.read(uuid);
-        assertEquals(CLAUSE_1_MODEL, result.get());
+
+        assertEquals(clause, result.get());
     }
 
     @Test
     void testReadAll() {
-        Mockito.when(concreteRepository.readAll()).thenReturn(List.of(CLAUSE_1_ENTITY));
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        Mockito.when(concreteRepository.readAll()).thenReturn(List.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
         var result = adaptor.readAll();
-        assertEquals(List.of(CLAUSE_1_MODEL), result);
+        assertEquals(List.of(clause), result);
     }
 }
 

@@ -4,9 +4,6 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.model.ClauseOutput> {
 
     private final Mapper<Expression, org.openapitools.model.Expression> expressionModelMapper;
@@ -17,12 +14,10 @@ public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.mod
 
     @Override
     public org.openapitools.model.ClauseOutput map(Clause entry) {
-        var dto = new org.openapitools.model.ClauseOutput(
+        return new org.openapitools.model.ClauseOutput(
                 entry.name(),
                 this.expressionModelMapper.map(entry.expression()),
-                entry.uuid().get()
+                entry.uuid()
         );
-        entry.uuid().ifPresent(dto::uuid);
-        return dto;
     }
 }

@@ -73,8 +73,8 @@ class ValidationServiceAdaptorTest {
         Validate validate2 = createValidate(2L, "1234", "path2");
         Validate validate3 = createValidate(3L, "1234", "path3");
         ValidationRequest request = createValidationRequest(10, List.of(), validate1, validate2, validate3);
-        var validationError1 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError("clause1", "text1", "message1");
-        var validationError2 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError("clause2", "text2", "message2");
+        var validationError1 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError("clause1", "text1", "message1", 1);
+        var validationError2 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError("clause2", "text2", "message2", 2);
         Mockito.when(validationService.validate(Mockito.argThat(input -> input != null && input.drugId() == 1L)))
                 .thenReturn(validationError1);
         Mockito.when(validationService.validate(Mockito.argThat(input -> input != null && input.drugId() == 2L)))
@@ -97,6 +97,8 @@ class ValidationServiceAdaptorTest {
         var responseError2 = responseErrors.get(validationError2.clauseCode());
         assertEquals(validationError2.clauseText(), responseError2.getClauseText());
         assertEquals(validate2.getElementPath(), responseError2.getElementPath());
+        assertEquals(validationError1.errorCode(), responseError1.getErrorCode());
+        assertEquals(validationError2.errorCode(), responseError2.getErrorCode());
     }
 
     @Test

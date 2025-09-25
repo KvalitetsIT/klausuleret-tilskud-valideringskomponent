@@ -68,7 +68,7 @@ class ManagementIT extends BaseTest {
         assertThat(clause)
                 .usingRecursiveComparison()
                 .ignoringFields("uuid")
-                .withFailMessage("The clause read is expected to match the clause created")
+                .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
 

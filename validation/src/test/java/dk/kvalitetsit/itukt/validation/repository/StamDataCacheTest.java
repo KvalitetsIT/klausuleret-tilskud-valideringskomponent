@@ -1,15 +1,15 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.validation.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamData;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.sql.Time;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +21,7 @@ class StamDataCacheTest {
 
     @Test
     void getStamDataByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
-        StamData data = new StamData(new StamData.Drug(1L), List.of(new StamData.Clause("clauseCode", "long clause text")));
+        StamData data = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("clauseCode", "long clauses text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
         stamDataCache.reload();
@@ -34,7 +34,7 @@ class StamDataCacheTest {
     @Test
     void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamDataName() {
         long drugId = 1L;
-        StamData data = new StamData(new StamData.Drug(drugId), List.of(new StamData.Clause("clauseCode", "long clause text")));
+        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clauses text")));
 
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
@@ -49,7 +49,7 @@ class StamDataCacheTest {
     @Test
     void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamdataAndNoMoreInteractions() {
         long drugId = 1L;
-        StamData data = new StamData(new StamData.Drug(drugId), List.of(new StamData.Clause("clauseCode", "long clause text")));
+        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clauses text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
         stamDataCache.reload(); // <- Invokes the mock once

@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.validation.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamData;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +17,12 @@ public class StamDataCache {
     private final Logger logger = LoggerFactory.getLogger(StamDataCache.class);
     private final CacheConfiguration configuration;
 
-    private final StamDataRepository concreteStamDataRepository;
+    private final StamDataRepository<StamData> concreteStamDataRepository;
     private Map<Long, StamData> drugIdToClauseMap = new HashMap<>();
 
-    public StamDataCache(CacheConfiguration configuration, StamDataRepository concreteStamDataRepository) {
+    public StamDataCache(CacheConfiguration configuration, StamDataRepository<StamData> stamDataRepository) {
         this.configuration = configuration;
-        this.concreteStamDataRepository = concreteStamDataRepository;
+        this.concreteStamDataRepository = stamDataRepository;
     }
 
     @PostConstruct

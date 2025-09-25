@@ -1,10 +1,11 @@
 package dk.kvalitetsit.itukt.validation.service;
 
+import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
-import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
 import org.openapitools.model.*;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,9 +15,9 @@ import java.util.Optional;
  */
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
-    private final ValidationService<ValidationInput, ValidationResult> validationService;
+    private final ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService;
 
-    public ValidationServiceAdaptor(ValidationService<ValidationInput, ValidationResult> validationService) {
+    public ValidationServiceAdaptor(ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService) {
         this.validationService = validationService;
     }
 
@@ -38,14 +39,12 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                 new ValidationFailed().validationErrors(validationErrors);
     }
 
-    private Optional<ValidationError> validate(ValidationRequest request, Validate validate) {
+    private List<ValidationError> validate(ValidationRequest request, Validate validate) {
         var validationInput = mapToValidationInput(request, validate);
-        var result = validationService.validate(validationInput);
-        return switch (result) {
-            case dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess ignored -> Optional.empty();
-            case dk.kvalitetsit.itukt.validation.service.model.ValidationError error ->
-                    Optional.of(mapValidationError(validate, error));
-        };
+        return validationService.validate(validationInput)
+                .stream()
+                .map(error -> mapValidationError(validate, error))
+                .toList();
     }
 
     private ValidationError mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {

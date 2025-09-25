@@ -30,6 +30,6 @@ public class ClauseRepositoryAdaptor {
     }
 
     public List<Clause> readAll() throws ServiceException {
-        return clauseRepository.readAll().stream().map(this.entityMapper::map).toList();
+        return this.entityMapper.map(clauseRepository.readAll());
     }
 }

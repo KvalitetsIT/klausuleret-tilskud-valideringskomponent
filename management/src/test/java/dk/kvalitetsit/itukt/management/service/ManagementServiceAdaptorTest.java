@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openapitools.model.ClauseOutput;
 import org.openapitools.model.*;
 
 import java.util.List;
@@ -98,7 +99,7 @@ public class ManagementServiceAdaptorTest {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         Mockito.when(managementServiceImpl.readAll()).thenReturn(List.of(clause));
-        Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
+        Mockito.when(clauseModelDtoMapper.map(List.of(clause))).thenReturn(List.of(clauseOutput));
 
         var result = adaptor.readAll();
 

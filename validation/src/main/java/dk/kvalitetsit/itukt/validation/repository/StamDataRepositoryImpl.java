@@ -1,36 +1,27 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamData;
-import org.springframework.jdbc.core.RowMapper;
+import dk.kvalitetsit.itukt.validation.repository.entity.StamDataEntity;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class StamDataRepositoryImpl implements StamDataRepository {
+public class StamDataRepositoryImpl implements StamDataRepository<StamDataEntity> {
 
-    private final RowMapper<StamData> clauseRowMapper;
+    private final DataClassRowMapper<StamDataEntity> clauseRowMapper;
 
     private final NamedParameterJdbcTemplate template;
 
     public StamDataRepositoryImpl(DataSource dataSource) {
         this.template = new NamedParameterJdbcTemplate(dataSource);
-        clauseRowMapper = new StamdataMapper();
+        clauseRowMapper = DataClassRowMapper.newInstance(StamDataEntity.class);
     }
 
-    private static StamData merge(StamData x, StamData y) {
-        var clauses = Stream.concat(x.clause().stream(), y.clause().stream()).collect(Collectors.toList());
-        return new StamData(x.drug(), clauses);
-    }
 
     @Override
-    public List<StamData> findAll() throws ServiceException {
+    public List<StamDataEntity> findAll() throws ServiceException {
         try {
             String sql = """
                     SELECT d.DrugId, c.Kode, c.Tekst
@@ -43,20 +34,10 @@ public class StamDataRepositoryImpl implements StamDataRepository {
                     AND c.validfrom < NOW() AND c.validto > NOW()
                     """;
 
-            var result = template.query(sql, clauseRowMapper);
-
-            // group duplicate drugids and merge clauses
-            return result.stream().collect(Collectors.toMap(x -> x.drug().id(), Function.identity(), StamDataRepositoryImpl::merge)).values().stream().toList();
+            return template.query(sql, clauseRowMapper);
 
         } catch (Exception e) {
             throw new ServiceException("Failed to fetch all StamdataEntities", e);
-        }
-    }
-
-    private static class StamdataMapper implements RowMapper<StamData> {
-        @Override
-        public StamData mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new StamData(new StamData.Drug(rs.getLong("d.DrugId")), List.of(new StamData.Clause(rs.getString("c.Kode"), rs.getString("c.Tekst"))));
         }
     }
 }

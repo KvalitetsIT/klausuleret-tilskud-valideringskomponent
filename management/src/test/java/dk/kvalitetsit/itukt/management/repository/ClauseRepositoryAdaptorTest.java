@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 
 import dk.kvalitetsit.itukt.management.MockFactory;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.common.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseModelEntityMapper;
 import org.junit.jupiter.api.BeforeEach;

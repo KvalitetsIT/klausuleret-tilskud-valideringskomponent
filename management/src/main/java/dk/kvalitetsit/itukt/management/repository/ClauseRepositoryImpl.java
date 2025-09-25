@@ -1,13 +1,13 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
+import dk.kvalitetsit.itukt.common.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionType;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.Operator;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -29,38 +29,6 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     public ClauseRepositoryImpl(DataSource dataSource) {
         template = new NamedParameterJdbcTemplate(dataSource);
         existingDrugMedicationRowMapper = new DataClassRowMapper<>(ExpressionEntity.ExistingDrugMedicationConditionEntity.class);
-    }
-
-    @Override
-    public ClauseEntity create(ClauseEntity clause) throws ServiceException {
-        try {
-            UUID uuid = UUID.randomUUID();
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-
-            ExpressionEntity expression = create(clause.expression());
-
-            template.update(
-                    "INSERT INTO clause (uuid, name, expression_id) VALUES (:uuid, :name, :expression_id)",
-                    new MapSqlParameterSource()
-                            .addValue("uuid", uuid.toString())
-                            .addValue("name", clause.name())
-                            .addValue("expression_id", expression.id()),
-                    keyHolder,
-                    new String[]{"id"}
-            );
-
-            long clauseId = Optional.ofNullable(keyHolder.getKey())
-                    .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
-                    .longValue();
-
-            createErrorCode(clause.name());
-
-            return new ClauseEntity(clauseId, uuid, clause.name(), expression);
-
-        } catch (Exception e) {
-            logger.error("Failed to create clause", e);
-            throw new ServiceException("Failed to create clause", e);
-        }
     }
 
 
@@ -108,7 +76,39 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
     }
 
     @Override
-    public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
+    public ClauseEntity.PersistedClause create(ClauseEntity.NewClause clause) throws ServiceException {
+        try {
+            UUID uuid = UUID.randomUUID();
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            ExpressionEntity expression = create(clause.expression());
+
+            template.update(
+                    "INSERT INTO clause (uuid, name, expression_id) VALUES (:uuid, :name, :expression_id)",
+                    new MapSqlParameterSource()
+                            .addValue("uuid", uuid.toString())
+                            .addValue("name", clause.name())
+                            .addValue("expression_id", expression.id()),
+                    keyHolder,
+                    new String[]{"id"}
+            );
+
+            long clauseId = Optional.ofNullable(keyHolder.getKey())
+                    .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
+                    .longValue();
+
+            createErrorCode(clause.name());
+
+            return new ClauseEntity.PersistedClause(clauseId, uuid, clause.name(), expression);
+
+        } catch (Exception e) {
+            logger.error("Failed to create clause", e);
+            throw new ServiceException("Failed to create clause", e);
+        }
+    }
+
+    @Override
+    public Optional<ClauseEntity.PersistedClause> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
                         SELECT c.id, c.name, c.expression_id, e.type
@@ -126,7 +126,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
             ExpressionEntity expression = readExpression(type, expressionId);
 
-            return Optional.of(new ClauseEntity(id, uuid, name, expression));
+            return Optional.of(new ClauseEntity.PersistedClause(id, uuid, name, expression));
 
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -147,7 +147,7 @@ public class ClauseRepositoryImpl implements ClauseRepository<ClauseEntity> {
 
 
     @Override
-    public List<ClauseEntity> readAll() throws ServiceException {
+    public List<ClauseEntity.PersistedClause> readAll() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid

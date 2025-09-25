@@ -3,8 +3,8 @@ package dk.kvalitetsit.itukt.management.repository.mapping.model;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.common.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity;
 
 public class ClauseModelEntityMapper implements Mapper<Clause, ClauseEntity> {
 

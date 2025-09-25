@@ -4,11 +4,11 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
 import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
+import dk.kvalitetsit.itukt.common.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity.BinaryExpressionEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity.NumberConditionEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity.StringConditionEntity;
 import org.openapitools.model.*;
 
 import java.util.Optional;

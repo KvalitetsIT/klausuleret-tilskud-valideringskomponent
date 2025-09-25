@@ -1,11 +1,11 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.common.model.*;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
+import dk.kvalitetsit.itukt.common.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity.BinaryExpressionEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity.NumberConditionEntity;
+import dk.kvalitetsit.itukt.common.entity.ExpressionEntity.StringConditionEntity;
 import org.openapitools.client.model.BinaryOperator;
 import org.openapitools.client.model.ClauseInput;
 import org.openapitools.client.model.ClauseOutput;

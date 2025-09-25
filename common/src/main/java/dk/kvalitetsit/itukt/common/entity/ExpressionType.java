@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.management.repository.entity;
+package dk.kvalitetsit.itukt.common.entity;
 
 public enum ExpressionType {
     STRING_CONDITION,

@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.management.repository.mapping.entity;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.common.entity.ClauseEntity;
 
 import java.util.Optional;
 

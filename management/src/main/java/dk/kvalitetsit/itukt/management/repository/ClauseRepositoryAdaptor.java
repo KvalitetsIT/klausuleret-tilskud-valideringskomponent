@@ -1,35 +1,41 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.common.entity.ClauseModel;
+import dk.kvalitetsit.itukt.common.entity.State;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ClauseRepositoryAdaptor implements ClauseRepository<Clause> {
+public class ClauseRepositoryAdaptor implements ClauseRepository<ClauseModel> {
 
     private final ClauseRepository<ClauseEntity> clauseRepository;
-    private final Mapper<Clause, ClauseEntity> modelMapper;
-    private final Mapper<ClauseEntity, Clause> entityMapper;
+    private final Mapper<ClauseModel.NewClause, ClauseEntity.NewClause> newMapper;
+    private final Mapper<ClauseEntity.PersistedClause, ClauseModel.PersistedClause> persistedMapper;
 
-    public ClauseRepositoryAdaptor(ClauseRepository<ClauseEntity> clauseRepository, Mapper<Clause, ClauseEntity> modelMapper, Mapper<ClauseEntity, Clause> entityMapper) {
+    public ClauseRepositoryAdaptor(ClauseRepository<ClauseEntity> clauseRepository, Mapper<ClauseModel.NewClause, ClauseEntity.NewClause> newMapper, Mapper<ClauseEntity.PersistedClause, ClauseModel.PersistedClause> persistedMapper) {
         this.clauseRepository = clauseRepository;
-        this.modelMapper = modelMapper;
-        this.entityMapper = entityMapper;
+        this.newMapper = newMapper;
+        this.persistedMapper = persistedMapper;
     }
 
-    public Clause create(Clause entry) throws ServiceException {
-        return entityMapper.map(clauseRepository.create(modelMapper.map(entry)));
+
+    @Override
+    public State.Persisted create(State.New entry) throws ServiceException {
+
     }
 
-    public Optional<Clause> read(UUID id) throws ServiceException {
-        return clauseRepository.read(id).map(entityMapper::map);
+    @Override
+    public Optional<State.Persisted> read(UUID id) throws ServiceException {
+        return Optional.empty();
     }
 
-    public List<Clause> readAll() throws ServiceException {
-        return clauseRepository.readAll().stream().map(this.entityMapper::map).toList();
+    @Override
+    public List<State.Persisted> readAll() throws ServiceException {
+        return List.of();
     }
 }

@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.management.repository.entity;
+package dk.kvalitetsit.itukt.common.entity;
 
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;

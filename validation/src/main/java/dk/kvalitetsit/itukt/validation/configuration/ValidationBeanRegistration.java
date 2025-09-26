@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
-import dk.kvalitetsit.itukt.validation.StamDataMapper;
+import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;

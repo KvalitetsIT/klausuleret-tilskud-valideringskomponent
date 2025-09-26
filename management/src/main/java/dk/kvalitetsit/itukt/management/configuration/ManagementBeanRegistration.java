@@ -36,18 +36,18 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseCache clauseCache(ClauseRepository<Clause> clauseRepository) {
+    public ClauseCache clauseCache(ClauseRepositoryAdaptor clauseRepository) {
         return new ClauseCacheImpl(configuration.cache(), clauseRepository);
     }
 
     @Bean
-    public ClauseRepository<ClauseEntity> clauseRepository(@Qualifier("appDataSource") DataSource dataSource) {
+    public ClauseRepository clauseRepository(@Qualifier("appDataSource") DataSource dataSource) {
         return new ClauseRepositoryImpl(dataSource);
     }
 
     @Bean
-    public ClauseRepository<Clause> clauseRepositoryAdaptor(@Autowired ClauseRepository<ClauseEntity> clauseRepository) {
-        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseModelEntityMapper(new ExpressionModelEntityMapper()), new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
+    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository) {
+        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
     }
 
     @Bean

@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 public class StamdataCacheImpl implements StamdataCache {
 
     private final CacheConfiguration configuration;
-    private final StamDataRepository concreteStamDataRepository;
+    private final StamDataRepository<StamData> concreteStamDataRepository;
     private Map<Long, StamData> drugIdToClauseMap = new HashMap<>();
 
-    public StamdataCacheImpl(CacheConfiguration configuration, StamDataRepository concreteStamDataRepository) {
+    public StamdataCacheImpl(CacheConfiguration configuration, StamDataRepository<StamData> concreteStamDataRepository) {
         this.configuration = configuration;
         this.concreteStamDataRepository = concreteStamDataRepository;
     }

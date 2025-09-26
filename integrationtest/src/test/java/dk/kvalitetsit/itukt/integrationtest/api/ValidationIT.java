@@ -8,6 +8,7 @@ import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
@@ -33,7 +34,7 @@ public class ValidationIT extends BaseTest {
     }
 
     @Override
-    protected void load(ClauseRepository<ClauseEntity> repository) {
+    protected void load(ClauseRepository repository) {
         // Hardcoded clause for phase 1
         var ageAndIndication = new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.AGE, Operator.GREATER_THAN, 50),
@@ -46,7 +47,7 @@ public class ValidationIT extends BaseTest {
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
-        var clause = new ClauseEntity(1L, UUID.randomUUID(), "KRINI", expression);
+        var clause = new ClauseForCreation( "KRINI", expression);
 
         repository.create(clause);
     }

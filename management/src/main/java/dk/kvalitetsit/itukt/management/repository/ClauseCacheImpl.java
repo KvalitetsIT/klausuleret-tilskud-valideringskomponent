@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 public class ClauseCacheImpl implements ClauseCache {
 
     private final CacheConfiguration configuration;
-    private final ClauseRepository<Clause> clauseRepository;
+    private final ClauseRepositoryAdaptor clauseRepository;
     private Map<String, Clause> clauses = new HashMap<>();
 
-    public ClauseCacheImpl(CacheConfiguration configuration, ClauseRepository<Clause> clauseRepository) {
+    public ClauseCacheImpl(CacheConfiguration configuration, ClauseRepositoryAdaptor clauseRepository) {
         this.configuration = configuration;
         this.clauseRepository = clauseRepository;
     }

@@ -3,7 +3,6 @@ package dk.kvalitetsit.itukt.integrationtest;
 import com.github.dockerjava.api.DockerClient;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -124,7 +123,7 @@ public abstract class BaseTest {
      *
      * @param repository with a datasource injected
      */
-    protected abstract void load(ClauseRepository<ClauseEntity> repository);
+    protected abstract void load(ClauseRepository repository);
 
 
 }

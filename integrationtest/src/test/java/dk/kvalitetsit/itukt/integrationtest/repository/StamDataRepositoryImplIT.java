@@ -25,7 +25,7 @@ class StamDataRepositoryImplIT extends BaseTest {
 
 
     @Override
-    protected void load(ClauseRepository<ClauseEntity> repository) {
+    protected void load(ClauseRepository repository) {
         // Load data before component initialization
     }
 }

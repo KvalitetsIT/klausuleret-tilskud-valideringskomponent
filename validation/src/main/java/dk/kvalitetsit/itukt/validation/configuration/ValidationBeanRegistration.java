@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.StamDataMapper;
@@ -8,11 +7,9 @@ import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamDataEntity;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
-import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.openapitools.model.ValidationRequest;
 import org.openapitools.model.ValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,18 +35,18 @@ public class ValidationBeanRegistration {
 
 
     @Bean
-    public StamDataRepository<StamDataEntity> stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
+    public StamDataRepository stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
         return new StamDataRepositoryImpl(dataSource);
     }
 
     @Bean
-    public StamDataRepository<StamData> stamDataRepositoryAdaptor(StamDataRepository<StamDataEntity> stamDataRepository) {
-        Mapper<StamDataEntity, StamData> mapper = new StamDataMapper();
+    public StamDataRepositoryAdaptor stamDataRepositoryAdaptor(StamDataRepository stamDataRepository) {
+        StamDataMapper mapper = new StamDataMapper();
         return new StamDataRepositoryAdaptor(mapper, stamDataRepository);
     }
 
     @Bean
-    public StamDataCache stamDataCache(StamDataRepository<StamData> stamDataRepository) {
+    public StamDataCache stamDataCache(StamDataRepositoryAdaptor stamDataRepository) {
         return new StamDataCache(configuration.stamdata().cache(), stamDataRepository);
     }
 

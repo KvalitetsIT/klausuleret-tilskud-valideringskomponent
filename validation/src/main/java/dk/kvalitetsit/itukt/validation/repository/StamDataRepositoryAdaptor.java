@@ -1,24 +1,22 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.validation.repository.entity.StamDataEntity;
+import dk.kvalitetsit.itukt.validation.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 
-import java.util.List;
+import java.util.Map;
 
-public class StamDataRepositoryAdaptor implements StamDataRepository<StamData> {
+public class StamDataRepositoryAdaptor {
 
-    private final Mapper<StamDataEntity, StamData> stamDataMapper;
-    private final StamDataRepository<StamDataEntity> repository;
+    private final StamDataMapper stamDataMapper;
+    private final StamDataRepository repository;
 
-    public StamDataRepositoryAdaptor(Mapper<StamDataEntity, StamData> stamDataMapper, StamDataRepository<StamDataEntity> repository) {
+    public StamDataRepositoryAdaptor(StamDataMapper stamDataMapper, StamDataRepository repository) {
         this.stamDataMapper = stamDataMapper;
         this.repository = repository;
     }
 
-    @Override
-    public List<StamData> findAll() throws ServiceException {
+    public Map<Long, StamData> findAll() throws ServiceException {
         return stamDataMapper.map(repository.findAll());
     }
 }

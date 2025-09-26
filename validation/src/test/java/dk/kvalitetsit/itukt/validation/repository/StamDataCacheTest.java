@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,12 +17,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class StamDataCacheTest {
 
     @Mock
-    private StamDataRepository mock;
+    private StamDataRepositoryAdaptor mock;
 
     @Test
     void getStamDataByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
-        StamData data = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("clauseCode", "long clauses text")));
-        Mockito.when(mock.findAll()).thenReturn(List.of(data));
+        long drugId = 1L;
+        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clauses text")));
+        Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
         stamDataCache.reload();
 
@@ -36,7 +37,7 @@ class StamDataCacheTest {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clauses text")));
 
-        Mockito.when(mock.findAll()).thenReturn(List.of(data));
+        Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
         stamDataCache.reload();
 
@@ -50,7 +51,7 @@ class StamDataCacheTest {
     void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamdataAndNoMoreInteractions() {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clauses text")));
-        Mockito.when(mock.findAll()).thenReturn(List.of(data));
+        Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamDataCache stamDataCache = new StamDataCache(new CacheConfiguration(""), mock);
         stamDataCache.reload(); // <- Invokes the mock once
         Mockito.verify(mock, Mockito.times(1)).findAll();

@@ -10,17 +10,16 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class StamDataCache {
 
     private final Logger logger = LoggerFactory.getLogger(StamDataCache.class);
     private final CacheConfiguration configuration;
 
-    private final StamDataRepository<StamData> concreteStamDataRepository;
+    private final StamDataRepositoryAdaptor concreteStamDataRepository;
     private Map<Long, StamData> drugIdToClauseMap = new HashMap<>();
 
-    public StamDataCache(CacheConfiguration configuration, StamDataRepository<StamData> stamDataRepository) {
+    public StamDataCache(CacheConfiguration configuration, StamDataRepositoryAdaptor stamDataRepository) {
         this.configuration = configuration;
         this.concreteStamDataRepository = stamDataRepository;
     }
@@ -42,6 +41,6 @@ public class StamDataCache {
     private Map<Long, StamData> load() {
         var result = concreteStamDataRepository.findAll();
         logger.info("Loaded {} entries into cache", result.size());
-        return result.stream().collect(Collectors.toMap(x -> x.drug().id(), x -> x, (x, y) -> x));
+        return result;
     }
 }

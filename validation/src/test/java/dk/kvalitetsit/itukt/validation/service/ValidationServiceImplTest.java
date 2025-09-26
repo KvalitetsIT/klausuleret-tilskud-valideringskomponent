@@ -90,7 +90,7 @@ class ValidationServiceImplTest {
 
 
     @Test
-    void validate_WhenClauseCacheContainsMultipleClausesWhereOneFails_ReturnsValidationError() {
+    void validate_WhenClauseCacheContainsMultipleClausesWhereTwoFails_ReturnsValidationErrors() {
         // Arrange
         var validationInput = new ValidationInput(5, 1234, "", Optional.empty());
 

@@ -15,14 +15,18 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
 
     private final ClauseService clauseCache;
     private final StamdataCache stamDataCache;
+    private final SkippedValidationService skippedValidationService;
 
-    public ValidationServiceImpl(ClauseService clauseCache, StamdataCache stamDataCache) {
+    public ValidationServiceImpl(ClauseService clauseCache, StamdataCache stamDataCache, SkippedValidationService skippedValidationService) {
         this.clauseCache = clauseCache;
         this.stamDataCache = stamDataCache;
+        this.skippedValidationService = skippedValidationService;
     }
 
     @Override
     public List<ValidationError> validate(ValidationInput validationInput) {
+        createSkippedValidations(validationInput);
+
         Optional<StamData> stamDataByDrugId = stamDataCache.get(validationInput.drugId());
 
         return stamDataByDrugId.map(stamData -> stamData.clauses().stream()
@@ -30,15 +34,24 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                 .toList()).orElseGet(List::of);
     }
 
-    private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
-        return clause.expression().validates(validationInput) ?
-                Optional.empty() :
-                Optional.of(new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76", clause.errorCode()));
+    private void createSkippedValidations(ValidationInput validationInput) {
+        skippedValidationService.createSkippedValidations(validationInput.createdById(), validationInput.personId(), validationInput.skippedErrorCodes());
+        validationInput.reportedById().ifPresent(reportedBy -> skippedValidationService.createSkippedValidations(reportedBy, validationInput.personId(), validationInput.skippedErrorCodes()));
     }
 
     private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, StamData.Clause clause) {
         return clauseCache.get(clause.code())
                 .flatMap(c -> validateClause(c, clause.text(), validationInput));
+    }
 
+    private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
+        return shouldSkipClause(clause, validationInput) || clause.expression().validates(validationInput) ?
+                Optional.empty() :
+                Optional.of(new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76", clause.errorCode()));
+    }
+
+    private boolean shouldSkipClause(Clause clause, ValidationInput validationInput) {
+        return skippedValidationService.shouldSkipValidation(validationInput.createdById(), validationInput.personId(), clause) ||
+                (validationInput.reportedById().isPresent() && skippedValidationService.shouldSkipValidation(validationInput.reportedById().get(), validationInput.personId(), clause));
     }
 }

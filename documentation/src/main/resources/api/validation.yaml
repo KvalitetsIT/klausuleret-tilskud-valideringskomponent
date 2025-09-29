@@ -175,7 +175,13 @@ components:
     actor:
       description: "Aktør for lægemiddelordinationen"
       type: object
+      required:
+        - identifier
       properties:
+        identifier:
+          description: "Unikt id for aktøren"
+          type: string
+          example: "123456"
         specialityCode:
           description: "Lægens speciale jf. autorisationsregistret"
           type: string

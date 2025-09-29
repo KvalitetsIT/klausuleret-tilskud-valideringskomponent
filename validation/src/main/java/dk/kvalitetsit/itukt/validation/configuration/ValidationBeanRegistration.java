@@ -8,6 +8,7 @@ import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
+import dk.kvalitetsit.itukt.validation.service.SkippedValidationServiceImpl;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
@@ -57,7 +58,10 @@ public class ValidationBeanRegistration {
             @Autowired StamdataCache stamDataCache
     ) {
         return new ValidationServiceAdaptor(
-                new ValidationServiceImpl(clauseService, stamDataCache)
+                new ValidationServiceImpl(
+                        clauseService,
+                        stamDataCache,
+                        new SkippedValidationServiceImpl())
         );
     }
 

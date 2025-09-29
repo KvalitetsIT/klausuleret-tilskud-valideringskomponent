@@ -55,10 +55,10 @@ public class ManagementServiceAdaptor {
     }
 
     public List<ClauseOutput> readAll() throws ServiceException {
-        return clauseService.readAll().stream().map(clauseDtoMapper::map).toList();
+        return clauseDtoMapper.map(clauseService.readAll());
     }
 
     public List<DslOutput> readAllDsl() throws ServiceException {
-        return clauseService.readAll().stream().map(clauseDslMapper::map).toList();
+        return clauseDslMapper.map(clauseService.readAll());
     }
 }

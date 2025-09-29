@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
-import dk.kvalitetsit.itukt.validation.service.model.ValidationResult;
+import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,7 +24,7 @@ class ValidationServiceAdaptorTest {
     @InjectMocks
     private ValidationServiceAdaptor validationServiceAdaptor;
     @Mock
-    private ValidationService<ValidationInput, ValidationResult> validationService;
+    private ValidationService<ValidationInput, List<ValidationError>> validationService;
 
 
     @Test
@@ -42,7 +42,7 @@ class ValidationServiceAdaptorTest {
         Validate validate2 = createValidate(2L, "2222", "path2");
         ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication(1L, "atc", "form", "adm");
         ValidationRequest request = createValidationRequest(10, List.of(existingDrugMedication), validate1, validate2);
-        Mockito.when(validationService.validate(Mockito.any())).thenReturn(new dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess());
+        Mockito.when(validationService.validate(Mockito.any())).thenReturn(List.of());
 
         validationServiceAdaptor.validate(request);
 
@@ -58,8 +58,7 @@ class ValidationServiceAdaptorTest {
         Validate validate1 = createValidate(1L, "1234", "path1");
         Validate validate2 = createValidate(2L, "1234", "path2");
         ValidationRequest request = createValidationRequest(10, List.of(), validate1, validate2);
-        Mockito.when(validationService.validate(Mockito.any()))
-                .thenReturn(new dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess());
+        Mockito.when(validationService.validate(Mockito.any())).thenReturn(List.of());
 
         ValidationResponse response = validationServiceAdaptor.validate(request);
 
@@ -76,11 +75,11 @@ class ValidationServiceAdaptorTest {
         var validationError1 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError("clause1", "text1", "message1", 1);
         var validationError2 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError("clause2", "text2", "message2", 2);
         Mockito.when(validationService.validate(Mockito.argThat(input -> input != null && input.drugId() == 1L)))
-                .thenReturn(validationError1);
+                .thenReturn(List.of(validationError1));
         Mockito.when(validationService.validate(Mockito.argThat(input -> input != null && input.drugId() == 2L)))
-                .thenReturn(validationError2);
+                .thenReturn(List.of(validationError2));
         Mockito.when(validationService.validate(Mockito.argThat(input -> input != null && input.drugId() == 3L)))
-                .thenReturn(new dk.kvalitetsit.itukt.validation.service.model.ValidationSuccess());
+                .thenReturn(List.of());
 
         ValidationResponse response = validationServiceAdaptor.validate(request);
 
@@ -88,8 +87,8 @@ class ValidationServiceAdaptorTest {
         assertInstanceOf(ValidationFailed.class, response);
         var failedResponse = (ValidationFailed) response;
         assertEquals(2, failedResponse.getValidationErrors().size());
-        var responseErrors = failedResponse.getValidationErrors().stream()
-                .collect(Collectors.toMap(ValidationError::getClauseCode, Function.identity()));
+        var responseErrors = failedResponse.getValidationErrors().stream().collect(Collectors.toMap(org.openapitools.model.ValidationError::getClauseCode, Function.identity()));
+
         assertTrue(responseErrors.keySet().containsAll(List.of(validationError1.clauseCode(), validationError2.clauseCode())));
         var responseError1 = responseErrors.get(validationError1.clauseCode());
         assertEquals(validationError1.clauseText(), responseError1.getClauseText());

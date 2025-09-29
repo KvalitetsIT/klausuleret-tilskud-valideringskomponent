@@ -2,10 +2,11 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.repository.ClauseCache;
+import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
+import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
-import dk.kvalitetsit.itukt.validation.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
@@ -17,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
-import java.util.Map;
 
 @Configuration
 public class ValidationBeanRegistration {
@@ -34,24 +34,31 @@ public class ValidationBeanRegistration {
     }
 
 
-
     @Bean
     public StamDataRepository stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
         return new StamDataRepositoryImpl(dataSource);
     }
 
     @Bean
-    public StamDataCache stamDataCache() {
-        // Hardcoded stamdata until we implement IUAKT-80
-        return new StamDataCache(Map.of(1L, new ClauseEntity("KRINI", null, null, null, null, "Kronisk Rhinitis.", null)));
+    public StamDataRepositoryAdaptor stamDataRepositoryAdaptor(StamDataRepository stamDataRepository) {
+        StamDataMapper mapper = new StamDataMapper();
+        return new StamDataRepositoryAdaptor(mapper, stamDataRepository);
     }
 
     @Bean
-    public ValidationService<ValidationRequest, ValidationResponse> validationService(@Autowired ClauseCache clauseCache,
-                                                                                      @Autowired StamDataCache stamDataCache) {
-        return new ValidationServiceAdaptor(
-                new ValidationServiceImpl(clauseCache, stamDataCache)
-        );
+    public StamDataCache stamDataCache(StamDataRepositoryAdaptor stamDataRepository) {
+        return new StamDataCache(configuration.stamdata().cache(), stamDataRepository);
+    }
+
+    @Bean
+    public ValidationService<ValidationRequest, ValidationResponse> validationService(
+            @Autowired ClauseCache clauseCache,
+            @Autowired StamDataCache stamDataCache
+    ) {
+        return new ValidationServiceAdaptor(new ValidationServiceImpl(
+                clauseCache,
+                stamDataCache
+        ));
     }
 
 }

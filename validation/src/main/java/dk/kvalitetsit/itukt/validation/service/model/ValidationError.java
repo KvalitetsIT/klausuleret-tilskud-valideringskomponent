@@ -5,5 +5,4 @@ public record ValidationError(
         String clauseText,
         String errorMessage,
         Integer errorCode
-        ) implements ValidationResult {
-}
+        ){ }

@@ -9,22 +9,22 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class ScheduledStamDataCacheTest {
+class StamDataCacheTest {
 
     @Mock
-    private StamDataRepository<StamData> mock;
-
+    private StamDataRepositoryAdaptor mock;
 
     @Test
     void getStamDataByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
-        StamData data = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("clauseCode", "long clause text")));
-        Mockito.when(mock.findAll()).thenReturn(List.of(data));
+        long drugId = 1L;
+        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
+        Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCache stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
@@ -38,7 +38,7 @@ class ScheduledStamDataCacheTest {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
 
-        Mockito.when(mock.findAll()).thenReturn(List.of(data));
+        Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCache stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
@@ -52,7 +52,7 @@ class ScheduledStamDataCacheTest {
     void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamdataAndNoMoreInteractions() {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
-        Mockito.when(mock.findAll()).thenReturn(List.of(data));
+        Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCache stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.load(); // <- Invokes the mock once
         Mockito.verify(mock, Mockito.times(1)).findAll();

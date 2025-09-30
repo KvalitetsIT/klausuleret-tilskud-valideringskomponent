@@ -1,11 +1,12 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
-import dk.kvalitetsit.itukt.common.model.StamData;
+import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
+import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
+import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
+import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
 import dk.kvalitetsit.itukt.common.repository.cache.StamdataCache;
-import dk.kvalitetsit.itukt.validation.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.*;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
@@ -35,18 +36,18 @@ public class ValidationBeanRegistration {
 
 
     @Bean
-    public StamDataRepository<StamDataEntity> stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
+    public StamDataRepository stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
         return new StamDataRepositoryImpl(dataSource);
     }
 
     @Bean
-    public StamDataRepository<StamData> stamDataRepositoryAdaptor(StamDataRepository<StamDataEntity> stamDataRepository) {
-        Mapper<StamDataEntity, StamData> mapper = new StamDataMapper();
+    public StamDataRepositoryAdaptor stamDataRepositoryAdaptor(StamDataRepository stamDataRepository) {
+        StamDataMapper mapper = new StamDataMapper();
         return new StamDataRepositoryAdaptor(mapper, stamDataRepository);
     }
 
     @Bean
-    public StamdataCache stamDataCache(StamDataRepository<StamData> stamDataRepository) {
+    public StamdataCache stamDataCache(StamDataRepositoryAdaptor stamDataRepository) {
         return new StamdataCacheImpl(configuration.stamdata().cache(), stamDataRepository);
     }
 

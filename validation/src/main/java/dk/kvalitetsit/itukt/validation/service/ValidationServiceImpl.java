@@ -26,9 +26,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
         Optional<StamData> stamDataByDrugId = stamDataCache.get(validationInput.drugId());
 
         return stamDataByDrugId.map(stamData -> stamData.clauses().stream()
-                .map(sc -> validateStamDataClause(validationInput, sc))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(sc -> validateStamDataClause(validationInput, sc).stream())
                 .toList()).orElseGet(List::of);
     }
 

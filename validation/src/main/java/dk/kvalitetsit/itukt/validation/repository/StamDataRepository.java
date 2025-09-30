@@ -4,7 +4,6 @@ import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 
 import java.util.List;
 
-public interface StamDataRepository<T> {
-
-    List<T> findAll() throws ServiceException;
+public interface StamDataRepository {
+    List<StamDataEntity> findAll() throws ServiceException;
 }

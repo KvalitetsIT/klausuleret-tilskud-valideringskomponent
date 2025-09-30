@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 public class StamdataCacheImpl implements StamdataCache {
 
     private final CacheConfiguration configuration;
-    private final StamDataRepository<StamData> concreteStamDataRepository;
+    private final StamDataRepositoryAdaptor concreteStamDataRepository;
     private Map<Long, StamData> drugIdToClauseMap = new HashMap<>();
 
-    public StamdataCacheImpl(CacheConfiguration configuration, StamDataRepository<StamData> concreteStamDataRepository) {
+    public StamdataCacheImpl(CacheConfiguration configuration, StamDataRepositoryAdaptor concreteStamDataRepository) {
         this.configuration = configuration;
         this.concreteStamDataRepository = concreteStamDataRepository;
     }
@@ -27,8 +27,7 @@ public class StamdataCacheImpl implements StamdataCache {
 
     @Override
     public void load() {
-        var result = concreteStamDataRepository.findAll();
-        drugIdToClauseMap = result.stream().collect(Collectors.toMap(x -> x.drug().id(), x -> x, (x, y) -> x));
+        drugIdToClauseMap = concreteStamDataRepository.findAll();
     }
 
     @Override

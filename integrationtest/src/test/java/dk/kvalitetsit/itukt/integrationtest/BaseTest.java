@@ -43,42 +43,42 @@ public abstract class BaseTest {
         return new File(projectRoot, "compose/development/docker-compose.test.yaml");
     }
 
-    private static void createNetworkIfNotExists(String networkName) {
+    private static void createNetworkIfNotExists() {
         DockerClient docker = DockerClientFactory.instance().client();
         boolean exists = docker.listNetworksCmd()
                 .exec()
                 .stream()
-                .anyMatch(n -> networkName.equals(n.getName()));
+                .anyMatch(n -> BaseTest.ITUKTNET.equals(n.getName()));
 
         if (!exists) {
             docker.createNetworkCmd()
-                    .withName(networkName)
+                    .withName(BaseTest.ITUKTNET)
                     .withDriver("bridge")
                     .exec();
-            logger.info("Created Docker network: " + networkName);
+            logger.info("Created Docker network: " + BaseTest.ITUKTNET);
         } else {
-            logger.info("Docker network already exists: " + networkName);
+            logger.info("Docker network already exists: " + BaseTest.ITUKTNET);
         }
     }
 
-    private static void deleteNetworkIfNotExists(String networkName) {
+    private static void deleteNetworkIfNotExists() {
         DockerClient docker = DockerClientFactory.instance().client();
         boolean exists = docker.listNetworksCmd()
                 .exec()
                 .stream()
-                .anyMatch(n -> networkName.equals(n.getName()));
+                .anyMatch(n -> BaseTest.ITUKTNET.equals(n.getName()));
 
         if (!exists) {
-            docker.removeNetworkCmd(networkName).exec();
-            logger.info("Removed Docker network: " + networkName);
+            docker.removeNetworkCmd(BaseTest.ITUKTNET).exec();
+            logger.info("Removed Docker network: " + BaseTest.ITUKTNET);
         } else {
-            logger.info("Could not remove network since it does not exist: " + networkName);
+            logger.info("Could not remove network since it does not exist: " + BaseTest.ITUKTNET);
         }
     }
 
     @BeforeAll
     void beforeAll() {
-        createNetworkIfNotExists(ITUKTNET);
+        createNetworkIfNotExists();
         environment.start();
 
         appDatabase = getDatabase("itukt-db", "itukt_db", "rootroot");
@@ -109,7 +109,7 @@ public abstract class BaseTest {
 
     @AfterAll
     void afterAll() {
-        deleteNetworkIfNotExists(ITUKTNET);
+        deleteNetworkIfNotExists();
 
         if (component != null) {
             component.stop();

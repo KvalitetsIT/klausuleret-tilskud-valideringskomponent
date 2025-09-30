@@ -81,7 +81,7 @@ public class MockFactory {
                     EXPRESSION_6_MODEL
             )
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), 10800, EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), 10800, EXPRESSION_1_MODEL);
     private static final org.openapitools.client.model.StringCondition EXPRESSION_2_DTO = new org.openapitools.client.model.StringCondition()
             .type("StringCondition")
             .field(EXPRESSION_2_MODEL.field().name())

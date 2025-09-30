@@ -33,6 +33,7 @@ services:
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
+      - ITUKT_COMMON_ALLOWEDORIGINS=http://localhost:4200
       - ITUKT_COMMON_ITUKTDB_URL=jdbc:mariadb://itukt-db:3306/itukt_db
       - ITUKT_COMMON_ITUKTDB_USERNAME=user
       - ITUKT_COMMON_ITUKTDB_PASSWORD=secret1234

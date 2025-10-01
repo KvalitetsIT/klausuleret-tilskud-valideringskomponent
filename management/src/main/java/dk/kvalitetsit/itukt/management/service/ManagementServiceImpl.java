@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.service.CommonClauseService;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ManagementServiceImpl implements ManagementService {
+public class ManagementServiceImpl implements ManagementService, CommonClauseService {
 
     private final ClauseRepositoryAdaptor repository;
 
@@ -31,5 +32,10 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public List<Clause> readAll() throws ServiceException {
         return repository.readAll();
+    }
+
+    @Override
+    public List<Long> getClauseIdsByErrorCodes(List<Integer> errorCodes) throws ServiceException {
+        return repository.getClauseIdsByErrorCodes(errorCodes);
     }
 }

@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
-import com.github.dockerjava.api.DockerClient;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import org.junit.jupiter.api.AfterAll;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -31,7 +29,6 @@ public abstract class BaseTest {
             .withLogConsumer("stamdata-db", new Slf4jLogConsumer(logger).withPrefix("stamdata-db"))
             .withLocalCompose(true);
 
-    private static final String ITUKTNET = "ituktnet";
     protected static Component component;
     protected ApiClient client;
     protected Database appDatabase;
@@ -43,42 +40,8 @@ public abstract class BaseTest {
         return new File(projectRoot, "compose/development/docker-compose.test.yaml");
     }
 
-    private static void createNetworkIfNotExists() {
-        DockerClient docker = DockerClientFactory.instance().client();
-        boolean exists = docker.listNetworksCmd()
-                .exec()
-                .stream()
-                .anyMatch(n -> BaseTest.ITUKTNET.equals(n.getName()));
-
-        if (!exists) {
-            docker.createNetworkCmd()
-                    .withName(BaseTest.ITUKTNET)
-                    .withDriver("bridge")
-                    .exec();
-            logger.info("Created Docker network: " + BaseTest.ITUKTNET);
-        } else {
-            logger.info("Docker network already exists: " + BaseTest.ITUKTNET);
-        }
-    }
-
-    private static void deleteNetworkIfNotExists() {
-        DockerClient docker = DockerClientFactory.instance().client();
-        boolean exists = docker.listNetworksCmd()
-                .exec()
-                .stream()
-                .anyMatch(n -> BaseTest.ITUKTNET.equals(n.getName()));
-
-        if (!exists) {
-            docker.removeNetworkCmd(BaseTest.ITUKTNET).exec();
-            logger.info("Removed Docker network: " + BaseTest.ITUKTNET);
-        } else {
-            logger.info("Could not remove network since it does not exist: " + BaseTest.ITUKTNET);
-        }
-    }
-
     @BeforeAll
     void beforeAll() {
-        createNetworkIfNotExists();
         environment.start();
 
         appDatabase = getDatabase("itukt-db", "itukt_db", "rootroot");
@@ -109,8 +72,6 @@ public abstract class BaseTest {
 
     @AfterAll
     void afterAll() {
-        deleteNetworkIfNotExists();
-
         if (component != null) {
             component.stop();
         }

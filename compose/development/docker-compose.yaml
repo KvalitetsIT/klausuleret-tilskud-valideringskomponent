@@ -19,9 +19,3 @@ services:
       - 'SERVER_URLS=[{"url": "http://localhost:8080", "name": "validation"}]'
     ports:
       - 80:8080
-    networks:
-      - ituktnet
-
-networks:
-  ituktnet:
-    driver: bridge

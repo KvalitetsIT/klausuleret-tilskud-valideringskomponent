@@ -16,8 +16,6 @@ services:
       - 3306:3306
     volumes:
       - ../configuration/ddl:/docker-entrypoint-initdb.d
-    networks:
-      - ituktnet
 
   stamdata-db:
     image: trifork/tilskud-sdm-db:latest
@@ -32,5 +30,3 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
-    networks:
-      - ituktnet

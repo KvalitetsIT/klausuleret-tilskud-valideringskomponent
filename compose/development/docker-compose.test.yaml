@@ -7,10 +7,10 @@ services:
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
     environment:
-      - ITUKT_COMMON_ITUKTDB_URL=jdbc:mariadb://itukt-db:3306/itukt_db
+      - ITUKT_COMMON_ITUKTDB_URL=jdbc:mariadb://host.docker.internal:3306/itukt_db
       - ITUKT_COMMON_ITUKTDB_USERNAME=user
       - ITUKT_COMMON_ITUKTDB_PASSWORD=secret1234
-      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_URL=jdbc:mariadb://stamdata-db:3306/sdm_krs_a
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_URL=jdbc:mariadb://host.docker.internal:3307/sdm_krs_a
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_USERNAME=root
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD=
       - ITUKT_VALIDATION_STAMDATA_CACHE_CRON=0 0 0 * * *
@@ -20,9 +20,5 @@ services:
       - 8080:8080
       - 8081:8081
       - 5005:5005
-    networks:
-      - ituktnet
-
-networks:
-  ituktnet:
-    external: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

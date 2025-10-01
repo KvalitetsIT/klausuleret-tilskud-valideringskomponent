@@ -2,16 +2,12 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.common.service.CommonClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
-import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
-import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
-import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.repository.*;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
-import dk.kvalitetsit.itukt.validation.service.SkippedValidationServiceImpl;
-import dk.kvalitetsit.itukt.validation.service.ValidationService;
-import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
-import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
+import dk.kvalitetsit.itukt.validation.service.*;
 import org.openapitools.model.ValidationRequest;
 import org.openapitools.model.ValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,15 +49,29 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
+    public SkippedValidationRepository skippedValidationRepository(@Qualifier("appDataSource") DataSource dataSource) {
+        return new SkippedValidationRepositoryImpl(dataSource);
+    }
+
+    @Bean
+    public SkippedValidationService skippedValidationService(
+            @Autowired SkippedValidationRepository skippedValidationRepository,
+            @Autowired CommonClauseService clauseService
+    ) {
+        return new SkippedValidationServiceImpl(skippedValidationRepository, clauseService);
+    }
+
+    @Bean
     public ValidationService<ValidationRequest, ValidationResponse> validationService(
             @Autowired ClauseService clauseService,
-            @Autowired StamdataCache stamDataCache
+            @Autowired StamdataCache stamDataCache,
+            @Autowired SkippedValidationService skippedValidationService
     ) {
         return new ValidationServiceAdaptor(
                 new ValidationServiceImpl(
                         clauseService,
                         stamDataCache,
-                        new SkippedValidationServiceImpl())
+                        skippedValidationService)
         );
     }
 

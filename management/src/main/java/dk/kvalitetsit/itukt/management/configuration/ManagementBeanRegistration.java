@@ -64,7 +64,7 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository) {
+    public ManagementServiceImpl managementService(@Autowired ClauseRepositoryAdaptor clauseRepository) {
         return new ManagementServiceImpl(clauseRepository);
     }
 

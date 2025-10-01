@@ -65,7 +65,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
 
-    public synchronized int createErrorCode(String clauseName) {
+    private synchronized int createErrorCode(String clauseName) {
         Integer max = template.getJdbcTemplate().queryForObject(
                 "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
                 Integer.class
@@ -180,6 +180,20 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             logger.error("Failed to read all expressions", e);
             throw new ServiceException("Failed to read expressions", e);
         }
+    }
+
+    @Override
+    public List<Long> getClauseIdsByErrorCodes(List<Integer> errorCodes) throws ServiceException {
+        if (errorCodes.isEmpty()) return List.of();
+
+        String sql = """
+                        SELECT c.id
+                        FROM clause c
+                        JOIN error_code e ON c.name = e.clause_name
+                        WHERE e.error_code IN (:errorCodes)
+                    """;
+
+        return template.queryForList(sql, Map.of("errorCodes", errorCodes), Long.class);
     }
 
     private ExpressionEntity.StringConditionEntity insertStringCondition(ExpressionEntity.StringConditionEntity condition) {

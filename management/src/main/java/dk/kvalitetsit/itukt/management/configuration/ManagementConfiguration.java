@@ -6,5 +6,5 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "itukt.management")
-public record ManagementConfiguration(CacheConfiguration cache) {
+public record ManagementConfiguration(@NotNull @Valid CacheConfiguration cache) {
 }

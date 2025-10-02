@@ -102,6 +102,39 @@ public class ValidationIT extends BaseTest {
         assertEquals(elementPath, validationError.getElementPath());
     }
 
+    @Test
+    void call20250801validatePost_WithInputThatFailsValidationButErrorCodeSkipped_ReturnsSuccess() {
+        long drugId = 28103139399L;// Matches hardcoded value in cache
+        String elementPath = "path";
+        int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
+        var request = createValidationRequest(drugId, elementPath, age, validIndication, List.of());
+
+        var failedResponse = validationApi.call20250801validatePost(request);
+
+        var validationFailed = assertInstanceOf(ValidationFailed.class, failedResponse,
+                "Validation should fail when error code is not skipped");
+        assertEquals(1, validationFailed.getValidationErrors().size(), "There should be a validation error when error code is not skipped");
+        Integer errorCode = validationFailed.getValidationErrors().getFirst().getErrorCode();
+        request.addSkipValidationsItem(errorCode);
+
+        var successfulResponse = validationApi.call20250801validatePost(request);
+
+        assertInstanceOf(ValidationSuccess.class, successfulResponse, "Validation should succeed when error code is skipped");
+    }
+
+    @Test
+    void call20250801validatePost_WithoutRequiredExistingDrugMedicationButErrorCodeSkipped_ReturnsSuccess() {
+        long drugId = 28103139399L;// Matches hardcoded value in cache
+        String elementPath = "path";
+        int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
+        var request = createValidationRequest(drugId, elementPath, age, validIndication, null)
+                .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
+
+        var successfulResponse = validationApi.call20250801validatePost(request);
+
+        assertInstanceOf(ValidationSuccess.class, successfulResponse, "Validation should succeed when error code is skipped");
+    }
+
     private ValidationRequest createValidationRequest(long drugId, String elementPath, int age, String indication, List<ExistingDrugMedication> existingDrugMedication) {
         Validate validate = createValidateElement(drugId, elementPath, indication);
         return new ValidationRequest()

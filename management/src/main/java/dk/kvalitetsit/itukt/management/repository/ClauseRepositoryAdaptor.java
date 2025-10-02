@@ -32,8 +32,4 @@ public class ClauseRepositoryAdaptor {
     public List<Clause> readAll() throws ServiceException {
         return this.entityMapper.map(clauseRepository.readAll());
     }
-
-    public List<Long> getClauseIdsByErrorCodes(List<Integer> errorCodes) throws ServiceException {
-        return clauseRepository.getClauseIdsByErrorCodes(errorCodes);
-    }
 }

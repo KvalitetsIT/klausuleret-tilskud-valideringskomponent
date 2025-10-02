@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.validation.service;
 
-import dk.kvalitetsit.itukt.common.service.CommonClauseService;
+import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.repository.ClauseCache;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.entity.SkippedValidationEntity;
 
@@ -8,18 +9,20 @@ import java.util.List;
 
 public class SkippedValidationServiceImpl implements SkippedValidationService {
     private final SkippedValidationRepository skippedValidationRepository;
-    private final CommonClauseService clauseService;
+    private final ClauseCache clauseCache;
 
-    public SkippedValidationServiceImpl(SkippedValidationRepository skippedValidationRepository, CommonClauseService clauseService) {
+    public SkippedValidationServiceImpl(SkippedValidationRepository skippedValidationRepository, ClauseCache clauseCache) {
         this.skippedValidationRepository = skippedValidationRepository;
-        this.clauseService = clauseService;
+        this.clauseCache = clauseCache;
     }
 
     @Override
     public void createSkippedValidations(String actorId, String personId, List<Integer> skippedErrorCodes) {
-        var clauseIds = clauseService.getClauseIdsByErrorCodes(skippedErrorCodes);
-        var skippedValidations = clauseIds.stream()
-                .map(clauseId -> new SkippedValidationEntity(clauseId, actorId, personId))
+        List<Clause> clauses = skippedErrorCodes.stream()
+                .flatMap(errorCode -> clauseCache.getByErrorCode(errorCode).stream())
+                .toList();
+        var skippedValidations = clauses.stream()
+                .map(clause -> new SkippedValidationEntity(clause.id(), actorId, personId))
                 .toList();
         skippedValidationRepository.create(skippedValidations);
     }

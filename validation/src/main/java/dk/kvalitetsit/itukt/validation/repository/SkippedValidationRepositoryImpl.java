@@ -19,7 +19,7 @@ public class SkippedValidationRepositoryImpl implements SkippedValidationReposit
         if (skippedValidations.isEmpty()) return;
 
         String sql = """
-                INSERT INTO skipped_validation (clause_id, actor_id, person_id)
+                INSERT IGNORE INTO skipped_validation (clause_id, actor_id, person_id)
                 VALUES (:clauseId, :actorId, :personId)
                 """;
 

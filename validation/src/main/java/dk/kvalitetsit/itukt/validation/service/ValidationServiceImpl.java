@@ -51,7 +51,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private boolean shouldSkipClause(Clause clause, ValidationInput validationInput) {
-        return skippedValidationService.shouldSkipValidation(validationInput.createdById(), validationInput.personId(), clause) ||
-                (validationInput.reportedById().isPresent() && skippedValidationService.shouldSkipValidation(validationInput.reportedById().get(), validationInput.personId(), clause));
+        return skippedValidationService.shouldSkipValidation(validationInput.createdById(), validationInput.personId(), clause.id()) ||
+                (validationInput.reportedById().isPresent() && skippedValidationService.shouldSkipValidation(validationInput.reportedById().get(), validationInput.personId(), clause.id()));
     }
 }

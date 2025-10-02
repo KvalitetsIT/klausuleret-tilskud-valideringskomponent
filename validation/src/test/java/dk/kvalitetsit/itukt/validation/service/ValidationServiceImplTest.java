@@ -171,7 +171,7 @@ class ValidationServiceImplTest {
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, 123, expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
-        Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause)).thenReturn(true);
+        Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(true);
 
         service.validate(validationInput);
 
@@ -188,8 +188,8 @@ class ValidationServiceImplTest {
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, 123, expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
-        Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause)).thenReturn(false);
-        Mockito.when(skippedValidationService.shouldSkipValidation(reporter, validationInput.personId(), clause)).thenReturn(true);
+        Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(false);
+        Mockito.when(skippedValidationService.shouldSkipValidation(reporter, validationInput.personId(), clause.id())).thenReturn(true);
 
         service.validate(validationInput);
 
@@ -206,8 +206,8 @@ class ValidationServiceImplTest {
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, 123, expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
-        Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause)).thenReturn(false);
-        Mockito.when(skippedValidationService.shouldSkipValidation(reporter, validationInput.personId(), clause)).thenReturn(false);
+        Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(false);
+        Mockito.when(skippedValidationService.shouldSkipValidation(reporter, validationInput.personId(), clause.id())).thenReturn(false);
 
         service.validate(validationInput);
 

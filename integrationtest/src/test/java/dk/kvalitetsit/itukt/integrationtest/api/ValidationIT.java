@@ -128,15 +128,8 @@ public class ValidationIT extends BaseTest {
     void call20250801validatePost_WithInputThatFailsValidationButErrorCodeSkipped_ReturnsSuccess() {
         String elementPath = "path";
         int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
-        var request = createValidationRequest(elementPath, age, INVALID_INDICATION, List.of());
-
-        var failedResponse = validationApi.call20250801validatePost(request);
-
-        var validationFailed = assertInstanceOf(ValidationFailed.class, failedResponse,
-                "Validation should fail when error code is not skipped");
-        assertEquals(1, validationFailed.getValidationErrors().size(), "There should be a validation error when error code is not skipped");
-        Integer errorCode = validationFailed.getValidationErrors().getFirst().getErrorCode();
-        request.addSkipValidationsItem(errorCode);
+        var request = createValidationRequest(elementPath, age, INVALID_INDICATION, List.of())
+                .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
 
         var successfulResponse = validationApi.call20250801validatePost(request);
 

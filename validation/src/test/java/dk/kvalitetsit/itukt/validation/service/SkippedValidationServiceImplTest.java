@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.validation.service;
 
-import dk.kvalitetsit.itukt.common.service.CommonClauseService;
+import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.entity.SkippedValidationEntity;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,12 +23,12 @@ class SkippedValidationServiceImplTest {
     @Mock
     private SkippedValidationRepository skippedValidationRepository;
     @Mock
-    private CommonClauseService clauseService;
+    private ClauseService clauseService;
 
     @Test
     void createSkippedValidations_WithNoClausesMatchingErrorCodes_CallsCreateWithEmptyList() {
         var errorCodes = List.of(1, 2, 3);
-        Mockito.when(clauseService.getClauseIdsByErrorCodes(errorCodes)).thenReturn(List.of());
+        Mockito.when(clauseService.getByErrorCode(Mockito.anyInt())).thenReturn(Optional.empty());
 
         skippedValidationService.createSkippedValidations("actor", "person", errorCodes);
 
@@ -37,16 +39,21 @@ class SkippedValidationServiceImplTest {
     void createSkippedValidations_WithClausesMatchingErrorCodes_CreatesSkippedValidationsInRepository() {
         String actorId = "actor";
         String personId = "person";
-        var errorCodes = List.of(1, 2, 3);
-        long clauseId1 = 10L;
-        long clauseId2 = 20L;
-        Mockito.when(clauseService.getClauseIdsByErrorCodes(errorCodes)).thenReturn(List.of(clauseId1, clauseId2));
+        var errorCode1 = 1;
+        var errorCode2 = 2;
+        var errorCode3 = 3;
+        var clause1 = Mockito.mock(Clause.class);
+        var clause2 = Mockito.mock(Clause.class);
+        Mockito.when(clause1.id()).thenReturn(10L);
+        Mockito.when(clause2.id()).thenReturn(20L);
+        Mockito.when(clauseService.getByErrorCode(1)).thenReturn(Optional.of(clause1));
+        Mockito.when(clauseService.getByErrorCode(2)).thenReturn(Optional.of(clause2));
 
-        skippedValidationService.createSkippedValidations(actorId, personId, errorCodes);
+        skippedValidationService.createSkippedValidations(actorId, personId, List.of(errorCode1, errorCode2, errorCode3));
 
         var expectedSkippedValidation = List.of(
-                new SkippedValidationEntity(clauseId1, actorId, personId),
-                new SkippedValidationEntity(clauseId2, actorId, personId));
+                new SkippedValidationEntity(clause1.id(), actorId, personId),
+                new SkippedValidationEntity(clause2.id(), actorId, personId));
         Mockito.verify(skippedValidationRepository).create(Mockito.argThat(skippedValidations -> {
                     assertEquals(expectedSkippedValidation.size(), skippedValidations.size(), "Number of created skipped validations should match number of clause IDs");
                     assertTrue(skippedValidations.containsAll(expectedSkippedValidation), "Created skipped validations should match input values and clause IDs");

@@ -8,4 +8,5 @@ public interface ClauseService {
 
     Optional<Clause> get(String name);
 
+    Optional<Clause> getByErrorCode(Integer errorCode);
 }

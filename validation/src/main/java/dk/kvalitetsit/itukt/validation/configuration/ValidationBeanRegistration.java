@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.common.service.CommonClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.*;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
@@ -56,7 +55,7 @@ public class ValidationBeanRegistration {
     @Bean
     public SkippedValidationService skippedValidationService(
             @Autowired SkippedValidationRepository skippedValidationRepository,
-            @Autowired CommonClauseService clauseService
+            @Autowired ClauseService clauseService
     ) {
         return new SkippedValidationServiceImpl(skippedValidationRepository, clauseService);
     }

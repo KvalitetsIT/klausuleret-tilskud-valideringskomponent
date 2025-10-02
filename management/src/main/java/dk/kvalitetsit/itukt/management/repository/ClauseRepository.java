@@ -12,5 +12,4 @@ public interface ClauseRepository {
     ClauseEntity create(ClauseForCreation clause) throws ServiceException;
     Optional<ClauseEntity> read(UUID id) throws ServiceException;
     List<ClauseEntity> readAll() throws ServiceException;
-    List<Long> getClauseIdsByErrorCodes(List<Integer> errorCodes) throws ServiceException;
 }

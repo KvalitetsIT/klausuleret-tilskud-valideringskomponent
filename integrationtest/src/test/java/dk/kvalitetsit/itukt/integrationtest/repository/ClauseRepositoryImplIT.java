@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
@@ -108,29 +107,5 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 .ignoringFields("id", "uuid", "errorCode", "expression.id")
                 .withFailMessage("The clause read is expected to match the clause created")
                 .isEqualTo(expectedClause);
-    }
-
-    @Test
-    void getClauseIdsByErrorCodes_WithoutErrorCodes_ReturnsEmptyList() {
-        var condition = new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "test");
-        repository.create(new ClauseForCreation("clause1", condition));
-
-        var result = repository.getClauseIdsByErrorCodes(List.of());
-
-        assertTrue(result.isEmpty(), "An empty list is expected when no error codes are provided");
-    }
-
-    @Test
-    void getClauseIdsByErrorCodes_WithMultipleErrorCodes_ReturnsClauseIdsOfClausesWithErrorCodes() {
-        var condition = new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "test");
-        var clause1 = repository.create(new ClauseForCreation("clause1", condition));
-        var clause2 = repository.create(new ClauseForCreation("clause2", condition));
-        repository.create(new ClauseForCreation("clause3", condition));
-
-        var result = repository.getClauseIdsByErrorCodes(List.of(clause1.errorCode(), clause2.errorCode(), 0));
-
-        assertEquals(2, result.size(), "The number of ids is expected to match the number of clauses with the provided error codes");
-        assertTrue(result.contains(clause1.id()), "The returned ids should contain id of clause matching input error code");
-        assertTrue(result.contains(clause2.id()), "The returned ids should contain id of clause matching input error code");
     }
 }

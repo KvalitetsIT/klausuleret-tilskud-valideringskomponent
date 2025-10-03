@@ -1,19 +1,24 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
-import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
+import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
-import dk.kvalitetsit.itukt.management.repository.ClauseCacheImpl;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.cache.ClauseCache;
+import dk.kvalitetsit.itukt.management.repository.cache.ClauseCacheImpl;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
+import dk.kvalitetsit.itukt.management.service.ClauseServiceImpl;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
@@ -34,7 +39,7 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseCache clauseCache(ClauseRepositoryAdaptor clauseRepository) {
+    public ClauseCache clauseCache(ClauseRepository clauseRepository) {
         return new ClauseCacheImpl(configuration.clause().cache(), clauseRepository);
     }
 
@@ -44,8 +49,18 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository) {
-        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
+    public ClauseService clauseService(ClauseCache cache, Mapper<ClauseEntity, Clause> mapper) {
+        return new ClauseServiceImpl(cache, mapper);
+    }
+
+    @Bean
+    public Mapper<ClauseEntity, Clause> clauseEntityModelMapper() {
+        return new ClauseEntityModelMapper(new ExpressionEntityModelMapper());
+    }
+
+    @Bean
+    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository, Mapper<ClauseEntity, Clause> mapper) {
+        return new ClauseRepositoryAdaptor(clauseRepository, mapper);
     }
 
     @Bean

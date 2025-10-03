@@ -2,10 +2,10 @@ package dk.kvalitetsit.itukt.validation.service;
 
 
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.StamData;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
-import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
-import dk.kvalitetsit.itukt.common.repository.cache.StamdataCache;
+import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.Optional;
 
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
 
-    private final ClauseCache clauseCache;
+    private final ClauseService clauseCache;
     private final StamdataCache stamDataCache;
 
-    public ValidationServiceImpl(ClauseCache clauseCache, StamdataCache stamDataCache) {
+    public ValidationServiceImpl(ClauseService clauseCache, StamdataCache stamDataCache) {
         this.clauseCache = clauseCache;
         this.stamDataCache = stamDataCache;
     }

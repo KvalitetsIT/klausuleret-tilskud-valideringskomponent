@@ -1,13 +1,13 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
+import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
-import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
-import dk.kvalitetsit.itukt.common.repository.cache.StamdataCache;
-import dk.kvalitetsit.itukt.validation.repository.*;
+import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
+import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
 import dk.kvalitetsit.itukt.validation.service.ValidationService;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceAdaptor;
 import dk.kvalitetsit.itukt.validation.service.ValidationServiceImpl;
@@ -53,11 +53,11 @@ public class ValidationBeanRegistration {
 
     @Bean
     public ValidationService<ValidationRequest, ValidationResponse> validationService(
-            @Autowired ClauseCache clauseCache,
+            @Autowired ClauseService clauseService,
             @Autowired StamdataCache stamDataCache
     ) {
         return new ValidationServiceAdaptor(
-                new ValidationServiceImpl(clauseCache, stamDataCache)
+                new ValidationServiceImpl(clauseService, stamDataCache)
         );
     }
 

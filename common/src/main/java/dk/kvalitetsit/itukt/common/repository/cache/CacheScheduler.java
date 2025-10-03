@@ -2,23 +2,17 @@ package dk.kvalitetsit.itukt.common.repository.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 
 import java.util.List;
 
+/**
+ * The responsibility of this class is to schedule the load/reload of the caches that lies between the service and the repository layers
+ */
 public class CacheScheduler {
 
-    private final Logger logger = LoggerFactory.getLogger(CacheScheduler.class);
-    private final List<CacheLoader> loaders;
-    private final TaskScheduler scheduler;
-
-    public CacheScheduler(List<CacheLoader> loaders) {
-        this.loaders = loaders;
-        this.scheduler = getThreadPoolTaskScheduler(loaders);
-        init();
-    }
+    private static final Logger logger = LoggerFactory.getLogger(CacheScheduler.class);
 
     private static ThreadPoolTaskScheduler getThreadPoolTaskScheduler(List<CacheLoader> loaders) {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
@@ -28,16 +22,18 @@ public class CacheScheduler {
         return taskScheduler;
     }
 
-    public void init() {
+    public static void init(List<CacheLoader> loaders) {
+        var scheduler = getThreadPoolTaskScheduler(loaders);
+
         loaders.stream()
-                .peek(this::load)
+                .peek(CacheScheduler::load)
                 .forEach(cache -> {
-                    scheduler.schedule(() -> load(cache), new CronTrigger(cache.get_cron()));
-                    logger.info("Scheduled loader {} with cron {} was registered", cache.getClass().getSimpleName(), cache.get_cron());
+                    scheduler.schedule(() -> load(cache), new CronTrigger(cache.getCron()));
+                    logger.info("Scheduled loader {} with cron {} was registered", cache.getClass().getSimpleName(), cache.getCron());
                 });
     }
 
-    private void load(CacheLoader cache) {
+    private static void load(CacheLoader cache) {
         try {
             cache.load();
             logger.info("Successfully loaded cache for {}", cache.getClass().getSimpleName());

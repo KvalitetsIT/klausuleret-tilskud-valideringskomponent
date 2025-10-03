@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.validation.mapping;
 
-import dk.kvalitetsit.itukt.common.model.StamData;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import dk.kvalitetsit.itukt.validation.repository.StamDataEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

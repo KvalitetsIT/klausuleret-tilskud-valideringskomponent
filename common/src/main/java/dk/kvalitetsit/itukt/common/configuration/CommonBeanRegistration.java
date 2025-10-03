@@ -5,6 +5,9 @@ import dk.kvalitetsit.itukt.common.filters.RequestLogger;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheScheduler;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -68,7 +71,7 @@ public class CommonBeanRegistration {
     }
 
     @Bean
-    public CacheScheduler cacheScheduler(List<CacheLoader> loaders) {
-        return new CacheScheduler(loaders);
+    public ApplicationRunner cacheScheduler(List<CacheLoader> loaders) {
+        return args -> CacheScheduler.init(loaders);
     }
 }

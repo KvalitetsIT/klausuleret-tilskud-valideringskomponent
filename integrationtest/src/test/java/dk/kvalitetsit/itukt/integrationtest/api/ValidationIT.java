@@ -143,7 +143,7 @@ public class ValidationIT extends BaseTest {
 
     private NewDrugMedication createNewDrugMedication(String indication) {
         return new NewDrugMedication()
-                .drugIdentifier(ValidationIT.DRUG_ID)
+                .drugIdentifier(DRUG_ID)
                 .indicationCode(indication)
                 .createdBy(createActor())
                 .reportedBy(createActor())

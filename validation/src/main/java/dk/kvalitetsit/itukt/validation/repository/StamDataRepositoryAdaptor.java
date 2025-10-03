@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
-import dk.kvalitetsit.itukt.common.model.StamData;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 
 import java.util.Map;
 

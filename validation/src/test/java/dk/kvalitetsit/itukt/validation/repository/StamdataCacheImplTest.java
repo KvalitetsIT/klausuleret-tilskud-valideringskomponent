@@ -1,8 +1,10 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.common.model.StamData;
-import dk.kvalitetsit.itukt.common.repository.cache.StamdataCache;
+import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
+import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
+import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,7 +28,8 @@ class StamDataCacheTest {
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCache stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
-        stamDataCache.load();
+        CacheLoader loader = (CacheLoader) stamDataCache;
+        loader.load();
 
         var result = stamDataCache.get(2L);
 
@@ -40,7 +43,8 @@ class StamDataCacheTest {
 
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCache stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
-        stamDataCache.load();
+        CacheLoader loader = (CacheLoader) stamDataCache;
+        loader.load();
 
         var result = stamDataCache.get(drugId);
 
@@ -54,7 +58,9 @@ class StamDataCacheTest {
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCache stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
-        stamDataCache.load(); // <- Invokes the mock once
+        CacheLoader loader = (CacheLoader) stamDataCache;
+        loader.load();
+
         Mockito.verify(mock, Mockito.times(1)).findAll();
         var result1 = stamDataCache.get(drugId);
         assertTrue(result1.isPresent(), "Expected a result since the cache has been reload already");

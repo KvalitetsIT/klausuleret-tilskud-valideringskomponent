@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
@@ -36,7 +36,7 @@ public class ManagementServiceAdaptorTest {
     private ClauseModelDtoMapper clauseModelDtoMapper;
 
     @Mock
-    private ClauseDslModelMapper clauseDslModelMapper;
+    private ClauseDslDtoMapper clauseDslDtoMapper;
 
     @Mock
     private ClauseModelDslMapper clauseModelDslMapper;
@@ -46,7 +46,7 @@ public class ManagementServiceAdaptorTest {
 
     @BeforeEach
     void setUp() {
-        adaptor = new ManagementServiceAdaptor(managementServiceImpl, clauseModelDtoMapper, clauseDslModelMapper, clauseModelDslMapper, clauseInputMapper);
+        adaptor = new ManagementServiceAdaptor(managementServiceImpl, clauseModelDtoMapper, clauseDslDtoMapper, clauseModelDslMapper, clauseInputMapper);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class ManagementServiceAdaptorTest {
         var dslOutput = Mockito.mock(DslOutput.class);
         var clauseForCreation = Mockito.mock(ClauseForCreation.class);
         Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForCreation);
-        Mockito.when(clauseDslModelMapper.map(dslInput.getDsl())).thenReturn(clauseInput);
+        Mockito.when(clauseDslDtoMapper.map(dslInput.getDsl())).thenReturn(clauseInput);
         Mockito.when(managementServiceImpl.create(clauseForCreation)).thenReturn(clause);
         Mockito.when(clauseModelDslMapper.map(clause)).thenReturn(dslOutput);
 

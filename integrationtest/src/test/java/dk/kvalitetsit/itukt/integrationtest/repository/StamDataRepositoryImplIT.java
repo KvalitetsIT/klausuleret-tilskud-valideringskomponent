@@ -1,22 +1,31 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 class StamDataRepositoryImplIT extends BaseTest {
 
-    private final StamDataRepositoryImpl dao;
+    private StamDataRepositoryImpl repository;
 
-    StamDataRepositoryImplIT(@Autowired StamDataRepositoryImpl dao) {
-        this.dao = dao;
+    @BeforeAll
+    void setup() {
+        this.repository = new StamDataRepositoryImpl(stamDatabase.getDatasource());
     }
 
     @Test
-    void testFindAll(){
-        var entries = this.dao.findAll();
+    void testFindAll() {
+        var entries = this.repository.findAll();
         Assertions.assertFalse(entries.isEmpty());
+    }
+
+
+    @Override
+    protected void load(ClauseRepository repository) {
+        // Load data before component initialization
     }
 }

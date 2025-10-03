@@ -1,7 +1,8 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
-import dk.kvalitetsit.itukt.common.model.*;
-import dk.kvalitetsit.itukt.common.repository.ClauseCache;
+import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
@@ -11,9 +12,13 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDto
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.cache.ClauseCache;
+import dk.kvalitetsit.itukt.management.repository.cache.ClauseCacheImpl;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
+import dk.kvalitetsit.itukt.management.service.ClauseServiceImpl;
 import dk.kvalitetsit.itukt.management.service.ManagementService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
@@ -23,10 +28,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.UUID;
-
-import static dk.kvalitetsit.itukt.common.model.Expression.Condition;
 
 @Configuration
 public class ManagementBeanRegistration {
@@ -38,34 +39,32 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseCache clauseCache() {
-        // Hardcoded clause for phase 1
-        var ageAndIndication = new BinaryExpression(
-                new NumberConditionExpression(Condition.Field.AGE, Operator.GREATER_THAN, 50),
-                BinaryExpression.Operator.AND,
-                new StringConditionExpression(Condition.Field.INDICATION, "313"));
-        var existingDrugMedication = new ExistingDrugMedicationConditionExpression("ATC123", "*", "*");
-        var expression = new BinaryExpression(
-                ageAndIndication,
-                BinaryExpression.Operator.OR,
-                existingDrugMedication
-        );
-        var clause = new Clause("KRINI", UUID.randomUUID(), 10800, expression);
-        return new ClauseCache(List.of(clause));
+    public ClauseCache clauseCache(ClauseRepository clauseRepository) {
+        return new ClauseCacheImpl(configuration.clause().cache(), clauseRepository);
     }
 
     @Bean
-    public ClauseRepository clauseRepository(@Qualifier("appDataSource") DataSource dataSource){
+    public ClauseRepository clauseRepository(@Qualifier("appDataSource") DataSource dataSource) {
         return new ClauseRepositoryImpl(dataSource);
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository) {
-        return new ClauseRepositoryAdaptor(clauseRepository, new ClauseEntityModelMapper(new ExpressionEntityModelMapper()));
+    public ClauseService clauseService(ClauseCache cache, Mapper<ClauseEntity, Clause> mapper) {
+        return new ClauseServiceImpl(cache, mapper);
     }
 
     @Bean
-    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository){
+    public Mapper<ClauseEntity, Clause> clauseEntityModelMapper() {
+        return new ClauseEntityModelMapper(new ExpressionEntityModelMapper());
+    }
+
+    @Bean
+    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository, Mapper<ClauseEntity, Clause> mapper) {
+        return new ClauseRepositoryAdaptor(clauseRepository, mapper);
+    }
+
+    @Bean
+    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository) {
         return new ManagementServiceImpl(clauseRepository);
     }
 

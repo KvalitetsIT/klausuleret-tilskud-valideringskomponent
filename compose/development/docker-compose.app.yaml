@@ -1,0 +1,21 @@
+# This won't run as a standalone docker-compose as the validation-component intentionally is missing 'depends_on'.
+# Moreover this docker-compose is only intended for the integration testing.
+services:
+  validation-component:
+    image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
+    environment:
+      - ITUKT_COMMON_ITUKTDB_URL=jdbc:mariadb://host.docker.internal:3306/itukt_db
+      - ITUKT_COMMON_ITUKTDB_USERNAME=user
+      - ITUKT_COMMON_ITUKTDB_PASSWORD=secret1234
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_URL=jdbc:mariadb://host.docker.internal:3307/sdm_krs_a
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_USERNAME=root
+      - ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD=
+      - ITUKT_VALIDATION_STAMDATA_CACHE_CRON=0 0 0 * * *
+      - ITUKT_MANAGEMENT_CLAUSE_CACHE_CRON=0 0 0 * * *
+      - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - 8080:8080
+      - 8081:8081
+      - 5005:5005
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

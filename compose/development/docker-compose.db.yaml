@@ -1,0 +1,32 @@
+# This docker-compose only runs the required databases and is isolated from the validation-component in order to achieve data injection during testing
+services:
+  itukt-db:
+    image: mariadb:10.11
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootroot
+      - MYSQL_DATABASE=itukt_db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=secret1234
+    healthcheck:
+      test: mysql --user=root --password=rootroot -e 'show databases;'
+      interval: 2s
+      timeout: 2s
+      retries: 10
+    ports:
+      - 3306:3306
+    volumes:
+      - ../configuration/ddl:/docker-entrypoint-initdb.d
+
+  stamdata-db:
+    image: trifork/tilskud-sdm-db:latest
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_DATABASE=sdm_krs_a
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=secret1234
+    healthcheck:
+      test: mysql -e 'show databases;'
+      interval: 2s
+      timeout: 2s
+      retries: 10

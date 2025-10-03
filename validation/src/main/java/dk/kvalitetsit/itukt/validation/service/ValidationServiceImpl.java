@@ -3,8 +3,8 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
-import dk.kvalitetsit.itukt.common.repository.ClauseCache;
-import dk.kvalitetsit.itukt.validation.repository.StamDataCache;
+import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 
@@ -13,17 +13,17 @@ import java.util.Optional;
 
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
 
-    private final ClauseCache clauseCache;
-    private final StamDataCache stamDataCache;
+    private final ClauseService clauseCache;
+    private final StamdataCache stamDataCache;
 
-    public ValidationServiceImpl(ClauseCache clauseCache, StamDataCache stamDataCache) {
+    public ValidationServiceImpl(ClauseService clauseCache, StamdataCache stamDataCache) {
         this.clauseCache = clauseCache;
         this.stamDataCache = stamDataCache;
     }
 
     @Override
     public List<ValidationError> validate(ValidationInput validationInput) {
-        Optional<StamData> stamDataByDrugId = stamDataCache.getStamDataByDrugId(validationInput.drugId());
+        Optional<StamData> stamDataByDrugId = stamDataCache.get(validationInput.drugId());
 
         return stamDataByDrugId.map(stamData -> stamData.clauses().stream()
                 .flatMap(sc -> validateStamDataClause(validationInput, sc).stream())
@@ -37,11 +37,8 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, StamData.Clause clause) {
-        return clauseCache.getClause(clause.code())
+        return clauseCache.get(clause.code())
                 .flatMap(c -> validateClause(c, clause.text(), validationInput));
 
     }
-
-
 }
-

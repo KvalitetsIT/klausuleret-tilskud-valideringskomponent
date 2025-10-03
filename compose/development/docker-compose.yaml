@@ -4,7 +4,7 @@ include:
 services:
   validation-component:
     extends:
-      file: docker-compose.test.yaml
+      file: docker-compose.app.yaml
       service: validation-component
     depends_on:
       itukt-db:

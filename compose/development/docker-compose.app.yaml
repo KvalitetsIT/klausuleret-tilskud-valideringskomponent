@@ -1,8 +1,5 @@
 # This won't run as a standalone docker-compose as the validation-component intentionally is missing 'depends_on'.
 # Moreover this docker-compose is only intended for the integration testing.
-
-include:
-  - docker-compose.db.yaml
 services:
   validation-component:
     image: kvalitetsit/klausuleret-tilskud-valideringskomponent:latest
@@ -14,7 +11,7 @@ services:
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_USERNAME=root
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD=
       - ITUKT_VALIDATION_STAMDATA_CACHE_CRON=0 0 0 * * *
-      - ITUKT_MANAGEMENT_CACHE_CRON=0 0 0 * * *
+      - ITUKT_MANAGEMENT_CLAUSE_CACHE_CRON=0 0 0 * * *
       - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     ports:
       - 8080:8080

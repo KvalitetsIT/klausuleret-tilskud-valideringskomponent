@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.integrationtest;
 import dk.kvalitetsit.itukt.Application;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.testcontainers.containers.ComposeContainer;
 
 import java.util.Properties;
 
@@ -16,7 +17,7 @@ final class OutsideDockerComponent implements Component {
         registerDatabaseProperties("stamdata-db", "validation.stamdata.stamdatadb", "sdm_krs_a", "", registry);
         registerDatabaseProperties("itukt-db", "common.ituktdb", "itukt_db", "rootroot", registry);
         registry.setProperty("itukt.validation.stamdata.cache.cron", "0 0 0 * * *");
-        registry.setProperty("itukt.management.cache.cron", "0 0 0 * * *");
+        registry.setProperty("itukt.management.clause.cache.cron", "0 0 0 * * *");
         return registry;
     }
 

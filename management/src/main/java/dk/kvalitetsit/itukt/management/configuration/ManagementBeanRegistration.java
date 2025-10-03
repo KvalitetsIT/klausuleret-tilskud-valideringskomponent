@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
-import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.cache.ClauseCache;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
@@ -12,7 +11,6 @@ import dk.kvalitetsit.itukt.management.repository.ClauseCacheImpl;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
@@ -37,7 +35,7 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ClauseCache clauseCache(ClauseRepositoryAdaptor clauseRepository) {
-        return new ClauseCacheImpl(configuration.cache(), clauseRepository);
+        return new ClauseCacheImpl(configuration.clause().cache(), clauseRepository);
     }
 
     @Bean

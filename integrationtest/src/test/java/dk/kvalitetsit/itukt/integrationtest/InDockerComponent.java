@@ -14,7 +14,7 @@ final class InDockerComponent implements Component {
     private final ComposeContainer component;
 
     public InDockerComponent(Logger logger) {
-        this.component = new ComposeContainer(getComposeFile())
+        this.component = new ComposeContainer(getComposeFile("docker-compose.app.yaml"))
                 .withServices(SERVICE_NAME)
                 .withExposedService(SERVICE_NAME, 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
                 .withLogConsumer(SERVICE_NAME, new Slf4jLogConsumer(logger).withPrefix(SERVICE_NAME))

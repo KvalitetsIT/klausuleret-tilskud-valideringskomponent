@@ -21,7 +21,7 @@ import java.time.Duration;
 public abstract class BaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
-    protected static final ComposeContainer environment = new ComposeContainer(getComposeFile())
+    protected static final ComposeContainer environment = new ComposeContainer(getComposeFile("docker-compose.db.yaml"))
             .withServices("itukt-db", "stamdata-db")
             .withExposedService("itukt-db", 3306, Wait.forListeningPorts(3306))
             .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
@@ -34,10 +34,10 @@ public abstract class BaseTest {
     protected Database appDatabase;
     protected Database stamDatabase;
 
-    public static File getComposeFile() {
+    public static File getComposeFile(String fileName) {
         var testWorkingDir = System.getProperty("user.dir");
         var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
-        return new File(projectRoot, "compose/development/docker-compose.test.yaml");
+        return new File(projectRoot, "compose/development/" + fileName);
     }
 
     @BeforeAll

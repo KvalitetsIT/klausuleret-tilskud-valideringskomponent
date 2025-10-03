@@ -4,7 +4,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import org.openapitools.model.ClauseInput;
 
 
-public class ClauseDslModelMapper implements Mapper<String, ClauseInput> {
+public class ClauseDslDtoMapper implements Mapper<String, ClauseInput> {
 
     @Override
     public ClauseInput map(String dsl) {

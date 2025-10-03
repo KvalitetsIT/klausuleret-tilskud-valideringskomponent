@@ -23,8 +23,8 @@ public abstract class BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
     protected static final ComposeContainer environment = new ComposeContainer(getComposeFile("docker-compose.db.yaml"))
             .withServices("itukt-db", "stamdata-db")
-            .withExposedService("itukt-db", 3306, Wait.forListeningPorts(3306))
-            .withExposedService("stamdata-db", 3306, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+            .withExposedService("itukt-db", 3306, Wait.forHealthcheck())
+            .withExposedService("stamdata-db", 3306, Wait.forHealthcheck().withStartupTimeout(Duration.ofSeconds(60)))
             .withLogConsumer("itukt-db", new Slf4jLogConsumer(logger).withPrefix("itukt-db"))
             .withLogConsumer("stamdata-db", new Slf4jLogConsumer(logger).withPrefix("stamdata-db"))
             .withLocalCompose(true);

@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping;
 
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
 import org.junit.jupiter.api.Disabled;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 public class DslClauseMapperTest {
 
-    private final ClauseDslModelMapper mapper = new ClauseDslModelMapper();
+    private final ClauseDslDtoMapper mapper = new ClauseDslDtoMapper();
     private final ClauseModelDslMapper clauseModelDslMapper = new ClauseModelDslMapper(new ExpressionModelDslMapper());
 
     @Test

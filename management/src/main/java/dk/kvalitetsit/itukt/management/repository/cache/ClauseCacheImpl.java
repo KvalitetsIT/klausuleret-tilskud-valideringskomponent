@@ -1,10 +1,8 @@
 package dk.kvalitetsit.itukt.management.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 
 import java.util.HashMap;

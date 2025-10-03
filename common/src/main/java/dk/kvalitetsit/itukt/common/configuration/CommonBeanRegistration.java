@@ -71,7 +71,8 @@ public class CommonBeanRegistration {
     }
 
     @Bean
-    public ApplicationRunner cacheScheduler(List<CacheLoader> loaders) {
-        return args -> CacheScheduler.init(loaders);
+    public int cacheScheduler(List<CacheLoader> loaders) {
+        CacheScheduler.init(loaders);
+        return 0;
     }
 }

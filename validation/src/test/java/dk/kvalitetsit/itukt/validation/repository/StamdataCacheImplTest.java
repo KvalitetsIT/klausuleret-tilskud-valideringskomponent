@@ -37,7 +37,7 @@ class StamDataCacheTest {
     }
 
     @Test
-    void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamDataName() {
+    void get_WhenDrugIdIsInCache_ReturnsStamDataName() {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
 

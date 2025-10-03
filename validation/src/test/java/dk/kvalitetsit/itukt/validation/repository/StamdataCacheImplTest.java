@@ -55,9 +55,8 @@ class StamDataCacheTest {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
-        StamdataCache stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
-        CacheLoader loader = (CacheLoader) stamDataCache;
-        loader.load();
+        StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        stamDataCache.load();
 
         Mockito.verify(mock, Mockito.times(1)).findAll();
         var result1 = stamDataCache.get(drugId);

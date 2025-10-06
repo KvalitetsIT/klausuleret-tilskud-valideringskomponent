@@ -19,7 +19,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication1, existingDrugMedication2)));
 
-        boolean validates = condition.validates(validationInput);
+    boolean validates = condition.validates(validationInput).isEmpty();
 
         assertTrue(validates, "Expected condition to validate when one of multiple items matches");
     }
@@ -31,7 +31,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput);
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertFalse(validates, "Expected condition not to validate when ATC code does not match");
     }
@@ -43,7 +43,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput);
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertFalse(validates, "Expected condition not to validate when form code does not match");
     }
@@ -55,7 +55,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput);
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertFalse(validates, "Expected condition not to validate when route of administration code does not match");
     }
@@ -67,7 +67,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput);
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertTrue(validates, "Expected condition to validate when ATC code is wildcard and other fields match");
     }
@@ -79,7 +79,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput);
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertTrue(validates, "Expected condition to validate when form code is wildcard and other fields match");
     }
@@ -91,7 +91,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput);
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertTrue(validates, "Expected condition to validate when route of administration code is wildcard and other fields match");
     }
@@ -103,7 +103,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput);
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertFalse(validates, "Expected condition not to validate when wildcard is used but other fields do not match");
     }
@@ -114,7 +114,7 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of()));
 
-        boolean validates = condition.validates(validationInput);
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertFalse(validates, "Expected condition not to validate when there are no items in the input list");
     }

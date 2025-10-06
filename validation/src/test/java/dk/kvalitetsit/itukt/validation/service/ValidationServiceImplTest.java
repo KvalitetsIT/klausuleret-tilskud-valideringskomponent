@@ -1,9 +1,7 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.ValidationInput;
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
@@ -32,6 +30,8 @@ class ValidationServiceImplTest {
     private StamdataCache stamDataCache;
     @Mock
     private SkippedValidationService skippedValidationService;
+
+    private final Optional<Expression.ValidationError> someError = Optional.of(new Expression.ConditionError(Expression.ValidationError.Field.AGE, Operator.EQUAL, "20"));
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {
@@ -64,7 +64,7 @@ class ValidationServiceImplTest {
 
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
-        Mockito.when(expression.validates(validationInput)).thenReturn(true);
+        Mockito.when(expression.validates(validationInput)).thenReturn(Optional.empty());
 
         var result = service.validate(validationInput);
 
@@ -80,7 +80,7 @@ class ValidationServiceImplTest {
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("message", 123), expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
-        Mockito.when(expression.validates(validationInput)).thenReturn(false);
+        Mockito.when(expression.validates(validationInput)).thenReturn(someError);
 
         var result = service.validate(validationInput);
 
@@ -111,10 +111,10 @@ class ValidationServiceImplTest {
         var clauses = stamdataClause.clauses().stream().toList();
 
         var succeedingExpression = Mockito.mock(BinaryExpression.class);
-        Mockito.when(succeedingExpression.validates(validationInput)).thenReturn(true);
+        Mockito.when(succeedingExpression.validates(validationInput)).thenReturn(Optional.empty());
 
         var failingExpression = Mockito.mock(BinaryExpression.class);
-        Mockito.when(failingExpression.validates(validationInput)).thenReturn(false);
+        Mockito.when(failingExpression.validates(validationInput)).thenReturn(someError);
 
 
         var clause_1 = new Clause(1L, clauses.get(0).code(), null, new Clause.Error(null, null), failingExpression);

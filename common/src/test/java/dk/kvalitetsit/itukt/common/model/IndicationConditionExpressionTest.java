@@ -14,7 +14,7 @@ class IndicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.indicationCode()).thenReturn(null);
 
-        boolean validates = stringCondition.validates(validationInput);
+        boolean validates = stringCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -25,7 +25,7 @@ class IndicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.indicationCode()).thenReturn("different value");
 
-        boolean validates = stringCondition.validates(validationInput);
+        boolean validates = stringCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -36,7 +36,7 @@ class IndicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.indicationCode()).thenReturn("testValue");
 
-        boolean validates = stringCondition.validates(validationInput);
+        boolean validates = stringCondition.validates(validationInput).isEmpty();
 
         assertTrue(validates);
     }

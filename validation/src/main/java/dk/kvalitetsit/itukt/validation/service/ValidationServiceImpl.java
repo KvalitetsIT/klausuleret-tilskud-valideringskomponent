@@ -34,6 +34,13 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                 .toList()).orElseGet(List::of);
     }
 
+    private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
+        return shouldSkipClause(clause, validationInput)
+                ? Optional.empty()
+                : clause.expression().validates(validationInput)
+                    .map(todo -> new ValidationError(clause.name(), clauseText, clause.error().message(), clause.error().code()));
+    }
+
     private void createSkippedValidations(ValidationInput validationInput) {
         skippedValidationService.createSkippedValidations(validationInput.createdById(), validationInput.personId(), validationInput.skippedErrorCodes());
         validationInput.reportedById().ifPresent(reportedBy -> skippedValidationService.createSkippedValidations(reportedBy, validationInput.personId(), validationInput.skippedErrorCodes()));
@@ -42,12 +49,6 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, StamData.Clause clause) {
         return clauseCache.get(clause.code())
                 .flatMap(c -> validateClause(c, clause.text(), validationInput));
-    }
-
-    private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
-        return shouldSkipClause(clause, validationInput) || clause.expression().validates(validationInput) ?
-                Optional.empty() :
-                Optional.of(new ValidationError(clause.name(), clauseText, clause.error().message(), clause.error().code()));
     }
 
     private boolean shouldSkipClause(Clause clause, ValidationInput validationInput) {

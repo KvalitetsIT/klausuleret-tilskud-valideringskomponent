@@ -14,7 +14,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -25,7 +25,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(4);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -36,7 +36,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(5);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertTrue(validates);
     }
@@ -47,7 +47,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(4);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -58,7 +58,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(5);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertTrue(validates);
     }
@@ -69,7 +69,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertTrue(validates);
     }
@@ -80,7 +80,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(4);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertTrue(validates);
     }
@@ -91,7 +91,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(5);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertTrue(validates);
     }
@@ -102,7 +102,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -113,7 +113,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(4);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -124,7 +124,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(5);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -135,7 +135,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertTrue(validates);
     }
@@ -146,7 +146,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(4);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertTrue(validates);
     }
@@ -157,7 +157,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(5);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }
@@ -168,7 +168,7 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput);
+        boolean validates = numberCondition.validates(validationInput).isEmpty();
 
         assertFalse(validates);
     }

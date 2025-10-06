@@ -174,7 +174,7 @@ public class ValidationIT extends BaseTest {
                 .createdDateTime(OffsetDateTime.now());
     }
 
-    private Actor createActor() {
+    private static Actor createActor() {
         return new Actor()
                 .identifier("actor1")
                 .organisationSpeciality("")

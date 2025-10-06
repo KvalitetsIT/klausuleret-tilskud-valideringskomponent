@@ -7,7 +7,7 @@ import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
@@ -45,7 +45,7 @@ public class ValidationIT extends BaseTest {
         repository.create(clause);
     }
 
-    @BeforeAll
+    @BeforeEach
     void setup() {
         validationApi = new ValidationApi(client);
     }

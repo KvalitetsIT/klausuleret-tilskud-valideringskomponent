@@ -3,11 +3,10 @@ package dk.kvalitetsit.itukt.integrationtest;
 import dk.kvalitetsit.itukt.Application;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.testcontainers.containers.ComposeContainer;
 
 import java.util.Properties;
 
-import static dk.kvalitetsit.itukt.integrationtest.BaseTest.environment;
+import static dk.kvalitetsit.itukt.integrationtest.BaseTest.dbEnvironment;
 
 final class OutsideDockerComponent implements Component {
     private ConfigurableApplicationContext app;
@@ -28,8 +27,8 @@ final class OutsideDockerComponent implements Component {
             String password,
             Properties registry
     ) {
-        String host = environment.getServiceHost(serviceName, 3306);
-        Integer port = environment.getServicePort(serviceName, 3306);
+        String host = dbEnvironment.getServiceHost(serviceName, 3306);
+        Integer port = dbEnvironment.getServicePort(serviceName, 3306);
         registry.setProperty("itukt." + prefix + ".url", "jdbc:mariadb://" + host + ":" + port + "/" + db);
         registry.setProperty("itukt." + prefix + ".username", "root");
         registry.setProperty("itukt." + prefix + ".password", password);

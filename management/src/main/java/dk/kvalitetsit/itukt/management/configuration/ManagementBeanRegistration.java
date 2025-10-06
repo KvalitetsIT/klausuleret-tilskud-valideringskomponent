@@ -10,9 +10,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMa
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.*;
 import dk.kvalitetsit.itukt.management.repository.cache.ClauseCache;
 import dk.kvalitetsit.itukt.management.repository.cache.ClauseCacheImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -45,8 +43,13 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseRepository clauseRepository(@Qualifier("appDataSource") DataSource dataSource) {
-        return new ClauseRepositoryImpl(dataSource);
+    public ExpressionRepository expressionRepository(@Qualifier("appDataSource") DataSource dataSource) {
+        return new ExpressionRepositoryImpl(dataSource);
+    }
+
+    @Bean
+    public ClauseRepository clauseRepository(@Qualifier("appDataSource") DataSource dataSource, ExpressionRepository expressionRepository) {
+        return new ClauseRepositoryImpl(dataSource, expressionRepository);
     }
 
     @Bean

@@ -4,6 +4,7 @@ import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
@@ -22,7 +23,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
 
     @BeforeAll
     void setup() {
-        clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource());
+        clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
         skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
     }
 

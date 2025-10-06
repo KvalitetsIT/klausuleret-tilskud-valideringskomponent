@@ -218,6 +218,7 @@
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
 								<useTags>true</useTags>
+                                <useSealed>true</useSealed>
 							</configOptions>
 							<output>${project.build.directory}/generated-sources/openapi/main</output>
 							<generateApiDocumentation>false</generateApiDocumentation>
@@ -243,6 +244,7 @@
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
 								<useTags>true</useTags>
+                                <useSealed>true</useSealed>
 							</configOptions>
 							<output>${project.build.directory}/generated-sources/openapi/main</output>
 							<generateApiDocumentation>false</generateApiDocumentation>

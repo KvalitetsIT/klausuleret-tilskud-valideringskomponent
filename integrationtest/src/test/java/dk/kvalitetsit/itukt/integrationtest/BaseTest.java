@@ -2,9 +2,8 @@ package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
@@ -21,32 +20,27 @@ import java.time.Duration;
 public abstract class BaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
-    protected static final ComposeContainer environment = new ComposeContainer(getComposeFile("docker-compose.db.yaml"))
+    protected static final ComposeContainer dbEnvironment = new ComposeContainer(getComposeFile("docker-compose.db.yaml"))
             .withServices("itukt-db", "stamdata-db")
             .withExposedService("itukt-db", 3306, Wait.forHealthcheck())
             .withExposedService("stamdata-db", 3306, Wait.forHealthcheck().withStartupTimeout(Duration.ofSeconds(60)))
             .withLogConsumer("itukt-db", new Slf4jLogConsumer(logger).withPrefix("itukt-db"))
             .withLogConsumer("stamdata-db", new Slf4jLogConsumer(logger).withPrefix("stamdata-db"))
             .withLocalCompose(true);
+    protected static Database appDatabase;
+    protected static Database stamDatabase;
 
-    protected static Component component;
+    protected Component component;
     protected ApiClient client;
-    protected Database appDatabase;
-    protected Database stamDatabase;
 
-    public static File getComposeFile(String fileName) {
-        var testWorkingDir = System.getProperty("user.dir");
-        var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
-        return new File(projectRoot, "compose/development/" + fileName);
-    }
-
-    @BeforeAll
-    void beforeAll() {
-        environment.start();
-
+    static  {
+        dbEnvironment.start();
         appDatabase = getDatabase("itukt-db", "itukt_db", "rootroot");
         stamDatabase = getDatabase("stamdata-db", "sdm_krs_a", "");
+    }
 
+    @BeforeEach
+    void setupApp() {
         boolean runInDocker = Boolean.getBoolean("runInDocker");
         component = runInDocker ? new InDockerComponent(logger) : new OutsideDockerComponent();
 
@@ -59,22 +53,24 @@ public abstract class BaseTest {
         client = new ApiClient().setBasePath(String.format("http://%s:%s", component.getHost(), component.getPort()));
     }
 
-    private Database getDatabase(String serviceName, String dbName, String password) {
-        var host = environment.getServiceHost(serviceName, 3306);
-        var port = environment.getServicePort(serviceName, 3306);
-        return new Database(host, port, dbName, "root", password);
-    }
-
     @AfterEach
-    void cleanup() {
+    void afterEach() { // Clear both db and cache between each test
         appDatabase.clear();
-    }
-
-    @AfterAll
-    void afterAll() {
         if (component != null) {
             component.stop();
         }
+    }
+
+    public static File getComposeFile(String fileName) {
+        var testWorkingDir = System.getProperty("user.dir");
+        var projectRoot = Paths.get(testWorkingDir).toAbsolutePath().normalize().getParent().toFile();
+        return new File(projectRoot, "compose/development/" + fileName);
+    }
+
+    private static Database getDatabase(String serviceName, String dbName, String password) {
+        var host = dbEnvironment.getServiceHost(serviceName, 3306);
+        var port = dbEnvironment.getServicePort(serviceName, 3306);
+        return new Database(host, port, dbName, "root", password);
     }
 
     /**

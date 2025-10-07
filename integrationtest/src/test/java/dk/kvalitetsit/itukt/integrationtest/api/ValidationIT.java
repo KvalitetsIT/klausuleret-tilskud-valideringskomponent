@@ -7,7 +7,7 @@ import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
@@ -45,7 +45,7 @@ public class ValidationIT extends BaseTest {
         repository.create(clause);
     }
 
-    @BeforeAll
+    @BeforeEach
     void setup() {
         validationApi = new ValidationApi(client);
     }
@@ -124,6 +124,30 @@ public class ValidationIT extends BaseTest {
         assertEquals(elementPath, validationError.getElementPath());
     }
 
+    @Test
+    void call20250801validatePost_WithInputThatFailsValidationButErrorCodeSkipped_ReturnsSuccess() {
+        String elementPath = "path";
+        int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
+        var request = createValidationRequest(elementPath, age, INVALID_INDICATION, List.of())
+                .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
+
+        var successfulResponse = validationApi.call20250801validatePost(request);
+
+        assertInstanceOf(ValidationSuccess.class, successfulResponse, "Validation should succeed when error code is skipped");
+    }
+
+    @Test
+    void call20250801validatePost_WithoutRequiredExistingDrugMedicationButErrorCodeSkipped_ReturnsSuccess() {
+        String elementPath = "path";
+        int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
+        var request = createValidationRequest(elementPath, age, VALID_INDICATION, null)
+                .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
+
+        var successfulResponse = validationApi.call20250801validatePost(request);
+
+        assertInstanceOf(ValidationSuccess.class, successfulResponse, "Validation should succeed when error code is skipped");
+    }
+
     private ValidationRequest createValidationRequest(String elementPath, int age, String indication, List<ExistingDrugMedication> existingDrugMedication) {
         Validate validate = createValidateElement(elementPath, indication);
         return new ValidationRequest()
@@ -150,8 +174,9 @@ public class ValidationIT extends BaseTest {
                 .createdDateTime(OffsetDateTime.now());
     }
 
-    private Actor createActor() {
+    private static Actor createActor() {
         return new Actor()
+                .identifier("actor1")
                 .organisationSpeciality("")
                 .specialityCode("");
     }

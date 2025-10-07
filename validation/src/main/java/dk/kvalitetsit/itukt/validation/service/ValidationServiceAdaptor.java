@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.validation.service;
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import org.openapitools.model.*;
@@ -63,6 +62,10 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                         .map(this::mapExistingDrugMedication)
                         .toList());
         return new ValidationInput(
+                validationRequest.getPersonIdentifier(),
+                validate.getNewDrugMedication().getCreatedBy().getIdentifier(),
+                validate.getNewDrugMedication().getReportedBy().map(Actor::getIdentifier),
+                validationRequest.getSkipValidations(),
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),
                 validate.getNewDrugMedication().getIndicationCode(),

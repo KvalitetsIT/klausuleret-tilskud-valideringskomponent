@@ -6,7 +6,6 @@ import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.management.repository.cache.ClauseCache;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class ClauseServiceImpl implements ClauseService {
@@ -23,5 +22,10 @@ public class ClauseServiceImpl implements ClauseService {
     @Override
     public Optional<Clause> get(String name) {
         return cache.get(name).map(mapper::map);
+    }
+
+    @Override
+    public Optional<Clause> getByErrorCode(Integer errorCode) {
+        return cache.getByErrorCode(errorCode).map(mapper::map);
     }
 }

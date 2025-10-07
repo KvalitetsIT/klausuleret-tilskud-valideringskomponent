@@ -5,7 +5,6 @@ import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ClauseCacheImplTest {
@@ -29,7 +30,7 @@ class ClauseCacheImplTest {
     @Test
     void givenAnEmptyCache_whenGet_thenReturnEmpty() {
         var expected = Optional.empty();
-        Assertions.assertEquals(expected, cache.get("WhatEver"));
+        assertEquals(expected, cache.get("WhatEver"));
     }
 
     @Test
@@ -37,7 +38,7 @@ class ClauseCacheImplTest {
         var expected = "0 0 0 * * *";
         var cache = new ClauseCacheImpl(new CacheConfiguration(expected), null);
 
-        Assertions.assertEquals(expected, cache.getCron());
+        assertEquals(expected, cache.getCron());
     }
 
     @Test
@@ -58,6 +59,26 @@ class ClauseCacheImplTest {
         cache.load();
         Mockito.verify(concreteRepository, Mockito.times(1)).readAll();
 
-        Assertions.assertEquals(Optional.of(expected), cache.get("CLAUSE"));
+        assertEquals(Optional.of(expected), cache.get("CLAUSE"));
+    }
+
+    @Test
+    void getByErrorCode_WhenNoClauseMatchesErrorCode_ReturnsEmptyOptional() {
+        var result = cache.getByErrorCode(999);
+
+        assertFalse(result.isPresent(), "Expected empty Optional when no clause matches the error code");
+    }
+
+    @Test
+    void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
+        var existingClause1 = new ClauseEntity(null, null, "test1", 111, null);
+        var existingClause2 = new ClauseEntity(null, null, "test2", 222, null);
+        Mockito.when(concreteRepository.readAll()).thenReturn(List.of(existingClause1, existingClause2));
+        cache.load();
+
+        var result = cache.getByErrorCode(existingClause2.errorCode());
+
+        assertTrue(result.isPresent(), "Expected clause to be found for matching error code");
+        assertEquals(existingClause2, result.get(), "Expected returned clause to match the one with the given error code");
     }
 }

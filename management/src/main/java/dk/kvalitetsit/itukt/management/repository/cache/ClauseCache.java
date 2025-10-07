@@ -10,4 +10,6 @@ public interface ClauseCache {
      * @return the clause corresponding to that name if present otherwise Optional.empty
      */
     Optional<ClauseEntity> get(String name);
+
+    Optional<ClauseEntity> getByErrorCode(Integer errorCode);
 }

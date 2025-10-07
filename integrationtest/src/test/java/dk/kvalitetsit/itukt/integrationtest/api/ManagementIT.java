@@ -3,8 +3,7 @@ package dk.kvalitetsit.itukt.integrationtest.api;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.ClauseInput;
@@ -18,7 +17,7 @@ class ManagementIT extends BaseTest {
 
     private static ManagementApi api;
 
-    @BeforeAll
+    @BeforeEach
     void setup() {
         api = new ManagementApi(client);
     }

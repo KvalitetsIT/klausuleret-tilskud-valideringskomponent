@@ -21,7 +21,6 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
             case StringCondition s -> this.map(s);
             case NumberCondition n -> this.map(n);
             case ExistingDrugMedicationCondition e -> this.map(e);
-            default -> throw new IllegalStateException("Unexpected value: " + expression);
         };
     }
 

@@ -1,11 +1,12 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.validation.repository.entity.SkippedValidationEntity;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Map;
 
 public class SkippedValidationRepositoryImpl implements SkippedValidationRepository {
     private final NamedParameterJdbcTemplate template;
@@ -17,36 +18,26 @@ public class SkippedValidationRepositoryImpl implements SkippedValidationReposit
     @Override
     public void create(List<SkippedValidationEntity> skippedValidations) {
         if (skippedValidations.isEmpty()) return;
-
         String sql = """
                 INSERT INTO skipped_validation (clause_id, actor_id, person_id)
                 VALUES (:clauseId, :actorId, :personId)
                 ON DUPLICATE KEY UPDATE clause_id = clause_id
                 """;
-
         var batchParams = skippedValidations.stream()
-                .map(this::toMap)
-                .toArray(Map[]::new);
-
+                .map(BeanPropertySqlParameterSource::new)
+                .toArray(SqlParameterSource[]::new);
         template.batchUpdate(sql, batchParams);
     }
 
     @Override
     public boolean exists(SkippedValidationEntity skippedValidation) {
         String sql = """
-                SELECT COUNT(*) FROM skipped_validation
+            SELECT EXISTS(
+                SELECT 1 FROM skipped_validation
                 WHERE clause_id = :clauseId AND actor_id = :actorId AND person_id = :personId
-                """;
-
-        Integer count = template.queryForObject(sql, toMap(skippedValidation), Integer.class);
-        return count != null && count > 0;
-    }
-
-    private Map<String, ?> toMap(SkippedValidationEntity skippedValidation) {
-        return Map.of(
-                "clauseId", skippedValidation.clauseId(),
-                "actorId", skippedValidation.actorId(),
-                "personId", skippedValidation.personId()
-        );
+            )
+            """;
+        Boolean exists = template.queryForObject(sql, new BeanPropertySqlParameterSource(skippedValidation), Boolean.class);
+        return Boolean.TRUE.equals(exists);
     }
 }

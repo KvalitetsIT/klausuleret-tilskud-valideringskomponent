@@ -11,7 +11,6 @@ import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImp
 import dk.kvalitetsit.itukt.validation.repository.entity.SkippedValidationEntity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -34,7 +33,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
 
     @Test
     void create_WithEmptyList_DoesNotFail() {
-        assertDoesNotThrow(() -> skippedValidationRepository.create(List.of()));
+        assertDoesNotThrow(() -> skippedValidationRepository.create(List.of()), "Creating skipped validations with an empty list should not fail");
     }
 
     @Test

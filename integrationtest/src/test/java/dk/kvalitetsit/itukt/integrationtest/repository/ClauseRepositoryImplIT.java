@@ -93,6 +93,24 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
+    void assertFailureCreationAfter199Clauses() {
+        final int OFFSET = 10800;
+        final int LIMIT = 200;
+
+        Assertions.assertDoesNotThrow(() -> IntStream.range(OFFSET, OFFSET + LIMIT)
+                .parallel()
+                .mapToObj((i) -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY))
+                .forEach(repository::create));
+
+        var err = Assertions.assertThrows(
+                ServiceException.class,
+                () -> repository.create(new ClauseForCreation("clause" + 200, MockFactory.EXPRESSION_1_ENTITY))
+        );
+
+        Assertions.assertEquals("Failed to create clause", err.getMessage());
+    }
+
+    @Test
     void testCreateAndReadExistingDrugMedicationCondition() {
         var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
         var clauseForCreation = new ClauseForCreation("CLAUSE", existingDrugMedicationCondition);

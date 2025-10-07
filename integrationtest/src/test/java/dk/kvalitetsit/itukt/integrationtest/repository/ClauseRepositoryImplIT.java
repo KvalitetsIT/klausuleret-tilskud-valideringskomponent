@@ -14,6 +14,7 @@ import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.relational.core.sql.In;
 
 import java.util.Comparator;
 import java.util.List;
@@ -112,6 +113,24 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         Assertions.assertEquals("Failed to create clause", err.getMessage());
     }
+
+    @Test
+    void getTwoClauseWithSameName() {
+        var clauseA = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blah"));
+        var clauseB = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blah"));
+
+        repository.create(clauseA);
+
+        Assertions.assertThrows(ServiceException.class, () -> repository.create(clauseB), "Expected an exception since duplicate entry");
+    }
+
+
+    @Test
+    void givenClauseWithNullExpression_whenCreate_thenThrow() {
+        var clause = new ClauseForCreation("blaah", null);
+        Assertions.assertThrows(ServiceException.class, () -> repository.create(clause), "Expected exception since expression is null");
+    }
+
 
     @Test
     void givenADeepClause_whenCreateAndRead_thenAssertEqual() {

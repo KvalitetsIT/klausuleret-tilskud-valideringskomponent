@@ -97,7 +97,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     Map.of("uuid", uuid.toString()),
                     (rs, rowNum) -> {
                         long expressionId = rs.getLong("expression_id");
-                        var expression = expressionRepository.read(expressionId).orElseThrow();
+                        var expression = expressionRepository.read(expressionId).orElseThrow( () -> new ServiceException(String.format("Expected to find an expression with id '%s', but nothing was found", expressionId)));
 
                         return new ClauseEntity(
                                 rs.getLong("id"),

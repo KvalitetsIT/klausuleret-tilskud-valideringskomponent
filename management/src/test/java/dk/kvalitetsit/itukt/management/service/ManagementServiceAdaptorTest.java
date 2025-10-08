@@ -51,7 +51,7 @@ public class ManagementServiceAdaptorTest {
 
     @Test
     void testCreate() {
-        var clauseInput = new ClauseInput("testName", Mockito.mock(Expression.class));
+        var clauseInput = new ClauseInput("testName", Mockito.mock(BinaryExpression.class));
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         var clauseForCreation = Mockito.mock(ClauseForCreation.class);
@@ -67,7 +67,7 @@ public class ManagementServiceAdaptorTest {
     @Test
     void testCreateDsl() {
         var dslInput = new DslInput("test");
-        var clauseInput = new ClauseInput("testName", Mockito.mock(Expression.class));
+        var clauseInput = new ClauseInput("testName", Mockito.mock(BinaryExpression.class));
         var clause = Mockito.mock(Clause.class);
         var dslOutput = Mockito.mock(DslOutput.class);
         var clauseForCreation = Mockito.mock(ClauseForCreation.class);

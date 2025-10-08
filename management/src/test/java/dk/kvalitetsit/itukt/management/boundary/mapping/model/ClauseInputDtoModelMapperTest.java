@@ -30,7 +30,7 @@ class ClauseInputDtoModelMapperTest {
 
     @Test
     void map_MapsNameAndExpression() {
-        var clauseInput = new ClauseInput("Test Clause", Mockito.mock(org.openapitools.model.Expression.class));
+        var clauseInput = new ClauseInput("Test Clause", Mockito.mock(org.openapitools.model.BinaryExpression.class));
         var expression = Mockito.mock(BinaryExpression.class);
         var expressionEntity = Mockito.mock(ExpressionEntity.BinaryExpressionEntity.class);
         Mockito.when(expressionDtoModelMapper.map(clauseInput.getExpression())).thenReturn(expression);

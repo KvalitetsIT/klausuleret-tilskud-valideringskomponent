@@ -65,7 +65,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
 
-    public synchronized int createErrorCode(String clauseName) {
+    private synchronized int createErrorCode(String clauseName) {
         Integer max = template.getJdbcTemplate().queryForObject(
                 "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
                 Integer.class

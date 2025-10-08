@@ -1,14 +1,13 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 
-
-
 import org.openapitools.model.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * The {@code Parser} class is responsible for parsing a sequence of {@link Token} objects
@@ -63,15 +62,21 @@ class Parser {
      * Consumes the next token and verifies that it matches the expected text.
      *
      * @param text the expected token text
-     * @return the matched token
      * @throws RuntimeException if the token does not match the expected text
      */
-    private Token expect(String text) {
+    private void expect(String text) {
+        expect(text, (token) -> !token.text().equals(text));
+    }
+
+    private void expectIgnoreCase(String text) {
+        expect(text, (token) -> !token.text().equalsIgnoreCase(text));
+    }
+
+    private void expect(String text, Predicate<Token> predicate){
         Token token = next();
-        if (!token.text().equals(text)) {
+        if (predicate.test(token)) {
             throw new RuntimeException("Expected '" + text + "', got '" + token.text() + "'");
         }
-        return token;
     }
 
     /**
@@ -81,11 +86,12 @@ class Parser {
      * @return the parsed {@code Expression}
      */
     protected ClauseInput parseClause() {
-        expect("Klausul");
+        expectIgnoreCase("Klausul");
         Token name = next();
         expect(":");
         return new ClauseInput(name.text(), parseExpression());
     }
+
 
     /**
      * Parses a generic expression, delegating to {@link #parseOrExpression()}.
@@ -101,7 +107,7 @@ class Parser {
      */
     private Expression parseOrExpression() {
         Expression left = parseAndExpression();
-        while (peek().text().equals("eller")) {
+        while (peek().text().equalsIgnoreCase("eller")) {
             next(); // consume 'eller'
             Expression right = parseAndExpression();
             left = new BinaryExpression(left, BinaryOperator.OR, right, "BinaryExpression");
@@ -114,7 +120,7 @@ class Parser {
      */
     private Expression parseAndExpression() {
         Expression left = parseOperand();
-        while (peek().text().equals("og")) {
+        while (peek().text().equalsIgnoreCase("og")) {
             next(); // consume 'og'
             Expression right = parseOperand();
             left = new BinaryExpression(left, BinaryOperator.AND, right, "BinaryExpression");
@@ -126,15 +132,38 @@ class Parser {
      * Parses a single operand, which could be a condition or a nested expression in parentheses.
      */
     private Expression parseOperand() {
-        expect("(");
-        Expression result;
-        if (peekAheadIsCondition()) {
-            result = parseConditionOperand();
-        } else {
-            result = parseLogicalGroup();
+        if (match("(")) {
+            // Look ahead to decide whether this is just a simple condition
+            // or a full logical expression
+            if (peekAheadIsCondition()) {
+                int startPos = pos; // remember position
+                parseCondition();   // dry-run
+                // if next token is ')' => it's just a condition in parentheses
+                if (pos < tokens.size() && tokens.get(pos).text().equals(")")) {
+                    pos = startPos; // rewind
+                    Expression condition = parseCondition();
+                    expect(")");
+                    return condition;
+                } else {
+                    // rewind and parse full expression instead
+                    pos = startPos;
+                    Expression inner = parseExpression();
+                    expect(")");
+                    return inner;
+                }
+            } else {
+                // general nested expression
+                Expression inner = parseExpression();
+                expect(")");
+                return inner;
+            }
+        } else if (peekAheadIsCondition()) {
+            return parseCondition(); // bare condition
         }
-        return result;
+        throw new RuntimeException("Unexpected token: " + peek().text());
     }
+
+
 
     /**
      * Parses a condition operand, such as {@code (age >= 18)}.
@@ -179,12 +208,12 @@ class Parser {
      *
      * @return the parsed {@code Expression.Condition}
      */
+
     private Expression parseCondition() {
         String field = next().text();
         String operatorString = next().text();
-        Operator operator = operatorString.equals("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
+        Operator operator = operatorString.equals("I") ? Operator.EQUAL : Operator.fromValue(operatorString);
         List<String> values = parseValues();
-        expect(")");
 
         return createExpressionFromMultiValueCondition(field, operator, values);
     }
@@ -208,9 +237,10 @@ class Parser {
     }
 
     private Expression createCondition(String field, Operator operator, String value) {
+        final var upperCaseField = field.toUpperCase();
         return tryParseInt(value)
-                .map(intValue -> createNumberCondition(field, operator, intValue))
-                .orElseGet(() -> createStringCondition(field, value));
+                .map(intValue -> createNumberCondition(upperCaseField, operator, intValue))
+                .orElseGet(() -> createStringCondition(upperCaseField, value));
     }
 
     private Expression createStringCondition(String field, String value) {

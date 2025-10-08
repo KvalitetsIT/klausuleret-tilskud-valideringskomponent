@@ -30,13 +30,15 @@ class Lexer {
      * Regular expression pattern for matching different kinds of tokens.
      */
     private static final Pattern TOKEN_PATTERNS = Pattern.compile(
-            "\\s*(?:(Klausul|og|eller)|" +           // keywords
-                    "(>=|<=|=|i)|" +                 // operators
-                    "([A-Za-z][A-Za-z0-9]*)|" +      // identifiers
-                    "([0-9]+)|" +                    // numbers
-                    "([:,()])|" +                    // symbols
-                    "(\\S))"                         // unknown
+            "\\s*(?:(klausul|og|eller)|" +       // keywords
+                    "(>=|<=|=|>|<|\\bi\\b)|" +   // operators (with word-boundary for "i")
+                    "([A-Za-z][A-Za-z0-9_]*)|" + // identifiers
+                    "([0-9]+)|" +                // numbers
+                    "([:,()*])|" +               // symbols
+                    "(\\S))",                    // unknown
+            Pattern.CASE_INSENSITIVE
     );
+
 
     private final Matcher matcher;
     private final List<Token> tokens = new ArrayList<>();
@@ -83,6 +85,6 @@ class Lexer {
      * @return a list of {@code Token} objects
      */
     public List<Token> getTokens() {
-        return tokens;
+        return tokens.stream().map(x-> new Token(x.type(), x.text().toUpperCase())).toList();
     }
 }

@@ -1,6 +1,9 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
@@ -11,6 +14,7 @@ import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.relational.core.sql.In;
 
 import java.util.Comparator;
 import java.util.List;
@@ -90,6 +94,70 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 read,
                 "Clauses read is expected to be the same as written clauses"
         );
+    }
+
+    @Test
+    void assertFailureCreationAfter199Clauses() {
+        final int OFFSET = 10800;
+        final int LIMIT = 200;
+
+        Assertions.assertDoesNotThrow(() -> IntStream.range(OFFSET, OFFSET + LIMIT)
+                .parallel()
+                .mapToObj(i -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY))
+                .forEach(repository::create));
+
+        var err = Assertions.assertThrows(
+                ServiceException.class,
+                () -> repository.create(new ClauseForCreation("clause" + 200, MockFactory.EXPRESSION_1_ENTITY))
+        );
+
+        Assertions.assertEquals("Failed to create clause", err.getMessage());
+    }
+
+    @Test
+    void getTwoClauseWithSameName() {
+        var clauseA = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blah"));
+        var clauseB = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blah"));
+
+        repository.create(clauseA);
+
+        Assertions.assertThrows(ServiceException.class, () -> repository.create(clauseB), "Expected an exception since duplicate entry");
+    }
+
+
+    @Test
+    void givenADeepClause_whenCreateAndRead_thenAssertEqual() {
+
+        var deepClause = new ClauseForCreation("ClauseName", new ExpressionEntity.BinaryExpressionEntity(
+                new ExpressionEntity.BinaryExpressionEntity(
+                        new ExpressionEntity.BinaryExpressionEntity(
+                            new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.AGE, "whatEver"),
+                                BinaryExpression.Operator.OR,
+                                new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.INDICATION, Operator.EQUAL, 20)
+                        ),
+                        BinaryExpression.Operator.OR,
+                        new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "atcCode", "formCode", "routeOfAdministration")
+                ),
+                BinaryExpression.Operator.AND,
+                new ExpressionEntity.BinaryExpressionEntity(
+                        new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "whatEver"),
+                        BinaryExpression.Operator.AND,
+                        new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.AGE, Operator.GREATER_THAN, 20)
+                )
+        ));
+
+        var created = repository.create(deepClause);
+
+        assertThat(created.expression())
+                .usingRecursiveComparison()
+                .ignoringFields("id", "left.id", "right.id", "right.left.id", "right.right.id", "right.left.left.id", "right.left.right.id", "left.left.id", "left.left.left.id", "left.right.id", "left.left.right.id")
+                .withFailMessage("Expected the expression returned to be equal to the one given as argument")
+                .isEqualTo(deepClause.expression());
+
+        var read = repository.read(created.uuid());
+
+        assertTrue(read.isPresent(), "Expected to read the clause previously created");
+        assertEquals(created, read.get(), "Expected the same clause as previously created");
     }
 
     @Test

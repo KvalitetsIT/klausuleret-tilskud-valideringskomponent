@@ -2,6 +2,8 @@ package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
@@ -44,7 +46,8 @@ public abstract class BaseTest {
         boolean runInDocker = Boolean.getBoolean("runInDocker");
         component = runInDocker ? new InDockerComponent(logger) : new OutsideDockerComponent();
 
-        this.load(new ClauseRepositoryImpl(appDatabase.getDatasource()));
+
+        this.load(new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource())));
 
         logger.info("Starting component");
         component.start();

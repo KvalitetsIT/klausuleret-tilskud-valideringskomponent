@@ -18,7 +18,9 @@ import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_T
 public class MockFactory {
 
     // Note: This clause(clause_1_dsl) matches: clause_1_*
-    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput().dsl("Klausul CHOL: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)");
+    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput()
+            .dsl("Klausul CHOL: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)")
+            .error(new org.openapitools.client.model.Error().message("message"));
     private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Expression.Condition.Field.INDICATION, "C10BA03");
     private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Expression.Condition.Field.INDICATION, "C10BA02");
     private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, Expression.Condition.Field.INDICATION, "C10BA05");
@@ -37,7 +39,7 @@ public class MockFactory {
             EXPRESSION_7_ENTITY
     );
     // Note: This clause(clause_1_entity) matches: clause_1_dsl
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", 0, EXPRESSION_1_ENTITY);
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", 0, "message", EXPRESSION_1_ENTITY);
     private static final NumberConditionExpression EXPRESSION_6_MODEL = new NumberConditionExpression(
             EXPRESSION_6_ENTITY.field(),
             EXPRESSION_6_ENTITY.operator(),
@@ -81,7 +83,7 @@ public class MockFactory {
                     EXPRESSION_6_MODEL
             )
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), 10800, EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
     private static final org.openapitools.client.model.StringCondition EXPRESSION_2_DTO = new org.openapitools.client.model.StringCondition()
             .type("StringCondition")
             .field(EXPRESSION_2_MODEL.field().name())
@@ -99,11 +101,12 @@ public class MockFactory {
     public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
-            .uuid(CLAUSE_1_MODEL.uuid());
+            .uuid(CLAUSE_1_MODEL.uuid()).error(new org.openapitools.client.model.Error().message("message"));
 
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")
-            .expression(EXPRESSION_1_DTO);
+            .expression(EXPRESSION_1_DTO)
+            .error(new org.openapitools.client.model.Error().message("message"));
 
     public static org.openapitools.client.model.ExistingDrugMedicationCondition createExistingDrugMedicationCondition(
             String atcCode,

@@ -229,6 +229,7 @@ components:
       required:
         - name
         - expression
+        - error
       properties:
         name:
           type: string
@@ -236,6 +237,8 @@ components:
           example: "CHOL"
         expression:
           $ref: '#/components/schemas/Expression'
+        error:
+          $ref: '#/components/schemas/Error'
 
     ClauseOutput:
       allOf:
@@ -299,6 +302,7 @@ components:
         type:
           type: string
           description: "Identifies this object as a StringCondition expression"
+          example: "StringCondition"
 
     NumberCondition:
       description: "A basic condition consisting of a field, an operation and a number value. This represents the most atomic form of an expression"
@@ -316,6 +320,7 @@ components:
         type:
           type: string
           description: "Identifies this object as a NumberCondition expression"
+          example: "NumberCondition"
 
     ExistingDrugMedicationCondition:
       description: "A condition for existing drug medication"
@@ -334,6 +339,7 @@ components:
         type:
           type: string
           description: "Identifies this object as a ExistingDrugMedicationCondition expression"
+          example: "ExistingDrugMedicationCondition"
 
     BinaryExpression:
       description: "A compound expression combining two expressions with a binary operator such as AND or OR"
@@ -351,27 +357,31 @@ components:
         type:
           type: string
           description: "Identifies this object as a BinaryExpression"
+          example: "BinaryExpression"
 
     DslInput:
       type: object
       required:
         - dsl
+        - error
       properties:
+        error:
+          $ref: '#/components/schemas/Error'
         dsl:
           $ref: '#/components/schemas/Dsl'
 
     DslOutput:
-      type: object
-      required:
-        - dsl
-        - uuid
-      properties:
-        uuid:
-          type: string
-          description: An unique id which is used to address a single clause
-          format: uuid
-        dsl:
-          $ref: '#/components/schemas/Dsl'
+      allOf:
+        - $ref: "#/components/schemas/DslInput"
+        - type: object
+          required:
+            - uuid
+          properties:
+            uuid:
+              type: string
+              description: An unique id which is used to address a single clause
+              format: uuid
+              example: 3d1006d3-3d2a-4361-b9b2-8f255d2aeaae
 
     Dsl:
       description: "A clause specified in a domain specific language (DSL)"
@@ -379,7 +389,14 @@ components:
 #      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
       example: "Klausul CHOL: (ATC = C10BA03) eller (ATC in C10BA02, C10BA05) og (ALDER >= 13)"
 
-
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: "An error message that is displayed if the clause may result in a validation error"
 
 
 

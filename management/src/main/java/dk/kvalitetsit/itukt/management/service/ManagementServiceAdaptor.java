@@ -17,14 +17,14 @@ public class ManagementServiceAdaptor {
 
     private final ManagementService clauseService;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
-    private final Mapper<String, ClauseInput> dslClauseMapper;
+    private final Mapper<DslInput, ClauseInput> dslClauseMapper;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper;
     private final Mapper<ClauseInput, ClauseForCreation> clauseInputMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
             Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
-            Mapper<String, ClauseInput> dslClauseMapper,
+            Mapper<DslInput, ClauseInput> dslClauseMapper,
             Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper,
             Mapper<ClauseInput, ClauseForCreation> clauseInputMapper
     ) {
@@ -41,7 +41,7 @@ public class ManagementServiceAdaptor {
     }
 
     public DslOutput createDSL(DslInput dsl) throws ServiceException {
-        var clauseInput = this.dslClauseMapper.map(dsl.getDsl());
+        var clauseInput = this.dslClauseMapper.map(dsl);
         var clauseForCreation = clauseInputMapper.map(clauseInput);
         return clauseDslMapper.map(clauseService.create(clauseForCreation));
     }

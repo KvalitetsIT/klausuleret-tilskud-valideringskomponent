@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.ClauseInput;
+import org.openapitools.client.model.Error;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
@@ -62,7 +63,8 @@ class ManagementIT extends BaseTest {
                 MockFactory.createExistingDrugMedicationCondition("atc2", "form2", "adm2"));
         var clauseInput = new ClauseInput()
                 .name("test")
-                .expression(expression);
+                .expression(expression)
+                .error(new Error().message("message"));
 
         api.call20250801clausesPost(clauseInput);
         var clauses = api.call20250801clausesGet();

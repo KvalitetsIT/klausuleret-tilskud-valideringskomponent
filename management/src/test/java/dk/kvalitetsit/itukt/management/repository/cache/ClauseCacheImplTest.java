@@ -49,6 +49,7 @@ class ClauseCacheImplTest {
                 UUID.randomUUID(),
                 "CLAUSE",
                 1,
+                "Message",
                 new ExpressionEntity.StringConditionEntity(
                         Expression.Condition.Field.AGE,
                         "value"
@@ -71,8 +72,8 @@ class ClauseCacheImplTest {
 
     @Test
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
-        var existingClause1 = new ClauseEntity(null, null, "test1", 111, null);
-        var existingClause2 = new ClauseEntity(null, null, "test2", 222, null);
+        var existingClause1 = new ClauseEntity(null, null, "test1", 111, "message1",null);
+        var existingClause2 = new ClauseEntity(null, null, "test2", 222, "message2", null);
         Mockito.when(concreteRepository.readAll()).thenReturn(List.of(existingClause1, existingClause2));
         cache.load();
 

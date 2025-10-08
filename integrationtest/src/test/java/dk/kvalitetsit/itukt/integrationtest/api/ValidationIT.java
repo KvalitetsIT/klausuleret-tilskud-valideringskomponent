@@ -40,7 +40,7 @@ public class ValidationIT extends BaseTest {
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
-        var clause = new ClauseForCreation("KRINI", expression);
+        var clause = new ClauseForCreation("KRINI", expression, "message");
 
         repository.create(clause);
     }

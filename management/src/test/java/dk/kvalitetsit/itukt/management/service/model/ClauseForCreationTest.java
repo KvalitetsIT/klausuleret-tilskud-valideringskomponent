@@ -11,13 +11,13 @@ class ClauseForCreationTest {
 
     @Test
     void givenClauseWithNullExpression_whenCreate_thenThrow() {
-        var e = Assertions.assertThrows(IllegalArgumentException.class, () -> new ClauseForCreation("blaah", null), "Expected exception since expression is null");
+        var e = Assertions.assertThrows(IllegalArgumentException.class, () -> new ClauseForCreation("blaah", null, null), "Expected exception since expression is null");
         assertEquals("Expected an expression but was null", e.getMessage());
     }
 
     @Test
     void givenClauseWithNullName_whenCreate_thenThrow() {
-        var e = Assertions.assertThrows(IllegalArgumentException.class, () -> new ClauseForCreation(null, new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blaah")), "Expected exception since name is null");
+        var e = Assertions.assertThrows(IllegalArgumentException.class, () -> new ClauseForCreation(null, new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blaah"), null), "Expected exception since name is null");
         assertEquals("Expected a name but was null", e.getMessage());
     }
 

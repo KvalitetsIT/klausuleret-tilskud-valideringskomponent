@@ -103,7 +103,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         Assertions.assertDoesNotThrow(() -> IntStream.range(OFFSET, OFFSET + LIMIT)
                 .parallel()
-                .mapToObj((i) -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY))
+                .mapToObj(i -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY))
                 .forEach(repository::create));
 
         var err = Assertions.assertThrows(

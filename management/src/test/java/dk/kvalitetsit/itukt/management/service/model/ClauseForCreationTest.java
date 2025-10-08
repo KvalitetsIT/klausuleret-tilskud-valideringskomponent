@@ -17,7 +17,7 @@ class ClauseForCreationTest {
 
     @Test
     void givenClauseWithNullName_whenCreate_thenThrow() {
-        var e = Assertions.assertThrows(IllegalArgumentException.class, () -> new ClauseForCreation(null, new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blaah")), "Expected exception since expression is null");
+        var e = Assertions.assertThrows(IllegalArgumentException.class, () -> new ClauseForCreation(null, new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blaah")), "Expected exception since name is null");
         assertEquals("Expected a name but was null", e.getMessage());
     }
 

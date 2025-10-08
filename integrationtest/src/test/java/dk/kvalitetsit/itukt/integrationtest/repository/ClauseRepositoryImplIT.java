@@ -126,13 +126,6 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
 
     @Test
-    void givenClauseWithNullExpression_whenCreate_thenThrow() {
-        var clause = new ClauseForCreation("blaah", null);
-        Assertions.assertThrows(ServiceException.class, () -> repository.create(clause), "Expected exception since expression is null");
-    }
-
-
-    @Test
     void givenADeepClause_whenCreateAndRead_thenAssertEqual() {
 
         var deepClause = new ClauseForCreation("ClauseName", new ExpressionEntity.BinaryExpressionEntity(

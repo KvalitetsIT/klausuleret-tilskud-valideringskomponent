@@ -74,14 +74,15 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService managementService) {
+        var errorMapper = new ErrorModelDtoMapper();
         return new ManagementServiceAdaptor(
                 managementService,
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(
                         new ExpressionModelDtoMapper(),
-                        new ErrorModelDtoMapper()
+                        errorMapper
                 ),
                 new ClauseDslModelMapper(),
-                new ClauseModelDslMapper(new ExpressionModelDslMapper(), new ErrorModelDtoMapper()),
+                new ClauseModelDslMapper(new ExpressionModelDslMapper(), errorMapper),
                 new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper(), new ExpressionModelEntityMapper())
         );
     }

@@ -27,7 +27,6 @@ class Parser {
      * @param tokens the tokens to parse
      */
     protected Parser(List<Token> tokens) {
-        System.out.println(tokens);
         this.tokens = tokens;
     }
 

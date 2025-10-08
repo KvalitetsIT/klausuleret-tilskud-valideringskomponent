@@ -158,7 +158,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         assertThat(created.expression())
                 .usingRecursiveComparison()
                 .ignoringFields("id", "left.id", "right.id", "right.left.id", "right.right.id", "right.left.left.id", "right.left.right.id", "left.left.id", "left.left.left.id", "left.right.id", "left.left.right.id")
-                .withFailMessage("Expected the the expression returned to be equal to the one given as argument")
+                .withFailMessage("Expected the expression returned to be equal to the one given as argument")
                 .isEqualTo(deepClause.expression());
 
         var read = repository.read(created.uuid());

@@ -2,23 +2,26 @@ package dk.kvalitetsit.itukt.common.model;
 
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 
+import java.util.Optional;
+
 public record ExistingDrugMedicationConditionExpression(
         String atcCode,
         String formCode,
         String routeOfAdministrationCode) implements Expression.Condition {
 
     @Override
-    public boolean validates(ValidationInput validationInput) {
+    public Optional<ValidationError> validates(ValidationInput validationInput) {
         var existingDrugMedication = validationInput.existingDrugMedication()
                 .orElseThrow(ExistingDrugMedicationRequiredException::new);
-        return existingDrugMedication.stream().anyMatch(this::itemMatches);
+        return existingDrugMedication.stream().anyMatch(this::itemMatches)
+                ? Optional.empty()
+                : Optional.of(new HistoryError(atcCode, formCode, routeOfAdministrationCode));
     }
 
     private boolean itemMatches(ExistingDrugMedication value) {
-        return value instanceof ExistingDrugMedication(String atcCodeValue, String formCodeValue, String routeOfAdministrationCodeValue) &&
-                valueMatchesCondition(atcCodeValue, this.atcCode) &&
-                valueMatchesCondition(formCodeValue, this.formCode) &&
-                valueMatchesCondition(routeOfAdministrationCodeValue, this.routeOfAdministrationCode);
+        return valueMatchesCondition(value.atcCode(), this.atcCode) &&
+                valueMatchesCondition(value.formCode(), this.formCode) &&
+                valueMatchesCondition(value.routeOfAdministrationCode(), this.routeOfAdministrationCode);
     }
 
     private boolean valueMatchesCondition(String value, String condition) {

@@ -10,42 +10,46 @@ public sealed interface Expression permits Expression.Condition, BinaryExpressio
     sealed interface Condition extends Expression permits IndicationConditionExpression, AgeConditionExpression, ExistingDrugMedicationConditionExpression {
     }
 
-    sealed interface ValidationError permits AndError, UnspecifiedError, OrError, ConditionError {
+    sealed interface ValidationError permits AndError, ExistingDrugMedicationError, OrError, ConditionError {
         default String errorMessage() {
             return switch (this) {
-                case AndError ignored -> toErrString(this);
-                case ConditionError ignored -> toErrString(this);
-                case UnspecifiedError ignored -> toErrString(this);
-                case OrError orError -> toErrString(orError.e1) + " eller " + toErrString(orError.e2);
+                case AndError ignored -> toErrorString(this);
+                case ConditionError ignored -> toErrorString(this);
+                case OrError orError -> toErrorString(orError.e1) + " eller " + toErrorString(orError.e2);
+                case ExistingDrugMedicationError existingDrugMedicationError -> toErrorString(existingDrugMedicationError);
             };
         }
 
         enum Field { AGE, INDICATION }
 
-        static String toErrString(ValidationError e) {
+        static String toErrorString(ValidationError e) {
             return switch (e) {
-                case AndError andError -> toErrString(andError.e1) + " og " + toErrString(andError.e2);
-                case OrError orError -> "(" + toErrString(orError.e1) + " eller " + toErrString(orError.e2) + ")";
-                case ConditionError conditionError -> toErrString(conditionError);
-                case UnspecifiedError unspecifiedError -> "<uspecificeret fejl>";
+                case AndError(var e1, var e2) -> toErrorString(e1) + " og " + toErrorString(e2);
+                case OrError(var e1, var e2) -> "(" + toErrorString(e1) + " eller " + toErrorString(e2) + ")";
+                case ConditionError conditionError -> toErrorString(conditionError);
+                case ExistingDrugMedicationError(var atcCode, var formCode, var routeOfAdministrationCode) ->
+                        "Tidligere medicinsk behandling med følgende påkrævet:" +
+                        " ATC = " + atcCode +
+                        ", Formkode = " + formCode +
+                        ", Administrationsrutekode = " + routeOfAdministrationCode;
             };
         }
 
-        static String toErrString(ConditionError error) {
+        static String toErrorString(ConditionError error) {
             return join(" ",
-                    toErrString(error.field()),
-                    toErrString(error.operator()),
+                    toErrorString(error.field()),
+                    toErrorString(error.operator()),
                     error.value());
         }
 
-        static String toErrString(Field field) {
+        static String toErrorString(Field field) {
             return switch (field) {
                 case AGE -> "alder";
                 case INDICATION -> "indikation";
             };
         }
 
-        static String toErrString(Operator field) {
+        static String toErrorString(Operator field) {
             return switch (field) {
                 case EQUAL -> "skal være";
                 case GREATER_THAN_OR_EQUAL_TO -> "skal være større end eller lig";
@@ -57,7 +61,7 @@ public sealed interface Expression permits Expression.Condition, BinaryExpressio
     }
 
     record ConditionError(Field field, Operator operator, String value) implements ValidationError {}
-    record UnspecifiedError() implements ValidationError {}
+    record ExistingDrugMedicationError(String atcCode, String formCode, String routeOfAdministrationCode) implements ValidationError {}
     record AndError(ValidationError e1, ValidationError e2) implements ValidationError {}
     record OrError(ValidationError e1, ValidationError e2) implements ValidationError {}
 }

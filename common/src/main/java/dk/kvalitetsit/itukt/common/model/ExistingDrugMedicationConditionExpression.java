@@ -15,14 +15,13 @@ public record ExistingDrugMedicationConditionExpression(
                 .orElseThrow(ExistingDrugMedicationRequiredException::new);
         return existingDrugMedication.stream().anyMatch(this::itemMatches)
                 ? Optional.empty()
-                : Optional.of(new UnspecifiedError());
+                : Optional.of(new ExistingDrugMedicationError(atcCode, formCode, routeOfAdministrationCode));
     }
 
     private boolean itemMatches(ExistingDrugMedication value) {
-        return value instanceof ExistingDrugMedication(String atcCodeValue, String formCodeValue, String routeOfAdministrationCodeValue) &&
-                valueMatchesCondition(atcCodeValue, this.atcCode) &&
-                valueMatchesCondition(formCodeValue, this.formCode) &&
-                valueMatchesCondition(routeOfAdministrationCodeValue, this.routeOfAdministrationCode);
+        return valueMatchesCondition(value.atcCode(), this.atcCode) &&
+                valueMatchesCondition(value.formCode(), this.formCode) &&
+                valueMatchesCondition(value.routeOfAdministrationCode(), this.routeOfAdministrationCode);
     }
 
     private boolean valueMatchesCondition(String value, String condition) {

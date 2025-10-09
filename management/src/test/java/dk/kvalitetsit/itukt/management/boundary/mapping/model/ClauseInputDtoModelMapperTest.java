@@ -41,5 +41,6 @@ class ClauseInputDtoModelMapperTest {
 
         assertEquals(clauseInput.getName(), mappedClause.name(), "Clause name should be mapped directly");
         assertEquals(expressionEntity, mappedClause.expression(), "Mapped expression should be mapped from expression mappers");
+        assertEquals(clauseInput.getError().getMessage(), mappedClause.errorMessage(), "Mapped error message should be mapped directly");
     }
 }

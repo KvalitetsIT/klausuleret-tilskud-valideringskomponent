@@ -15,7 +15,6 @@ import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.relational.core.sql.In;
 
 import java.util.Comparator;
 import java.util.List;
@@ -71,11 +70,16 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void assertExceptionWhen199IsExceeded() {
-        Assertions.assertThrowsExactly(
+        var e = Assertions.assertThrows(
                 ServiceException.class,
-                () -> IntStream.rangeClosed(10800, 11000).parallel().mapToObj((i) -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY, null)).forEach(repository::create),
+                () -> IntStream.rangeClosed(10800, 11000)
+                        .parallel()
+                        .mapToObj((i) -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
+                        .forEach(repository::create),
                 "An error is expected since only 199 clauses should be creatable as the limit of error code would be exceeded otherwise"
         );
+
+        assertEquals("Failed to create clause", e.getMessage());
     }
 
     @Test
@@ -135,7 +139,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var deepClause = new ClauseForCreation("ClauseName", new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.BinaryExpressionEntity(
                         new ExpressionEntity.BinaryExpressionEntity(
-                            new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.AGE, "whatEver"),
+                                new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.AGE, "whatEver"),
                                 BinaryExpression.Operator.OR,
                                 new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.INDICATION, Operator.EQUAL, 20)
                         ),
@@ -173,7 +177,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var readClause = repository.read(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
-        var expectedClause = new ClauseEntity(null, null, "CLAUSE", null,  "message", existingDrugMedicationCondition);
+        var expectedClause = new ClauseEntity(null, null, "CLAUSE", null, "message", existingDrugMedicationCondition);
         assertThat(readClause.get())
                 .usingRecursiveComparison()
                 .ignoringFields("id", "uuid", "errorCode", "expression.id")

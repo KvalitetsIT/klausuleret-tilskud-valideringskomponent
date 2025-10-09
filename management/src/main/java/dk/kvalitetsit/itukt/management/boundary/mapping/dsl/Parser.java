@@ -98,8 +98,7 @@ class Parser {
      */
     private Expression parseOrExpression() {
         Expression left = parseAndExpression();
-        while (peek().text().equalsIgnoreCase("eller")) {
-            next(); // consume 'eller'
+        while (match("eller")) {
             Expression right = parseAndExpression();
             left = new BinaryExpression(left, BinaryOperator.OR, right, "BinaryExpression");
         }
@@ -111,8 +110,7 @@ class Parser {
      */
     private Expression parseAndExpression() {
         Expression left = parseOperand();
-        while (peek().text().equalsIgnoreCase("og")) {
-            next(); // consume 'og'
+        while (match("og")) {
             Expression right = parseOperand();
             left = new BinaryExpression(left, BinaryOperator.AND, right, "BinaryExpression");
         }

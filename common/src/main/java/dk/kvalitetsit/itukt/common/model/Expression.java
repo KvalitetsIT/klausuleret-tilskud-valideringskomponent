@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.common.model;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.lang.String.join;
 
@@ -13,29 +14,31 @@ public sealed interface Expression permits Expression.Condition, BinaryExpressio
 
     sealed interface ValidationError permits AndError, HistoryError, UnsupportedError, OrError, SpecificError {
         default String errorMessage() {
-            return switch (this) {
-                case AndError ignored -> toErrorString(this);
-                case SpecificError ignored -> toErrorString(this);
-                case OrError orError -> toErrorString(orError.e1) + " eller " + toErrorString(orError.e2);
-                case HistoryError historyError -> toErrorString(historyError);
-                case UnsupportedError unsupportedError -> toErrorString(this);
-            };
+            return toErrorString(this);
         }
 
-        enum Field { AGE, INDICATION }
+        enum Field {AGE, INDICATION}
 
         static String toErrorString(ValidationError e) {
             return switch (e) {
-                case AndError(var e1, var e2) -> toErrorString(e1) + " og " + toErrorString(e2);
-                case OrError(var e1, var e2) -> "(" + toErrorString(e1) + " eller " + toErrorString(e2) + ")";
+                case AndError andError -> toErrorString(andError);
+                case OrError(var e1, var e2) -> toErrorString(e1) + " eller " + toErrorString(e2);
                 case SpecificError specificError -> toErrorString(specificError);
-                case HistoryError(var atcCode, var formCode, var routeOfAdministrationCode) ->
-                        "Tidligere medicinsk behandling med følgende påkrævet:" +
-                        " ATC = " + atcCode +
-                        ", Formkode = " + formCode +
-                        ", Administrationsrutekode = " + routeOfAdministrationCode;
-                case UnsupportedError unsupportedError -> "<denne valideringsfejl har ikke en tilhørende fejlbesked>";
+                case HistoryError historyError -> toErrorString(historyError);
+                case UnsupportedError ignored -> "<en valideringsfejl opstod, som ikke har en tilhørende fejlbesked>";
             };
+        }
+
+        static String toErrorString(AndError error) {
+            Function<ValidationError, String> parenthesesIfNecessary = e -> e instanceof OrError ? "(" + toErrorString(e) + ")" : toErrorString(e);
+            return parenthesesIfNecessary.apply(error.e1) + " og " + parenthesesIfNecessary.apply(error.e2);
+        }
+
+        static String toErrorString(HistoryError historyError) {
+            return "Tidligere medicinsk behandling med følgende påkrævet:" +
+                    " ATC = " + historyError.atcCode +
+                    ", Formkode = " + historyError.formCode +
+                    ", Administrationsrutekode = " + historyError.routeOfAdministrationCode;
         }
 
         static String toErrorString(SpecificError error) {

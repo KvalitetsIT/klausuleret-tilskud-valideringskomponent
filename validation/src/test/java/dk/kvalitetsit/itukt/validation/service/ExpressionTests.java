@@ -133,7 +133,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined2);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("(alder skal være 39 eller alder skal være 38) eller (alder skal være 37 eller alder skal være 36)", result);
+        assertErrorMessage("alder skal være 39 eller alder skal være 38 eller alder skal være 37 eller alder skal være 36", result);
     }
 
     @Test
@@ -219,7 +219,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined3);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 38 eller (indikation skal være indication-no-match eller indikation skal være indication-no-match2)", result);
+        assertErrorMessage("alder skal være 38 eller indikation skal være indication-no-match eller indikation skal være indication-no-match2", result);
     }
 
     private static Stream<Arguments> allAndCombinations() {

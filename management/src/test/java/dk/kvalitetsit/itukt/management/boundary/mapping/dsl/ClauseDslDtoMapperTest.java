@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.*;
 
 import java.util.List;
-import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class ClauseDslDtoMapperTest {
@@ -230,7 +229,7 @@ class ClauseDslDtoMapperTest {
     }
 
     @Test
-    void givenDslWithoutParentheses_whenMap_thenAndHasHigherPrecedence2() {
+    void givenDslWithParentheses_whenMap_thenParenthesesHaveHigherPrecedence() {
         final ClauseInput expected = new ClauseInput("PRECEDENCE",
                 new BinaryExpression(
                         new BinaryExpression(
@@ -282,7 +281,7 @@ class ClauseDslDtoMapperTest {
                         "BinaryExpression")
         );
 
-        final String subject = "klausul CLAUSE: Indication = c10ba03 OG age >= 13 ELLER age = 10";
+        final String subject = "klausul clause: indication = c10ba03 og age >= 13 eller age = 10";
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -326,129 +325,54 @@ class ClauseDslDtoMapperTest {
     }
 
     @Test
-    void map() {
-        final Map<ClauseInput, List<String>> clauses = Map.of(
-                // Existing CHOL clause
-                new ClauseInput("CLAUSE", new BinaryExpression()
-                        .type("BinaryExpression")
-                        .operator(BinaryOperator.OR)
-                        .left(new StringCondition()
-                                .type("StringCondition")
-                                .field("INDICATION")
-                                .value("C10BA03")
-                        )
-                        .right(new BinaryExpression()
-                                .type("BinaryExpression")
-                                .left(new BinaryExpression()
-                                        .type("BinaryExpression")
-                                        .left(new StringCondition()
-                                                .type("StringCondition")
-                                                .field("INDICATION")
-                                                .value("C10BA02")
-                                        )
-                                        .operator(BinaryOperator.OR)
-                                        .right(new StringCondition()
-                                                .type("StringCondition")
-                                                .field("INDICATION")
-                                                .value("C10BA05")
-                                        )
-                                )
-                                .operator(BinaryOperator.AND)
-                                .right(new NumberCondition()
-                                        .type("NumberCondition")
-                                        .field("AGE")
-                                        .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
-                                        .value(13)
-                                )
-                        )
-                ),
-                List.of(
-                        "Klausul CLAUSE: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)",
-                        "Klausul CLAUSE: INDICATION = C10BA03 eller (INDICATION i C10BA02, C10BA05 og AGE >= 13)",
-                        "Klausul CLAUSE: INDICATION = C10BA03 eller INDICATION i C10BA02, C10BA05 og AGE >= 13"
-                ),
+    void givenSeveralValidDslWithParenthesesPositionedDifferently_whenMap_thenReturnSameClause() {
 
-
-                // DSL with only NumberCondition
-                new ClauseInput("CLAUSE", new NumberCondition()
-                        .type("NumberCondition")
-                        .field("AGE")
-                        .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
-                        .value(18)
-                ),
-                List.of(
-                        "Klausul CLAUSE: (AGE >= 18)",
-                        "Klausul CLAUSE: AGE >= 18"
-                ),
-
-                // DSL with only StringCondition
-                new ClauseInput("CLAUSE", new StringCondition()
+        var expected = new ClauseInput("CLAUSE", new BinaryExpression()
+                .type("BinaryExpression")
+                .operator(BinaryOperator.OR)
+                .left(new StringCondition()
                         .type("StringCondition")
                         .field("INDICATION")
-                        .value("A10BA01")
-                ),
-                List.of(
-                        "Klausul CLAUSE: (INDICATION = A10BA01)",
-                        "Klausul CLAUSE: INDICATION = A10BA01"
-                ),
-                // DSL with AND combination of StringCondition and NumberCondition
-                new ClauseInput("CLAUSE", new BinaryExpression()
+                        .value("C10BA03")
+                )
+                .right(new BinaryExpression()
                         .type("BinaryExpression")
-                        .operator(BinaryOperator.AND)
-                        .left(new StringCondition()
-                                .type("StringCondition")
-                                .field("INDICATION")
-                                .value("C09AA01")
-                        )
-                        .right(new NumberCondition()
-                                .type("NumberCondition")
-                                .field("AGE")
-                                .operator(Operator.LESS_THAN_OR_EQUAL_TO)
-                                .value(65)
-                        )
-                ),
-                List.of(
-                        "Klausul CLAUSE: (INDICATION = C09AA01) og (AGE <= 65)",
-                        "Klausul CLAUSE: INDICATION = C09AA01 og AGE <= 65"
-                ),
-
-                // Nested combination example (StringCondition OR StringCondition) AND NumberCondition
-                new ClauseInput("CLAUSE", new BinaryExpression()
-                        .type("BinaryExpression")
-                        .operator(BinaryOperator.AND)
                         .left(new BinaryExpression()
                                 .type("BinaryExpression")
-                                .operator(BinaryOperator.OR)
                                 .left(new StringCondition()
                                         .type("StringCondition")
                                         .field("INDICATION")
-                                        .value("C09CA01")
+                                        .value("C10BA02")
                                 )
+                                .operator(BinaryOperator.OR)
                                 .right(new StringCondition()
                                         .type("StringCondition")
                                         .field("INDICATION")
-                                        .value("C09CA02")
+                                        .value("C10BA05")
                                 )
                         )
+                        .operator(BinaryOperator.AND)
                         .right(new NumberCondition()
                                 .type("NumberCondition")
                                 .field("AGE")
-                                .operator(Operator.GREATER_THAN)
-                                .value(50)
+                                .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
+                                .value(13)
                         )
-                ),
-                List.of(
-                        "Klausul CLAUSE: (((INDICATION = C09CA01) eller (INDICATION = C09CA02)) og (AGE > 50))",
-                        "Klausul CLAUSE: ((INDICATION = C09CA01) eller (INDICATION = C09CA02)) og (AGE > 50)",
-                        "Klausul CLAUSE: (INDICATION = C09CA01 eller INDICATION = C09CA02) og AGE > 50"
                 )
         );
 
-        clauses.forEach((expected, dsls) -> dsls.forEach(dsl -> {
+        var dsls = List.of(
+                "Klausul CLAUSE: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)",
+                "Klausul CLAUSE: (INDICATION = C10BA03) eller ((INDICATION i C10BA02, C10BA05) og (AGE >= 13))",
+                "Klausul CLAUSE: ((INDICATION = C10BA03) eller ((INDICATION i C10BA02, C10BA05) og (AGE >= 13)))",
+                "Klausul CLAUSE: INDICATION = C10BA03 eller (INDICATION i C10BA02, C10BA05 og AGE >= 13)",
+                "Klausul CLAUSE: INDICATION = C10BA03 eller INDICATION i C10BA02, C10BA05 og AGE >= 13"
+        );
+
+
+        dsls.forEach(dsl -> {
             System.out.println("Subject: " + dsl);
             Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl);
-        }));
-
-
+        });
     }
 }

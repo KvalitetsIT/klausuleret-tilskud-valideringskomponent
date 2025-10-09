@@ -7,24 +7,17 @@ public record BinaryExpression(Expression left, Operator operator, Expression ri
 
     @Override
     public Optional<ValidationError> validates(ValidationInput validationInput) {
+        var leftError = left.validates(validationInput);
+        Supplier<Optional<ValidationError>> rightErrorLazy = () -> right.validates(validationInput); // Only validate right when necessary
         return switch (operator) {
-            case AND -> andError(left, right, validationInput);
-            case OR -> orError(left, right, validationInput);
+            case AND -> andError(leftError, rightErrorLazy.get());
+            case OR -> leftError.flatMap(l -> rightErrorLazy.get().map(r -> new OrError(l, r)));
         };
     }
 
-    private Optional<ValidationError> andError(Expression leftEx, Expression rightEx, ValidationInput validationInput) {
-        var left = leftEx.validates(validationInput);
-        var right = rightEx.validates(validationInput);
-        Optional<ValidationError> bothError  = left.flatMap(l -> right.map(r -> new AndError(l, r)));
-        return bothError.or(() -> left.or(() -> right));
-    }
-
-    private Optional<ValidationError> orError(Expression leftEx, Expression rightEx, ValidationInput validationInput) {
-        var left = leftEx.validates(validationInput);
-        // only evaluate the right expression if needed
-        Supplier<Optional<ValidationError>> rightLazy = () -> rightEx.validates(validationInput);
-        return left.flatMap(l -> rightLazy.get().map(r -> new OrError(l, r)));
+    private Optional<ValidationError> andError(Optional<ValidationError> leftError, Optional<ValidationError> rightError) {
+        Optional<ValidationError> bothError  = leftError.flatMap(l -> rightError.map(r -> new AndError(l, r)));
+        return bothError.or(() -> leftError.or(() -> rightError));
     }
 
     public enum Operator {OR, AND}

@@ -222,6 +222,25 @@ public class ExpressionTests {
         assertErrorMessage("alder skal være 38 eller (indikation skal være indication-no-match eller indikation skal være indication-no-match2)", result);
     }
 
+    private static Stream<Arguments> allAndCombinations() {
+        return Stream.of(
+                Arguments.of(inputAge, inputIndication, empty()),
+                Arguments.of(inputAge - 1, inputIndication, Optional.of("alder skal være " + (inputAge - 1))),
+                Arguments.of(inputAge, inputIndication + "-no-match", Optional.of("indikation skal være " + inputIndication + "-no-match")),
+                Arguments.of(inputAge - 1, inputIndication + "-no-match", Optional.of("alder skal være " + (inputAge - 1) + " og " + "indikation skal være " + inputIndication + "-no-match"))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("allAndCombinations")
+    void validate_andErrorShouldBeReturned(int age, String indication, Optional<String> expectedError) {
+        var exp1 = new AgeConditionExpression(Operator.EQUAL, age);
+        var exp2 = new IndicationConditionExpression(indication);
+        var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
+        var result = combined.validates(validationInput);
+        assertEquals(expectedError, result.map(Expression.ValidationError::errorMessage));
+    }
+
     @Test
     void validate_existingMedication_ShouldSucceed() {
         var exp = new ExistingDrugMedicationConditionExpression(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode);
@@ -257,7 +276,7 @@ public class ExpressionTests {
         assertErrorMessage("alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                 atcCode + ", Formkode = " +
                 formCode + ", Administrationsrutekode = " +
-                routeOfAdministrationCode  +
+                routeOfAdministrationCode +
                 " eller indikation skal være indication-no-match)", result);
     }
 

@@ -16,6 +16,13 @@ public record NumberConditionExpression(Field field, Operator operator, int valu
                 };
         return success
                 ? Optional.empty()
-                : ValidationError.toField(field).map(f -> new SpecificError(f, operator, String.valueOf(value)));
+                : Optional.of(toError(field, operator, String.valueOf(value)));
+    }
+
+    private ValidationError toError(Field field, Operator operator, String value) {
+        return switch(field) {
+            case AGE -> new SpecificError(ValidationError.Field.AGE, operator, value);
+            case INDICATION, EXISTING_DRUG_MEDICATION -> new UnsupportedError();
+        };
     }
 }

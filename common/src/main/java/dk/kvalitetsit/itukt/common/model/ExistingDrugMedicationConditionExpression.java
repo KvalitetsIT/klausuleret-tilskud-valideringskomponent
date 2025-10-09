@@ -15,7 +15,7 @@ public record ExistingDrugMedicationConditionExpression(
                 .orElseThrow(ExistingDrugMedicationRequiredException::new);
         return existingDrugMedication.stream().anyMatch(this::itemMatches)
                 ? Optional.empty()
-                : Optional.of(new UnspecifiedError());
+                : Optional.of(new HistoryError(atcCode, formCode, routeOfAdministrationCode));
     }
 
     private boolean itemMatches(ExistingDrugMedication value) {

@@ -11,32 +11,29 @@ public sealed interface Expression permits Expression.Condition, BinaryExpressio
         enum Field {AGE, INDICATION, EXISTING_DRUG_MEDICATION}
     }
 
-    sealed interface ValidationError permits AndError, UnspecifiedError, OrError, SpecificError {
+    sealed interface ValidationError permits AndError, HistoryError, UnsupportedError, OrError, SpecificError {
         default String errorMessage() {
             return switch (this) {
                 case AndError ignored -> toErrString(this);
                 case SpecificError ignored -> toErrString(this);
-                case UnspecifiedError ignored -> toErrString(this);
                 case OrError orError -> toErrString(orError.e1) + " eller " + toErrString(orError.e2);
+                case HistoryError historyError -> toErrString(historyError);
+                case UnsupportedError unsupportedError -> toErrString(this);
             };
         }
 
         enum Field { AGE, INDICATION }
-
-        static Optional<Field> toField(Condition.Field field) {
-            return switch (field){
-                case AGE -> Optional.of(Field.AGE);
-                case INDICATION -> Optional.of(Field.INDICATION);
-                case EXISTING_DRUG_MEDICATION -> Optional.empty();
-            };
-        }
 
         static String toErrString(ValidationError e) {
             return switch (e) {
                 case AndError andError -> toErrString(andError.e1) + " og " + toErrString(andError.e2);
                 case OrError orError -> "(" + toErrString(orError.e1) + " eller " + toErrString(orError.e2) + ")";
                 case SpecificError specificError -> toErrString(specificError);
-                case UnspecifiedError unspecifiedError -> "<uspecificeret fejl>";
+                case HistoryError historyError -> "Tidligere medicinsk behandling med følgende påkrævet:" +
+                        " ATC = " + historyError.atcCode +
+                        ", Formkode = " + historyError.formCode +
+                        ", Administrationsrutekode = " + historyError.routeOfAdministrationCode;
+                case UnsupportedError unsupportedError -> "<en validering som fejlede har ikke en tilhørende fejlbesked>";
             };
         }
 
@@ -66,7 +63,8 @@ public sealed interface Expression permits Expression.Condition, BinaryExpressio
     }
 
     record SpecificError(Field field, Operator operator, String value) implements ValidationError {}
-    record UnspecifiedError() implements ValidationError {}
+    record HistoryError(String atcCode, String formCode, String routeOfAdministrationCode) implements ValidationError {}
     record AndError(ValidationError e1, ValidationError e2) implements ValidationError {}
     record OrError(ValidationError e1, ValidationError e2) implements ValidationError {}
+    record UnsupportedError() implements ValidationError {}
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * The {@code Parser} class is responsible for parsing a sequence of {@link Token} objects

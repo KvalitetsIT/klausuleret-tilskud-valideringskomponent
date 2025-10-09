@@ -125,36 +125,14 @@ class Parser {
      */
     private Expression parseOperand() {
         if (match("(")) {
-            // Look ahead to decide whether this is just a simple condition
-            // or a full logical expression
-            if (peekAheadIsCondition()) {
-                int startPos = pos; // remember position
-                parseCondition();   // dry-run
-                // if next token is ')' => it's just a condition in parentheses
-                if (pos < tokens.size() && tokens.get(pos).text().equals(")")) {
-                    pos = startPos; // rewind
-                    Expression condition = parseCondition();
-                    expect(")");
-                    return condition;
-                } else {
-                    // rewind and parse full expression instead
-                    pos = startPos;
-                    Expression inner = parseExpression();
-                    expect(")");
-                    return inner;
-                }
-            } else {
-                // general nested expression
-                Expression inner = parseExpression();
-                expect(")");
-                return inner;
-            }
+            Expression inner = parseExpression();
+            expect(")");
+            return inner;
         } else if (peekAheadIsCondition()) {
             return parseCondition(); // bare condition
         }
         throw new RuntimeException("Unexpected token: " + peek().text());
     }
-
 
     /**
      * Looks ahead to determine whether the upcoming tokens form a condition.

@@ -390,10 +390,6 @@ class ClauseDslDtoMapperTest {
                 "Klausul CLAUSE: INDICATION = C10BA03 eller INDICATION i C10BA02, C10BA05 og AGE >= 13"
         ).map(x -> new DslInput(new Error(), x)).toList();
 
-
-        dsls.forEach(dsl -> {
-            System.out.println("Subject: " + dsl);
-            Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl);
-        });
+        dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
 }

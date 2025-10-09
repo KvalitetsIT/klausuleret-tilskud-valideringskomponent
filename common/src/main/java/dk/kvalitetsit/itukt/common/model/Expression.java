@@ -14,44 +14,45 @@ public sealed interface Expression permits Expression.Condition, BinaryExpressio
     sealed interface ValidationError permits AndError, HistoryError, UnsupportedError, OrError, SpecificError {
         default String errorMessage() {
             return switch (this) {
-                case AndError ignored -> toErrString(this);
-                case SpecificError ignored -> toErrString(this);
-                case OrError orError -> toErrString(orError.e1) + " eller " + toErrString(orError.e2);
-                case HistoryError historyError -> toErrString(historyError);
-                case UnsupportedError unsupportedError -> toErrString(this);
+                case AndError ignored -> toErrorString(this);
+                case SpecificError ignored -> toErrorString(this);
+                case OrError orError -> toErrorString(orError.e1) + " eller " + toErrorString(orError.e2);
+                case HistoryError historyError -> toErrorString(historyError);
+                case UnsupportedError unsupportedError -> toErrorString(this);
             };
         }
 
         enum Field { AGE, INDICATION }
 
-        static String toErrString(ValidationError e) {
+        static String toErrorString(ValidationError e) {
             return switch (e) {
-                case AndError andError -> toErrString(andError.e1) + " og " + toErrString(andError.e2);
-                case OrError orError -> "(" + toErrString(orError.e1) + " eller " + toErrString(orError.e2) + ")";
-                case SpecificError specificError -> toErrString(specificError);
-                case HistoryError historyError -> "Tidligere medicinsk behandling med følgende påkrævet:" +
-                        " ATC = " + historyError.atcCode +
-                        ", Formkode = " + historyError.formCode +
-                        ", Administrationsrutekode = " + historyError.routeOfAdministrationCode;
-                case UnsupportedError unsupportedError -> "<en validering som fejlede har ikke en tilhørende fejlbesked>";
+                case AndError(var e1, var e2) -> toErrorString(e1) + " og " + toErrorString(e2);
+                case OrError(var e1, var e2) -> "(" + toErrorString(e1) + " eller " + toErrorString(e2) + ")";
+                case SpecificError specificError -> toErrorString(specificError);
+                case HistoryError(var atcCode, var formCode, var routeOfAdministrationCode) ->
+                        "Tidligere medicinsk behandling med følgende påkrævet:" +
+                        " ATC = " + atcCode +
+                        ", Formkode = " + formCode +
+                        ", Administrationsrutekode = " + routeOfAdministrationCode;
+                case UnsupportedError unsupportedError -> "<denne valideringsfejl har ikke en tilhørende fejlbesked>";
             };
         }
 
-        static String toErrString(SpecificError error) {
+        static String toErrorString(SpecificError error) {
             return join(" ",
-                    toErrString(error.field()),
-                    toErrString(error.operator()),
+                    toErrorString(error.field()),
+                    toErrorString(error.operator()),
                     error.value());
         }
 
-        static String toErrString(Field field) {
+        static String toErrorString(Field field) {
             return switch (field) {
                 case AGE -> "alder";
                 case INDICATION -> "indikation";
             };
         }
 
-        static String toErrString(Operator field) {
+        static String toErrorString(Operator field) {
             return switch (field) {
                 case EQUAL -> "skal være";
                 case GREATER_THAN_OR_EQUAL_TO -> "skal være større end eller lig";

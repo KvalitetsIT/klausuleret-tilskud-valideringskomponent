@@ -230,7 +230,7 @@ class ClauseDslDtoMapperTest {
     }
 
     @Test
-    void givenDslWithoutParentheses_whenMap_thenAndHasHigherPrecedence2() {
+    void givenDslWithParentheses_whenMap_thenParenthesesHaveHigherPrecedence() {
         final ClauseInput expected = new ClauseInput("PRECEDENCE",
                 new BinaryExpression(
                         new BinaryExpression(
@@ -282,7 +282,7 @@ class ClauseDslDtoMapperTest {
                         "BinaryExpression")
         );
 
-        final String subject = "klausul CLAUSE: Indication = c10ba03 OG age >= 13 ELLER age = 10";
+        final String subject = "klausul clause: indication = c10ba03 og age >= 13 eller age = 10";
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 

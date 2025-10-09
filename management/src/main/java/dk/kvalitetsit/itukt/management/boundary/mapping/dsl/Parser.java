@@ -51,7 +51,7 @@ class Parser {
      * @return true if the token matched and was consumed; false otherwise
      */
     private boolean match(String text) {
-        if (peek().text().equals(text)) {
+        if (peek().text().equalsIgnoreCase(text)) {
             next();
             return true;
         }
@@ -65,16 +65,8 @@ class Parser {
      * @throws RuntimeException if the token does not match the expected text
      */
     private void expect(String text) {
-        expect(text, (token) -> !token.text().equals(text));
-    }
-
-    private void expectIgnoreCase(String text) {
-        expect(text, (token) -> !token.text().equalsIgnoreCase(text));
-    }
-
-    private void expect(String text, Predicate<Token> predicate){
         Token token = next();
-        if (predicate.test(token)) {
+        if (!token.text().equalsIgnoreCase(text)) {
             throw new RuntimeException("Expected '" + text + "', got '" + token.text() + "'");
         }
     }
@@ -86,7 +78,7 @@ class Parser {
      * @return the parsed {@code Expression}
      */
     protected ClauseInput parseClause() {
-        expectIgnoreCase("Klausul");
+        expect("Klausul");
         Token name = next();
         expect(":");
         return new ClauseInput(name.text(), parseExpression());
@@ -164,23 +156,6 @@ class Parser {
     }
 
 
-
-    /**
-     * Parses a condition operand, such as {@code (age >= 18)}.
-     */
-    private Expression parseConditionOperand() {
-        return parseCondition();
-    }
-
-    /**
-     * Parses a parenthesized group of expressions (e.g., {@code ((a og b) eller c)}).
-     */
-    private Expression parseLogicalGroup() {
-        Expression inner = parseExpression();
-        expect(")");
-        return inner;
-    }
-
     /**
      * Looks ahead to determine whether the upcoming tokens form a condition.
      *
@@ -212,7 +187,7 @@ class Parser {
     private Expression parseCondition() {
         String field = next().text();
         String operatorString = next().text();
-        Operator operator = operatorString.equals("I") ? Operator.EQUAL : Operator.fromValue(operatorString);
+        Operator operator = operatorString.equalsIgnoreCase("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
         List<String> values = parseValues();
 
         return createExpressionFromMultiValueCondition(field, operator, values);

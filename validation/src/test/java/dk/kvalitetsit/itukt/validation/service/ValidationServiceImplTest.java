@@ -77,7 +77,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", "creator", Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(null), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 123), expression);
+        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("message", 123), expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(false);
@@ -88,6 +88,8 @@ class ValidationServiceImplTest {
 
         assertEquals(1, result.size(), "Expected an error being returned");
         assertEquals(clause.name(), result.getFirst().clauseCode());
+        assertEquals(clause.error().message(), result.getFirst().errorMessage());
+        assertEquals(clause.error().code(), result.getFirst().errorCode());
         assertEquals(stamdataClause.clauses().iterator().next().text(), result.getFirst().clauseText());
     }
 

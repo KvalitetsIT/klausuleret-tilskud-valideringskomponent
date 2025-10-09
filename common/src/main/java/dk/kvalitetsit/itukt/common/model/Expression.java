@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.common.model;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.lang.String.join;
 
@@ -12,27 +13,30 @@ public sealed interface Expression permits Expression.Condition, BinaryExpressio
 
     sealed interface ValidationError permits AndError, ExistingDrugMedicationError, OrError, ConditionError {
         default String errorMessage() {
-            return switch (this) {
-                case AndError ignored -> toErrorString(this);
-                case ConditionError ignored -> toErrorString(this);
-                case OrError orError -> toErrorString(orError.e1) + " eller " + toErrorString(orError.e2);
-                case ExistingDrugMedicationError existingDrugMedicationError -> toErrorString(existingDrugMedicationError);
-            };
+            return toErrorString(this);
         }
 
-        enum Field { AGE, INDICATION }
+        enum Field {AGE, INDICATION}
 
         static String toErrorString(ValidationError e) {
             return switch (e) {
-                case AndError(var e1, var e2) -> toErrorString(e1) + " og " + toErrorString(e2);
-                case OrError(var e1, var e2) -> "(" + toErrorString(e1) + " eller " + toErrorString(e2) + ")";
+                case AndError andError -> toErrorString(andError);
+                case OrError(var e1, var e2) -> toErrorString(e1) + " eller " + toErrorString(e2);
                 case ConditionError conditionError -> toErrorString(conditionError);
-                case ExistingDrugMedicationError(var atcCode, var formCode, var routeOfAdministrationCode) ->
-                        "Tidligere medicinsk behandling med følgende påkrævet:" +
-                        " ATC = " + atcCode +
-                        ", Formkode = " + formCode +
-                        ", Administrationsrutekode = " + routeOfAdministrationCode;
+                case ExistingDrugMedicationError historyError -> toErrorString(historyError);
             };
+        }
+
+        static String toErrorString(AndError error) {
+            Function<ValidationError, String> parenthesesIfNecessary = e -> e instanceof OrError ? "(" + toErrorString(e) + ")" : toErrorString(e);
+            return parenthesesIfNecessary.apply(error.e1) + " og " + parenthesesIfNecessary.apply(error.e2);
+        }
+
+        static String toErrorString(ExistingDrugMedicationError error) {
+            return "Tidligere medicinsk behandling med følgende påkrævet:" +
+                    " ATC = " + error.atcCode +
+                    ", Formkode = " + error.formCode +
+                    ", Administrationsrutekode = " + error.routeOfAdministrationCode;
         }
 
         static String toErrorString(ConditionError error) {

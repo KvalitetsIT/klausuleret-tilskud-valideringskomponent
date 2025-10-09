@@ -120,7 +120,9 @@ public class ValidationIT extends BaseTest {
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().getFirst();
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
+        String expectedErrorMessage = "message";
         assertEquals(expectedClauseCode, validationError.getClauseCode());
+        assertEquals(expectedErrorMessage, validationError.getErrorMessage());
         assertEquals(elementPath, validationError.getElementPath());
     }
 

@@ -8,7 +8,6 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.model.ErrorDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ErrorModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
@@ -79,7 +78,7 @@ public class ManagementBeanRegistration {
                 managementService,
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(
                         new ExpressionModelDtoMapper(),
-                        new ErrorDtoModelMapper()
+                        new ErrorModelDtoMapper()
                 ),
                 new ClauseDslModelMapper(),
                 new ClauseModelDslMapper(new ExpressionModelDslMapper(), new ErrorModelDtoMapper()),

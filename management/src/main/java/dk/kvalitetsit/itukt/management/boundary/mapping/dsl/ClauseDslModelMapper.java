@@ -13,9 +13,8 @@ public class ClauseDslModelMapper implements Mapper<DslInput, ClauseInput> {
         var tokens = new Lexer(dsl.getDsl()).getTokens();
         var parser = new Parser(tokens);
 
-        var name = parser.parseClauseName();
-        var expression = parser.parseExpression();
+        var parsedClause = parser.parseClause();
 
-        return new ClauseInput(name, expression, dsl.getError());
+        return new ClauseInput(parsedClause.name(), parsedClause.expression(), dsl.getError());
     }
 }

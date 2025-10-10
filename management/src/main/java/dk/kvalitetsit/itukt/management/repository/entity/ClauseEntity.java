@@ -1,7 +1,5 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
-import dk.kvalitetsit.itukt.common.model.Error;
-
 import java.util.UUID;
 
 public record ClauseEntity(

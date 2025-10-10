@@ -1,7 +1,5 @@
 package dk.kvalitetsit.itukt.common.model;
 
-import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
-
 import java.util.Optional;
 
 import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
@@ -12,12 +10,12 @@ public record ExistingDrugMedicationConditionExpression(
         String routeOfAdministrationCode) implements Expression.Condition {
 
     @Override
-    public Optional<ValidationError> validates(ValidationInput validationInput) {
-        var existingDrugMedication = validationInput.existingDrugMedication()
-                .orElseThrow(ExistingDrugMedicationRequiredException::new);
-        return existingDrugMedication.stream().anyMatch(this::itemMatches)
-                ? Optional.empty()
-                : Optional.of(new ExistingDrugMedicationError(atcCode, formCode, routeOfAdministrationCode));
+    public Optional<ValidationFailed> validates(ValidationInput validationInput) {
+        Optional<Optional<ValidationFailed>> validationFailed = validationInput.existingDrugMedication()
+                .map(medicationList -> medicationList.stream().anyMatch(this::itemMatches)
+                        ? Optional.empty()
+                        : Optional.of(new ExistingDrugMedicationError(atcCode, formCode, routeOfAdministrationCode)));
+        return validationFailed.orElse(Optional.of(new ExistingDrugMedicationRequired()));
     }
 
     private boolean itemMatches(ExistingDrugMedication value) {

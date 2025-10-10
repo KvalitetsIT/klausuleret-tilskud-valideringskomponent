@@ -5,13 +5,13 @@ import org.mockito.Mockito;
 
 import java.util.Optional;
 
-import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
+import static dk.kvalitetsit.itukt.common.model.ValidationFailed.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BinaryExpressionTest {
 
-    private final Optional<ValidationError> someError = Optional.of(new ConditionError(ValidationError.Field.AGE, Operator.EQUAL, "20"));
+    private final Optional<ValidationFailed> someError = Optional.of(new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.EQUAL, "20"));
 
     @Test
     void validates_WithOrOperatorWhenNeitherLeftOrRightValidates_ReturnsFalse() {

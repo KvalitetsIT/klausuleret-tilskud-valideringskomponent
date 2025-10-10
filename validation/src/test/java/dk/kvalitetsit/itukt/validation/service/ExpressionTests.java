@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ExpressionTests {
     final static int inputAge = 40;
-    final static String inputIndication = "indication";
+    final static String inputIndication = "input-indication";
     final ValidationInput validationInput = new ValidationInput("", "", empty(), List.of(), inputAge, 0, inputIndication, empty());
 
     final static String
@@ -27,8 +27,8 @@ public class ExpressionTests {
     final ValidationInput validationInputWithHistory =
             new ValidationInput("", "", empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications));
 
-    static void assertErrorMessage(String v, Optional<ValidationError> o) {
-        assertEquals(Optional.of(v), o.map(ValidationError::errorMessage));
+    static void assertErrorMessage(String v, Optional<ValidationFailed> o) {
+        assertEquals(Optional.of(v), o.map(failed -> assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed).errorMessage()));
     }
 
     static Stream<Arguments> allValidNumberConditionCombinations() {
@@ -98,6 +98,15 @@ public class ExpressionTests {
     }
 
     @Test
+    void validateHistory_whenNoHistoryIsInInputAndOrExpressionValidatesThenNoErrorShouldBeReturned() {
+        var exp1 = new ExistingDrugMedicationConditionExpression("atc", "form", "routeOfAdmin");
+        var exp2 = new AgeConditionExpression(Operator.EQUAL, inputAge);
+        var or = new BinaryExpression(exp1, BinaryExpression.Operator.OR, exp2);
+        var result = or.validates(validationInput);
+        assertEquals(empty(), result);
+    }
+
+    @Test
     void validate_errorShouldBeReturned() {
         var expression = new AgeConditionExpression(Operator.EQUAL, inputAge + 1);
         var result = expression.validates(validationInput);
@@ -149,7 +158,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined2);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 39 eller indikation skal være indication-no-match", result);
+        assertErrorMessage("alder skal være 39 eller indikation skal være input-indication-no-match", result);
     }
 
     @Test
@@ -165,7 +174,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined2);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 39 eller alder skal være 39 og indikation skal være indication-no-match", result);
+        assertErrorMessage("alder skal være 39 eller alder skal være 39 og indikation skal være input-indication-no-match", result);
     }
 
     @Test
@@ -183,7 +192,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined3);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 38 eller alder skal være 39 og (indikation skal være indication-no-match eller indikation skal være indication-no-match2)", result);
+        assertErrorMessage("alder skal være 38 eller alder skal være 39 og (indikation skal være input-indication-no-match eller indikation skal være input-indication-no-match2)", result);
     }
 
     @Test
@@ -219,7 +228,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined3);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 38 eller indikation skal være indication-no-match eller indikation skal være indication-no-match2", result);
+        assertErrorMessage("alder skal være 38 eller indikation skal være input-indication-no-match eller indikation skal være input-indication-no-match2", result);
     }
 
     private static Stream<Arguments> allAndCombinations() {
@@ -238,7 +247,7 @@ public class ExpressionTests {
         var exp2 = new IndicationConditionExpression(indication);
         var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
         var result = combined.validates(validationInput);
-        assertEquals(expectedError, result.map(ValidationError::errorMessage));
+        assertEquals(expectedError, result.map(failed -> assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed).errorMessage()));
     }
 
     @Test
@@ -259,7 +268,7 @@ public class ExpressionTests {
     @MethodSource("nonValidatingHistoryExpressionCodes")
     void validate_existingMedication_errorShouldBeReturned(String atcCode, String formCode, String routeOfAdministrationCode) {
         var exp = new ExistingDrugMedicationConditionExpression(atcCode, formCode, routeOfAdministrationCode);
-        Optional<ValidationError> result = exp.validates(validationInputWithHistory);
+        var result = exp.validates(validationInputWithHistory);
         assertErrorMessage("Tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + routeOfAdministrationCode, result);
     }
 
@@ -272,12 +281,12 @@ public class ExpressionTests {
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
 
-        Optional<ValidationError> result = andExp.validates(validationInputWithHistory);
+        var result = andExp.validates(validationInputWithHistory);
         assertErrorMessage("alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                 atcCode + ", Formkode = " +
                 formCode + ", Administrationsrutekode = " +
                 routeOfAdministrationCode +
-                " eller indikation skal være indication-no-match)", result);
+                " eller indikation skal være input-indication-no-match)", result);
     }
 
     @ParameterizedTest
@@ -289,7 +298,7 @@ public class ExpressionTests {
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.AND, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.OR, orExp);
 
-        Optional<ValidationError> result = andExp.validates(validationInputWithHistory);
+        var result = andExp.validates(validationInputWithHistory);
         assertErrorMessage("alder skal være 18 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                 atcCode + ", Formkode = " +
                 formCode + ", Administrationsrutekode = " +

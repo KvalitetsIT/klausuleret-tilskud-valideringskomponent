@@ -5,7 +5,7 @@ import java.util.function.Function;
 import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
 import static java.lang.String.join;
 
-sealed public interface ValidationError permits AndError, ExistingDrugMedicationError, OrError, ConditionError {
+public sealed interface ValidationError extends ValidationFailed permits AndError, ExistingDrugMedicationError, OrError, ConditionError {
     default String errorMessage() {
         return toErrorString(this);
     }

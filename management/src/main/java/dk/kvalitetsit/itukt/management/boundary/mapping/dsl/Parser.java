@@ -160,12 +160,12 @@ class Parser {
      */
 
     private Expression parseCondition() {
-        String field = next().text();
+        next();
         String operatorString = next().text();
         Operator operator = operatorString.equalsIgnoreCase("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
         List<String> values = parseValues();
 
-        return createExpressionFromMultiValueCondition(field, operator, values);
+        return createExpressionFromMultiValueCondition( operator, values);
     }
 
     private List<String> parseValues() {
@@ -176,17 +176,17 @@ class Parser {
         return values;
     }
 
-    private Expression createExpressionFromMultiValueCondition(String field, Operator operator, List<String> values) {
+    private Expression createExpressionFromMultiValueCondition( Operator operator, List<String> values) {
         Iterator<String> valuesIterator = values.iterator();
-        Expression currentExpression = createCondition(field, operator, valuesIterator.next());
+        Expression currentExpression = createCondition( operator, valuesIterator.next());
         while (valuesIterator.hasNext()) {
-            Expression nextCond = createCondition(field, operator, valuesIterator.next());
+            Expression nextCond = createCondition( operator, valuesIterator.next());
             currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, "BinaryExpression");
         }
         return currentExpression;
     }
 
-    private Expression createCondition(String field, Operator operator, String value) {
+    private Expression createCondition(Operator operator, String value) {
         return tryParseInt(value)
                 .map(intValue -> createNumberCondition(operator, intValue))
                 .orElseGet(() -> createStringCondition(value));

@@ -9,18 +9,18 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
     public ExpressionEntity map(Expression expression) {
         return switch (expression) {
             case BinaryExpression b -> this.map(b);
-            case StringConditionExpression s -> this.map(s);
-            case NumberConditionExpression n -> this.map(n);
+            case IndicationConditionExpression s -> this.map(s);
+            case AgeConditionExpression n -> this.map(n);
             case ExistingDrugMedicationConditionExpression p -> this.map(p);
         };
     }
 
-    private ExpressionEntity.StringConditionEntity map(StringConditionExpression b) {
-        return new ExpressionEntity.StringConditionEntity(null, b.field(), b.requiredValue());
+    private ExpressionEntity.StringConditionEntity map(IndicationConditionExpression b) {
+        return new ExpressionEntity.StringConditionEntity(null, IndicationConditionExpression.field(), b.requiredValue());
     }
 
-    private ExpressionEntity.NumberConditionEntity map(NumberConditionExpression b) {
-        return new ExpressionEntity.NumberConditionEntity(null, b.field(), b.operator(), b.value());
+    private ExpressionEntity.NumberConditionEntity map(AgeConditionExpression b) {
+        return new ExpressionEntity.NumberConditionEntity(null, AgeConditionExpression.field(), b.operator(), b.value());
     }
 
     private ExpressionEntity.ExistingDrugMedicationConditionEntity map(ExistingDrugMedicationConditionExpression e) {

@@ -10,8 +10,8 @@ class BinaryExpressionTest {
 
     @Test
     void validates_WithOrOperatorWhenNeitherLeftOrRightValidates_ReturnsFalse() {
-        var left = Mockito.mock(StringConditionExpression.class);
-        var right = Mockito.mock(NumberConditionExpression.class);
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(false);
@@ -24,8 +24,8 @@ class BinaryExpressionTest {
 
     @Test
     void validates_WithOrOperatorWhenLeftValidatesButNotRight_ReturnsTrue() {
-        var left = Mockito.mock(StringConditionExpression.class);
-        var right = Mockito.mock(NumberConditionExpression.class);
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(true);
@@ -38,8 +38,8 @@ class BinaryExpressionTest {
 
     @Test
     void validates_WithOrOperatorWhenRightValidatesButNotLeft_ReturnsTrue() {
-        var left = Mockito.mock(StringConditionExpression.class);
-        var right = Mockito.mock(NumberConditionExpression.class);
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(false);
@@ -52,8 +52,8 @@ class BinaryExpressionTest {
 
     @Test
     void validates_WithOrOperatorWhenBothLeftAndRightValidates_ReturnsTrue() {
-        var left = Mockito.mock(StringConditionExpression.class);
-        var right = Mockito.mock(NumberConditionExpression.class);
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(true);
@@ -66,8 +66,8 @@ class BinaryExpressionTest {
 
     @Test
     void validates_WithAndOperatorWhenNeitherLeftOrRightValidates_ReturnsFalse() {
-        var left = Mockito.mock(StringConditionExpression.class);
-        var right = Mockito.mock(NumberConditionExpression.class);
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.AND, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(false);
@@ -80,8 +80,8 @@ class BinaryExpressionTest {
 
     @Test
     void validates_WithAndOperatorWhenLeftValidatesButNotRight_ReturnsFalse() {
-        var left = Mockito.mock(StringConditionExpression.class);
-        var right = Mockito.mock(NumberConditionExpression.class);
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.AND, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(true);
@@ -94,8 +94,8 @@ class BinaryExpressionTest {
 
     @Test
     void validates_WithAndOperatorWhenLeftDoesNotValidateButRightValidates_ReturnsFalse() {
-        var left = Mockito.mock(StringConditionExpression.class);
-        var right = Mockito.mock(NumberConditionExpression.class);
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.AND, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(false);
@@ -108,8 +108,8 @@ class BinaryExpressionTest {
 
     @Test
     void validates_WithAndOperatorWhenBothLeftAndRightValidates_ReturnsTrue() {
-        var left = Mockito.mock(StringConditionExpression.class);
-        var right = Mockito.mock(NumberConditionExpression.class);
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.AND, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(true);

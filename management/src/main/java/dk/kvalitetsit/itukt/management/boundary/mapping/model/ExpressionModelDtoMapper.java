@@ -2,10 +2,10 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
+import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
-import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
+import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
 import org.openapitools.model.*;
 
 public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapitools.model.Expression> {
@@ -16,18 +16,18 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
     public org.openapitools.model.Expression map(Expression expression) {
         return switch (expression) {
             case dk.kvalitetsit.itukt.common.model.BinaryExpression b -> this.map(b);
-            case StringConditionExpression s -> this.map(s);
-            case NumberConditionExpression n -> this.map(n);
+            case IndicationConditionExpression s -> this.map(s);
+            case AgeConditionExpression n -> this.map(n);
             case ExistingDrugMedicationConditionExpression e -> this.map(e);
         };
     }
 
-    private StringCondition map(StringConditionExpression s) {
-        return new StringCondition(s.field().name(), s.requiredValue(), "StringCondition");
+    private IndicationCondition map(IndicationConditionExpression s) {
+        return new IndicationCondition(s.requiredValue(), "StringCondition");
     }
 
-    private NumberCondition map(NumberConditionExpression n) {
-        return new NumberCondition(n.field().name(), mapper.map(n.operator()), n.value(), "NumberCondition");
+    private AgeCondition map(AgeConditionExpression n) {
+        return new AgeCondition(mapper.map(n.operator()), n.value(), "NumberCondition");
     }
 
     private ExistingDrugMedicationCondition map(ExistingDrugMedicationConditionExpression e) {

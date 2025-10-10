@@ -2,13 +2,13 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dto;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
+import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
-import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
+import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
+import org.openapitools.model.AgeCondition;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.ExistingDrugMedicationCondition;
-import org.openapitools.model.NumberCondition;
-import org.openapitools.model.StringCondition;
+import org.openapitools.model.IndicationCondition;
 
 public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.Expression, Expression> {
 
@@ -18,18 +18,18 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
     public Expression map(org.openapitools.model.Expression expression) {
         return switch (expression) {
             case BinaryExpression b -> this.map(b);
-            case StringCondition s -> this.map(s);
-            case NumberCondition n -> this.map(n);
+            case IndicationCondition s -> this.map(s);
+            case AgeCondition n -> this.map(n);
             case ExistingDrugMedicationCondition e -> this.map(e);
         };
     }
 
-    private StringConditionExpression map(StringCondition b) {
-        return new StringConditionExpression(Expression.Condition.Field.valueOf(b.getField()), b.getValue());
+    private IndicationConditionExpression map(IndicationCondition b) {
+        return new IndicationConditionExpression(b.getValue());
     }
 
-    private NumberConditionExpression map(NumberCondition b) {
-        return new NumberConditionExpression(Expression.Condition.Field.valueOf(b.getField()), operatorDtoModelMapper.map(b.getOperator()), b.getValue());
+    private AgeConditionExpression map(AgeCondition b) {
+        return new AgeConditionExpression(operatorDtoModelMapper.map(b.getOperator()), b.getValue());
     }
 
     private ExistingDrugMedicationConditionExpression map(ExistingDrugMedicationCondition e) {

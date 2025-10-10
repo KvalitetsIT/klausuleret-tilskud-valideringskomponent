@@ -187,18 +187,17 @@ class Parser {
     }
 
     private Expression createCondition(String field, Operator operator, String value) {
-        final var upperCaseField = field.toUpperCase();
         return tryParseInt(value)
-                .map(intValue -> createNumberCondition(upperCaseField, operator, intValue))
-                .orElseGet(() -> createStringCondition(upperCaseField, value));
+                .map(intValue -> createNumberCondition(operator, intValue))
+                .orElseGet(() -> createStringCondition(value));
     }
 
-    private Expression createStringCondition(String field, String value) {
-        return new StringCondition(field, value, "StringCondition");
+    private Expression createStringCondition(String value) {
+        return new IndicationCondition(value, "StringCondition");
     }
 
-    private Expression createNumberCondition(String field, Operator operator, int value) {
-        return new NumberCondition(field, operator, value, "NumberCondition");
+    private Expression createNumberCondition(Operator operator, int value) {
+        return new AgeCondition(operator, value, "NumberCondition");
     }
 
     private Optional<Integer> tryParseInt(String value) {

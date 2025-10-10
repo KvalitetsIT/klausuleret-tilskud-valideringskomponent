@@ -6,6 +6,10 @@ public record Clause(
         Long id,
         String name,
         UUID uuid,
-        Integer errorCode,
+        Error error,
         Expression expression
-) { }
+) {
+    public record Error(String message, Integer code){
+
+    }
+}

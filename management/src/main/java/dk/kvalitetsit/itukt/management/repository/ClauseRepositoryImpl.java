@@ -37,11 +37,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
 
             template.update(
-                    "INSERT INTO clause (uuid, name, expression_id) VALUES (:uuid, :name, :expression_id)",
+                    "INSERT INTO clause (uuid, name, expression_id, error_message) VALUES (:uuid, :name, :expression_id, :error_message)",
                     new MapSqlParameterSource()
                             .addValue("uuid", uuid.toString())
                             .addValue("name", clause.name())
-                            .addValue("expression_id", createdExpression.id()),
+                            .addValue("expression_id", createdExpression.id())
+                            .addValue("error_message", clause.errorMessage()),
                     keyHolder,
                     new String[]{"id"}
             );
@@ -52,7 +53,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             int errorCode = createErrorCode(clause.name());
 
-            return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, createdExpression);
+            return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
@@ -86,7 +87,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.expression_id, error_code.error_code
+                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -97,13 +98,14 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     Map.of("uuid", uuid.toString()),
                     (rs, rowNum) -> {
                         long expressionId = rs.getLong("expression_id");
-                        var expression = expressionRepository.read(expressionId).orElseThrow( () -> new ServiceException(String.format("Expected to find an expression with id '%s', but nothing was found", expressionId)));
+                        var expression = expressionRepository.read(expressionId).orElseThrow(() -> new ServiceException(String.format("Expected to find an expression with id '%s', but nothing was found", expressionId)));
 
                         return new ClauseEntity(
                                 rs.getLong("id"),
                                 uuid,
                                 rs.getString("name"),
                                 rs.getInt("error_code"),
+                                rs.getString("error_message"),
                                 expression
                         );
                     });

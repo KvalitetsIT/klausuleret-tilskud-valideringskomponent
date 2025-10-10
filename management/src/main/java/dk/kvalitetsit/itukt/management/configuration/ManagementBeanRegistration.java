@@ -3,12 +3,12 @@ package dk.kvalitetsit.itukt.management.configuration;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.common.model.*;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ExpressionModelDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.model.ErrorModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
 import dk.kvalitetsit.itukt.management.repository.cache.ClauseCache;
@@ -74,11 +74,15 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService managementService) {
+        var errorMapper = new ErrorModelDtoMapper();
         return new ManagementServiceAdaptor(
                 managementService,
-                new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(new ExpressionModelDtoMapper()),
-                new ClauseDslDtoMapper(),
-                new ClauseModelDslMapper(new ExpressionModelDslMapper()),
+                new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(
+                        new ExpressionModelDtoMapper(),
+                        errorMapper
+                ),
+                new ClauseDslModelMapper(),
+                new ClauseModelDslMapper(new ExpressionModelDslMapper(), errorMapper),
                 new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper(), new ExpressionModelEntityMapper())
         );
     }

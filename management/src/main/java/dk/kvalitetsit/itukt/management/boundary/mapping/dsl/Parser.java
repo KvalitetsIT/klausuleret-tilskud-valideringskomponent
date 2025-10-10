@@ -76,11 +76,11 @@ class Parser {
      *
      * @return the parsed {@code Expression}
      */
-    protected ClauseInput parseClause() {
+    protected ParsedClause parseClause() {
         expect("Klausul");
         Token name = next();
         expect(":");
-        return new ClauseInput(name.text(), parseExpression());
+        return new ParsedClause(name.text(), parseExpression());
     }
 
 
@@ -89,7 +89,7 @@ class Parser {
      *
      * @return the parsed {@code Expression}
      */
-    protected Expression parseExpression() {
+    private Expression parseExpression() {
         return parseOrExpression();
     }
 

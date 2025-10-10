@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.ClauseInput;
+import org.openapitools.model.Error;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,7 +31,7 @@ class ClauseInputDtoModelMapperTest {
 
     @Test
     void map_MapsNameAndExpression() {
-        var clauseInput = new ClauseInput("Test Clause", Mockito.mock(org.openapitools.model.BinaryExpression.class));
+        var clauseInput = new ClauseInput("Test Clause", Mockito.mock(org.openapitools.model.BinaryExpression.class), new Error("Message"));
         var expression = Mockito.mock(BinaryExpression.class);
         var expressionEntity = Mockito.mock(ExpressionEntity.BinaryExpressionEntity.class);
         Mockito.when(expressionDtoModelMapper.map(clauseInput.getExpression())).thenReturn(expression);
@@ -40,5 +41,6 @@ class ClauseInputDtoModelMapperTest {
 
         assertEquals(clauseInput.getName(), mappedClause.name(), "Clause name should be mapped directly");
         assertEquals(expressionEntity, mappedClause.expression(), "Mapped expression should be mapped from expression mappers");
+        assertEquals(clauseInput.getError().getMessage(), mappedClause.errorMessage(), "Mapped error message should be mapped directly");
     }
 }

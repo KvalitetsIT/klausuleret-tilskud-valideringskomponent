@@ -47,7 +47,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
         return shouldSkipClause(clause, validationInput) || clause.expression().validates(validationInput) ?
                 Optional.empty() :
-                Optional.of(new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76", clause.errorCode()));
+                Optional.of(new ValidationError(clause.name(), clauseText, clause.error().message(), clause.error().code()));
     }
 
     private boolean shouldSkipClause(Clause clause, ValidationInput validationInput) {

@@ -40,7 +40,7 @@ public class ValidationIT extends BaseTest {
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
-        var clause = new ClauseForCreation("KRINI", expression);
+        var clause = new ClauseForCreation("KRINI", expression, "message");
 
         repository.create(clause);
     }
@@ -103,6 +103,8 @@ public class ValidationIT extends BaseTest {
         var validationError = failedResponse.getValidationErrors().getFirst();
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
         assertEquals(expectedClauseCode, validationError.getClauseCode());
+        String expectedErrorMessage = "message";
+        assertEquals(expectedErrorMessage, validationError.getErrorMessage());
         assertEquals(elementPath, validationError.getElementPath());
         int expectedErrorCode = 10800; // Hardcoded error code in clause cache
         assertEquals(expectedErrorCode, validationError.getErrorCode());
@@ -120,7 +122,9 @@ public class ValidationIT extends BaseTest {
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().getFirst();
         String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
+        String expectedErrorMessage = "message";
         assertEquals(expectedClauseCode, validationError.getClauseCode());
+        assertEquals(expectedErrorMessage, validationError.getErrorMessage());
         assertEquals(elementPath, validationError.getElementPath());
     }
 

@@ -10,8 +10,10 @@ public class ClauseInputDtoModelMapper implements Mapper<ClauseInput, ClauseForC
     private final Mapper<org.openapitools.model.Expression, Expression> expressionDtoModelMapper;
     private final Mapper<Expression, ExpressionEntity> expressionModelEntityMapper;
 
-    public ClauseInputDtoModelMapper(Mapper<org.openapitools.model.Expression, Expression> expressionDtoModelMapper,
-                                     Mapper<Expression, ExpressionEntity> expressionModelEntityMapper) {
+    public ClauseInputDtoModelMapper(
+            Mapper<org.openapitools.model.Expression, Expression> expressionDtoModelMapper,
+            Mapper<Expression, ExpressionEntity> expressionModelEntityMapper
+    ) {
         this.expressionDtoModelMapper = expressionDtoModelMapper;
         this.expressionModelEntityMapper = expressionModelEntityMapper;
     }
@@ -20,6 +22,6 @@ public class ClauseInputDtoModelMapper implements Mapper<ClauseInput, ClauseForC
     public ClauseForCreation map(ClauseInput clauseInput) {
         var expression = expressionDtoModelMapper.map(clauseInput.getExpression());
         var expressionEntity = expressionModelEntityMapper.map(expression);
-        return new ClauseForCreation(clauseInput.getName(), expressionEntity);
+        return new ClauseForCreation(clauseInput.getName(), expressionEntity, clauseInput.getError().getMessage());
     }
 }

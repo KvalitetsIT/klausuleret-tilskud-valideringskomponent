@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.common.model;
 import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
 import static java.lang.String.join;
 
-sealed public interface ValidationError permits AndError, ConditionError, ExistingDrugMedicationError, OrError {
+sealed public interface ValidationError extends ValidationFailed permits AndError, ConditionError, ExistingDrugMedicationError, OrError {
     String toErrorString();
     enum Field {AGE, INDICATION}
 

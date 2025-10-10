@@ -125,7 +125,8 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.empty());
 
-        assertThrows(ExistingDrugMedicationRequiredException.class, () -> condition.validates(validationInput),
-                "Expected exception when no existing drug medication is present in validation input");
+        Optional<Expression.ValidationFailed> result = condition.validates(validationInput);
+        assertEquals(Optional.of(new Expression.ValidationFailed.ExistingDrugMedicationRequired()), result,
+                "Expected ExistingDrugMedicationRequired when no existing drug medication is present in validation input");
     }
 }

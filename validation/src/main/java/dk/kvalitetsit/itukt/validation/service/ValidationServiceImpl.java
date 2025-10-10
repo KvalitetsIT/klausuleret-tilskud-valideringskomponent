@@ -1,7 +1,9 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
@@ -37,8 +39,10 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
         return shouldSkipClause(clause, validationInput)
                 ? Optional.empty()
-                : clause.expression().validates(validationInput)
-                    .map(todo -> new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76", clause.errorCode()));
+                : clause.expression().validates(validationInput).map(validationFailed -> switch (validationFailed) {
+            case Expression.ValidationFailed.ExistingDrugMedicationRequired ignored -> throw new ExistingDrugMedicationRequiredException();
+            case Expression.ValidationFailed.ValidationError todo -> new ValidationError(clause.name(), clauseText, "TODO: IUAKT-76", clause.errorCode());
+        });
     }
 
     private void createSkippedValidations(ValidationInput validationInput) {

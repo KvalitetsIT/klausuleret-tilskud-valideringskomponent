@@ -2,9 +2,11 @@ package dk.kvalitetsit.itukt.common.model;
 
 import java.util.Optional;
 
+import static dk.kvalitetsit.itukt.common.model.Expression.ValidationFailed.*;
+
 public record NumberConditionExpression(Field field, Operator operator, int value) implements Expression.Condition {
     @Override
-    public Optional<ValidationError> validates(ValidationInput validationInput) {
+    public Optional<ValidationFailed> validates(ValidationInput validationInput) {
         var fieldValue = validationInput.getByField(field());
         var success = fieldValue instanceof Integer intValue &&
                 switch (operator) {

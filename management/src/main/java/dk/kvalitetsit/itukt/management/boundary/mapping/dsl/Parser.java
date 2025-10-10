@@ -160,12 +160,12 @@ class Parser {
      */
 
     private Expression parseCondition() {
-        String field = next().text();
+        next();
         String operatorString = next().text();
         Operator operator = operatorString.equalsIgnoreCase("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
         List<String> values = parseValues();
 
-        return createExpressionFromMultiValueCondition(field, operator, values);
+        return createExpressionFromMultiValueCondition( operator, values);
     }
 
     private List<String> parseValues() {
@@ -176,29 +176,28 @@ class Parser {
         return values;
     }
 
-    private Expression createExpressionFromMultiValueCondition(String field, Operator operator, List<String> values) {
+    private Expression createExpressionFromMultiValueCondition( Operator operator, List<String> values) {
         Iterator<String> valuesIterator = values.iterator();
-        Expression currentExpression = createCondition(field, operator, valuesIterator.next());
+        Expression currentExpression = createCondition( operator, valuesIterator.next());
         while (valuesIterator.hasNext()) {
-            Expression nextCond = createCondition(field, operator, valuesIterator.next());
+            Expression nextCond = createCondition( operator, valuesIterator.next());
             currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, "BinaryExpression");
         }
         return currentExpression;
     }
 
-    private Expression createCondition(String field, Operator operator, String value) {
-        final var upperCaseField = field.toUpperCase();
+    private Expression createCondition(Operator operator, String value) {
         return tryParseInt(value)
-                .map(intValue -> createNumberCondition(upperCaseField, operator, intValue))
-                .orElseGet(() -> createStringCondition(upperCaseField, value));
+                .map(intValue -> createNumberCondition(operator, intValue))
+                .orElseGet(() -> createStringCondition(value));
     }
 
-    private Expression createStringCondition(String field, String value) {
-        return new StringCondition(field, value, "StringCondition");
+    private Expression createStringCondition(String value) {
+        return new IndicationCondition(value, "StringCondition");
     }
 
-    private Expression createNumberCondition(String field, Operator operator, int value) {
-        return new NumberCondition(field, operator, value, "NumberCondition");
+    private Expression createNumberCondition(Operator operator, int value) {
+        return new AgeCondition(operator, value, "NumberCondition");
     }
 
     private Optional<Integer> tryParseInt(String value) {

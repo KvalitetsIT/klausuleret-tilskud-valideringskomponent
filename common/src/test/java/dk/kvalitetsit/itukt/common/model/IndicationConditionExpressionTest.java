@@ -6,11 +6,11 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class StringConditionExpressionTest {
+class IndicationConditionExpressionTest {
 
     @Test
     void matches_WhenValueIsNotAString_ReturnsFalse() {
-        var stringCondition = new StringConditionExpression(Expression.Condition.Field.INDICATION, "testValue");
+        var stringCondition = new IndicationConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.getByField(Expression.Condition.Field.INDICATION)).thenReturn(0);
 
@@ -21,7 +21,7 @@ class StringConditionExpressionTest {
 
     @Test
     void matches_WhenValueIsNull_ReturnsFalse() {
-        var stringCondition = new StringConditionExpression(Expression.Condition.Field.INDICATION, "testValue");
+        var stringCondition = new IndicationConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.getByField(Expression.Condition.Field.INDICATION)).thenReturn(null);
 
@@ -32,7 +32,7 @@ class StringConditionExpressionTest {
 
     @Test
     void matches_WhenValueIsDifferentThanRequired_ReturnsFalse() {
-        var stringCondition = new StringConditionExpression(Expression.Condition.Field.INDICATION, "testValue");
+        var stringCondition = new IndicationConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.getByField(Expression.Condition.Field.INDICATION)).thenReturn("different value");
 
@@ -43,7 +43,7 @@ class StringConditionExpressionTest {
 
     @Test
     void matches_WhenValueIsEqualToRequired_ReturnsTrue() {
-        var stringCondition = new StringConditionExpression(Expression.Condition.Field.INDICATION, "testValue");
+        var stringCondition = new IndicationConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.getByField(Expression.Condition.Field.INDICATION)).thenReturn("testValue");
 

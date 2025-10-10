@@ -1,9 +1,9 @@
 package dk.kvalitetsit.itukt.management;
 
+import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.NumberConditionExpression;
-import dk.kvalitetsit.itukt.common.model.StringConditionExpression;
+import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
@@ -36,30 +36,24 @@ public class MockFactory {
             EXPRESSION_7_ENTITY
     );
     public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "CHOL", 10800, "message", EXPRESSION_1_ENTITY);
-    private static final NumberConditionExpression EXPRESSION_6_MODEL = new NumberConditionExpression(
-            EXPRESSION_6_ENTITY.field(),
+    private static final AgeConditionExpression EXPRESSION_6_MODEL = new AgeConditionExpression(
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()
     );
-    private static final NumberCondition EXPRESSION_6_DTO = new NumberCondition().type("NumberCondition")
-            .field(EXPRESSION_6_MODEL.field().name())
+    private static final AgeCondition EXPRESSION_6_DTO = new AgeCondition().type("NumberCondition")
             .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
             .value(EXPRESSION_6_MODEL.value());
-    private static final StringConditionExpression EXPRESSION_3_MODEL = new StringConditionExpression(
-            EXPRESSION_3_ENTITY.field(),
+    private static final IndicationConditionExpression EXPRESSION_3_MODEL = new IndicationConditionExpression(
             EXPRESSION_3_ENTITY.value());
-    private static final StringCondition EXPRESSION_3_DTO = new StringCondition().type("StringCondition")
-            .field(EXPRESSION_3_MODEL.field().name())
+    private static final IndicationCondition EXPRESSION_3_DTO = new IndicationCondition().type("StringCondition")
             .value((EXPRESSION_3_MODEL.requiredValue()));
-    private static final StringConditionExpression EXPRESSION_4_MODEL = new StringConditionExpression(
-            EXPRESSION_4_ENTITY.field(),
+    private static final IndicationConditionExpression EXPRESSION_4_MODEL = new IndicationConditionExpression(
             EXPRESSION_4_ENTITY.value());
     private static final dk.kvalitetsit.itukt.common.model.BinaryExpression EXPRESSION_5_MODEL = new dk.kvalitetsit.itukt.common.model.BinaryExpression(
             EXPRESSION_3_MODEL,
             EXPRESSION_5_ENTITY.operator(),
             EXPRESSION_4_MODEL);
-    private static final StringCondition EXPRESSION_4_DTO = new StringCondition().type("StringCondition")
-            .field(EXPRESSION_4_MODEL.field().name())
+    private static final IndicationCondition EXPRESSION_4_DTO = new IndicationCondition().type("StringCondition")
             .value((EXPRESSION_4_MODEL.requiredValue()));
     private static final BinaryExpression EXPRESSION_5_DTO = new BinaryExpression()
             .type("BinaryExpression")
@@ -71,8 +65,7 @@ public class MockFactory {
             .left(EXPRESSION_5_DTO)
             .operator(BinaryOperator.AND)
             .right(EXPRESSION_6_DTO);
-    private static final StringConditionExpression EXPRESSION_2_MODEL = new StringConditionExpression(
-            EXPRESSION_2_ENTITY.field(),
+    private static final IndicationConditionExpression EXPRESSION_2_MODEL = new IndicationConditionExpression(
             EXPRESSION_2_ENTITY.value()
     );
     public static final dk.kvalitetsit.itukt.common.model.BinaryExpression EXPRESSION_1_MODEL = new dk.kvalitetsit.itukt.common.model.BinaryExpression(
@@ -82,9 +75,8 @@ public class MockFactory {
     );
     public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
 
-    private static final StringCondition EXPRESSION_2_DTO = new StringCondition()
+    private static final IndicationCondition EXPRESSION_2_DTO = new IndicationCondition()
             .type("StringCondition")
-            .field(EXPRESSION_2_MODEL.field().name())
             .value((EXPRESSION_2_MODEL.requiredValue()));
     public static final org.openapitools.model.Expression EXPRESSION_1_DTO = new BinaryExpression()
             .type("BinaryExpression")

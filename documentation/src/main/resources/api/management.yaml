@@ -257,15 +257,15 @@ components:
       type: object
       description: "A polymorphic interface that represents an expression. It can be a condition or a binary expression combining other expressions"
       oneOf:
-        - $ref: '#/components/schemas/StringCondition'
-        - $ref: '#/components/schemas/NumberCondition'
+        - $ref: '#/components/schemas/IndicationCondition'
+        - $ref: '#/components/schemas/AgeCondition'
         - $ref: '#/components/schemas/ExistingDrugMedicationCondition'
         - $ref: '#/components/schemas/BinaryExpression'
       discriminator:
         propertyName: type
         mapping:
-          StringCondition: '#/components/schemas/StringCondition'
-          NumberCondition: '#/components/schemas/NumberCondition'
+          IndicationCondition: '#/components/schemas/IndicationCondition'
+          AgeCondition: '#/components/schemas/AgeCondition'
           ExistingDrugMedicationCondition: '#/components/schemas/ExistingDrugMedicationCondition'
           BinaryExpression: '#/components/schemas/BinaryExpression'
 
@@ -288,30 +288,24 @@ components:
         - "AND"
         - "OR"
 
-    StringCondition:
+    IndicationCondition:
       description: "A basic condition consisting of a field and a string value. This represents the most atomic form of an expression"
       type: object
-      required: [ type, field, value ]
+      required: [ type, value ]
       properties:
-        field:
-          description: "The name of the field the condition applies to"
-          type: string
         value:
           description: "The value, that the field is compared against"
           type: string
         type:
           type: string
-          description: "Identifies this object as a StringCondition expression"
-          example: "StringCondition"
+          description: "Identifies this object as a IndicationCondition expression"
+          example: "IndicationCondition"
 
-    NumberCondition:
+    AgeCondition:
       description: "A basic condition consisting of a field, an operation and a number value. This represents the most atomic form of an expression"
       type: object
-      required: [ type, field, operator, value ]
+      required: [ type, operator, value ]
       properties:
-        field:
-          description: "The name of the field the condition applies to"
-          type: string
         operator:
           $ref: '#/components/schemas/Operator'
         value:
@@ -319,8 +313,8 @@ components:
           type: integer
         type:
           type: string
-          description: "Identifies this object as a NumberCondition expression"
-          example: "NumberCondition"
+          description: "Identifies this object as a AgeCondition expression"
+          example: "AgeCondition"
 
     ExistingDrugMedicationCondition:
       description: "A condition for existing drug medication"
@@ -386,7 +380,7 @@ components:
     Dsl:
       description: "A clause specified in a domain specific language (DSL)"
       type: string
-#      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
+      #      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
       example: "Klausul CHOL: (ATC = C10BA03) eller (ATC in C10BA02, C10BA05) og (ALDER >= 13)"
 
     Error:

@@ -3,10 +3,7 @@ package dk.kvalitetsit.itukt.integrationtest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +32,8 @@ public abstract class BaseTest {
     protected Component component;
     protected ApiClient client;
 
-    static  {
+    @BeforeAll
+    void beforeAll() {
         dbEnvironment.start();
         appDatabase = getDatabase("itukt-db", "itukt_db", "rootroot");
         stamDatabase = getDatabase("stamdata-db", "sdm_krs_a", "");

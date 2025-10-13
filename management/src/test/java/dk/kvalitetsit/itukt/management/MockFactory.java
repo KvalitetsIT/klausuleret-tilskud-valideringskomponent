@@ -1,16 +1,15 @@
 package dk.kvalitetsit.itukt.management;
 
-import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
 import org.openapitools.model.*;
+import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.Error;
+import org.openapitools.model.Operator;
 
 import java.util.UUID;
 
@@ -18,11 +17,11 @@ import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_T
 
 public class MockFactory {
 
-    private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Expression.Condition.Field.INDICATION, "C10BA03");
-    private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Expression.Condition.Field.INDICATION, "C10BA02");
-    private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, Expression.Condition.Field.INDICATION, "C10BA05");
+    private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Field.INDICATION, "C10BA03");
+    private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Field.INDICATION, "C10BA02");
+    private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, Field.INDICATION, "C10BA05");
     private static final BinaryExpressionEntity EXPRESSION_5_ENTITY = new BinaryExpressionEntity(EXPRESSION_3_ENTITY, dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR, EXPRESSION_4_ENTITY);
-    private static final NumberConditionEntity EXPRESSION_6_ENTITY = new NumberConditionEntity(5L, Expression.Condition.Field.AGE, GREATER_THAN_OR_EQUAL_TO, 13);
+    private static final NumberConditionEntity EXPRESSION_6_ENTITY = new NumberConditionEntity(5L, Field.AGE, GREATER_THAN_OR_EQUAL_TO, 13);
     private static final BinaryExpressionEntity EXPRESSION_7_ENTITY = new BinaryExpressionEntity(
             5L,
             EXPRESSION_5_ENTITY,

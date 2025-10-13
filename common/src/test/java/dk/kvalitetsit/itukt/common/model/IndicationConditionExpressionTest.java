@@ -9,21 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class IndicationConditionExpressionTest {
 
     @Test
-    void matches_WhenValueIsNotAString_ReturnsFalse() {
-        var stringCondition = new IndicationConditionExpression("testValue");
-        ValidationInput validationInput = Mockito.mock(ValidationInput.class);
-        Mockito.when(validationInput.getByField(Expression.Condition.Field.INDICATION)).thenReturn(0);
-
-        boolean validates = stringCondition.validates(validationInput);
-
-        assertFalse(validates);
-    }
-
-    @Test
     void matches_WhenValueIsNull_ReturnsFalse() {
         var stringCondition = new IndicationConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
-        Mockito.when(validationInput.getByField(Expression.Condition.Field.INDICATION)).thenReturn(null);
+        Mockito.when(validationInput.indicationCode()).thenReturn(null);
 
         boolean validates = stringCondition.validates(validationInput);
 
@@ -34,7 +23,7 @@ class IndicationConditionExpressionTest {
     void matches_WhenValueIsDifferentThanRequired_ReturnsFalse() {
         var stringCondition = new IndicationConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
-        Mockito.when(validationInput.getByField(Expression.Condition.Field.INDICATION)).thenReturn("different value");
+        Mockito.when(validationInput.indicationCode()).thenReturn("different value");
 
         boolean validates = stringCondition.validates(validationInput);
 
@@ -45,12 +34,10 @@ class IndicationConditionExpressionTest {
     void matches_WhenValueIsEqualToRequired_ReturnsTrue() {
         var stringCondition = new IndicationConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
-        Mockito.when(validationInput.getByField(Expression.Condition.Field.INDICATION)).thenReturn("testValue");
+        Mockito.when(validationInput.indicationCode()).thenReturn("testValue");
 
         boolean validates = stringCondition.validates(validationInput);
 
         assertTrue(validates);
-
     }
-
 }

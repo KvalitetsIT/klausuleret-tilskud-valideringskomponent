@@ -17,11 +17,11 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
     }
 
     private String map(IndicationConditionExpression s) {
-        return "(" + IndicationConditionExpression.field() + " = " + s.requiredValue() + ")";
+        return "(" + Field.INDICATION + " = " + s.requiredValue() + ")";
     }
 
     private String map(AgeConditionExpression n) {
-        return "(" + AgeConditionExpression.field() + " " + n.operator().getValue() + " " + n.value() + ")";
+        return "(" + Field.AGE + " " + n.operator().getValue() + " " + n.value() + ")";
     }
 
     private String map(BinaryExpression expression) {

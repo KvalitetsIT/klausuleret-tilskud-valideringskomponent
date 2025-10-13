@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionType;
@@ -132,7 +132,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
                     Map.of("id", id),
                     (rs, rowNum) -> new ExpressionEntity.StringConditionEntity(
                             id,
-                            Expression.Condition.Field.valueOf(rs.getString("field")),
+                            Field.valueOf(rs.getString("field")),
                             rs.getString("value"))
             );
             return Optional.ofNullable(result);
@@ -149,7 +149,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
                     Map.of("id", id),
                     (rs, rowNum) -> new ExpressionEntity.NumberConditionEntity(
                             id,
-                            Expression.Condition.Field.valueOf(rs.getString("field")),
+                            Field.valueOf(rs.getString("field")),
                             Operator.fromValue(rs.getString("operator")),
                             rs.getInt("value")));
             return Optional.ofNullable(result);

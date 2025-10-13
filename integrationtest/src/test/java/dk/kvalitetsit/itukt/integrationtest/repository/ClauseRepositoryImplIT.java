@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
@@ -124,8 +124,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void getTwoClauseWithSameName() {
-        var clauseA = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blah"), "blah");
-        var clauseB = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "blah"), "blah");
+        var clauseA = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "blah");
+        var clauseB = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "blah");
 
         repository.create(clauseA);
 
@@ -139,18 +139,18 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var deepClause = new ClauseForCreation("ClauseName", new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.BinaryExpressionEntity(
                         new ExpressionEntity.BinaryExpressionEntity(
-                                new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.AGE, "whatEver"),
+                                new ExpressionEntity.StringConditionEntity(Field.AGE, "whatEver"),
                                 BinaryExpression.Operator.OR,
-                                new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.INDICATION, Operator.EQUAL, 20)
+                                new ExpressionEntity.NumberConditionEntity(Field.INDICATION, Operator.EQUAL, 20)
                         ),
                         BinaryExpression.Operator.OR,
                         new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "atcCode", "formCode", "routeOfAdministration")
                 ),
                 BinaryExpression.Operator.AND,
                 new ExpressionEntity.BinaryExpressionEntity(
-                        new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "whatEver"),
+                        new ExpressionEntity.StringConditionEntity(Field.INDICATION, "whatEver"),
                         BinaryExpression.Operator.AND,
-                        new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.AGE, Operator.GREATER_THAN, 20)
+                        new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 20)
                 )
         ), "message");
 

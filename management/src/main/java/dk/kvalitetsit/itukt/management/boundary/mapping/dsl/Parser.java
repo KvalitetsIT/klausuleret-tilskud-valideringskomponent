@@ -3,10 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import org.openapitools.model.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The {@code Parser} class is responsible for parsing a sequence of {@link Token} objects
@@ -80,17 +77,7 @@ class Parser {
         expect("Klausul");
         Token name = next();
         expect(":");
-        return new ParsedClause(name.text(), parseExpression());
-    }
-
-
-    /**
-     * Parses a generic expression, delegating to {@link #parseOrExpression()}.
-     *
-     * @return the parsed {@code Expression}
-     */
-    private Expression parseExpression() {
-        return parseOrExpression();
+        return new ParsedClause(name.text(), parseOrExpression());
     }
 
     /**
@@ -122,7 +109,7 @@ class Parser {
      */
     private Expression parseOperand() {
         if (match("(")) {
-            Expression inner = parseExpression();
+            Expression inner = parseOrExpression();
             expect(")");
             return inner;
         } else if (peekAheadIsCondition()) {
@@ -158,14 +145,62 @@ class Parser {
      *
      * @return the parsed {@code Expression.Condition}
      */
-
     private Expression parseCondition() {
-        next();
+        var field = next();
         String operatorString = next().text();
         Operator operator = operatorString.equalsIgnoreCase("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
-        List<String> values = parseValues();
 
-        return createExpressionFromMultiValueCondition( operator, values);
+        // Handle structured values
+        if (match("[")) {
+            // Parse multiple structured objects
+            List<Map<String, String>> objectList = new ArrayList<>();
+            do {
+                expect("{");
+                Map<String, String> obj = parsePairs();
+                objectList.add(obj);
+                expect("}");
+            } while (match(","));
+            expect("]");
+            return createStructuredCondition(field.text(), objectList);
+        } else if (match("{")) {
+            // Parse single structured object
+            Map<String, String> obj = parsePairs();
+            expect("}");
+            return createStructuredCondition(field.text(), List.of(obj));
+        }
+
+        // Otherwise, fallback to normal scalar values
+        List<String> values = parseValues();
+        return createExpressionFromMultiValueCondition(operator, values);
+    }
+
+    private static Expression createStructuredCondition(List<Map<String, String>> pairs) {
+        // Multiple or single entries
+        Expression result = null;
+        for (Map<String, String> pair : pairs) {
+            ExistingDrugMedicationCondition cond = createExistingDrugMedicationCondition(pair);
+            if (result == null) result = cond;
+            else result = new BinaryExpression(result, BinaryOperator.OR, cond, "BinaryExpression");
+        }
+        return result;
+    }
+
+    private static Expression createStructuredCondition(String fieldName, List<Map<String, String>> pair) {
+        if (fieldName.equalsIgnoreCase("EKSISTERENDE_LÆGEMIDDEL")) {
+            return createStructuredCondition(pair);
+        }
+        throw new RuntimeException("Unknown structured condition type: " + fieldName);
+    }
+
+    private Map<String, String> parsePairs() {
+        Map<String, String> map = new LinkedHashMap<>();
+        do {
+            Token key = next(); // IDENTIFIER
+            expect("=");
+            Token value = next(); // VALUE
+            map.put(key.text(), value.text());
+        } while (match(","));
+        return map;
     }
 
     private List<String> parseValues() {
@@ -176,31 +211,39 @@ class Parser {
         return values;
     }
 
-    private Expression createExpressionFromMultiValueCondition( Operator operator, List<String> values) {
+    private static Expression createExpressionFromMultiValueCondition(Operator operator, List<String> values) {
         Iterator<String> valuesIterator = values.iterator();
-        Expression currentExpression = createCondition( operator, valuesIterator.next());
+        Expression currentExpression = createCondition(operator, valuesIterator.next());
         while (valuesIterator.hasNext()) {
-            Expression nextCond = createCondition( operator, valuesIterator.next());
+            Expression nextCond = createCondition(operator, valuesIterator.next());
             currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, "BinaryExpression");
         }
         return currentExpression;
     }
 
-    private Expression createCondition(Operator operator, String value) {
+    private static Expression createCondition(Operator operator, String value) {
         return tryParseInt(value)
                 .map(intValue -> createNumberCondition(operator, intValue))
                 .orElseGet(() -> createStringCondition(value));
     }
 
-    private Expression createStringCondition(String value) {
+    private static ExistingDrugMedicationCondition createExistingDrugMedicationCondition(Map<String, String> map) {
+        return new ExistingDrugMedicationCondition(
+                map.getOrDefault("ATC", "*"),
+                map.getOrDefault("FORM", "*"),
+                map.getOrDefault("ROUTE", "*"),
+                "ExistingDrugMedicationCondition"
+        );
+    }
+    private static Expression createStringCondition(String value) {
         return new IndicationCondition(value, "StringCondition");
     }
 
-    private Expression createNumberCondition(Operator operator, int value) {
+    private static Expression createNumberCondition(Operator operator, int value) {
         return new AgeCondition(operator, value, "NumberCondition");
     }
 
-    private Optional<Integer> tryParseInt(String value) {
+    private static Optional<Integer> tryParseInt(String value) {
         try {
             return Optional.of(Integer.parseInt(value));
         } catch (NumberFormatException e) {

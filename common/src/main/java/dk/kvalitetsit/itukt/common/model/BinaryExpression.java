@@ -3,6 +3,8 @@ package dk.kvalitetsit.itukt.common.model;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
+
 public record BinaryExpression(Expression left, Operator operator, Expression right) implements Expression {
 
     @Override

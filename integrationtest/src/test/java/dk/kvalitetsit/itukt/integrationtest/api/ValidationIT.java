@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
@@ -30,9 +30,9 @@ public class ValidationIT extends BaseTest {
     protected void load(ClauseRepository repository) {
         // Hardcoded clause for phase 1
         var ageAndIndication = new ExpressionEntity.BinaryExpressionEntity(
-                new ExpressionEntity.NumberConditionEntity(Expression.Condition.Field.AGE, Operator.GREATER_THAN, 50),
+                new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 50),
                 AND,
-                new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "313"));
+                new ExpressionEntity.StringConditionEntity(Field.INDICATION, "313"));
 
         var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "ATC123", "*", "*");
         var expression = new ExpressionEntity.BinaryExpressionEntity(

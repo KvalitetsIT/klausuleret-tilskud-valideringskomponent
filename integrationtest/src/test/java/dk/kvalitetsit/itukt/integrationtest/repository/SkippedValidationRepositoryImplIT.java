@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
-import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
@@ -39,7 +39,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
 
     @Test
     void createAndExists() {
-        var condition = new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "test");
+        var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
         var clause = clauseRepository.create(new ClauseForCreation("test", condition, "message"));
         var createdSkippedValidation = new SkippedValidationEntity(clause.id(), "actor", "person");
         var uncreatedSkippedValidation = new SkippedValidationEntity(clause.id(), "actor", "another person");
@@ -54,7 +54,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
 
     @Test
     void create_SameEntityTwice_DoesNotFail() {
-        var condition = new ExpressionEntity.StringConditionEntity(Expression.Condition.Field.INDICATION, "test");
+        var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
         var clause = clauseRepository.create(new ClauseForCreation("test", condition, "message"));
         var skippedValidation = new SkippedValidationEntity(clause.id(), "actor", "person");
 

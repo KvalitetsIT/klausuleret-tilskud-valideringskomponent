@@ -16,12 +16,12 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
         };
     }
 
-    private StringConditionExpression map(ExpressionEntity.StringConditionEntity b) {
-        return new StringConditionExpression(b.field(), b.value());
+    private IndicationConditionExpression map(ExpressionEntity.StringConditionEntity b) {
+        return new IndicationConditionExpression(b.value());
     }
 
-    private NumberConditionExpression map(ExpressionEntity.NumberConditionEntity n) {
-        return new NumberConditionExpression(n.field(), n.operator(), n.value());
+    private AgeConditionExpression map(ExpressionEntity.NumberConditionEntity n) {
+        return new AgeConditionExpression(n.operator(), n.value());
     }
 
     private ExistingDrugMedicationConditionExpression map(ExpressionEntity.ExistingDrugMedicationConditionEntity e) {

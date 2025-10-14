@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
@@ -51,7 +51,7 @@ class ClauseCacheImplTest {
                 1,
                 "Message",
                 new ExpressionEntity.StringConditionEntity(
-                        Expression.Condition.Field.AGE,
+                        Field.AGE,
                         "value"
                 )
         );

@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 
 public sealed interface ExpressionEntity permits
@@ -16,10 +16,10 @@ public sealed interface ExpressionEntity permits
 
     ExpressionEntity withId(Long newId);
 
-    record StringConditionEntity(Long id, Expression.Condition.Field field, String value)
+    record StringConditionEntity(Long id, Field field, String value)
             implements ExpressionEntity {
 
-        public StringConditionEntity(Expression.Condition.Field field, String value) {
+        public StringConditionEntity(Field field, String value) {
             this(null, field, value);
         }
 
@@ -34,10 +34,10 @@ public sealed interface ExpressionEntity permits
         }
     }
 
-    record NumberConditionEntity(Long id, Expression.Condition.Field field, Operator operator, int value)
+    record NumberConditionEntity(Long id, Field field, Operator operator, int value)
             implements ExpressionEntity {
 
-        public NumberConditionEntity(Expression.Condition.Field field, Operator operator, int value) {
+        public NumberConditionEntity(Field field, Operator operator, int value) {
             this(null, field, operator, value);
         }
 

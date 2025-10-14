@@ -5,7 +5,7 @@ import org.mockito.Mockito;
 
 import java.util.Optional;
 
-import static dk.kvalitetsit.itukt.common.model.Expression.*;
+import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -31,7 +31,7 @@ class ValidationServiceImplTest {
     @Mock
     private SkippedValidationService skippedValidationService;
 
-    private final Optional<Expression.ValidationError> someError = Optional.of(new Expression.ConditionError(Expression.ValidationError.Field.AGE, Operator.EQUAL, "20"));
+    private final Optional<ValidationError> someError = Optional.of(new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.EQUAL, "20"));
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {

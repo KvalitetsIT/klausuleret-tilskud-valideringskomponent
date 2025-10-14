@@ -2,6 +2,8 @@ package dk.kvalitetsit.itukt.common.model;
 
 import java.util.Optional;
 
+import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
+
 public record AgeConditionExpression(Operator operator, int value) implements Expression.Condition {
     public Optional<ValidationError> validates(ValidationInput validationInput) {
         var intValue = validationInput.citizenAge();

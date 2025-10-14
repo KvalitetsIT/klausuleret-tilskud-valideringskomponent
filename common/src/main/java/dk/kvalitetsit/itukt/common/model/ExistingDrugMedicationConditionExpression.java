@@ -4,6 +4,8 @@ import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredExce
 
 import java.util.Optional;
 
+import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
+
 public record ExistingDrugMedicationConditionExpression(
         String atcCode,
         String formCode,

@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface ClauseService {
 
-    Optional<Clause> get(String name);
+    Optional<Clause.Persisted> get(String name);
 
-    Optional<Clause> getByErrorCode(Integer errorCode);
+    Optional<Clause.Persisted> getByErrorCode(Integer errorCode);
 }

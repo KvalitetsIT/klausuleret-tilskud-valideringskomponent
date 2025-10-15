@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

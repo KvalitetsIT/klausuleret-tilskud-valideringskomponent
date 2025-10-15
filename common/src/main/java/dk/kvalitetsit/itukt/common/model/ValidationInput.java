@@ -11,5 +11,5 @@ public record ValidationInput(
         int citizenAge,
         long drugId,
         String indicationCode,
-        Optional<List<ExistingDrugMedication>> existingDrugMedication) {
+        Optional<List<Condition.ExistingDrugMedication>> existingDrugMedication) {
 }

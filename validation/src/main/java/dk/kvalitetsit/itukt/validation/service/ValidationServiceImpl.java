@@ -44,13 +44,13 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                 .flatMap(c -> validateClause(c, clause.text(), validationInput));
     }
 
-    private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
+    private Optional<ValidationError> validateClause(Clause.Persisted clause, String clauseText, ValidationInput validationInput) {
         return shouldSkipClause(clause, validationInput) || clause.expression().validates(validationInput) ?
                 Optional.empty() :
                 Optional.of(new ValidationError(clause.name(), clauseText, clause.error().message(), clause.error().code()));
     }
 
-    private boolean shouldSkipClause(Clause clause, ValidationInput validationInput) {
+    private boolean shouldSkipClause(Clause.Persisted clause, ValidationInput validationInput) {
         return skippedValidationService.shouldSkipValidation(validationInput.createdById(), validationInput.personId(), clause.id()) ||
                 (validationInput.reportedById().isPresent() && skippedValidationService.shouldSkipValidation(validationInput.reportedById().get(), validationInput.personId(), clause.id()));
     }

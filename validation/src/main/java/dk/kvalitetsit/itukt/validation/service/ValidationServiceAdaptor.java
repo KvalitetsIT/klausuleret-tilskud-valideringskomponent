@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
+import dk.kvalitetsit.itukt.common.model.Condition;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import org.openapitools.model.*;
 
@@ -72,7 +73,7 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                 existingDrugMedication);
     }
 
-    private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedication existing) {
-        return new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existing.getAtcCode(), existing.getFormCode(), existing.getRouteOfAdministrationCode());
+    private Condition.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedication existing) {
+        return new Condition.ExistingDrugMedication(existing.getAtcCode(), existing.getFormCode(), existing.getRouteOfAdministrationCode());
     }
 }

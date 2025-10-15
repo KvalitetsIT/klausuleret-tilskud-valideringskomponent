@@ -18,7 +18,7 @@ public class SkippedValidationServiceImpl implements SkippedValidationService {
 
     @Override
     public void createSkippedValidations(String actorId, String personId, List<Integer> skippedErrorCodes) {
-        List<Clause> clauses = skippedErrorCodes.stream()
+        List<Clause.Persisted> clauses = skippedErrorCodes.stream()
                 .flatMap(errorCode -> clauseService.getByErrorCode(errorCode).stream())
                 .toList();
         var skippedValidations = clauses.stream()

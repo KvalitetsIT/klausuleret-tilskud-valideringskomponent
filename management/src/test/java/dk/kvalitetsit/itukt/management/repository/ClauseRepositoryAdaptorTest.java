@@ -1,10 +1,9 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
+import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,38 +28,47 @@ public class ClauseRepositoryAdaptorTest {
     private ClauseRepositoryImpl concreteRepository;
 
     @Mock
-    private ClauseEntityModelMapper clauseEntityModelMapper;
+    private Mapper<ClauseEntity.Persisted, Clause.Persisted> persistedMapper;
+
+
+    @Mock
+    private Mapper<Clause.NotPersisted, ClauseEntity.NotPersisted> notPersistedMapper;
 
     @BeforeEach
     void setUp() {
         adaptor = new ClauseRepositoryAdaptor(
                 concreteRepository,
-                clauseEntityModelMapper
+                persistedMapper,
+                notPersistedMapper
         );
     }
 
     @Test
     void testCreate() {
-        var outputClause = Mockito.mock(Clause.class);
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
-        Mockito.when(concreteRepository.create(clauseForCreation)).thenReturn(clauseEntity);
-        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
+        var outputClause = Mockito.mock(Clause.Persisted.class);
+        var clauseEntity = Mockito.mock(ClauseEntity.Persisted.class);
 
-        var result = adaptor.create(clauseForCreation);
+        ClauseEntity.NotPersisted clauseForCreationEntity = Mockito.mock(ClauseEntity.NotPersisted.class);
+
+        Clause.NotPersisted clauseForCreationModel = Mockito.mock(Clause.NotPersisted.class);
+        Mockito.when(notPersistedMapper.map(Mockito.any(Clause.NotPersisted.class))).thenReturn(clauseForCreationEntity);
+        Mockito.when(persistedMapper.map(clauseEntity)).thenReturn(outputClause);
+        Mockito.when(concreteRepository.create(Mockito.any(ClauseEntity.NotPersisted.class))).thenReturn(clauseEntity);
+
+        var result = adaptor.create(clauseForCreationModel);
 
         assertEquals(outputClause, result);
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).create(clauseForCreation);
+        Mockito.verify(concreteRepository, Mockito.times(1)).create(clauseForCreationEntity);
     }
 
     @Test
     void testRead() {
         var uuid = UUID.randomUUID();
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
+        var clauseEntity = Mockito.mock(ClauseEntity.Persisted.class);
+        var clause = Mockito.mock(Clause.Persisted.class);
         Mockito.when(concreteRepository.read(uuid)).thenReturn(Optional.of(clauseEntity));
-        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+        Mockito.when(persistedMapper.map(clauseEntity)).thenReturn(clause);
 
         var result = adaptor.read(uuid);
 
@@ -70,12 +78,12 @@ public class ClauseRepositoryAdaptorTest {
     @Test
     void testReadAll() {
 
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
+        var clauseEntity = Mockito.mock(ClauseEntity.Persisted.class);
+        var clause = Mockito.mock(Clause.Persisted.class);
 
         Mockito.when(concreteRepository.readAll()).thenReturn(List.of(clauseEntity));
 
-        Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
+        Mockito.when(persistedMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
 
         var result = adaptor.readAll();
         assertEquals(List.of(clause), result);

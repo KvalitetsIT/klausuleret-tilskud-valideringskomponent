@@ -4,7 +4,6 @@ package dk.kvalitetsit.itukt.management.service;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,8 +25,8 @@ class ManagementServiceImplTest {
 
     @Test
     void testCreate() {
-        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
-        var clause = Mockito.mock(Clause.class);
+        var clauseForCreation = Mockito.mock(Clause.NotPersisted.class);
+        var clause = Mockito.mock(Clause.Persisted.class);
         Mockito.when(dao.create(clauseForCreation)).thenReturn(clause);
 
         var result = service.create(clauseForCreation);

@@ -1,91 +1,83 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.BinaryOperator;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
+import dk.kvalitetsit.itukt.common.repository.core.State;
 
-public sealed interface ExpressionEntity permits
-        ExpressionEntity.StringConditionEntity,
-        ExpressionEntity.NumberConditionEntity,
-        ExpressionEntity.BinaryExpressionEntity,
-        ExpressionEntity.ExistingDrugMedicationConditionEntity {
+public sealed interface ExpressionEntity extends State<ExpressionEntity> {
 
     ExpressionType type();
 
-    Long id();
+    sealed interface Persisted extends ExpressionEntity, State.Persisted<ExpressionEntity> {
 
-    ExpressionEntity withId(Long newId);
+        Long id();
 
-    record StringConditionEntity(Long id, Field field, String value)
-            implements ExpressionEntity {
-
-        public StringConditionEntity(Field field, String value) {
-            this(null, field, value);
+        record StringCondition(Long id, Field field, String value) implements ExpressionEntity.Persisted {
+            @Override
+            public ExpressionType type() {
+                return ExpressionType.STRING_CONDITION;
+            }
         }
 
-        @Override
-        public ExpressionType type() {
-            return ExpressionType.STRING_CONDITION;
+        record NumberCondition(Long id, Field field, Operator operator,
+                               int value) implements ExpressionEntity.Persisted {
+            @Override
+            public ExpressionType type() {
+                return ExpressionType.NUMBER_CONDITION;
+            }
         }
 
-        @Override
-        public StringConditionEntity withId(Long newId) {
-            return new StringConditionEntity(newId, field, value);
-        }
-    }
 
-    record NumberConditionEntity(Long id, Field field, Operator operator, int value)
-            implements ExpressionEntity {
-
-        public NumberConditionEntity(Field field, Operator operator, int value) {
-            this(null, field, operator, value);
+        record BinaryExpression(Long id, ExpressionEntity.Persisted left, BinaryOperator operator,
+                                ExpressionEntity.Persisted right) implements ExpressionEntity.Persisted {
+            @Override
+            public ExpressionType type() {
+                return ExpressionType.BINARY;
+            }
         }
 
-        @Override
-        public ExpressionType type() {
-            return ExpressionType.NUMBER_CONDITION;
-        }
 
-        @Override
-        public NumberConditionEntity withId(Long newId) {
-            return new NumberConditionEntity(newId, field, operator, value);
+        record ExistingDrugMedicationCondition(Long id, String atcCode, String formCode,
+                                               String routeOfAdministrationCode) implements ExpressionEntity.Persisted {
+            @Override
+            public ExpressionType type() {
+                return ExpressionType.EXISTING_DRUG_MEDICATION;
+            }
         }
     }
 
-    record BinaryExpressionEntity(Long id, ExpressionEntity left, BinaryExpression.Operator operator,
-                                  ExpressionEntity right)
-            implements ExpressionEntity {
-
-        public BinaryExpressionEntity(ExpressionEntity left, BinaryExpression.Operator operator, ExpressionEntity right) {
-            this(null, left, operator, right);
+    sealed interface NotPersisted extends ExpressionEntity, State.NotPersisted<ExpressionEntity> {
+        record StringConditionEntity(Field field, String value) implements ExpressionEntity.NotPersisted {
+            @Override
+            public ExpressionType type() {
+                return ExpressionType.STRING_CONDITION;
+            }
         }
 
-        @Override
-        public ExpressionType type() {
-            return ExpressionType.BINARY;
+        record NumberCondition(Field field, Operator operator, int value)
+                implements ExpressionEntity.NotPersisted {
+            @Override
+            public ExpressionType type() {
+                return ExpressionType.NUMBER_CONDITION;
+            }
         }
 
-        @Override
-        public BinaryExpressionEntity withId(Long newId) {
-            return new BinaryExpressionEntity(newId, left, operator, right);
+        record BinaryExpression(ExpressionEntity.NotPersisted left, BinaryOperator operator,
+                                ExpressionEntity.NotPersisted right) implements ExpressionEntity.NotPersisted {
+            @Override
+            public ExpressionType type() {
+                return ExpressionType.BINARY;
+            }
+        }
+
+        record ExistingDrugMedicationCondition(String atcCode, String formCode, String routeOfAdministrationCode)
+                implements ExpressionEntity.NotPersisted {
+            @Override
+            public ExpressionType type() {
+                return ExpressionType.EXISTING_DRUG_MEDICATION;
+            }
         }
     }
-
-    record ExistingDrugMedicationConditionEntity(Long id, String atcCode, String formCode, String routeOfAdministrationCode)
-            implements ExpressionEntity {
-
-        @Override
-        public ExpressionType type() {
-            return ExpressionType.EXISTING_DRUG_MEDICATION;
-        }
-
-        @Override
-        public ExistingDrugMedicationConditionEntity withId(Long newId) {
-            return new ExistingDrugMedicationConditionEntity(newId, atcCode, formCode, routeOfAdministrationCode);
-        }
-    }
-
 }
-
-
 

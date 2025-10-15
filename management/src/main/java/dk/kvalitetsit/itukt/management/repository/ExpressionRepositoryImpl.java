@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.BinaryOperator;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
@@ -16,22 +16,29 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 
 public class ExpressionRepositoryImpl implements ExpressionRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpressionRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
-    private final DataClassRowMapper<ExpressionEntity.ExistingDrugMedicationConditionEntity> existingDrugMedicationRowMapper;
+    private final DataClassRowMapper<ExpressionEntity.Persisted.ExistingDrugMedicationCondition> existingDrugMedicationRowMapper;
 
     public ExpressionRepositoryImpl(DataSource dataSource) {
         this.template = new NamedParameterJdbcTemplate(dataSource);
-        existingDrugMedicationRowMapper = new DataClassRowMapper<>(ExpressionEntity.ExistingDrugMedicationConditionEntity.class);
+        existingDrugMedicationRowMapper = new DataClassRowMapper<>(ExpressionEntity.Persisted.ExistingDrugMedicationCondition.class);
     }
 
     @Override
-    public Optional<ExpressionEntity> read(Long id) throws ServiceException {
+    public List<ExpressionEntity.Persisted> readAll() throws ServiceException {
+        return List.of();
+    }
+
+    @Override
+    public Optional<ExpressionEntity.Persisted> read(Long id) throws ServiceException {
         try {
             String sql = "SELECT type FROM expression WHERE id = :id";
             ExpressionType type = template.queryForObject(sql, Map.of("id", id), ExpressionType.class);
@@ -50,7 +57,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
     }
 
     @Override
-    public ExpressionEntity create(ExpressionEntity expression) throws ServiceException {
+    public ExpressionEntity.Persisted create(ExpressionEntity.NotPersisted expression) throws ServiceException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         template.update(
@@ -64,73 +71,74 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
                 .orElseThrow(() -> new ServiceException("Failed to get expression primary key"))
                 .longValue();
 
-        return switch (expression.withId(expressionId)) {
-            case ExpressionEntity.StringConditionEntity e -> insertStringCondition(e);
-            case ExpressionEntity.NumberConditionEntity e -> insertNumberCondition(e);
-            case ExpressionEntity.BinaryExpressionEntity e -> insertBinary(e);
-            case ExpressionEntity.ExistingDrugMedicationConditionEntity e -> insertExistingDrugMedication(e);
+        return switch (expression) {
+            case ExpressionEntity.NotPersisted.StringConditionEntity e -> insertStringCondition(expressionId, e);
+            case ExpressionEntity.NotPersisted.NumberCondition e -> insertNumberCondition(expressionId, e);
+            case ExpressionEntity.NotPersisted.BinaryExpression e -> insertBinary(expressionId, e);
+            case ExpressionEntity.NotPersisted.ExistingDrugMedicationCondition e ->
+                    insertExistingDrugMedication(expressionId, e);
         };
     }
 
-
-    private ExpressionEntity.StringConditionEntity insertStringCondition(ExpressionEntity.StringConditionEntity condition) {
+    private ExpressionEntity.Persisted.StringCondition insertStringCondition(Long expressionId, ExpressionEntity.NotPersisted.StringConditionEntity condition) {
         template.update(
                 "INSERT INTO string_condition_expression(expression_id, field, value) VALUES (:expression_id, :field, :value)",
                 Map.of(
-                        "expression_id", condition.id(),
+                        "expression_id", expressionId,
                         "field", condition.field().name(),
                         "value", condition.value()
                 ));
-        return condition;
+        return new ExpressionEntity.Persisted.StringCondition(expressionId, condition.field(), condition.value());
     }
 
-    private ExpressionEntity.NumberConditionEntity insertNumberCondition(ExpressionEntity.NumberConditionEntity condition) {
+    private ExpressionEntity.Persisted.NumberCondition insertNumberCondition(Long expressionId, ExpressionEntity.NotPersisted.NumberCondition condition) {
         template.update(
                 "INSERT INTO number_condition_expression(expression_id, field, operator, value) VALUES (:expression_id, :field, :operator, :value)",
                 Map.of(
-                        "expression_id", condition.id(),
+                        "expression_id", expressionId,
                         "field", condition.field().name(),
                         "operator", condition.operator().getValue(),
                         "value", condition.value()
                 ));
-        return condition;
+
+        return new ExpressionEntity.Persisted.NumberCondition(expressionId, condition.field(), condition.operator(), condition.value());
     }
 
-    private ExpressionEntity.ExistingDrugMedicationConditionEntity insertExistingDrugMedication(ExpressionEntity.ExistingDrugMedicationConditionEntity existingDrugMedication) {
+    private ExpressionEntity.Persisted.ExistingDrugMedicationCondition insertExistingDrugMedication(Long expressionId, ExpressionEntity.NotPersisted.ExistingDrugMedicationCondition existingDrugMedication) {
         template.update(
                 "INSERT INTO existing_drug_medication_condition_expression(expression_id, atc_code, form_code, route_of_administration_code) VALUES (:expression_id, :atc_code, :form_code, :route_of_administration_code)",
                 Map.of(
-                        "expression_id", existingDrugMedication.id(),
+                        "expression_id", expressionId,
                         "atc_code", existingDrugMedication.atcCode(),
                         "form_code", existingDrugMedication.formCode(),
                         "route_of_administration_code", existingDrugMedication.routeOfAdministrationCode()
                 ));
-        return existingDrugMedication;
+        return new ExpressionEntity.Persisted.ExistingDrugMedicationCondition(expressionId, existingDrugMedication.atcCode(), existingDrugMedication.formCode(), existingDrugMedication.routeOfAdministrationCode());
     }
 
-    private ExpressionEntity insertBinary(ExpressionEntity.BinaryExpressionEntity binary) {
-        ExpressionEntity left = create(binary.left());
-        ExpressionEntity right = create(binary.right());
+    private ExpressionEntity.Persisted.BinaryExpression insertBinary(Long expressionId, ExpressionEntity.NotPersisted.BinaryExpression binary) {
+        ExpressionEntity.Persisted left = create(binary.left());
+        ExpressionEntity.Persisted right = create(binary.right());
 
         template.update(
                 "INSERT INTO binary_expression(expression_id, left_id, operator, right_id) VALUES (:expression_id, :left_id, :operator, :right_id)",
                 Map.of(
-                        "expression_id", binary.id(),
+                        "expression_id", expressionId,
                         "left_id", left.id(),
                         "operator", binary.operator().toString(),
                         "right_id", right.id()
                 )
         );
-        return new ExpressionEntity.BinaryExpressionEntity(binary.id(), left, binary.operator(), right);
+        return new ExpressionEntity.Persisted.BinaryExpression(expressionId, left, binary.operator(), right);
     }
 
 
-    private Optional<ExpressionEntity> readStringCondition(long id) {
+    private Optional<ExpressionEntity.Persisted> readStringCondition(long id) {
         try {
-            ExpressionEntity.StringConditionEntity result = template.queryForObject(
+            ExpressionEntity.Persisted.StringCondition result = template.queryForObject(
                     "SELECT field, value FROM string_condition_expression WHERE expression_id = :id",
                     Map.of("id", id),
-                    (rs, rowNum) -> new ExpressionEntity.StringConditionEntity(
+                    (rs, rowNum) -> new ExpressionEntity.Persisted.StringCondition(
                             id,
                             Field.valueOf(rs.getString("field")),
                             rs.getString("value"))
@@ -142,12 +150,12 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
         }
     }
 
-    private Optional<ExpressionEntity> readNumberCondition(long id) {
+    private Optional<ExpressionEntity.Persisted> readNumberCondition(long id) {
         try {
             var result = template.queryForObject(
                     "SELECT field, operator, value FROM number_condition_expression WHERE expression_id = :id",
                     Map.of("id", id),
-                    (rs, rowNum) -> new ExpressionEntity.NumberConditionEntity(
+                    (rs, rowNum) -> new ExpressionEntity.Persisted.NumberCondition(
                             id,
                             Field.valueOf(rs.getString("field")),
                             Operator.fromValue(rs.getString("operator")),
@@ -159,7 +167,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
         }
     }
 
-    private Optional<ExpressionEntity> readExistingDrugMedicationCondition(long id) {
+    private Optional<ExpressionEntity.Persisted> readExistingDrugMedicationCondition(long id) {
         try {
             var result = template.queryForObject(
                     "SELECT expression_id as id, atc_code, form_code, route_of_administration_code FROM existing_drug_medication_condition_expression WHERE expression_id = :id",
@@ -174,15 +182,15 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
         }
     }
 
-    private Optional<ExpressionEntity> readBinary(Long id) {
+    private Optional<ExpressionEntity.Persisted> readBinary(Long id) {
         try {
             var result = template.queryForObject(
                     "SELECT left_id, operator, right_id FROM binary_expression WHERE expression_id = :id",
                     Map.of("id", id),
-                    (rs, rowNum) -> new ExpressionEntity.BinaryExpressionEntity(
+                    (rs, rowNum) -> new ExpressionEntity.Persisted.BinaryExpression(
                             id,
                             read(rs.getLong("left_id")).orElseThrow(),
-                            BinaryExpression.Operator.valueOf(rs.getString("operator")),
+                            BinaryOperator.valueOf(rs.getString("operator")),
                             read(rs.getLong("right_id")).orElseThrow()
                     )
             );
@@ -192,8 +200,6 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
             return Optional.empty();
         }
     }
-
-
 
 
 }

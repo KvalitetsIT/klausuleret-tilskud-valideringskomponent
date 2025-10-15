@@ -10,7 +10,7 @@ class IndicationConditionExpressionTest {
 
     @Test
     void matches_WhenValueIsNull_ReturnsFalse() {
-        var stringCondition = new IndicationConditionExpression("testValue");
+        var stringCondition = new Expression.NotPersisted.Condition(new Condition.Indication("testValue"));
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.indicationCode()).thenReturn(null);
 
@@ -21,7 +21,7 @@ class IndicationConditionExpressionTest {
 
     @Test
     void matches_WhenValueIsDifferentThanRequired_ReturnsFalse() {
-        var stringCondition = new IndicationConditionExpression("testValue");
+        var stringCondition = new Expression.NotPersisted.Condition(new Condition.Indication("testValue"));
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.indicationCode()).thenReturn("different value");
 
@@ -32,7 +32,7 @@ class IndicationConditionExpressionTest {
 
     @Test
     void matches_WhenValueIsEqualToRequired_ReturnsTrue() {
-        var stringCondition = new IndicationConditionExpression("testValue");
+        var stringCondition = new Expression.NotPersisted.Condition(new Condition.Indication("testValue"));
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.indicationCode()).thenReturn("testValue");
 

@@ -4,7 +4,6 @@ package dk.kvalitetsit.itukt.management.repository;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -29,12 +28,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity create(ClauseForCreation clause) throws ServiceException {
+    public ClauseEntity.Persisted create(ClauseEntity.NotPersisted clause) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
+            ExpressionEntity.Persisted createdExpression = expressionRepository.create(clause.expression());
 
             template.update(
                     "INSERT INTO clause (uuid, name, expression_id, error_message) VALUES (:uuid, :name, :expression_id, :error_message)",
@@ -53,7 +52,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             int errorCode = createErrorCode(clause.name());
 
-            return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression);
+            return new ClauseEntity.Persisted(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression);
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
@@ -83,8 +82,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         return next;
     }
 
+
     @Override
-    public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
+    public Optional<ClauseEntity.Persisted> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
                         SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message
@@ -100,7 +100,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         long expressionId = rs.getLong("expression_id");
                         var expression = expressionRepository.read(expressionId).orElseThrow(() -> new ServiceException(String.format("Expected to find an expression with id '%s', but nothing was found", expressionId)));
 
-                        return new ClauseEntity(
+                        return new ClauseEntity.Persisted(
                                 rs.getLong("id"),
                                 uuid,
                                 rs.getString("name"),
@@ -120,9 +120,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         }
     }
 
-
     @Override
-    public List<ClauseEntity> readAll() throws ServiceException {
+    public List<ClauseEntity.Persisted> readAll() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid

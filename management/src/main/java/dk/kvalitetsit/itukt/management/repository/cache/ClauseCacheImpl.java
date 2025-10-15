@@ -15,8 +15,8 @@ public class ClauseCacheImpl implements ClauseCache, CacheLoader {
 
     private final CacheConfiguration configuration;
     private final ClauseRepository clauseRepository;
-    private Map<String, ClauseEntity> nameToClauseMap = new HashMap<>();
-    private Map<Integer, ClauseEntity> errorCodeToClauseMap = new HashMap<>();
+    private Map<String, ClauseEntity.Persisted> nameToClauseMap = new HashMap<>();
+    private Map<Integer, ClauseEntity.Persisted> errorCodeToClauseMap = new HashMap<>();
 
     public ClauseCacheImpl(CacheConfiguration configuration, ClauseRepository clauseRepository) {
         this.configuration = configuration;
@@ -24,12 +24,12 @@ public class ClauseCacheImpl implements ClauseCache, CacheLoader {
     }
 
     @Override
-    public Optional<ClauseEntity> get(String name) {
+    public Optional<ClauseEntity.Persisted> get(String name) {
         return Optional.ofNullable(nameToClauseMap.get(name));
     }
 
     @Override
-    public Optional<ClauseEntity> getByErrorCode(Integer errorCode) {
+    public Optional<ClauseEntity.Persisted> getByErrorCode(Integer errorCode) {
         return Optional.ofNullable(errorCodeToClauseMap.get(errorCode));
     }
 
@@ -42,6 +42,6 @@ public class ClauseCacheImpl implements ClauseCache, CacheLoader {
     public void load() {
         var clauses = clauseRepository.readAll();
         nameToClauseMap = clauses.stream().collect(Collectors.toMap(ClauseEntity::name, Function.identity()));
-        errorCodeToClauseMap = clauses.stream().collect(Collectors.toMap(ClauseEntity::errorCode, Function.identity()));
+        errorCodeToClauseMap = clauses.stream().collect(Collectors.toMap(ClauseEntity.Persisted::errorCode, Function.identity()));
     }
 }

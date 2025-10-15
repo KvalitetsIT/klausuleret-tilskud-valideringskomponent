@@ -1,10 +1,8 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.MockFactory;
-import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,10 +22,10 @@ class ClauseModelDslMapperTest {
     private ClauseModelDslMapper mapper;
 
     @Mock
-    private Mapper<Expression, String> expressionModelDslMapper;
+    private Mapper<Expression.Persisted, String> expressionModelDslMapper;
 
     @Mock
-    private Mapper<Clause.Error, Error> errorMapper;
+    private Mapper<dk.kvalitetsit.itukt.common.model.Error, Error> errorMapper;
 
     @BeforeEach
     void setup() {

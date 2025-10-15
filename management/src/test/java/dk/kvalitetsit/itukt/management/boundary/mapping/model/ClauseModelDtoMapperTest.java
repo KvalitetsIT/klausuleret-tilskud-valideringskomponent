@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import org.junit.jupiter.api.Assertions;
@@ -22,10 +21,10 @@ class ClauseModelDtoMapperTest {
     private ClauseModelDtoMapper mapper;
 
     @Mock
-    private Mapper<Expression, org.openapitools.model.Expression> expressionMapper;
+    private Mapper<Expression.Persisted, org.openapitools.model.Expression> expressionMapper;
 
     @Mock
-    private Mapper<Clause.Error, Error> errorMapper;
+    private Mapper<dk.kvalitetsit.itukt.common.model.Error, Error> errorMapper;
 
     @BeforeEach
     void setup() {

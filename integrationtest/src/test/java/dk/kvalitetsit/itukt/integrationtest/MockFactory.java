@@ -1,12 +1,9 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.common.model.Error;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
-import org.openapitools.client.model.BinaryOperator;
 import org.openapitools.client.model.ClauseInput;
 import org.openapitools.client.model.ClauseOutput;
 import org.openapitools.client.model.DslInput;
@@ -21,83 +18,153 @@ public class MockFactory {
     public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput()
             .dsl("Klausul CHOL: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)")
             .error(new org.openapitools.client.model.Error().message("message"));
-    private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Field.INDICATION, "C10BA03");
-    private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Field.INDICATION, "C10BA02");
-    private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, Field.INDICATION, "C10BA05");
-    private static final BinaryExpressionEntity EXPRESSION_5_ENTITY = new BinaryExpressionEntity(EXPRESSION_3_ENTITY, BinaryExpression.Operator.OR, EXPRESSION_4_ENTITY);
-    private static final NumberConditionEntity EXPRESSION_6_ENTITY = new NumberConditionEntity(6L, Field.AGE, GREATER_THAN_OR_EQUAL_TO, 13);
-    private static final BinaryExpressionEntity EXPRESSION_7_ENTITY = new BinaryExpressionEntity(
-            5L,
-            EXPRESSION_5_ENTITY,
-            BinaryExpression.Operator.AND,
-            EXPRESSION_6_ENTITY
-    );
-    public static final ExpressionEntity EXPRESSION_1_ENTITY = new BinaryExpressionEntity(
-            1L,
-            EXPRESSION_2_ENTITY,
-            BinaryExpression.Operator.OR,
-            EXPRESSION_7_ENTITY
-    );
+
+    public static final ExpressionEntity.Persisted.BinaryExpression EXPRESSION_1_ENTITY =
+            new ExpressionEntity.Persisted.BinaryExpression(
+                    1L,
+                    new ExpressionEntity.Persisted.StringCondition(2L, Field.INDICATION, "C10BA03"),
+                    BinaryOperator.OR,
+                    new ExpressionEntity.Persisted.BinaryExpression(
+                            5L,
+                            new ExpressionEntity.Persisted.BinaryExpression(
+                                    5L,
+                                    new ExpressionEntity.Persisted.StringCondition(3L, Field.INDICATION, "C10BA02"),
+                                    BinaryOperator.OR,
+                                    new ExpressionEntity.Persisted.StringCondition(4L, Field.INDICATION, "C10BA05")
+                            ),
+                            BinaryOperator.AND,
+                            new ExpressionEntity.Persisted.NumberCondition(6L, Field.AGE, GREATER_THAN_OR_EQUAL_TO, 13)
+                    )
+            );
+
+    public static final ExpressionEntity.NotPersisted EXPRESSION_1_ENTITY_NP =
+            new ExpressionEntity.NotPersisted.BinaryExpression(
+                    new ExpressionEntity.NotPersisted.StringConditionEntity(Field.INDICATION, "C10BA03"),
+                    BinaryOperator.OR,
+                    new ExpressionEntity.NotPersisted.BinaryExpression(
+                            new ExpressionEntity.NotPersisted.BinaryExpression(
+                                    new ExpressionEntity.NotPersisted.StringConditionEntity(Field.INDICATION, "C10BA02"),
+                                    BinaryOperator.OR,
+                                    new ExpressionEntity.NotPersisted.StringConditionEntity(Field.INDICATION, "C10BA05")
+                            ),
+                            BinaryOperator.AND,
+                            new ExpressionEntity.NotPersisted.NumberCondition(Field.AGE, GREATER_THAN_OR_EQUAL_TO, 13)
+                    )
+            );
+
+
     // Note: This clause(clause_1_entity) matches: clause_1_dsl
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", 0, "message", EXPRESSION_1_ENTITY);
-    private static final AgeConditionExpression EXPRESSION_6_MODEL = new AgeConditionExpression(
-            EXPRESSION_6_ENTITY.operator(),
-            EXPRESSION_6_ENTITY.value()
+    public static final ClauseEntity.Persisted CLAUSE_1_ENTITY = new ClauseEntity.Persisted(
+            1L,
+            UUID.fromString("00000000-0000-0000-0000-000000000000"),
+            "CHOL",
+            0,
+            "message",
+            EXPRESSION_1_ENTITY
     );
-    private static final org.openapitools.client.model.AgeCondition EXPRESSION_6_DTO = new org.openapitools.client.model.AgeCondition().type("AgeCondition")
-            .operator(org.openapitools.client.model.Operator.GREATER_THAN_OR_EQUAL_TO)
-            .value(EXPRESSION_6_MODEL.value());
-    private static final IndicationConditionExpression EXPRESSION_3_MODEL = new IndicationConditionExpression(
-            EXPRESSION_3_ENTITY.value());
-    private static final org.openapitools.client.model.IndicationCondition EXPRESSION_3_DTO = new org.openapitools.client.model.IndicationCondition().type("IndicationCondition")
-            .value((EXPRESSION_3_MODEL.requiredValue()));
-    private static final IndicationConditionExpression EXPRESSION_4_MODEL = new IndicationConditionExpression(
-            EXPRESSION_4_ENTITY.value());
-    private static final BinaryExpression EXPRESSION_5_MODEL = new BinaryExpression(
-            EXPRESSION_3_MODEL,
-            EXPRESSION_5_ENTITY.operator(),
-            EXPRESSION_4_MODEL);
-    private static final org.openapitools.client.model.IndicationCondition EXPRESSION_4_DTO = new org.openapitools.client.model.IndicationCondition().type("IndicationCondition")
-            .value(EXPRESSION_4_MODEL.requiredValue());
-    private static final org.openapitools.client.model.BinaryExpression EXPRESSION_5_DTO = new org.openapitools.client.model.BinaryExpression()
-            .type("BinaryExpression")
-            .left(EXPRESSION_3_DTO)
-            .operator(org.openapitools.client.model.BinaryOperator.fromValue(EXPRESSION_5_MODEL.operator().name()))
-            .right(EXPRESSION_4_DTO);
-    private static final IndicationConditionExpression EXPRESSION_2_MODEL = new IndicationConditionExpression(
-            EXPRESSION_2_ENTITY.value()
-    );
-    private static final BinaryExpression EXPRESSION_1_MODEL = new BinaryExpression(
-            EXPRESSION_2_MODEL,
-            BinaryExpression.Operator.OR,
-            new BinaryExpression(
-                    EXPRESSION_5_MODEL,
-                    BinaryExpression.Operator.AND,
-                    EXPRESSION_6_MODEL
+
+    public static final Clause.Persisted CLAUSE_1_MODEL = new Clause.Persisted(
+            1L,
+            CLAUSE_1_ENTITY.uuid(),
+            CLAUSE_1_ENTITY.name(),
+            new Error("message", 10800),
+            new Expression.Persisted.Binary(
+                    EXPRESSION_1_ENTITY.id(),
+                    new Expression.Persisted.Condition(
+                            2L,
+                            new Condition.Indication("C10BA03")
+                    ),
+                    BinaryOperator.OR,
+                    new Expression.Persisted.Binary(
+                            8L,
+                            new Expression.Persisted.Binary(
+                                    5L,
+                                    new Expression.Persisted.Condition(
+                                            3L,
+                                            new Condition.Indication("C10BA02")
+                                    ),
+                                    BinaryOperator.OR,
+                                    new Expression.Persisted.Condition(
+                                            4L,
+                                            new Condition.Indication("C10BA05")
+                                    )
+                            ),
+                            BinaryOperator.AND,
+                            new Expression.Persisted.Condition(
+                                    6L,
+                                    new Condition.Age(GREATER_THAN_OR_EQUAL_TO, 13)
+                            )
+                    )
             )
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
-    private static final org.openapitools.client.model.IndicationCondition EXPRESSION_2_DTO = new org.openapitools.client.model.IndicationCondition()
-            .type("IndicationCondition")
-            .value((EXPRESSION_2_MODEL.requiredValue()));
-    private static final org.openapitools.client.model.Expression EXPRESSION_1_DTO = new org.openapitools.client.model.BinaryExpression()
-            .type("BinaryExpression")
-            .operator(org.openapitools.client.model.BinaryOperator.OR)
-            .left(EXPRESSION_2_DTO)
-            .right(new org.openapitools.client.model.BinaryExpression()
-                    .type("BinaryExpression")
-                    .left(EXPRESSION_5_DTO)
-                    .operator(org.openapitools.client.model.BinaryOperator.AND)
-                    .right(EXPRESSION_6_DTO)
-            );
+
     public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput()
             .name("CHOL")
-            .expression(EXPRESSION_1_DTO)
-            .uuid(CLAUSE_1_MODEL.uuid()).error(new org.openapitools.client.model.Error().message("message"));
+            .expression(
+                    new org.openapitools.client.model.BinaryExpression()
+                            .type("BinaryExpression")
+                            .operator(org.openapitools.client.model.BinaryOperator.OR)
+                            .left(new org.openapitools.client.model.IndicationCondition()
+                                    .type("IndicationCondition")
+                                    .value("C10BA03")
+                            )
+                            .right(
+                                    new org.openapitools.client.model.BinaryExpression()
+                                            .type("BinaryExpression")
+                                            .operator(org.openapitools.client.model.BinaryOperator.AND)
+                                            .left(
+                                                    new org.openapitools.client.model.BinaryExpression()
+                                                            .type("BinaryExpression")
+                                                            .operator(org.openapitools.client.model.BinaryOperator.OR)
+                                                            .left(new org.openapitools.client.model.IndicationCondition()
+                                                                    .type("IndicationCondition")
+                                                                    .value("C10BA02"))
+                                                            .right(new org.openapitools.client.model.IndicationCondition()
+                                                                    .type("IndicationCondition")
+                                                                    .value("C10BA05"))
+                                            )
+                                            .right(new org.openapitools.client.model.AgeCondition()
+                                                    .type("AgeCondition")
+                                                    .operator(org.openapitools.client.model.Operator.GREATER_THAN_OR_EQUAL_TO)
+                                                    .value(13)
+                                            )
+                            )
+            )
+            .uuid(CLAUSE_1_MODEL.uuid())
+            .error(new org.openapitools.client.model.Error().message("message"));
 
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")
-            .expression(EXPRESSION_1_DTO)
+            .expression(
+                    new org.openapitools.client.model.BinaryExpression()
+                            .type("BinaryExpression")
+                            .operator(org.openapitools.client.model.BinaryOperator.OR)
+                            .left(new org.openapitools.client.model.IndicationCondition()
+                                    .type("IndicationCondition")
+                                    .value("C10BA03")
+                            )
+                            .right(
+                                    new org.openapitools.client.model.BinaryExpression()
+                                            .type("BinaryExpression")
+                                            .operator(org.openapitools.client.model.BinaryOperator.AND)
+                                            .left(
+                                                    new org.openapitools.client.model.BinaryExpression()
+                                                            .type("BinaryExpression")
+                                                            .operator(org.openapitools.client.model.BinaryOperator.OR)
+                                                            .left(new org.openapitools.client.model.IndicationCondition()
+                                                                    .type("IndicationCondition")
+                                                                    .value("C10BA02"))
+                                                            .right(new org.openapitools.client.model.IndicationCondition()
+                                                                    .type("IndicationCondition")
+                                                                    .value("C10BA05"))
+                                            )
+                                            .right(new org.openapitools.client.model.AgeCondition()
+                                                    .type("AgeCondition")
+                                                    .operator(org.openapitools.client.model.Operator.GREATER_THAN_OR_EQUAL_TO)
+                                                    .value(13)
+                                            )
+                            )
+            )
             .error(new org.openapitools.client.model.Error().message("message"));
 
     public static org.openapitools.client.model.ExistingDrugMedicationCondition createExistingDrugMedicationCondition(
@@ -119,9 +186,9 @@ public class MockFactory {
         return new org.openapitools.client.model.BinaryExpression()
                 .type("BinaryExpression")
                 .left(left)
-                .operator(BinaryOperator.AND)
+                .operator(org.openapitools.client.model.BinaryOperator.AND)
                 .right(right);
     }
-
 }
+
 

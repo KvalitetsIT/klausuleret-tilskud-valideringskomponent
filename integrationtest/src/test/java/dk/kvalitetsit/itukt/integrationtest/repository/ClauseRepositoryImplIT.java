@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.BinaryOperator;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
@@ -11,14 +11,12 @@ import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,19 +33,20 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void testReadAll() {
-        var clause1 = new ClauseForCreation("clause1", MockFactory.EXPRESSION_1_ENTITY, "message");
-        var clause2 = new ClauseForCreation("clause2", MockFactory.EXPRESSION_1_ENTITY, "message");
+        ClauseEntity.NotPersisted clause1 = new ClauseEntity.NotPersisted("clause1", MockFactory.EXPRESSION_1_ENTITY_NP, "message");
+        ClauseEntity.NotPersisted clause2 = new ClauseEntity.NotPersisted("clause2", MockFactory.EXPRESSION_1_ENTITY_NP, "message");
 
-        var clauses = List.of(clause1, clause2);
+        List<ClauseEntity.NotPersisted> clauses = List.of(clause1, clause2);
 
-        var written = clauses.stream().map(repository::create).toList();
+        var written = clauses.stream().map(x -> repository.create(x)).toList();
+
         var read = this.repository.readAll();
         assertEquals(clauses.size(), read.size());
         for (int i = 0; i < written.size(); i++) {
 
             var clauseForCreation = clauses.get(i);
 
-            var writtenClause = written.get(i);
+            ClauseEntity.Persisted writtenClause = written.get(i);
             var readClause = read.get(i);
 
             assertNotNull(writtenClause.id(), "An id is expected to be assigned by the database when writing a clause");
@@ -74,7 +73,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 ServiceException.class,
                 () -> IntStream.rangeClosed(10800, 11000)
                         .parallel()
-                        .mapToObj((i) -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
+                        .mapToObj((i) -> new ClauseEntity.NotPersisted("clause" + i, MockFactory.EXPRESSION_1_ENTITY_NP, "message"))
                         .forEach(repository::create),
                 "An error is expected since only 199 clauses should be creatable as the limit of error code would be exceeded otherwise"
         );
@@ -89,7 +88,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         var written = IntStream.range(OFFSET, OFFSET + LIMIT)
                 .parallel()
-                .mapToObj((i) -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
+                .mapToObj((i) -> new ClauseEntity.NotPersisted("clause" + i, MockFactory.EXPRESSION_1_ENTITY_NP, "message"))
                 .map(repository::create).toList();
 
         Assertions.assertEquals(LIMIT, written.size(), LIMIT + " written clauses is expected since FMK only allocates error codes from " + LIMIT + " - " + (OFFSET + LIMIT - 1));
@@ -98,7 +97,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         Assertions.assertEquals(LIMIT, read.size(), LIMIT + " clauses is expected to be read since this amount was written");
 
         Assertions.assertEquals(
-                written.stream().sorted(Comparator.comparing(ClauseEntity::id)).toList(),
+                written.stream().sorted(Comparator.comparing(ClauseEntity.Persisted::id)).toList(),
                 read,
                 "Clauses read is expected to be the same as written clauses"
         );
@@ -111,12 +110,12 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         Assertions.assertDoesNotThrow(() -> IntStream.range(OFFSET, OFFSET + LIMIT)
                 .parallel()
-                .mapToObj(i -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "blah"))
+                .mapToObj(i -> new ClauseEntity.NotPersisted("clause" + i, MockFactory.EXPRESSION_1_ENTITY_NP, "blah"))
                 .forEach(repository::create));
 
         var err = Assertions.assertThrows(
                 ServiceException.class,
-                () -> repository.create(new ClauseForCreation("clause" + 200, MockFactory.EXPRESSION_1_ENTITY, "blah"))
+                () -> repository.create(new ClauseEntity.NotPersisted("clause" + 200, MockFactory.EXPRESSION_1_ENTITY_NP, "blah"))
         );
 
         Assertions.assertEquals("Failed to create clause", err.getMessage());
@@ -124,8 +123,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void getTwoClauseWithSameName() {
-        var clauseA = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "blah");
-        var clauseB = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "blah");
+        var clauseA = new ClauseEntity.NotPersisted("blaah", new ExpressionEntity.NotPersisted.StringConditionEntity(Field.INDICATION, "blah"), "blah");
+        var clauseB = new ClauseEntity.NotPersisted("blaah", new ExpressionEntity.NotPersisted.StringConditionEntity(Field.INDICATION, "blah"), "blah");
 
         repository.create(clauseA);
 
@@ -136,21 +135,21 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void givenADeepClause_whenCreateAndRead_thenAssertEqual() {
 
-        var deepClause = new ClauseForCreation("ClauseName", new ExpressionEntity.BinaryExpressionEntity(
-                new ExpressionEntity.BinaryExpressionEntity(
-                        new ExpressionEntity.BinaryExpressionEntity(
-                                new ExpressionEntity.StringConditionEntity(Field.AGE, "whatEver"),
-                                BinaryExpression.Operator.OR,
-                                new ExpressionEntity.NumberConditionEntity(Field.INDICATION, Operator.EQUAL, 20)
+        var deepClause = new ClauseEntity.NotPersisted("ClauseName", new ExpressionEntity.NotPersisted.BinaryExpression(
+                new ExpressionEntity.NotPersisted.BinaryExpression(
+                        new ExpressionEntity.NotPersisted.BinaryExpression(
+                                new ExpressionEntity.NotPersisted.StringConditionEntity(Field.AGE, "whatEver"),
+                                BinaryOperator.OR,
+                                new ExpressionEntity.NotPersisted.NumberCondition(Field.INDICATION, Operator.EQUAL, 20)
                         ),
-                        BinaryExpression.Operator.OR,
-                        new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "atcCode", "formCode", "routeOfAdministration")
+                        BinaryOperator.OR,
+                        new ExpressionEntity.NotPersisted.ExistingDrugMedicationCondition( "atcCode", "formCode", "routeOfAdministration")
                 ),
-                BinaryExpression.Operator.AND,
-                new ExpressionEntity.BinaryExpressionEntity(
-                        new ExpressionEntity.StringConditionEntity(Field.INDICATION, "whatEver"),
-                        BinaryExpression.Operator.AND,
-                        new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 20)
+                BinaryOperator.AND,
+                new ExpressionEntity.NotPersisted.BinaryExpression(
+                        new ExpressionEntity.NotPersisted.StringConditionEntity(Field.INDICATION, "whatEver"),
+                        BinaryOperator.AND,
+                        new ExpressionEntity.NotPersisted.NumberCondition(Field.AGE, Operator.GREATER_THAN, 20)
                 )
         ), "message");
 
@@ -170,14 +169,22 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void testCreateAndReadExistingDrugMedicationCondition() {
-        var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
-        var clauseForCreation = new ClauseForCreation("CLAUSE", existingDrugMedicationCondition, "message");
+        var existingDrugMedicationCondition = new ExpressionEntity.NotPersisted.ExistingDrugMedicationCondition("ATC", "form", "adm");
+        var clauseForCreation = new ClauseEntity.NotPersisted("CLAUSE", existingDrugMedicationCondition, "message");
 
-        UUID clauseUuid = repository.create(clauseForCreation).uuid();
-        var readClause = repository.read(clauseUuid);
+        var createdClause = repository.create(clauseForCreation);
+        var readClause = repository.read(createdClause.uuid());
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
-        var expectedClause = new ClauseEntity(null, null, "CLAUSE", null, "message", existingDrugMedicationCondition);
+        var expectedExpression = new ExpressionEntity.Persisted.ExistingDrugMedicationCondition(
+                null,
+                existingDrugMedicationCondition.atcCode(),
+                existingDrugMedicationCondition.formCode(),
+                existingDrugMedicationCondition.routeOfAdministrationCode()
+        );
+
+        var expectedClause = new ClauseEntity.Persisted(null, null, "CLAUSE", null, "message", expectedExpression);
+
         assertThat(readClause.get())
                 .usingRecursiveComparison()
                 .ignoringFields("id", "uuid", "errorCode", "expression.id")

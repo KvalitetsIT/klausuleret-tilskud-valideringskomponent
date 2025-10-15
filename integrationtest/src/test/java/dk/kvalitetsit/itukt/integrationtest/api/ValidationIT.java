@@ -1,12 +1,12 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.BinaryOperator;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
@@ -15,7 +15,8 @@ import org.openapitools.client.model.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import static dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND;
+
+import static dk.kvalitetsit.itukt.common.model.BinaryOperator.AND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
@@ -29,18 +30,18 @@ public class ValidationIT extends BaseTest {
     @Override
     protected void load(ClauseRepository repository) {
         // Hardcoded clause for phase 1
-        var ageAndIndication = new ExpressionEntity.BinaryExpressionEntity(
-                new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 50),
+        var ageAndIndication = new ExpressionEntity.NotPersisted.BinaryExpression(
+                new ExpressionEntity.NotPersisted.NumberCondition(Field.AGE, Operator.GREATER_THAN, 50),
                 AND,
-                new ExpressionEntity.StringConditionEntity(Field.INDICATION, "313"));
+                new ExpressionEntity.NotPersisted.StringConditionEntity(Field.INDICATION, "313"));
 
-        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "ATC123", "*", "*");
-        var expression = new ExpressionEntity.BinaryExpressionEntity(
+        var existingDrugMedication = new ExpressionEntity.NotPersisted.ExistingDrugMedicationCondition( "ATC123", "*", "*");
+        var expression = new ExpressionEntity.NotPersisted.BinaryExpression(
                 ageAndIndication,
-                BinaryExpression.Operator.OR,
+                BinaryOperator.OR,
                 existingDrugMedication
         );
-        var clause = new ClauseForCreation("KRINI", expression, "message");
+        var clause = new ClauseEntity.NotPersisted("KRINI", expression, "message");
 
         repository.create(clause);
     }

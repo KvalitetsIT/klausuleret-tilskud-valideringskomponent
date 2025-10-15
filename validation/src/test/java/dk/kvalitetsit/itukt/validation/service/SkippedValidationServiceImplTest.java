@@ -42,8 +42,8 @@ class SkippedValidationServiceImplTest {
         var errorCode1 = 1;
         var errorCode2 = 2;
         var errorCode3 = 3;
-        var clause1 = Mockito.mock(Clause.class);
-        var clause2 = Mockito.mock(Clause.class);
+        var clause1 = Mockito.mock(Clause.Persisted.class);
+        var clause2 = Mockito.mock(Clause.Persisted.class);
         Mockito.when(clause1.id()).thenReturn(10L);
         Mockito.when(clause2.id()).thenReturn(20L);
         Mockito.when(clauseService.getByErrorCode(1)).thenReturn(Optional.of(clause1));

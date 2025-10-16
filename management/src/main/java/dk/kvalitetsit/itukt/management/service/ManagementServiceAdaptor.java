@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import org.openapitools.model.ClauseInput;
 import org.openapitools.model.ClauseOutput;
 import org.openapitools.model.DslInput;
@@ -16,17 +16,17 @@ import java.util.UUID;
 public class ManagementServiceAdaptor {
 
     private final ManagementService clauseService;
-    private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
+    private final Mapper<Clause.Persisted, ClauseOutput> clauseDtoMapper;
     private final Mapper<DslInput, ClauseInput> dslClauseMapper;
-    private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper;
-    private final Mapper<ClauseInput, ClauseForCreation> clauseInputMapper;
+    private final Mapper<Clause.Persisted, DslOutput> clauseDslMapper;
+    private final Mapper<ClauseInput, Clause.NotPersisted> clauseInputMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
-            Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
+            Mapper<Clause.Persisted, ClauseOutput> modelDtoMapper,
             Mapper<DslInput, ClauseInput> dslClauseMapper,
-            Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper,
-            Mapper<ClauseInput, ClauseForCreation> clauseInputMapper
+            Mapper<Clause.Persisted, DslOutput> clauseDslMapper,
+            Mapper<ClauseInput, Clause.NotPersisted> clauseInputMapper
     ) {
         this.clauseService = clauseService;
         this.clauseDtoMapper = modelDtoMapper;

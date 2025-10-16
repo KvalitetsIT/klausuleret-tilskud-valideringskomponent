@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -198,21 +197,25 @@ class ClauseDslModelMapperTest {
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
-    @Disabled("Awaits 'IUAKT-106: Udvid dsl til at håndtere tidligere medicinsk behandling'")
     @Test
-    void givenDslWithDrugCondition_whenMap_thenParseDrugCorrectly() {
-        final ClauseInput expected = new ClauseInput("DRUG", new ExistingDrugMedicationCondition("C10B", "tablet", "oral", "ExistingDrugMedicationCondition"),
-                new Error("blaah"));
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul DRUG: EXISTING_DRUG_MEDICATION (ATC = C10B, FORM = tablet, ROUTE = oral)");
+    void givenDslWithMultipleExistingDrugConditions_whenMap_thenParseDrugCorrectly() {
+        final ClauseInput expected = new ClauseInput("DRUG", new BinaryExpression(
+                new ExistingDrugMedicationCondition("C10B", "TABLET", "ORAL", "ExistingDrugMedicationCondition"),
+                BinaryOperator.OR,
+                new ExistingDrugMedicationCondition("B01AC", "INJEKTION", "INTRAVENØS", "ExistingDrugMedicationCondition"),
+                "BinaryExpression"
+        ), new Error("blaah")
+        );
+
+        DslInput subject = new DslInput(new Error("blaah"), "Klausul DRUG: EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = tablet, ROUTE = oral}, {ATC = B01AC, FORM = injektion, ROUTE = intravenøs}]");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
-    @Disabled("Awaits 'IUAKT-106: Udvid dsl til at håndtere tidligere medicinsk behandling'")
     @Test
-    void givenDslWithDrugConditionInlcudingWildcards_whenMap_thenParseDrugCorrectly() {
+    void givenDslWithExistingDrugConditionIncludingWildcards_whenMap_thenParseDrugCorrectly() {
         final ClauseInput expected = new ClauseInput("DRUG", new ExistingDrugMedicationCondition("C10B", "*", "*", "ExistingDrugMedicationCondition"),
                 new Error("blaah"));
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul DRUG: EXISTING_DRUG_MEDICATION (ATC = B01AC, FORM = *, ROUTE = *)");
+        DslInput subject = new DslInput(new Error("blaah"), "Klausul DRUG: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -286,11 +289,11 @@ class ClauseDslModelMapperTest {
                         new BinaryExpression(
                                 new IndicationCondition("C10BA03", "StringCondition"),
                                 BinaryOperator.AND,
-                                new AgeCondition( Operator.GREATER_THAN_OR_EQUAL_TO, 13, "NumberCondition"),
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, "NumberCondition"),
                                 "BinaryExpression"
                         ),
                         BinaryOperator.OR,
-                        new AgeCondition( Operator.EQUAL, 10, "NumberCondition"),
+                        new AgeCondition(Operator.EQUAL, 10, "NumberCondition"),
                         "BinaryExpression"),
                 new Error("blaah")
         );
@@ -307,7 +310,7 @@ class ClauseDslModelMapperTest {
                         new BinaryExpression(
                                 new IndicationCondition("C10BA03", "StringCondition"),
                                 BinaryOperator.AND,
-                                new AgeCondition( Operator.GREATER_THAN_OR_EQUAL_TO, 13, "NumberCondition"),
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, "NumberCondition"),
                                 "BinaryExpression"
                         ),
                         BinaryOperator.OR,

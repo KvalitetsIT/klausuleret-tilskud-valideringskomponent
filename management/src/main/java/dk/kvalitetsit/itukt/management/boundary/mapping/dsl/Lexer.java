@@ -1,8 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -30,12 +28,12 @@ class Lexer {
      * Regular expression pattern for matching different kinds of tokens.
      */
     private static final Pattern TOKEN_PATTERNS = Pattern.compile(
-            "\\s*(?:(klausul|og|eller)|" +       // keywords
-                    "(>=|<=|=|>|<|\\bi\\b)|" +   // operators (with word-boundary for "i")
-                    "([a-z][a-z0-9_]*)|" + // identifiers
-                    "([0-9]+)|" +                // numbers
-                    "([:,()*])|" +               // symbols
-                    "(\\S))",                    // unknown
+            "\\s*(?:(klausul|og|eller)|" +                // keywords
+                    "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
+                    "([A-Za-zÆØÅæøå][A-Za-z0-9_ÆØÅæøå]*)|" +    // identifiers
+                    "([0-9]+)|" +                               // numbers
+                    "([:,()\\[\\]{}*])|" +                      // symbols
+                    "(\\S))",                                   // unknown
             Pattern.CASE_INSENSITIVE
     );
 
@@ -85,6 +83,6 @@ class Lexer {
      * @return a list of {@code Token} objects
      */
     public List<Token> getTokens() {
-        return tokens.stream().map(x-> new Token(x.type(), x.text().toUpperCase())).toList();
+        return tokens.stream().map(x -> new Token(x.type(), x.text().toUpperCase())).toList();
     }
 }

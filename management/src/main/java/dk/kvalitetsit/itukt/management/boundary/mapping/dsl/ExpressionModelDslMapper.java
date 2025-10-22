@@ -62,9 +62,8 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
 
     private <T extends Expression> boolean isChain(Expression expr, Class<T> clazz) {
         if (clazz.isInstance(expr)) return true;
-        if (expr instanceof BinaryExpression(
-                Expression left, BinaryExpression.Operator operator, Expression right
-        ) && operator == BinaryExpression.Operator.OR) {
+        if (expr instanceof BinaryExpression(Expression left, BinaryExpression.Operator operator, Expression right)
+                && operator == BinaryExpression.Operator.OR) {
             return isChain(left, clazz) && isChain(right, clazz);
         }
         return false;

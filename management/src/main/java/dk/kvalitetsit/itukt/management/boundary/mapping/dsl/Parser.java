@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 
+import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import org.openapitools.model.*;
 
 import java.util.*;
@@ -24,6 +25,59 @@ class Parser {
      */
     protected Parser(List<Token> tokens) {
         this.tokens = tokens;
+    }
+
+    private static Expression createStructuredCondition(List<Map<String, String>> pairs) {
+        // Multiple or single entries
+        Expression result = null;
+        for (Map<String, String> pair : pairs) {
+            Expression cond = createExistingDrugMedicationCondition(pair);
+            if (result == null) result = cond;
+            else result = new BinaryExpression(result, BinaryOperator.OR, cond, ExpressionType.BINARY);
+        }
+        return result;
+    }
+
+    private static Expression createStructuredCondition(String fieldName, List<Map<String, String>> pair) {
+        if (fieldName.equalsIgnoreCase(Identifier.EXISTING_DRUG_MEDICATION.toString())) {
+            return createStructuredCondition(pair);
+        }
+        throw new RuntimeException("Unknown structured condition type: " + fieldName);
+    }
+
+    private static Expression createExpressionFromMultiValueCondition(String field, Operator operator, List<String> values) {
+        Iterator<String> valuesIterator = values.iterator();
+        Expression currentExpression = createCondition(field, operator, valuesIterator.next());
+        while (valuesIterator.hasNext()) {
+            Expression nextCond = createCondition(field, operator, valuesIterator.next());
+            currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, ExpressionType.BINARY);
+        }
+        return currentExpression;
+    }
+
+    private static Expression createCondition(String field, Operator operator, String value) {
+        return switch (field) {
+            case "ALDER" -> createAgeCondition(operator, Integer.parseInt(value));
+            case "INDIKATION" -> createIndicationCondition(value);
+            default -> throw new IllegalArgumentException("Unexpected value: " + field);
+        };
+    }
+
+    private static Expression createExistingDrugMedicationCondition(Map<String, String> map) {
+        return new ExistingDrugMedicationCondition(
+                map.getOrDefault(Identifier.ATC_CODE.toString(), "*"),
+                map.getOrDefault(Identifier.FORM_CODE.toString(), "*"),
+                map.getOrDefault(Identifier.ROUTE.toString(), "*"),
+                ExpressionType.EXISTING_DRUG_MEDICATION
+        );
+    }
+
+    private static Expression createIndicationCondition(String value) {
+        return new IndicationCondition(value, ExpressionType.INDICATION);
+    }
+
+    private static Expression createAgeCondition(Operator operator, int value) {
+        return new AgeCondition(operator, value, ExpressionType.AGE);
     }
 
     /**
@@ -87,7 +141,7 @@ class Parser {
         Expression left = parseAndExpression();
         while (match("eller")) {
             Expression right = parseAndExpression();
-            left = new BinaryExpression(left, BinaryOperator.OR, right, "BinaryExpression");
+            left = new BinaryExpression(left, BinaryOperator.OR, right, ExpressionType.BINARY);
         }
         return left;
     }
@@ -99,7 +153,7 @@ class Parser {
         Expression left = parseOperand();
         while (match("og")) {
             Expression right = parseOperand();
-            left = new BinaryExpression(left, BinaryOperator.AND, right, "BinaryExpression");
+            left = new BinaryExpression(left, BinaryOperator.AND, right, ExpressionType.BINARY);
         }
         return left;
     }
@@ -150,46 +204,33 @@ class Parser {
         String operatorString = next().text();
         Operator operator = operatorString.equalsIgnoreCase("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
 
+        var nextToken = peek().text();
         // Handle structured values
-        if (match("[")) {
-            // Parse multiple structured objects
-            List<Map<String, String>> objectList = new ArrayList<>();
-            do {
-                expect("{");
-                Map<String, String> obj = parsePairs();
-                objectList.add(obj);
-                expect("}");
-            } while (match(","));
-            expect("]");
-            return createStructuredCondition(field.text(), objectList);
-        } else if (match("{")) {
-            // Parse single structured object
-            Map<String, String> obj = parsePairs();
-            expect("}");
-            return createStructuredCondition(field.text(), List.of(obj));
+        if (nextToken.equalsIgnoreCase("[")) {
+            return parseMultipleStructuredObjects(field);
+        } else if (nextToken.equalsIgnoreCase("{")) {
+            return createStructuredCondition(field.text(), List.of(parseStructuredObject()));
         }
 
-        // Otherwise, fallback to normal scalar values
         List<String> values = parseValues();
-        return createExpressionFromMultiValueCondition(operator, values);
+        return createExpressionFromMultiValueCondition(field.text(), operator, values);
     }
 
-    private static Expression createStructuredCondition(List<Map<String, String>> pairs) {
-        // Multiple or single entries
-        Expression result = null;
-        for (Map<String, String> pair : pairs) {
-            ExistingDrugMedicationCondition cond = createExistingDrugMedicationCondition(pair);
-            if (result == null) result = cond;
-            else result = new BinaryExpression(result, BinaryOperator.OR, cond, "BinaryExpression");
-        }
-        return result;
+    private Map<String, String> parseStructuredObject() {
+        expect("{");
+        Map<String, String> obj = parsePairs();
+        expect("}");
+        return obj;
     }
 
-    private static Expression createStructuredCondition(String fieldName, List<Map<String, String>> pair) {
-        if (fieldName.equalsIgnoreCase("EKSISTERENDE_LÆGEMIDDEL")) {
-            return createStructuredCondition(pair);
-        }
-        throw new RuntimeException("Unknown structured condition type: " + fieldName);
+    private Expression parseMultipleStructuredObjects(Token field) {
+        expect("[");
+        List<Map<String, String>> objectList = new ArrayList<>();
+        do {
+            objectList.add(parseStructuredObject());
+        } while (match(","));
+        expect("]");
+        return createStructuredCondition(field.text(), objectList);
     }
 
     private Map<String, String> parsePairs() {
@@ -209,46 +250,6 @@ class Parser {
             values.add(next().text());
         } while (match(","));
         return values;
-    }
-
-    private static Expression createExpressionFromMultiValueCondition(Operator operator, List<String> values) {
-        Iterator<String> valuesIterator = values.iterator();
-        Expression currentExpression = createCondition(operator, valuesIterator.next());
-        while (valuesIterator.hasNext()) {
-            Expression nextCond = createCondition(operator, valuesIterator.next());
-            currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, "BinaryExpression");
-        }
-        return currentExpression;
-    }
-
-    private static Expression createCondition(Operator operator, String value) {
-        return tryParseInt(value)
-                .map(intValue -> createNumberCondition(operator, intValue))
-                .orElseGet(() -> createStringCondition(value));
-    }
-
-    private static ExistingDrugMedicationCondition createExistingDrugMedicationCondition(Map<String, String> map) {
-        return new ExistingDrugMedicationCondition(
-                map.getOrDefault("ATC", "*"),
-                map.getOrDefault("FORM", "*"),
-                map.getOrDefault("ROUTE", "*"),
-                "ExistingDrugMedicationCondition"
-        );
-    }
-    private static Expression createStringCondition(String value) {
-        return new IndicationCondition(value, "StringCondition");
-    }
-
-    private static Expression createNumberCondition(Operator operator, int value) {
-        return new AgeCondition(operator, value, "NumberCondition");
-    }
-
-    private static Optional<Integer> tryParseInt(String value) {
-        try {
-            return Optional.of(Integer.parseInt(value));
-        } catch (NumberFormatException e) {
-            return Optional.empty();
-        }
     }
 }
 

@@ -1,6 +1,8 @@
 package dk.kvalitetsit.itukt.management;
 
 import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
@@ -39,12 +41,12 @@ public class MockFactory {
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()
     );
-    private static final AgeCondition EXPRESSION_6_DTO = new AgeCondition().type("NumberCondition")
+    private static final AgeCondition EXPRESSION_6_DTO = new AgeCondition().type(ExpressionType.AGE)
             .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
             .value(EXPRESSION_6_MODEL.value());
     private static final IndicationConditionExpression EXPRESSION_3_MODEL = new IndicationConditionExpression(
             EXPRESSION_3_ENTITY.value());
-    private static final IndicationCondition EXPRESSION_3_DTO = new IndicationCondition().type("StringCondition")
+    private static final IndicationCondition EXPRESSION_3_DTO = new IndicationCondition().type(ExpressionType.INDICATION)
             .value((EXPRESSION_3_MODEL.requiredValue()));
     private static final IndicationConditionExpression EXPRESSION_4_MODEL = new IndicationConditionExpression(
             EXPRESSION_4_ENTITY.value());
@@ -52,15 +54,15 @@ public class MockFactory {
             EXPRESSION_3_MODEL,
             EXPRESSION_5_ENTITY.operator(),
             EXPRESSION_4_MODEL);
-    private static final IndicationCondition EXPRESSION_4_DTO = new IndicationCondition().type("StringCondition")
+    private static final IndicationCondition EXPRESSION_4_DTO = new IndicationCondition().type(ExpressionType.INDICATION)
             .value((EXPRESSION_4_MODEL.requiredValue()));
     private static final BinaryExpression EXPRESSION_5_DTO = new BinaryExpression()
-            .type("BinaryExpression")
+            .type(ExpressionType.BINARY)
             .left(EXPRESSION_3_DTO)
             .operator(BinaryOperator.fromValue(EXPRESSION_5_MODEL.operator().name()))
             .right(EXPRESSION_4_DTO);
     private static final BinaryExpression EXPRESSION_7_DTO = new BinaryExpression()
-            .type("BinaryExpression")
+            .type(ExpressionType.BINARY)
             .left(EXPRESSION_5_DTO)
             .operator(BinaryOperator.AND)
             .right(EXPRESSION_6_DTO);
@@ -75,17 +77,17 @@ public class MockFactory {
     public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
 
     private static final IndicationCondition EXPRESSION_2_DTO = new IndicationCondition()
-            .type("StringCondition")
+            .type(ExpressionType.INDICATION)
             .value((EXPRESSION_2_MODEL.requiredValue()));
     public static final org.openapitools.model.Expression EXPRESSION_1_DTO = new BinaryExpression()
-            .type("BinaryExpression")
+            .type(ExpressionType.BINARY)
             .operator(BinaryOperator.OR)
             .left(EXPRESSION_2_DTO)
             .right(EXPRESSION_7_DTO);
     public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, new Error(CLAUSE_1_MODEL.error().message()), CLAUSE_1_MODEL.uuid());
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, new Error(CLAUSE_1_MODEL.error().message()));
 
-    public static String EXPRESSION_1_DSL = "(INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)";
+    public static String EXPRESSION_1_DSL = "(INDIKATION = C10BA03) eller (INDIKATION i C10BA02, C10BA05) og (AGE >= 13)";
 
 
     // Note: This clause(CLAUSE_1_DSL) matches: clause_1_*

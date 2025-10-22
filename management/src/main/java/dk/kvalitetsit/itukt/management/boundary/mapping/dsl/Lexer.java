@@ -30,7 +30,7 @@ class Lexer {
     private static final Pattern TOKEN_PATTERNS = Pattern.compile(
             "\\s*(?:(klausul|og|eller)|" +                // keywords
                     "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
-                    "([A-Za-zÆØÅæøå][A-Za-z0-9_ÆØÅæøå]*)|" +    // identifiers
+                    "([a-zÆØÅæøå][a-z0-9_ÆØÅæøå]*)|" +          // identifiers
                     "([0-9]+)|" +                               // numbers
                     "([:,()\\[\\]{}*])|" +                      // symbols
                     "(\\S))",                                   // unknown

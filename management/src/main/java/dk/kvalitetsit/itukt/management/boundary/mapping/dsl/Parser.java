@@ -239,9 +239,9 @@ class Parser {
 return new IndicationCondition(value, "IndicationCondition");
 }
 
-    private static Expression createNumberCondition(Operator operator, int value) {
-        return new AgeCondition(operator, value, "NumberCondition");
-    }
+    private static Expression createAgeCondition(Operator operator, int value) {
+return new AgeCondition(operator, value, "AgeCondition");
+}
 
     private static Optional<Integer> tryParseInt(String value) {
         try {

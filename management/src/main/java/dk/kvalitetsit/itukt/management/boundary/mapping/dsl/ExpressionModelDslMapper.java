@@ -70,20 +70,17 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
     }
 
     private <T extends Expression> List<T> collect(Expression expr, Class<T> clazz) {
-        List<T> acc = new ArrayList<>();
-        collect(expr, clazz, acc);
-        return acc;
-    }
-
-    private <T extends Expression> void collect(Expression expr, Class<T> clazz, List<T> acc) {
         if (clazz.isInstance(expr)) {
-            acc.add(clazz.cast(expr));
-        } else if (expr instanceof BinaryExpression(
-                Expression left, BinaryExpression.Operator operator, Expression right
-        ) && operator == BinaryExpression.Operator.OR) {
-            collect(left, clazz, acc);
-            collect(right, clazz, acc);
+            return List.of(clazz.cast(expr));
         }
+        if (expr instanceof BinaryExpression(Expression left, BinaryExpression.Operator operator, Expression right)
+                && operator == BinaryExpression.Operator.OR) {
+            return Stream.concat(
+                            collect(left, clazz).stream(),
+                            collect(right, clazz).stream())
+                    .collect(Collectors.toList());
+        }
+        return List.of();
     }
 }
 

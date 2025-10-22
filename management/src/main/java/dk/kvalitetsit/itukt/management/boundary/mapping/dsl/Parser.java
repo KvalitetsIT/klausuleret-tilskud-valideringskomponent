@@ -235,9 +235,9 @@ class Parser {
                 "ExistingDrugMedicationCondition"
         );
     }
-    private static Expression createStringCondition(String value) {
-        return new IndicationCondition(value, "StringCondition");
-    }
+    private static Expression createIndicationCondition(String value) {
+return new IndicationCondition(value, "IndicationCondition");
+}
 
     private static Expression createNumberCondition(Operator operator, int value) {
         return new AgeCondition(operator, value, "NumberCondition");

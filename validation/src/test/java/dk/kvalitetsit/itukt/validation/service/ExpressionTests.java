@@ -28,7 +28,7 @@ public class ExpressionTests {
             new ValidationInput("", "", empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications));
 
     static void assertErrorMessage(String v, Optional<ValidationError> o) {
-        assertEquals(Optional.of(v), o.map(ValidationError::errorMessage));
+        assertEquals(Optional.of(v), o.map(ValidationError::toErrorString));
     }
 
     static Stream<Arguments> allValidNumberConditionCombinations() {
@@ -238,7 +238,7 @@ public class ExpressionTests {
         var exp2 = new IndicationConditionExpression(indication);
         var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
         var result = combined.validates(validationInput);
-        assertEquals(expectedError, result.map(ValidationError::errorMessage));
+        assertEquals(expectedError, result.map(ValidationError::toErrorString));
     }
 
     @Test

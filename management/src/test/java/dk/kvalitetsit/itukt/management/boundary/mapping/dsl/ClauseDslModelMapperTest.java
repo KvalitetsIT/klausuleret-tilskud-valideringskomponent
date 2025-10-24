@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
+import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,29 +23,29 @@ class ClauseDslModelMapperTest {
     void givenTwoValidDslWithAndWithoutParenthesis_whenMap_thenAssertAndHasHigherPrecedence() {
 
         final var expected = new ClauseInput("CLAUSE", new BinaryExpression()
-                .type("BinaryExpression")
+                .type(ExpressionType.BINARY)
                 .operator(BinaryOperator.OR)
                 .left(new IndicationCondition()
-                        .type("StringCondition")
+                        .type(ExpressionType.INDICATION)
                         .value("C10BA03")
                 )
                 .right(new BinaryExpression()
-                        .type("BinaryExpression")
+                        .type(ExpressionType.BINARY)
                         .left(new BinaryExpression()
-                                .type("BinaryExpression")
+                                .type(ExpressionType.BINARY)
                                 .left(new IndicationCondition()
-                                        .type("StringCondition")
+                                        .type(ExpressionType.INDICATION)
                                         .value("C10BA02")
                                 )
                                 .operator(BinaryOperator.OR)
                                 .right(new IndicationCondition()
-                                        .type("StringCondition")
+                                        .type(ExpressionType.INDICATION)
                                         .value("C10BA05")
                                 )
                         )
                         .operator(BinaryOperator.AND)
                         .right(new AgeCondition()
-                                .type("NumberCondition")
+                                .type(ExpressionType.AGE)
                                 .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
                                 .value(13)
                         )
@@ -53,10 +54,10 @@ class ClauseDslModelMapperTest {
         );
 
         List<DslInput> validDSLs = Stream.of(
-                        "Klausul CLAUSE: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)",
-                        "Klausul CLAUSE: INDICATION = C10BA03 eller INDICATION i C10BA02, C10BA05 og AGE >= 13",
-                        "Klausul CLAUSE: INDICATION = C10BA03 eller (INDICATION i C10BA02, C10BA05 og AGE >= 13)",
-                        "Klausul CLAUSE: (((INDICATION = C10BA03) eller (((INDICATION i C10BA02, C10BA05 og AGE >= 13)))))"
+                        "Klausul CLAUSE: (INDIKATION = C10BA03) eller (INDIKATION i C10BA02, C10BA05) og (ALDER >= 13)",
+                        "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i C10BA02, C10BA05 og ALDER >= 13",
+                        "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i C10BA02, C10BA05 og ALDER >= 13)",
+                        "Klausul CLAUSE: (((INDIKATION = C10BA03) eller (((INDIKATION i C10BA02, C10BA05 og ALDER >= 13)))))"
                 )
                 .map(x -> new DslInput(new Error("blaah"), x))
                 .toList();
@@ -71,34 +72,34 @@ class ClauseDslModelMapperTest {
                 new BinaryExpression(
                         new BinaryExpression(
                                 new BinaryExpression(
-                                        new IndicationCondition("X", "StringCondition"),
+                                        new IndicationCondition("X", ExpressionType.INDICATION),
                                         BinaryOperator.OR,
-                                        new IndicationCondition("Y", "StringCondition"),
-                                        "BinaryExpression"
+                                        new IndicationCondition("Y", ExpressionType.INDICATION),
+                                        ExpressionType.BINARY
                                 ),
                                 BinaryOperator.AND,
                                 new BinaryExpression(
-                                        new IndicationCondition("Z", "StringCondition"),
+                                        new IndicationCondition("Z", ExpressionType.INDICATION),
                                         BinaryOperator.OR,
-                                        new IndicationCondition("W", "StringCondition"),
-                                        "BinaryExpression"
+                                        new IndicationCondition("W", ExpressionType.INDICATION),
+                                        ExpressionType.BINARY
                                 ),
-                                "BinaryExpression"
+                                ExpressionType.BINARY
 
                         ),
                         BinaryOperator.AND,
-                        new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 10, "NumberCondition"),
-                        "BinaryExpression"
+                        new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 10, ExpressionType.AGE),
+                        ExpressionType.BINARY
                 ), new Error("blaah")
         );
 
         List<DslInput> subjects = Stream.of(
-                        "Klausul DEEP: ((INDICATION = X eller INDICATION = Y) og (INDICATION = Z eller INDICATION = W)) og (AGE >= 10)",
-                        "Klausul DEEP: ((INDICATION = X eller INDICATION = Y) og (INDICATION = Z eller INDICATION = W)) og AGE >= 10"
+                        "Klausul DEEP: ((INDIKATION = X eller INDIKATION = Y) og (INDIKATION = Z eller INDIKATION = W)) og (ALDER >= 10)",
+                        "Klausul DEEP: ((INDIKATION = X eller INDIKATION = Y) og (INDIKATION = Z eller INDIKATION = W)) og ALDER >= 10"
                 )
                 .map(x -> new DslInput(new Error("blaah"), x))
                 .toList();
-        ;
+
 
         subjects.forEach(subject -> Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject));
 
@@ -108,29 +109,29 @@ class ClauseDslModelMapperTest {
     void givenDeeplyNestedDsl_whenMap_thenCorrectExpressionTree_2() {
         final ClauseInput expected = new ClauseInput("DEEP",
                 new BinaryExpression(new BinaryExpression(
-                        new IndicationCondition("X", "StringCondition"),
+                        new IndicationCondition("X", ExpressionType.INDICATION),
                         BinaryOperator.OR,
-                        new IndicationCondition("Y", "StringCondition"),
-                        "BinaryExpression"
+                        new IndicationCondition("Y", ExpressionType.INDICATION),
+                        ExpressionType.BINARY
                 ),
                         BinaryOperator.AND,
                         new BinaryExpression(
                                 new BinaryExpression(
-                                        new IndicationCondition("Z", "StringCondition"),
+                                        new IndicationCondition("Z", ExpressionType.INDICATION),
                                         BinaryOperator.OR,
-                                        new IndicationCondition("W", "StringCondition"),
-                                        "BinaryExpression"
+                                        new IndicationCondition("W", ExpressionType.INDICATION),
+                                        ExpressionType.BINARY
                                 ),
                                 BinaryOperator.AND,
-                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 10, "NumberCondition"),
-                                "BinaryExpression"
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 10, ExpressionType.AGE),
+                                ExpressionType.BINARY
 
                         ),
-                        "BinaryExpression"
+                        ExpressionType.BINARY
                 ),
                 new Error("blaah")
         );
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul DEEP: (INDICATION = X eller INDICATION = Y) og ((INDICATION = Z eller INDICATION = W) og AGE >= 10)");
+        DslInput subject = new DslInput(new Error("blaah"), "Klausul DEEP: (INDIKATION = X eller INDIKATION = Y) og ((INDIKATION = Z eller INDIKATION = W) og ALDER >= 10)");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -141,21 +142,21 @@ class ClauseDslModelMapperTest {
                 "LIST",
                 new BinaryExpression(
                         new BinaryExpression(
-                                new IndicationCondition("C10BA01", "StringCondition"),
+                                new IndicationCondition("C10BA01", ExpressionType.INDICATION),
                                 BinaryOperator.OR,
-                                new IndicationCondition("C10BA02", "StringCondition"),
-                                "BinaryExpression"
+                                new IndicationCondition("C10BA02", ExpressionType.INDICATION),
+                                ExpressionType.BINARY
                         ),
                         BinaryOperator.OR,
-                        new IndicationCondition("C10BA03", "StringCondition"),
-                        "BinaryExpression"
+                        new IndicationCondition("C10BA03", ExpressionType.INDICATION),
+                        ExpressionType.BINARY
                 ),
                 new Error("blaah")
         );
         List<DslInput> validDSLs = Stream.of(
-                "Klausul LIST: INDICATION i C10BA01, C10BA02, C10BA03",
-                "Klausul LIST: (INDICATION i C10BA01, C10BA02) eller INDICATION = C10BA03",
-                "Klausul LIST: ((INDICATION i C10BA01, C10BA02) eller INDICATION = C10BA03)"
+                "Klausul LIST: INDIKATION i C10BA01, C10BA02, C10BA03",
+                "Klausul LIST: (INDIKATION i C10BA01, C10BA02) eller INDIKATION = C10BA03",
+                "Klausul LIST: ((INDIKATION i C10BA01, C10BA02) eller INDIKATION = C10BA03)"
         ).map(x -> new DslInput(new Error("blaah"), x)).toList();
         validDSLs.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
@@ -163,12 +164,12 @@ class ClauseDslModelMapperTest {
     @Test
     void givenDslWithNumericConditions_whenMap_thenOperatorsParsedCorrectly() {
         final ClauseInput expected = new ClauseInput("CLAUSE", new BinaryExpression(
-                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 18, "NumberCondition"),
+                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 18, ExpressionType.AGE),
                 BinaryOperator.AND,
-                new AgeCondition(Operator.LESS_THAN_OR_EQUAL_TO, 65, "NumberCondition"),
-                "BinaryExpression"
+                new AgeCondition(Operator.LESS_THAN_OR_EQUAL_TO, 65, ExpressionType.AGE),
+                ExpressionType.BINARY
         ), new Error("blaah"));
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: AGE >= 18 og AGE <= 65");
+        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: ALDER >= 18 og ALDER <= 65");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -178,32 +179,32 @@ class ClauseDslModelMapperTest {
         final ClauseInput expected = new ClauseInput(
                 "CLAUSE",
                 new BinaryExpression(
-                        new AgeCondition(Operator.GREATER_THAN, 0, "NumberCondition"),
+                        new AgeCondition(Operator.GREATER_THAN, 0, ExpressionType.AGE),
                         BinaryOperator.OR,
-                        new AgeCondition(Operator.LESS_THAN, 100, "NumberCondition"),
-                        "BinaryExpression"
+                        new AgeCondition(Operator.LESS_THAN, 100, ExpressionType.AGE),
+                        ExpressionType.BINARY
                 ),
                 new Error("blaah")
         );
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: AGE > 0 eller AGE < 100");
+        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: ALDER > 0 eller ALDER < 100");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
     void givenDslWithNumericCondition_whenMap_thenEqualIsParsedCorrectly() {
-        final ClauseInput expected = new ClauseInput("CLAUSE", new AgeCondition(Operator.EQUAL, 42, "NumberCondition"),
+        final ClauseInput expected = new ClauseInput("CLAUSE", new AgeCondition(Operator.EQUAL, 42, ExpressionType.AGE),
                 new Error("blaah"));
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: AGE = 42");
+        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: ALDER = 42");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
     void givenDslWithMultipleExistingDrugConditions_whenMap_thenParseDrugCorrectly() {
         final ClauseInput expected = new ClauseInput("DRUG", new BinaryExpression(
-                new ExistingDrugMedicationCondition("C10B", "TABLET", "ORAL", "ExistingDrugMedicationCondition"),
+                new ExistingDrugMedicationCondition("C10B", "TABLET", "ORAL", ExpressionType.EXISTING_DRUG_MEDICATION),
                 BinaryOperator.OR,
-                new ExistingDrugMedicationCondition("B01AC", "INJEKTION", "INTRAVENØS", "ExistingDrugMedicationCondition"),
-                "BinaryExpression"
+                new ExistingDrugMedicationCondition("B01AC", "INJEKTION", "INTRAVENØS", ExpressionType.EXISTING_DRUG_MEDICATION),
+                ExpressionType.BINARY
         ), new Error("blaah")
         );
 
@@ -213,7 +214,7 @@ class ClauseDslModelMapperTest {
 
     @Test
     void givenDslWithExistingDrugConditionIncludingWildcards_whenMap_thenParseDrugCorrectly() {
-        final ClauseInput expected = new ClauseInput("DRUG", new ExistingDrugMedicationCondition("C10B", "*", "*", "ExistingDrugMedicationCondition"),
+        final ClauseInput expected = new ClauseInput("DRUG", new ExistingDrugMedicationCondition("C10B", "*", "*", ExpressionType.EXISTING_DRUG_MEDICATION),
                 new Error("blaah"));
         DslInput subject = new DslInput(new Error("blaah"), "Klausul DRUG: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
@@ -223,20 +224,20 @@ class ClauseDslModelMapperTest {
     void givenDslWithoutParentheses_whenMap_thenAndHasHigherPrecedence() {
         final ClauseInput expected = new ClauseInput("PRECEDENCE",
                 new BinaryExpression(
-                        new IndicationCondition("X", "StringCondition"),
+                        new IndicationCondition("X", ExpressionType.INDICATION),
                         BinaryOperator.OR,
                         new BinaryExpression(
-                                new IndicationCondition("Y", "StringCondition"),
+                                new IndicationCondition("Y", ExpressionType.INDICATION),
                                 BinaryOperator.AND,
-                                new IndicationCondition("Z", "StringCondition"),
-                                "BinaryExpression"
+                                new IndicationCondition("Z", ExpressionType.INDICATION),
+                                ExpressionType.BINARY
                         ),
-                        "BinaryExpression"),
+                        ExpressionType.BINARY),
                 new Error("blaah")
         );
 
-        DslInput subject_1 = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: INDICATION = X eller INDICATION = Y og INDICATION = Z");
-        DslInput subject_2 = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: INDICATION = X eller (INDICATION = Y og INDICATION= Z)");
+        DslInput subject_1 = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: INDIKATION = X eller INDIKATION = Y og INDIKATION = Z");
+        DslInput subject_2 = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: INDIKATION = X eller (INDIKATION = Y og INDIKATION= Z)");
 
         Assertions.assertEquals(expected, mapper.map(subject_1), "Unexpected mapping of: " + subject_1);
         Assertions.assertEquals(expected, mapper.map(subject_2), "Unexpected mapping of: " + subject_2);
@@ -247,18 +248,18 @@ class ClauseDslModelMapperTest {
         final ClauseInput expected = new ClauseInput("PRECEDENCE",
                 new BinaryExpression(
                         new BinaryExpression(
-                                new IndicationCondition("X", "StringCondition"),
+                                new IndicationCondition("X", ExpressionType.INDICATION),
                                 BinaryOperator.OR,
-                                new IndicationCondition("Y", "StringCondition"),
-                                "BinaryExpression"
+                                new IndicationCondition("Y", ExpressionType.INDICATION),
+                                ExpressionType.BINARY
                         ), BinaryOperator.AND,
-                        new IndicationCondition("Z", "StringCondition"),
-                        "BinaryExpression"),
+                        new IndicationCondition("Z", ExpressionType.INDICATION),
+                        ExpressionType.BINARY),
                 new Error("blaah")
 
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: (INDICATION = X eller INDICATION = Y) og INDICATION = Z");
+        final DslInput subject = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: (INDIKATION = X eller INDIKATION = Y) og INDIKATION = Z");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -267,18 +268,18 @@ class ClauseDslModelMapperTest {
         final ClauseInput expected = new ClauseInput("CLAUSE",
                 new BinaryExpression(
                         new BinaryExpression(
-                                new IndicationCondition("C10BA03", "StringCondition"),
+                                new IndicationCondition("C10BA03", ExpressionType.INDICATION),
                                 BinaryOperator.AND,
-                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, "NumberCondition"),
-                                "BinaryExpression"
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, ExpressionType.AGE),
+                                ExpressionType.BINARY
                         ),
                         BinaryOperator.OR,
-                        new AgeCondition(Operator.EQUAL, 10, "NumberCondition"),
-                        "BinaryExpression"),
+                        new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                        ExpressionType.BINARY),
                 new Error("blaah")
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: INDICATION =          C10BA03    OG AGE >= 13 eLLer AGE = 10");
+        final DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: INDIKATION =          C10BA03    OG ALDER >= 13 eLLer ALDER = 10");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -287,18 +288,18 @@ class ClauseDslModelMapperTest {
         final ClauseInput expected = new ClauseInput("CLAUSE",
                 new BinaryExpression(
                         new BinaryExpression(
-                                new IndicationCondition("C10BA03", "StringCondition"),
+                                new IndicationCondition("C10BA03", ExpressionType.INDICATION),
                                 BinaryOperator.AND,
-                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, "NumberCondition"),
-                                "BinaryExpression"
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, ExpressionType.AGE),
+                                ExpressionType.BINARY
                         ),
                         BinaryOperator.OR,
-                        new AgeCondition(Operator.EQUAL, 10, "NumberCondition"),
-                        "BinaryExpression"),
+                        new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                        ExpressionType.BINARY),
                 new Error("blaah")
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "klausul clause: indication = c10ba03 og age >= 13 eller age = 10");
+        final DslInput subject = new DslInput(new Error("blaah"), "klausul clause: INDIKATION = c10ba03 og ALDER >= 13 eller ALDER = 10");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -308,18 +309,18 @@ class ClauseDslModelMapperTest {
         final ClauseInput expected = new ClauseInput("CLAUSE",
                 new BinaryExpression(
                         new BinaryExpression(
-                                new IndicationCondition("C10BA03", "StringCondition"),
+                                new IndicationCondition("C10BA03", ExpressionType.INDICATION),
                                 BinaryOperator.AND,
-                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, "NumberCondition"),
-                                "BinaryExpression"
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, ExpressionType.AGE),
+                                ExpressionType.BINARY
                         ),
                         BinaryOperator.OR,
-                        new AgeCondition(Operator.EQUAL, 10, "NumberCondition"),
-                        "BinaryExpression"),
+                        new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                        ExpressionType.BINARY),
                 new Error("blaah")
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "kLausul CLAUSE: indiCaTion = C10BA03 OG age >= 13 ELLER aGe = 10)");
+        final DslInput subject = new DslInput(new Error("blaah"), "kLausul CLAUSE: indiKaTion = C10BA03 OG ALDER >= 13 ELLER aLder = 10)");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -328,18 +329,18 @@ class ClauseDslModelMapperTest {
         final ClauseInput expected = new ClauseInput("CLAUSE",
                 new BinaryExpression(
                         new BinaryExpression(
-                                new IndicationCondition("C10BA03", "StringCondition"),
+                                new IndicationCondition("C10BA03", ExpressionType.INDICATION),
                                 BinaryOperator.OR,
-                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, "NumberCondition"),
-                                "BinaryExpression"
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 13, ExpressionType.AGE),
+                                ExpressionType.BINARY
                         ),
                         BinaryOperator.OR,
-                        new AgeCondition(Operator.EQUAL, 10, "NumberCondition"),
-                        "BinaryExpression"),
+                        new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                        ExpressionType.BINARY),
                 new Error("blaah")
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: INDICATION = C10BA03 eller AGE >= 13 eller AGE = 10");
+        final DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: INDIKATION = C10BA03 eller ALDER >= 13 eller ALDER = 10");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -347,29 +348,29 @@ class ClauseDslModelMapperTest {
     void givenSeveralValidDslWithParenthesesPositionedDifferently_whenMap_thenReturnSameClause() {
 
         var expected = new ClauseInput("CLAUSE", new BinaryExpression()
-                .type("BinaryExpression")
+                .type(ExpressionType.BINARY)
                 .operator(BinaryOperator.OR)
                 .left(new IndicationCondition()
-                        .type("StringCondition")
+                        .type(ExpressionType.INDICATION)
                         .value("C10BA03")
                 )
                 .right(new BinaryExpression()
-                        .type("BinaryExpression")
+                        .type(ExpressionType.BINARY)
                         .left(new BinaryExpression()
-                                .type("BinaryExpression")
+                                .type(ExpressionType.BINARY)
                                 .left(new IndicationCondition()
-                                        .type("StringCondition")
+                                        .type(ExpressionType.INDICATION)
                                         .value("C10BA02")
                                 )
                                 .operator(BinaryOperator.OR)
                                 .right(new IndicationCondition()
-                                        .type("StringCondition")
+                                        .type(ExpressionType.INDICATION)
                                         .value("C10BA05")
                                 )
                         )
                         .operator(BinaryOperator.AND)
                         .right(new AgeCondition()
-                                .type("NumberCondition")
+                                .type(ExpressionType.AGE)
                                 .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
                                 .value(13)
                         )
@@ -378,11 +379,11 @@ class ClauseDslModelMapperTest {
         );
 
         var dsls = Stream.of(
-                "Klausul CLAUSE: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)",
-                "Klausul CLAUSE: (INDICATION = C10BA03) eller ((INDICATION i C10BA02, C10BA05) og (AGE >= 13))",
-                "Klausul CLAUSE: ((INDICATION = C10BA03) eller ((INDICATION i C10BA02, C10BA05) og (AGE >= 13)))",
-                "Klausul CLAUSE: INDICATION = C10BA03 eller (INDICATION i C10BA02, C10BA05 og AGE >= 13)",
-                "Klausul CLAUSE: INDICATION = C10BA03 eller INDICATION i C10BA02, C10BA05 og AGE >= 13"
+                "Klausul CLAUSE: (INDIKATION = C10BA03) eller (INDIKATION i C10BA02, C10BA05) og (ALDER >= 13)",
+                "Klausul CLAUSE: (INDIKATION = C10BA03) eller ((INDIKATION i C10BA02, C10BA05) og (ALDER >= 13))",
+                "Klausul CLAUSE: ((INDIKATION = C10BA03) eller ((INDIKATION i C10BA02, C10BA05) og (ALDER >= 13)))",
+                "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i C10BA02, C10BA05 og ALDER >= 13)",
+                "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i C10BA02, C10BA05 og ALDER >= 13"
         ).map(x -> new DslInput(new Error("blaah"), x)).toList();
 
         dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));

@@ -3,20 +3,23 @@ package dk.kvalitetsit.itukt.common.model;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AgeConditionExpressionTest {
 
     @Test
-    void matches_WithEqualsConditionWhenValueIsBiggerThanRequired_ReturnsFalse() {
+    void matches_WithEqualsConditionWhenValueIsBiggerThanRequired_ValidationError() {
         var numberCondition = new AgeConditionExpression(Operator.EQUAL, 5);
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.EQUAL, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
     @Test

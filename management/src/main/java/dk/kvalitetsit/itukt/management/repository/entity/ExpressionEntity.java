@@ -3,13 +3,12 @@ package dk.kvalitetsit.itukt.management.repository.entity;
 import dk.kvalitetsit.itukt.common.model.BinaryOperator;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
-import dk.kvalitetsit.itukt.common.repository.core.State;
 
-public sealed interface ExpressionEntity extends State<ExpressionEntity> {
+public sealed interface ExpressionEntity {
 
     ExpressionType type();
 
-    sealed interface Persisted extends ExpressionEntity, State.Persisted<ExpressionEntity> {
+    sealed interface Persisted extends ExpressionEntity {
 
         Long id();
 
@@ -47,7 +46,7 @@ public sealed interface ExpressionEntity extends State<ExpressionEntity> {
         }
     }
 
-    sealed interface NotPersisted extends ExpressionEntity, State.NotPersisted<ExpressionEntity> {
+    sealed interface NotPersisted extends ExpressionEntity {
         record StringConditionEntity(Field field, String value) implements ExpressionEntity.NotPersisted {
             @Override
             public ExpressionType type() {

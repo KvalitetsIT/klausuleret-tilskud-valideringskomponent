@@ -1,11 +1,9 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
-import dk.kvalitetsit.itukt.common.repository.core.State;
-
 import java.util.UUID;
 
 
-public sealed interface ClauseEntity extends State<ClauseEntity> permits ClauseEntity.NotPersisted, ClauseEntity.Persisted {
+public sealed interface ClauseEntity permits ClauseEntity.NotPersisted, ClauseEntity.Persisted {
     String name();
 
     String errorMessage();
@@ -19,7 +17,7 @@ public sealed interface ClauseEntity extends State<ClauseEntity> permits ClauseE
                      String errorMessage,
                      ExpressionEntity.Persisted expression
     )
-            implements ClauseEntity, State.Persisted<ClauseEntity> {
+            implements ClauseEntity{
 
     }
 
@@ -28,6 +26,6 @@ public sealed interface ClauseEntity extends State<ClauseEntity> permits ClauseE
             ExpressionEntity.NotPersisted expression,
             String errorMessage
     )
-            implements ClauseEntity, State.NotPersisted<ClauseEntity> {
+            implements ClauseEntity {
     }
 }

@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.openapitools.model.ClauseInput;
 import org.openapitools.model.ClauseOutput;
@@ -18,21 +19,22 @@ public class ManagementServiceAdaptor {
     private final ManagementService clauseService;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
     private final Mapper<DslInput, ClauseInput> dslClauseMapper;
-    private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper;
+    private final Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
     private final Mapper<ClauseInput, ClauseForCreation> clauseInputMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
             Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
             Mapper<DslInput, ClauseInput> dslClauseMapper,
-            Mapper<dk.kvalitetsit.itukt.common.model.Clause, DslOutput> clauseDslMapper,
+            Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper,
             Mapper<ClauseInput, ClauseForCreation> clauseInputMapper
     ) {
         this.clauseService = clauseService;
         this.clauseDtoMapper = modelDtoMapper;
         this.dslClauseMapper = dslClauseMapper;
-        this.clauseDslMapper = clauseDslMapper;
+        this.clauseDtoDslMapper = clauseDtoDslMapper;
         this.clauseInputMapper = clauseInputMapper;
+
     }
 
     public ClauseOutput create(ClauseInput clauseInput) throws ServiceException {
@@ -42,8 +44,7 @@ public class ManagementServiceAdaptor {
 
     public DslOutput createDSL(DslInput dsl) throws ServiceException {
         var clauseInput = this.dslClauseMapper.map(dsl);
-        var clauseForCreation = clauseInputMapper.map(clauseInput);
-        return clauseDslMapper.map(clauseService.create(clauseForCreation));
+        return clauseDtoDslMapper.map(this.create(clauseInput));
     }
 
     public Optional<ClauseOutput> read(UUID id) throws ServiceException {
@@ -51,7 +52,10 @@ public class ManagementServiceAdaptor {
     }
 
     public Optional<DslOutput> readDsl(UUID id) throws ServiceException {
-        return clauseService.read(id).map(clauseDslMapper::map);
+        return clauseService
+                .read(id)
+                .map(clauseDtoMapper::map)
+                .map(clauseDtoDslMapper::map);
     }
 
     public List<ClauseOutput> readAll() throws ServiceException {
@@ -59,6 +63,7 @@ public class ManagementServiceAdaptor {
     }
 
     public List<DslOutput> readAllDsl() throws ServiceException {
-        return clauseDslMapper.map(clauseService.readAll());
+        List<Clause> clauses = clauseService.readAll();
+        return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
     }
 }

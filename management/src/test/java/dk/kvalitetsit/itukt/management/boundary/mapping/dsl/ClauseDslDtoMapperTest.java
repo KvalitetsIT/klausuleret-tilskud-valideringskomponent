@@ -14,11 +14,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
-class ClauseDslModelMapperTest {
+class ClauseDslDtoMapperTest {
 
 
     @InjectMocks
-    private ClauseDslModelMapper mapper;
+    private ClauseDslDtoMapper mapper;
 
     @Test
     void givenTwoValidDslWithAndWithoutParenthesis_whenMap_thenAssertAndHasHigherPrecedence() {

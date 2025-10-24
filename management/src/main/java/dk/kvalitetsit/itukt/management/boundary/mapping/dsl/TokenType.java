@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
-public enum TokenType {
+enum TokenType {
     KEYWORD,
     IDENTIFIER,
     NUMBER,

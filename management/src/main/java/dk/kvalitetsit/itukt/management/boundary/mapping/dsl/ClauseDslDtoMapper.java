@@ -5,7 +5,7 @@ import org.openapitools.model.ClauseInput;
 import org.openapitools.model.DslInput;
 
 
-public class ClauseDslModelMapper implements Mapper<DslInput, ClauseInput> {
+public class ClauseDslDtoMapper implements Mapper<DslInput, ClauseInput> {
 
     @Override
     public ClauseInput map(DslInput dsl) {

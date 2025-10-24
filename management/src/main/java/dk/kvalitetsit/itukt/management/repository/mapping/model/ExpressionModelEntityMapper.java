@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.repository.mapping.model;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 
 public class ExpressionModelEntityMapper implements Mapper<Expression, ExpressionEntity> {

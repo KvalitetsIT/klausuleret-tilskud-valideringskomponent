@@ -31,7 +31,7 @@ class ValidationServiceImplTest {
     @Mock
     private SkippedValidationService skippedValidationService;
 
-    private final Optional<ValidationError> someError = Optional.of(new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.EQUAL, "20"));
+    private final Optional<ValidationError> someError = Optional.of(new ValidationError("error")); // Der findes også en binding her, som også skulle ændres.
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {

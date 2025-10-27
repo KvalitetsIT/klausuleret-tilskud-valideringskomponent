@@ -17,7 +17,11 @@ public record ExistingDrugMedicationConditionExpression(
                 .orElseThrow(ExistingDrugMedicationRequiredException::new);
         return existingDrugMedication.stream().anyMatch(this::itemMatches)
                 ? Optional.empty()
-                : Optional.of(new ExistingDrugMedicationError(atcCode, formCode, routeOfAdministrationCode));
+                : Optional.of(new ValidationError(
+                    "Tidligere medicinsk behandling med følgende påkrævet:" +
+                    " ATC = " + atcCode +
+                    ", Formkode = " + formCode +
+                    ", Administrationsrutekode = " + routeOfAdministrationCode));
     }
 
     private boolean itemMatches(ExistingDrugMedication value) {

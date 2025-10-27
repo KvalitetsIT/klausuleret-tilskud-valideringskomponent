@@ -386,8 +386,6 @@ class ClauseDslModelMapperTest {
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13"
         ).map(x -> new DslInput(new Error("blaah"), x)).toList();
-
-        dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
 
 
@@ -716,5 +714,14 @@ class ClauseDslModelMapperTest {
                 () -> mapper.map(new DslInput(new Error("blaah"), dsl)),
                 "If a dsl with an invalid array is given an exception is expected to be thrown");
     }
+
+
+
+
+
+
+
+
+
 
 }

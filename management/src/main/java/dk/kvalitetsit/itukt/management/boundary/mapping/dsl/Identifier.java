@@ -14,6 +14,15 @@ enum Identifier {
         this.value = value;
     }
 
+    public static Identifier from(String s) {
+        for (Identifier id : Identifier.values()) {
+            if (id.value.equalsIgnoreCase(s)) { // case-insensitive match
+                return id;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant with value: " + s);
+    }
+
     @Override
     public String toString() {
         return value;

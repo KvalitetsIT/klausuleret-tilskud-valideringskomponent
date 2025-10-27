@@ -27,11 +27,11 @@ class Parser {
         this.tokens = tokens;
     }
 
-    private static Expression createStructuredCondition(List<Map<String, String>> pairs) {
+    private static Expression createStructuredCondition(List<Map<String, String>> unstructuredKeyValuePairs) {
         // Multiple or single entries
         Expression result = null;
-        for (Map<String, String> pair : pairs) {
-            Expression cond = createExistingDrugMedicationCondition(pair);
+        for (Map<String, String> keyValuePairs : unstructuredKeyValuePairs) {
+            Expression cond = createExistingDrugMedicationCondition(keyValuePairs);
             if (result == null) result = cond;
             else result = new BinaryExpression(result, BinaryOperator.OR, cond, ExpressionType.BINARY);
         }
@@ -56,9 +56,12 @@ class Parser {
     }
 
     private static Expression createCondition(String field, Operator operator, String value) {
-        return switch (field) {
-            case "ALDER" -> createAgeCondition(operator, Integer.parseInt(value));
-            case "INDIKATION" -> createIndicationCondition(value);
+
+        Identifier identifier = Identifier.from(field);
+
+        return switch (identifier) {
+            case Identifier.AGE -> createAgeCondition(operator, Integer.parseInt(value));
+            case Identifier.INDICATION -> createIndicationCondition(value);
             default -> throw new IllegalArgumentException("Unexpected value: " + field);
         };
     }
@@ -84,7 +87,15 @@ class Parser {
      * Returns the current token without advancing the position.
      */
     private Token peek() {
-        return tokens.get(pos);
+        return peek(0);
+    }
+
+    /**
+     * Returns the token with the given offset without advancing the position.
+     */
+    private Token peek(int offset) {
+        if (pos + offset < tokens.size()) return tokens.get(pos + offset);
+        return new Token(TokenType.EOF, "");
     }
 
     /**
@@ -205,16 +216,37 @@ class Parser {
         Operator operator = operatorString.equalsIgnoreCase("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
 
         var nextToken = peek().text();
-        // Handle structured values
+
+        // Structured list: e.g. i [{ATC = ..., FORM = ...}, {...}]
         if (nextToken.equalsIgnoreCase("[")) {
-            return parseMultipleStructuredObjects(field);
-        } else if (nextToken.equalsIgnoreCase("{")) {
+            // Look ahead one token to see if the list contains structured objects
+            if (peek(1).text().equalsIgnoreCase("{")) {
+                return parseMultipleStructuredObjects(field);
+            }
+
+            // Otherwise, it's a simple list of values
+            next(); // consume '['
+            List<String> values = new ArrayList<>();
+            do {
+                values.add(next().text());
+            } while (match(","));
+            expect("]");
+            return createExpressionFromMultiValueCondition(field.text(), operator, values);
+        }
+
+        // Single structured object (e.g. i {ATC = ..., FORM = ...})
+        else if (nextToken.equalsIgnoreCase("{")) {
             return createStructuredCondition(field.text(), List.of(parseStructuredObject()));
         }
 
-        List<String> values = parseValues();
-        return createExpressionFromMultiValueCondition(field.text(), operator, values);
+        // Single value only — no implicit multi-value without brackets
+        else {
+            var value = next().text();
+            return createCondition(field.text(), operator, value);
+        }
     }
+
+
 
     private Map<String, String> parseStructuredObject() {
         expect("{");

@@ -54,10 +54,10 @@ class ClauseDslModelMapperTest {
         );
 
         List<DslInput> validDSLs = Stream.of(
-                        "Klausul CLAUSE: (INDIKATION = C10BA03) eller (INDIKATION i C10BA02, C10BA05) og (ALDER >= 13)",
-                        "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i C10BA02, C10BA05 og ALDER >= 13",
-                        "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i C10BA02, C10BA05 og ALDER >= 13)",
-                        "Klausul CLAUSE: (((INDIKATION = C10BA03) eller (((INDIKATION i C10BA02, C10BA05 og ALDER >= 13)))))"
+                        "Klausul CLAUSE: (INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)",
+                        "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13",
+                        "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
+                        "Klausul CLAUSE: (((INDIKATION = C10BA03) eller (((INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)))))"
                 )
                 .map(x -> new DslInput(new Error("blaah"), x))
                 .toList();
@@ -154,9 +154,9 @@ class ClauseDslModelMapperTest {
                 new Error("blaah")
         );
         List<DslInput> validDSLs = Stream.of(
-                "Klausul LIST: INDIKATION i C10BA01, C10BA02, C10BA03",
-                "Klausul LIST: (INDIKATION i C10BA01, C10BA02) eller INDIKATION = C10BA03",
-                "Klausul LIST: ((INDIKATION i C10BA01, C10BA02) eller INDIKATION = C10BA03)"
+                "Klausul LIST: INDIKATION i [C10BA01, C10BA02, C10BA03]",
+                "Klausul LIST: (INDIKATION i [C10BA01, C10BA02]) eller INDIKATION = C10BA03",
+                "Klausul LIST: ((INDIKATION i [C10BA01, C10BA02]) eller INDIKATION = C10BA03)"
         ).map(x -> new DslInput(new Error("blaah"), x)).toList();
         validDSLs.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
@@ -379,11 +379,11 @@ class ClauseDslModelMapperTest {
         );
 
         var dsls = Stream.of(
-                "Klausul CLAUSE: (INDIKATION = C10BA03) eller (INDIKATION i C10BA02, C10BA05) og (ALDER >= 13)",
-                "Klausul CLAUSE: (INDIKATION = C10BA03) eller ((INDIKATION i C10BA02, C10BA05) og (ALDER >= 13))",
-                "Klausul CLAUSE: ((INDIKATION = C10BA03) eller ((INDIKATION i C10BA02, C10BA05) og (ALDER >= 13)))",
-                "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i C10BA02, C10BA05 og ALDER >= 13)",
-                "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i C10BA02, C10BA05 og ALDER >= 13"
+                "Klausul CLAUSE: (INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)",
+                "Klausul CLAUSE: (INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13))",
+                "Klausul CLAUSE: ((INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)))",
+                "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
+                "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13"
         ).map(x -> new DslInput(new Error("blaah"), x)).toList();
 
         dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));

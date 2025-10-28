@@ -416,7 +416,7 @@ class ClauseDslModelMapperTest {
 
 
     @Test
-    void givenAnExistingDrugMedicationDsLWithIgnoredFields_whenMap_thenMapCorrectly() {
+    void givenAnExistingDrugMedicationDsLWithWildcardFields_whenMap_thenMapCorrectly() {
         var cases = Map.of(
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = ORAL}",
                 new ClauseInput("BLAAH",
@@ -502,6 +502,88 @@ class ClauseDslModelMapperTest {
             Assertions.assertEquals(value, mapper.map(input), "Unexpected mapping of: " + input.getDsl());
         });
     }
+
+
+
+    @Test
+    void givenAnExistingDrugMedicationDsLWithIgnoredFields_whenMap_thenMapCorrectly() {
+        var cases = Map.of(
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = ORAL}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "C10B",
+                                "TABLET",
+                                "ORAL",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")
+                ),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "C10B",
+                                "TABLET",
+                                "*",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")
+                ),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, ROUTE = ORAL}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "C10B",
+                                "*",
+                                "ORAL",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")
+                ),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {FORM = TABLET, ROUTE = ORAL}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "*",
+                                "TABLET",
+                                "ORAL",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")
+                ),
+
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "C10B",
+                                "*",
+                                "*",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ROUTE =  ORAL}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "*",
+                                "*",
+                                "ORAL",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {FORM = TABLET}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "*",
+                                "TABLET",
+                                "*",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah"))
+        );
+
+        cases.forEach((key, value) -> {
+            DslInput input = new DslInput(new Error("blaah"), key);
+            Assertions.assertEquals(value, mapper.map(input), "Unexpected mapping of: " + input.getDsl());
+        });
+    }
+
 
 
     @Test

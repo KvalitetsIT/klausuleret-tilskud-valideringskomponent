@@ -626,4 +626,13 @@ class ClauseDslModelMapperTest {
     }
 
 
+    @Test
+    void givenDSLWithInvalidUsageOfMultipleValues_whenMap_thenThrowError() {
+        var dsl = "Klausul BLAAH: ALDER i 10, 20, 30";
+        Assertions.assertThrows(
+                RuntimeException.class,
+                () -> mapper.map(new DslInput(new Error("blaah"), dsl)),
+                "If a dsl with an invalid array is given an exception is expected to be thrown");
+    }
+
 }

@@ -244,6 +244,13 @@ class Parser {
         // Single value only — no implicit multi-value without brackets
         else {
             var value = next().text();
+
+            // Check if the next token happens to be a comma, and if so throw an exception
+            // Invalid attempt to pass an array of values: Use "[...]"
+            if (peek().text().equals(",")) {
+                throw new RuntimeException(String.format("Invalid DSL: multiple values without surrounding '[' ']' after field ''%s'. Found value '%s' followed by ','", field.text(), value));
+            }
+
             return createCondition(field.text(), operator, value);
         }
     }

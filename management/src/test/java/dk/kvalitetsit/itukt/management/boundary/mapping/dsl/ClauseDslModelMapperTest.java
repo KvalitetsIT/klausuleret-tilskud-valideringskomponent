@@ -10,6 +10,7 @@ import org.openapitools.model.*;
 import org.openapitools.model.Error;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -377,7 +378,6 @@ class ClauseDslModelMapperTest {
                 ),
                 new Error("blaah")
         );
-
         var dsls = Stream.of(
                 "Klausul CLAUSE: (INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)",
                 "Klausul CLAUSE: (INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13))",
@@ -386,6 +386,244 @@ class ClauseDslModelMapperTest {
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13"
         ).map(x -> new DslInput(new Error("blaah"), x)).toList();
 
+
         dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
+
+
+    @Test
+    void givenAnExistingDrugMedicationDsL_whenMap_thenIgnoreOrderOfFields() {
+        final ClauseInput expected = new ClauseInput("BLAAH",
+                new BinaryExpression(
+                        new ExistingDrugMedicationCondition("C10B", "TABLET", "ORAL", ExpressionType.EXISTING_DRUG_MEDICATION),
+                        BinaryOperator.OR,
+                        new ExistingDrugMedicationCondition("B01AC", "INJEKTION", "INTRAVENØS",
+                                ExpressionType.EXISTING_DRUG_MEDICATION),
+                        ExpressionType.BINARY
+                ),
+                new Error("blaah")
+        );
+
+        var dsls = Stream.of(
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, FORM = INJEKTION, ROUTE = INTRAVENØS}]",
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL i [{FORM = TABLET, ATC = C10B, ROUTE = ORAL}, {ROUTE = INTRAVENØS, ATC = B01AC, FORM = INJEKTION}]",
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B,FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, ROUTE = INTRAVENØS, FORM = INJEKTION}]",
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, ROUTE = ORAL, FORM = TABLET}, {ATC = B01AC, ROUTE = INTRAVENØS, FORM = INJEKTION}]"
+        ).map(x -> new DslInput(new Error("blaah"), x)).toList();
+
+        dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
+    }
+
+
+    @Test
+    void givenAnExistingDrugMedicationDsLWithIgnoredFields_whenMap_thenMapCorrectly() {
+        var cases = Map.of(
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = ORAL}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "C10B",
+                                "TABLET",
+                                "ORAL",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")
+                ),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = *}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "C10B",
+                                "TABLET",
+                                "*",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")
+                ),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = ORAL}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "C10B",
+                                "*",
+                                "ORAL",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")
+                ),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = ORAL}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "*",
+                                "TABLET",
+                                "ORAL",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")
+                ),
+
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "C10B",
+                                "*",
+                                "*",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  ORAL}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "*",
+                                "*",
+                                "ORAL",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE =  *}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "*",
+                                "TABLET",
+                                "*",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah")),
+                "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  *}",
+                new ClauseInput("BLAAH",
+                        new ExistingDrugMedicationCondition(
+                                "*",
+                                "*",
+                                "*",
+                                ExpressionType.EXISTING_DRUG_MEDICATION
+                        ),
+                        new Error("blaah"))
+        );
+
+        cases.forEach((key, value) -> {
+            DslInput input = new DslInput(new Error("blaah"), key);
+            Assertions.assertEquals(value, mapper.map(input), "Unexpected mapping of: " + input.getDsl());
+        });
+    }
+
+
+    @Test
+    void givenADsLWithMultipleMergedAgeConditions_whenMap_thenCorrectlySetOperatorToEquals() {
+
+        var expected = new ClauseInput("BLAAH",
+                new BinaryExpression(
+                        new BinaryExpression(
+                                new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                                BinaryOperator.OR,
+                                new AgeCondition(Operator.EQUAL, 20, ExpressionType.AGE),
+                                ExpressionType.BINARY
+                        ),
+                        BinaryOperator.OR,
+                        new AgeCondition(Operator.EQUAL, 30, ExpressionType.AGE),
+                        ExpressionType.BINARY
+                ),
+                new Error("blaah")
+        );
+
+        var dsl = "Klausul BLAAH: ALDER i [10, 20, 30]";
+
+        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+    }
+
+
+    @Test
+    void givenADsLWithMultipleAgeConditionsWithVaryingOperators_whenMap_thenMapCorrectly() {
+
+        var expected = new ClauseInput("BLAAH",
+                new BinaryExpression(
+                        new BinaryExpression(
+                                new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                                BinaryOperator.OR,
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 20, ExpressionType.AGE),
+                                ExpressionType.BINARY
+                        ),
+                        BinaryOperator.OR,
+                        new AgeCondition(Operator.LESS_THAN, 30, ExpressionType.AGE),
+                        ExpressionType.BINARY
+                ),
+                new Error("blaah")
+        );
+
+        var dsl = "Klausul BLAAH: ALDER = 10 ELLER ALDER >= 20 ELLER ALDER < 30";
+
+        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+    }
+
+
+    @Test
+    void givenADsLWithMultipleAgeConditionsWithVaryingOperators_whenMap_thenHandlePrecedenceCorrectly() {
+
+        var expected = new ClauseInput("BLAAH",
+                new BinaryExpression(
+                        new BinaryExpression(
+                                new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                                BinaryOperator.OR,
+                                new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 20, ExpressionType.AGE),
+                                ExpressionType.BINARY
+                        ),
+                        BinaryOperator.AND,
+                        new AgeCondition(Operator.EQUAL, 30, ExpressionType.AGE),
+                        ExpressionType.BINARY
+                ),
+                new Error("blaah")
+        );
+
+        var dsl = "Klausul BLAAH: (ALDER = 10 ELLER ALDER >= 20) og ALDER = 30";
+
+        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+
+    }
+
+    @Test
+    void givenADsLWithMultipleAgeConditions_whenMap_thenHandlePrecedenceCorrectly() {
+
+        var expected = new ClauseInput("BLAAH",
+                new BinaryExpression(
+                        new BinaryExpression(
+                                new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                                BinaryOperator.OR,
+                                new AgeCondition(Operator.EQUAL, 20, ExpressionType.AGE),
+                                ExpressionType.BINARY
+                        ),
+                        BinaryOperator.AND,
+                        new AgeCondition(Operator.EQUAL, 30, ExpressionType.AGE),
+                        ExpressionType.BINARY
+                ),
+                new Error("blaah")
+        );
+
+        var dsl = "Klausul BLAAH: (ALDER i [10, 20]) og ALDER = 30";
+
+        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+
+    }
+
+
+    @Test
+    void givenADsLWithMultipleNonMergedAgeConditions_whenMap_thenMapCorrectly() {
+
+        var expected = new ClauseInput("BLAAH",
+                new BinaryExpression(
+                        new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
+                        BinaryOperator.OR,
+                        new BinaryExpression(
+                                new AgeCondition(Operator.EQUAL, 20, ExpressionType.AGE),
+                                BinaryOperator.AND,
+                                new AgeCondition(Operator.EQUAL, 30, ExpressionType.AGE),
+                                ExpressionType.BINARY
+                        ),
+                        ExpressionType.BINARY
+                ),
+                new Error("blaah")
+        );
+
+        var dsl = "Klausul BLAAH: ALDER = 10 eller alder = 20 og ALDER = 30";
+
+        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+
+    }
+
+
 }

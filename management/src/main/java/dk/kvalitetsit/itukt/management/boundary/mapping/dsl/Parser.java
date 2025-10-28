@@ -35,7 +35,9 @@ class Parser {
             if (result == null) result = cond;
             else result = new BinaryExpression(result, BinaryOperator.OR, cond, ExpressionType.BINARY);
         }
-        return result;
+        return Optional
+                .ofNullable(result)
+                .orElseThrow(() -> new RuntimeException("Something went wrong trying to parse structured condition"));
     }
 
     private static Expression createStructuredCondition(String fieldName, List<Map<String, String>> pair) {

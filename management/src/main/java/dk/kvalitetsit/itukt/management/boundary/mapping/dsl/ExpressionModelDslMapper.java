@@ -84,11 +84,11 @@ public class ExpressionModelDslMapper implements Mapper<Expression, String> {
 
 
     private <T extends Expression.Condition> String merge(Class<T> conditionClass, BinaryExpression expression, Function<T, String> conditionToString, Identifier field) {
-        List<T> collected = collect(expression, clazz);
+        List<T> collected = collect(expression, conditionClass);
         String joined = collected.stream()
-                .map(supplier)
+                .map(conditionToString)
                 .collect(Collectors.joining(", "));
-        return identifier + " i [" + joined + "]";
+        return field + " i [" + joined + "]";
     }
 
     private <T extends Expression> boolean isChain(Expression expr, Class<T> clazz) {

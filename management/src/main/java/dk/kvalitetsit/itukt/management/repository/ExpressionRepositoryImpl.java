@@ -32,13 +32,11 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
         existingDrugMedicationRowMapper = new DataClassRowMapper<>(ExpressionEntity.Persisted.ExistingDrugMedicationCondition.class);
     }
 
-    @Override
     public List<ExpressionEntity.Persisted> readAll() throws ServiceException {
         return List.of();
     }
 
-    @Override
-    public Optional<ExpressionEntity.Persisted> read(Long id) throws ServiceException {
+    public Optional<ExpressionEntity.Persisted> read(long id) throws ServiceException {
         try {
             String sql = "SELECT type FROM expression WHERE id = :id";
             ExpressionType type = template.queryForObject(sql, Map.of("id", id), ExpressionType.class);

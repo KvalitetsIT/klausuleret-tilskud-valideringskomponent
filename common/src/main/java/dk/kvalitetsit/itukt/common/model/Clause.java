@@ -1,11 +1,9 @@
 package dk.kvalitetsit.itukt.common.model;
 
 
-import dk.kvalitetsit.itukt.common.repository.core.State;
-
 import java.util.UUID;
 
-public sealed interface Clause extends State<Clause> permits Clause.NotPersisted, Clause.Persisted {
+public sealed interface Clause permits Clause.NotPersisted, Clause.Persisted {
     String name();
 
     Expression expression();
@@ -15,18 +13,12 @@ public sealed interface Clause extends State<Clause> permits Clause.NotPersisted
                      String name,
                      Error error,
                      Expression.Persisted expression
-    )
-            implements Clause, State.Persisted<Clause> {
-
-    }
+    ) implements Clause {}
 
     record NotPersisted(
             String name,
             Expression.NotPersisted expression,
             String errorMessage
-    )
-            implements Clause, State.NotPersisted<Clause> {
-    }
-
+    ) implements Clause {}
 }
 

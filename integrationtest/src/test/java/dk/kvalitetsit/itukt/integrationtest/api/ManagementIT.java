@@ -2,12 +2,16 @@ package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
+import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
-import org.openapitools.client.model.ClauseInput;
+import org.openapitools.client.model.*;
 import org.openapitools.client.model.Error;
+
+import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
@@ -78,5 +82,62 @@ class ManagementIT extends BaseTest {
                 .isEqualTo(clauseInput);
     }
 
+    @Test
+    void call20250801clausesPost_whenPostingAValidClauseThenRetrieveACorrectlyInterpretedDSL() {
+
+        Error error = new Error().message("blaah");
+
+        // Todo: IUAKT-96 dsl should be:
+        // String dsl = "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13");
+        String dsl = "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13";
+
+        ClauseInput clauseInput = new ClauseInput().name("CLAUSE").expression(new BinaryExpression()
+                        .type(ExpressionType.BINARY)
+                        .operator(BinaryOperator.OR)
+                        .left(new IndicationCondition()
+                                .type(ExpressionType.INDICATION)
+                                .value("C10BA03")
+                        )
+                        .right(new BinaryExpression()
+                                .type(ExpressionType.BINARY)
+                                .left(new BinaryExpression()
+                                        .type(ExpressionType.BINARY)
+                                        .left(new IndicationCondition()
+                                                .type(ExpressionType.INDICATION)
+                                                .value("C10BA02")
+                                        )
+                                        .operator(BinaryOperator.OR)
+                                        .right(new IndicationCondition()
+                                                .type(ExpressionType.INDICATION)
+                                                .value("C10BA05")
+                                        )
+                                )
+                                .operator(BinaryOperator.AND)
+                                .right(new BinaryExpression()
+                                        .type(ExpressionType.BINARY)
+                                        .left(new ExistingDrugMedicationCondition()
+                                                .type(ExpressionType.EXISTING_DRUG_MEDICATION)
+                                                .formCode("TABLET")
+                                                .routeOfAdministrationCode("*")
+                                                .atcCode("*")
+                                        )
+                                        .operator(BinaryOperator.OR)
+                                        .right(new AgeCondition()
+                                                .type(ExpressionType.AGE)
+                                                .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
+                                                .value(13)
+                                        )
+                                )
+                        ))
+                .error(error);
+
+        ClauseOutput createClauseResponse = api.call20250801clausesPost(clauseInput);
+
+        DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createClauseResponse.getUuid());
+
+        var getDslResponse = api.call20250801clausesDslIdGet(createClauseResponse.getUuid());
+
+        assertEquals(dslOutput, getDslResponse, "Expected the retrieved DSL to match the clause previously created");
+    }
 
 }

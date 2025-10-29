@@ -1,8 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
-import dk.kvalitetsit.itukt.common.configuration.ConnectionConfiguration;
-import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
-import dk.kvalitetsit.itukt.common.configuration.DatasourceConfiguration;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -16,14 +15,12 @@ public class Database {
     private final DataSource dataSource;
 
     public Database(String host, Integer port, String name, String username, String password) {
-        this.dataSource = new DataSourceBuilder().build(
-                new DatasourceConfiguration(
-                        String.format("jdbc:mariadb://%s:%s/%s", host, port, name),
-                        username,
-                        password,
-                        new ConnectionConfiguration(null, null, null)
-                )
-        );
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(String.format("jdbc:mariadb://%s:%s/%s", host, port, name));
+        hikariConfig.setUsername(username);
+        hikariConfig.setPassword(password);
+        hikariConfig.setInitializationFailTimeout(5000);
+        this.dataSource = new HikariDataSource(hikariConfig);
     }
 
     public DataSource getDatasource() {

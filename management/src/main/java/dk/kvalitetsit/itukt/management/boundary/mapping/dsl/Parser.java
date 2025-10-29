@@ -1,12 +1,10 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 
+import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import org.openapitools.model.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The {@code Parser} class is responsible for parsing a sequence of {@link Token} objects
@@ -29,11 +27,77 @@ class Parser {
         this.tokens = tokens;
     }
 
+    private static Expression createStructuredCondition(List<Map<String, String>> unstructuredKeyValuePairs) {
+        // Multiple or single entries
+        Expression result = null;
+        for (Map<String, String> keyValuePairs : unstructuredKeyValuePairs) {
+            Expression cond = createExistingDrugMedicationCondition(keyValuePairs);
+            if (result == null) result = cond;
+            else result = new BinaryExpression(result, BinaryOperator.OR, cond, ExpressionType.BINARY);
+        }
+        return Optional
+                .ofNullable(result)
+                .orElseThrow(() -> new RuntimeException("Something went wrong trying to parse structured condition"));
+    }
+
+    private static Expression createStructuredCondition(String fieldName, List<Map<String, String>> pair) {
+        if (fieldName.equalsIgnoreCase(Identifier.EXISTING_DRUG_MEDICATION.toString())) {
+            return createStructuredCondition(pair);
+        }
+        throw new RuntimeException("Unknown structured condition type: " + fieldName);
+    }
+
+    private static Expression createExpressionFromMultiValueCondition(String field, Operator operator, List<String> values) {
+        Iterator<String> valuesIterator = values.iterator();
+        Expression currentExpression = createCondition(field, operator, valuesIterator.next());
+        while (valuesIterator.hasNext()) {
+            Expression nextCond = createCondition(field, operator, valuesIterator.next());
+            currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, ExpressionType.BINARY);
+        }
+        return currentExpression;
+    }
+
+    private static Expression createCondition(String field, Operator operator, String value) {
+
+        Identifier identifier = Identifier.from(field);
+
+        return switch (identifier) {
+            case Identifier.AGE -> createAgeCondition(operator, Integer.parseInt(value));
+            case Identifier.INDICATION -> createIndicationCondition(value);
+            default -> throw new IllegalArgumentException("Unexpected value: " + field);
+        };
+    }
+
+    private static Expression createExistingDrugMedicationCondition(Map<String, String> map) {
+        return new ExistingDrugMedicationCondition(
+                map.getOrDefault(Identifier.ATC_CODE.toString(), "*"),
+                map.getOrDefault(Identifier.FORM_CODE.toString(), "*"),
+                map.getOrDefault(Identifier.ROUTE.toString(), "*"),
+                ExpressionType.EXISTING_DRUG_MEDICATION
+        );
+    }
+
+    private static Expression createIndicationCondition(String value) {
+        return new IndicationCondition(value, ExpressionType.INDICATION);
+    }
+
+    private static Expression createAgeCondition(Operator operator, int value) {
+        return new AgeCondition(operator, value, ExpressionType.AGE);
+    }
+
     /**
      * Returns the current token without advancing the position.
      */
     private Token peek() {
-        return tokens.get(pos);
+        return peek(0);
+    }
+
+    /**
+     * Returns the token with the given offset without advancing the position.
+     */
+    private Token peek(int offset) {
+        if (pos + offset < tokens.size()) return tokens.get(pos + offset);
+        return new Token(TokenType.EOF, "");
     }
 
     /**
@@ -80,17 +144,7 @@ class Parser {
         expect("Klausul");
         Token name = next();
         expect(":");
-        return new ParsedClause(name.text(), parseExpression());
-    }
-
-
-    /**
-     * Parses a generic expression, delegating to {@link #parseOrExpression()}.
-     *
-     * @return the parsed {@code Expression}
-     */
-    private Expression parseExpression() {
-        return parseOrExpression();
+        return new ParsedClause(name.text(), parseOrExpression());
     }
 
     /**
@@ -100,7 +154,7 @@ class Parser {
         Expression left = parseAndExpression();
         while (match("eller")) {
             Expression right = parseAndExpression();
-            left = new BinaryExpression(left, BinaryOperator.OR, right, "BinaryExpression");
+            left = new BinaryExpression(left, BinaryOperator.OR, right, ExpressionType.BINARY);
         }
         return left;
     }
@@ -112,7 +166,7 @@ class Parser {
         Expression left = parseOperand();
         while (match("og")) {
             Expression right = parseOperand();
-            left = new BinaryExpression(left, BinaryOperator.AND, right, "BinaryExpression");
+            left = new BinaryExpression(left, BinaryOperator.AND, right, ExpressionType.BINARY);
         }
         return left;
     }
@@ -122,7 +176,7 @@ class Parser {
      */
     private Expression parseOperand() {
         if (match("(")) {
-            Expression inner = parseExpression();
+            Expression inner = parseOrExpression();
             expect(")");
             return inner;
         } else if (peekAheadIsCondition()) {
@@ -158,14 +212,77 @@ class Parser {
      *
      * @return the parsed {@code Expression.Condition}
      */
-
     private Expression parseCondition() {
-        next();
+        var field = next();
         String operatorString = next().text();
         Operator operator = operatorString.equalsIgnoreCase("i") ? Operator.EQUAL : Operator.fromValue(operatorString);
-        List<String> values = parseValues();
 
-        return createExpressionFromMultiValueCondition( operator, values);
+        var nextToken = peek().text();
+
+        // Structured list: e.g. i [{ATC = ..., FORM = ...}, {...}]
+        if (nextToken.equalsIgnoreCase("[")) {
+            // Look ahead one token to see if the list contains structured objects
+            if (peek(1).text().equalsIgnoreCase("{")) {
+                return parseMultipleStructuredObjects(field);
+            }
+
+            // Otherwise, it's a simple list of values
+            next(); // consume '['
+            List<String> values = new ArrayList<>();
+            do {
+                values.add(next().text());
+            } while (match(","));
+            expect("]");
+            return createExpressionFromMultiValueCondition(field.text(), operator, values);
+        }
+
+        // Single structured object (e.g. i {ATC = ..., FORM = ...})
+        else if (nextToken.equalsIgnoreCase("{")) {
+            return createStructuredCondition(field.text(), List.of(parseStructuredObject()));
+        }
+
+        // Single value only — no implicit multi-value without brackets
+        else {
+            var value = next().text();
+
+            // Check if the next token happens to be a comma, and if so throw an exception
+            // Invalid attempt to pass an array of values: Use "[...]"
+            if (peek().text().equals(",")) {
+                throw new RuntimeException(String.format("Invalid DSL: multiple values without surrounding '[' ']' after field ''%s'. Found value '%s' followed by ','", field.text(), value));
+            }
+
+            return createCondition(field.text(), operator, value);
+        }
+    }
+
+
+
+    private Map<String, String> parseStructuredObject() {
+        expect("{");
+        Map<String, String> obj = parsePairs();
+        expect("}");
+        return obj;
+    }
+
+    private Expression parseMultipleStructuredObjects(Token field) {
+        expect("[");
+        List<Map<String, String>> objectList = new ArrayList<>();
+        do {
+            objectList.add(parseStructuredObject());
+        } while (match(","));
+        expect("]");
+        return createStructuredCondition(field.text(), objectList);
+    }
+
+    private Map<String, String> parsePairs() {
+        Map<String, String> map = new LinkedHashMap<>();
+        do {
+            Token key = next(); // IDENTIFIER
+            expect("=");
+            Token value = next(); // VALUE
+            map.put(key.text(), value.text());
+        } while (match(","));
+        return map;
     }
 
     private List<String> parseValues() {
@@ -174,38 +291,6 @@ class Parser {
             values.add(next().text());
         } while (match(","));
         return values;
-    }
-
-    private Expression createExpressionFromMultiValueCondition( Operator operator, List<String> values) {
-        Iterator<String> valuesIterator = values.iterator();
-        Expression currentExpression = createCondition( operator, valuesIterator.next());
-        while (valuesIterator.hasNext()) {
-            Expression nextCond = createCondition( operator, valuesIterator.next());
-            currentExpression = new BinaryExpression(currentExpression, BinaryOperator.OR, nextCond, "BinaryExpression");
-        }
-        return currentExpression;
-    }
-
-    private Expression createCondition(Operator operator, String value) {
-        return tryParseInt(value)
-                .map(intValue -> createNumberCondition(operator, intValue))
-                .orElseGet(() -> createStringCondition(value));
-    }
-
-    private Expression createStringCondition(String value) {
-        return new IndicationCondition(value, "StringCondition");
-    }
-
-    private Expression createNumberCondition(Operator operator, int value) {
-        return new AgeCondition(operator, value, "NumberCondition");
-    }
-
-    private Optional<Integer> tryParseInt(String value) {
-        try {
-            return Optional.of(Integer.parseInt(value));
-        } catch (NumberFormatException e) {
-            return Optional.empty();
-        }
     }
 }
 

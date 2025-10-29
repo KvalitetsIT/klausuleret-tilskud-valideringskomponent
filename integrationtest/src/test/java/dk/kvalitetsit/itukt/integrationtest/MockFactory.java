@@ -1,6 +1,8 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
@@ -19,7 +21,7 @@ public class MockFactory {
 
     // Note: This clause(clause_1_dsl) matches: clause_1_*
     public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput()
-            .dsl("Klausul CHOL: (INDICATION = C10BA03) eller (INDICATION i C10BA02, C10BA05) og (AGE >= 13)")
+            .dsl("Klausul CHOL: (INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)")
             .error(new org.openapitools.client.model.Error().message("message"));
     private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Field.INDICATION, "C10BA03");
     private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Field.INDICATION, "C10BA02");
@@ -44,7 +46,7 @@ public class MockFactory {
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()
     );
-    private static final org.openapitools.client.model.AgeCondition EXPRESSION_6_DTO = new org.openapitools.client.model.AgeCondition().type("AgeCondition")
+    private static final org.openapitools.client.model.AgeCondition EXPRESSION_6_DTO = new org.openapitools.client.model.AgeCondition().type(ExpressionType.AGE)
             .operator(org.openapitools.client.model.Operator.GREATER_THAN_OR_EQUAL_TO)
             .value(EXPRESSION_6_MODEL.value());
     private static final IndicationConditionExpression EXPRESSION_3_MODEL = new IndicationConditionExpression(
@@ -57,10 +59,10 @@ public class MockFactory {
             EXPRESSION_3_MODEL,
             EXPRESSION_5_ENTITY.operator(),
             EXPRESSION_4_MODEL);
-    private static final org.openapitools.client.model.IndicationCondition EXPRESSION_4_DTO = new org.openapitools.client.model.IndicationCondition().type("IndicationCondition")
+    private static final org.openapitools.client.model.IndicationCondition EXPRESSION_4_DTO = new org.openapitools.client.model.IndicationCondition().type(ExpressionType.INDICATION)
             .value(EXPRESSION_4_MODEL.requiredValue());
     private static final org.openapitools.client.model.BinaryExpression EXPRESSION_5_DTO = new org.openapitools.client.model.BinaryExpression()
-            .type("BinaryExpression")
+            .type(ExpressionType.BINARY)
             .left(EXPRESSION_3_DTO)
             .operator(org.openapitools.client.model.BinaryOperator.fromValue(EXPRESSION_5_MODEL.operator().name()))
             .right(EXPRESSION_4_DTO);
@@ -78,14 +80,14 @@ public class MockFactory {
     );
     public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
     private static final org.openapitools.client.model.IndicationCondition EXPRESSION_2_DTO = new org.openapitools.client.model.IndicationCondition()
-            .type("IndicationCondition")
+            .type(ExpressionType.INDICATION)
             .value((EXPRESSION_2_MODEL.requiredValue()));
     private static final org.openapitools.client.model.Expression EXPRESSION_1_DTO = new org.openapitools.client.model.BinaryExpression()
-            .type("BinaryExpression")
+            .type(ExpressionType.BINARY)
             .operator(org.openapitools.client.model.BinaryOperator.OR)
             .left(EXPRESSION_2_DTO)
             .right(new org.openapitools.client.model.BinaryExpression()
-                    .type("BinaryExpression")
+                    .type(ExpressionType.BINARY)
                     .left(EXPRESSION_5_DTO)
                     .operator(org.openapitools.client.model.BinaryOperator.AND)
                     .right(EXPRESSION_6_DTO)
@@ -106,7 +108,7 @@ public class MockFactory {
             String routeOfAdministrationCode
     ) {
         return new org.openapitools.client.model.ExistingDrugMedicationCondition()
-                .type("ExistingDrugMedicationCondition")
+                .type(ExpressionType.EXISTING_DRUG_MEDICATION)
                 .atcCode(atcCode)
                 .formCode(formCode)
                 .routeOfAdministrationCode(routeOfAdministrationCode);
@@ -117,7 +119,7 @@ public class MockFactory {
             org.openapitools.client.model.Expression right
     ) {
         return new org.openapitools.client.model.BinaryExpression()
-                .type("BinaryExpression")
+                .type(ExpressionType.BINARY)
                 .left(left)
                 .operator(BinaryOperator.AND)
                 .right(right);

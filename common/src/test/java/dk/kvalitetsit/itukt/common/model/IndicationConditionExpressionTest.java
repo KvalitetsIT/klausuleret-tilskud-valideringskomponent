@@ -3,8 +3,7 @@ package dk.kvalitetsit.itukt.common.model;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class IndicationConditionExpressionTest {
 
@@ -14,9 +13,13 @@ class IndicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.indicationCode()).thenReturn(null);
 
-        boolean validates = stringCondition.validates(validationInput).isEmpty();
+        var validationError = stringCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.INDICATION, conditionError.field());
+        assertEquals(Operator.EQUAL, conditionError.operator());
+        assertEquals("testValue", conditionError.value());
     }
 
     @Test
@@ -25,9 +28,13 @@ class IndicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.indicationCode()).thenReturn("different value");
 
-        boolean validates = stringCondition.validates(validationInput).isEmpty();
+        var validationError = stringCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.INDICATION, conditionError.field());
+        assertEquals(Operator.EQUAL, conditionError.operator());
+        assertEquals("testValue", conditionError.value());
     }
 
     @Test

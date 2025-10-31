@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.validation.service;
+package dk.kvalitetsit.itukt.common.model.featureTests;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import org.junit.jupiter.api.Test;

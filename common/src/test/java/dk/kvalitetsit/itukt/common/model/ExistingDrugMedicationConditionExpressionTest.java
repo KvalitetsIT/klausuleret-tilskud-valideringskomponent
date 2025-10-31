@@ -19,45 +19,60 @@ class ExistingDrugMedicationConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication1, existingDrugMedication2)));
 
-    boolean validates = condition.validates(validationInput).isEmpty();
+        boolean validates = condition.validates(validationInput).isEmpty();
 
         assertTrue(validates, "Expected condition to validate when one of multiple items matches");
     }
 
     @Test
     void matches_WhenAtcCodeDoesNotMatchCondition_ReturnsFalse() {
+        String atc = "atc", form = "form", adm = "adm";
         var existingDrugMedication = new ExistingDrugMedication("wrong-atc", "form", "adm");
-        var condition = new ExistingDrugMedicationConditionExpression("atc", "form", "adm");
+        var condition = new ExistingDrugMedicationConditionExpression(atc, form, adm);
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput).isEmpty();
+        var validationError = condition.validates(validationInput);
 
-        assertFalse(validates, "Expected condition not to validate when ATC code does not match");
+        assertTrue(validationError.isPresent());
+        var error = assertInstanceOf(ValidationError.ExistingDrugMedicationError.class, validationError.get());
+        assertEquals(atc, error.atcCode());
+        assertEquals(form, error.formCode());
+        assertEquals(adm, error.routeOfAdministrationCode());
     }
 
     @Test
     void matches_WhenFormCodeDoesNotMatchCondition_ReturnsFalse() {
-        var existingDrugMedication = new ExistingDrugMedication("atc", "wrong-form", "adm");
-        var condition = new ExistingDrugMedicationConditionExpression("atc", "form", "adm");
+        String atc = "atc", form = "form", adm = "adm";
+        var existingDrugMedication = new ExistingDrugMedication("atc", "wrong=form", "adm");
+        var condition = new ExistingDrugMedicationConditionExpression(atc, form, adm);
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput).isEmpty();
+        var validationError = condition.validates(validationInput);
 
-        assertFalse(validates, "Expected condition not to validate when form code does not match");
+        assertTrue(validationError.isPresent());
+        var error = assertInstanceOf(ValidationError.ExistingDrugMedicationError.class, validationError.get());
+        assertEquals(atc, error.atcCode());
+        assertEquals(form, error.formCode());
+        assertEquals(adm, error.routeOfAdministrationCode());
     }
 
     @Test
     void matches_WhenRouteOfAdministrationCodeDoesNotMatchCondition_ReturnsFalse() {
+        String atc = "atc", form = "form", adm = "adm";
         var existingDrugMedication = new ExistingDrugMedication("atc", "form", "wrong-adm");
-        var condition = new ExistingDrugMedicationConditionExpression("atc", "form", "adm");
+        var condition = new ExistingDrugMedicationConditionExpression(atc, form, adm);
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput).isEmpty();
+        var validationError = condition.validates(validationInput);
 
-        assertFalse(validates, "Expected condition not to validate when route of administration code does not match");
+        assertTrue(validationError.isPresent());
+        var error = assertInstanceOf(ValidationError.ExistingDrugMedicationError.class, validationError.get());
+        assertEquals(atc, error.atcCode());
+        assertEquals(form, error.formCode());
+        assertEquals(adm, error.routeOfAdministrationCode());
     }
 
     @Test
@@ -98,25 +113,35 @@ class ExistingDrugMedicationConditionExpressionTest {
 
     @Test
     void matches_WithWildcardAndOtherFieldsDoesNotMatch_ReturnsFalse() {
+        String atc = "*", form = "wrong-form", adm = "adm";
         var existingDrugMedication = new ExistingDrugMedication("atc", "form", "adm");
-        var condition = new ExistingDrugMedicationConditionExpression("*", "wrong-form", "adm");
+        var condition = new ExistingDrugMedicationConditionExpression(atc, form, adm);
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(existingDrugMedication)));
 
-        boolean validates = condition.validates(validationInput).isEmpty();
+        var validationError = condition.validates(validationInput);
 
-        assertFalse(validates, "Expected condition not to validate when wildcard is used but other fields do not match");
+        assertTrue(validationError.isPresent());
+        var error = assertInstanceOf(ValidationError.ExistingDrugMedicationError.class, validationError.get());
+        assertEquals(atc, error.atcCode());
+        assertEquals(form, error.formCode());
+        assertEquals(adm, error.routeOfAdministrationCode());
     }
 
     @Test
     void matches_WhenNoItemsInList_ReturnsFalse() {
+        String atc = "atc", form = "form", adm = "adm";
         var condition = new ExistingDrugMedicationConditionExpression("atc", "form", "adm");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of()));
 
-        boolean validates = condition.validates(validationInput).isEmpty();
+        var validationError = condition.validates(validationInput);
 
-        assertFalse(validates, "Expected condition not to validate when there are no items in the input list");
+        assertTrue(validationError.isPresent());
+        var error = assertInstanceOf(ValidationError.ExistingDrugMedicationError.class, validationError.get());
+        assertEquals(atc, error.atcCode());
+        assertEquals(form, error.formCode());
+        assertEquals(adm, error.routeOfAdministrationCode());
     }
 
     @Test

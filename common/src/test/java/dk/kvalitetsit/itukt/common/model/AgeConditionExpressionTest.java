@@ -3,8 +3,7 @@ package dk.kvalitetsit.itukt.common.model;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AgeConditionExpressionTest {
 
@@ -14,9 +13,13 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.EQUAL, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
     @Test
@@ -25,9 +28,13 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(4);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.EQUAL, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
     @Test
@@ -47,9 +54,13 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(4);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.GREATER_THAN_OR_EQUAL_TO, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
     @Test
@@ -102,9 +113,13 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.LESS_THAN_OR_EQUAL_TO, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
     @Test
@@ -113,9 +128,14 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(4);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.GREATER_THAN, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
     @Test
@@ -124,9 +144,13 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(5);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.GREATER_THAN, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
     @Test
@@ -157,9 +181,13 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(5);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.LESS_THAN, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
     @Test
@@ -168,9 +196,13 @@ class AgeConditionExpressionTest {
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(validationInput.citizenAge()).thenReturn(6);
 
-        boolean validates = numberCondition.validates(validationInput).isEmpty();
+        var validationError = numberCondition.validates(validationInput);
 
-        assertFalse(validates);
+        assertTrue(validationError.isPresent());
+        var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(Operator.LESS_THAN, conditionError.operator());
+        assertEquals("5", conditionError.value());
     }
 
 

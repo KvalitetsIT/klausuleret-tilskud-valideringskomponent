@@ -6,12 +6,15 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BinaryExpressionTest {
 
-    private final Optional<ValidationError> someError = Optional.of(new ConditionError(ValidationError.Field.AGE, Operator.EQUAL, "20"));
+    private final String expectedAge = "20", expectedIndication = "indication";;
+    private final ConditionError expectedAgeError = new ConditionError(ValidationError.Field.AGE, Operator.EQUAL, expectedAge);
+    private final Optional<ValidationError> expectedAgeOpt = Optional.of(expectedAgeError);
+    private final ConditionError expectedIndicationError = new ConditionError(ValidationError.Field.INDICATION, Operator.EQUAL, expectedIndication);
+    private final Optional<ValidationError> expectedIndicationOpt = Optional.of(expectedIndicationError);
 
     @Test
     void validates_WithOrOperatorWhenNeitherLeftOrRightValidates_ReturnsFalse() {
@@ -19,12 +22,15 @@ class BinaryExpressionTest {
         var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, right);
         var validationInput = Mockito.mock(ValidationInput.class);
-        Mockito.when(left.validates(validationInput)).thenReturn(someError);
-        Mockito.when(right.validates(validationInput)).thenReturn(someError);
+        Mockito.when(left.validates(validationInput)).thenReturn(expectedAgeOpt);
+        Mockito.when(right.validates(validationInput)).thenReturn(expectedIndicationOpt);
 
-        boolean success = binaryExpression.validates(validationInput).isEmpty();
+        var validationError = binaryExpression.validates(validationInput);
 
-        assertFalse(success);
+        assertTrue(validationError.isPresent());
+        var binaryError = assertInstanceOf(ValidationError.OrError.class, validationError.get());
+        assertEquals(expectedAgeError, binaryError.e1());
+        assertEquals(expectedIndicationError, binaryError.e2());
     }
 
     @Test
@@ -34,7 +40,7 @@ class BinaryExpressionTest {
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(Optional.empty());
-        Mockito.when(right.validates(validationInput)).thenReturn(someError);
+        Mockito.when(right.validates(validationInput)).thenReturn(expectedAgeOpt);
 
         boolean success = binaryExpression.validates(validationInput).isEmpty();
 
@@ -47,7 +53,7 @@ class BinaryExpressionTest {
         var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, right);
         var validationInput = Mockito.mock(ValidationInput.class);
-        Mockito.when(left.validates(validationInput)).thenReturn(someError);
+        Mockito.when(left.validates(validationInput)).thenReturn(expectedAgeOpt);
         Mockito.when(right.validates(validationInput)).thenReturn(Optional.empty());
 
         boolean success = binaryExpression.validates(validationInput).isEmpty();
@@ -75,12 +81,15 @@ class BinaryExpressionTest {
         var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.AND, right);
         var validationInput = Mockito.mock(ValidationInput.class);
-        Mockito.when(left.validates(validationInput)).thenReturn(someError);
-        Mockito.when(right.validates(validationInput)).thenReturn(someError);
+        Mockito.when(left.validates(validationInput)).thenReturn(expectedAgeOpt);
+        Mockito.when(right.validates(validationInput)).thenReturn(expectedIndicationOpt);
 
-        boolean success = binaryExpression.validates(validationInput).isEmpty();
+        var validationError = binaryExpression.validates(validationInput);
 
-        assertFalse(success);
+        assertTrue(validationError.isPresent());
+        var binaryError = assertInstanceOf(ValidationError.AndError.class, validationError.get());
+        assertEquals(expectedAgeError, binaryError.e1());
+        assertEquals(expectedIndicationError, binaryError.e2());
     }
 
     @Test
@@ -90,11 +99,13 @@ class BinaryExpressionTest {
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.AND, right);
         var validationInput = Mockito.mock(ValidationInput.class);
         Mockito.when(left.validates(validationInput)).thenReturn(Optional.empty());
-        Mockito.when(right.validates(validationInput)).thenReturn(someError);
+        Mockito.when(right.validates(validationInput)).thenReturn(expectedAgeOpt);
 
-        boolean success = binaryExpression.validates(validationInput).isEmpty();
+        var validationError = binaryExpression.validates(validationInput);
 
-        assertFalse(success);
+        assertTrue(validationError.isPresent());
+        var error = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(expectedAgeError, error);
     }
 
     @Test
@@ -103,12 +114,14 @@ class BinaryExpressionTest {
         var right = Mockito.mock(AgeConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.AND, right);
         var validationInput = Mockito.mock(ValidationInput.class);
-        Mockito.when(left.validates(validationInput)).thenReturn(someError);
+        Mockito.when(left.validates(validationInput)).thenReturn(expectedAgeOpt);
         Mockito.when(right.validates(validationInput)).thenReturn(Optional.empty());
 
-        boolean success = binaryExpression.validates(validationInput).isEmpty();
+        var validationError = binaryExpression.validates(validationInput);
 
-        assertFalse(success);
+        assertTrue(validationError.isPresent());
+        var error = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        assertEquals(expectedAgeError, error);
     }
 
     @Test

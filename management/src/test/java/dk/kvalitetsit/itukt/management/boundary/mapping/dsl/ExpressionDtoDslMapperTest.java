@@ -327,6 +327,66 @@ class ExpressionDtoDslMapperTest {
     }
 
     @Test
+    void givenDslWithLessThanAgeConditions_whenMap_thenMergeCorrectly() {
+        final Expression subject = new BinaryExpression()
+                .type(ExpressionType.BINARY)
+                .operator(BinaryOperator.OR)
+                .left(new AgeCondition()
+                        .type(ExpressionType.AGE)
+                        .operator(Operator.LESS_THAN)
+                        .value(10))
+                .right(new AgeCondition()
+                        .type(ExpressionType.AGE)
+                        .operator(Operator.LESS_THAN)
+                        .value(20));
+
+        String expected = "ALDER < 10 eller ALDER < 20";
+        String actual = mapper.map(subject);
+        Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+    }
+
+    @Test
+    void givenDslWithDifferentOperationAgeConditions_whenMap_thenMergeCorrectly() {
+        final Expression subject = new BinaryExpression()
+                .type(ExpressionType.BINARY)
+                .operator(BinaryOperator.OR)
+                .left(new AgeCondition()
+                        .type(ExpressionType.AGE)
+                        .operator(Operator.LESS_THAN)
+                        .value(10))
+                .right(new BinaryExpression()
+                        .type(ExpressionType.BINARY)
+                        .operator(BinaryOperator.OR)
+                        .left(new AgeCondition()
+                                .type(ExpressionType.AGE)
+                                .operator(Operator.GREATER_THAN)
+                                .value(20))
+                        .right(new AgeCondition()
+                                .type(ExpressionType.AGE)
+                                .operator(Operator.EQUAL)
+                                .value(30)));
+
+        String expected = "ALDER = 30 eller ALDER > 20 eller ALDER < 10";
+        String actual = mapper.map(subject);
+        Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+    }
+
+    @Test
+    void givenDslWithTwoAgeConditionsAndOneIndication_whenMap_thenMergeCorrectly() {
+        final Expression subject = new BinaryExpression().type(ExpressionType.BINARY)
+                .left(new AgeCondition().type(ExpressionType.AGE).operator(Operator.EQUAL).value(10))
+                .operator(BinaryOperator.OR)
+                .right(new BinaryExpression().type(ExpressionType.BINARY)
+                        .left(new AgeCondition().type(ExpressionType.AGE).operator(Operator.EQUAL).value(20))
+                        .operator(BinaryOperator.OR)
+                        .right(new IndicationCondition().type(ExpressionType.INDICATION).value("blaa")));
+
+        String expected = "INDIKATION = blaa eller ALDER i [10, 20]";
+        String actual = mapper.map(subject);
+        Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+    }
+
+    @Test
     void givenDslWithTwoAgeConditions_whenMap_thenDoNotMerge() {
         final Expression subject = new BinaryExpression()
                 .type(ExpressionType.BINARY)

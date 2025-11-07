@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import org.openapitools.model.*;

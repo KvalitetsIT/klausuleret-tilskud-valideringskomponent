@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dto;
 import dk.kvalitetsit.itukt.common.Mapper;
 import org.openapitools.model.Operator;
 
-public class OperatorDtoModelMapper implements Mapper<Operator, dk.kvalitetsit.itukt.common.model.Operator>  {
+class OperatorDtoModelMapper implements Mapper<Operator, dk.kvalitetsit.itukt.common.model.Operator>  {
     @Override
     public dk.kvalitetsit.itukt.common.model.Operator map(Operator entry) {
         return switch (entry){

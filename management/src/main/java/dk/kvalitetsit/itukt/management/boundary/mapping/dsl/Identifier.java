@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
-enum Identifier {
+public enum Identifier {
     EXISTING_DRUG_MEDICATION("EKSISTERENDE_LÆGEMIDDEL"),
     INDICATION("INDIKATION"),
     AGE("ALDER"),

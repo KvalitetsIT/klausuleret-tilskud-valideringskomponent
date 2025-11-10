@@ -382,7 +382,7 @@ class ExpressionDtoDslMapperTest {
                         .operator(BinaryOperator.OR)
                         .right(new IndicationCondition().type(ExpressionType.INDICATION).value("blaa")));
 
-        String expected = "INDIKATION = blaa eller ALDER i [10, 20]";
+        String expected = "ALDER i [10, 20] eller INDIKATION = blaa";
         String actual = mapper.map(subject);
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }

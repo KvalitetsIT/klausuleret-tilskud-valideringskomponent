@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression;
 import dk.kvalitetsit.itukt.common.Mapper;
 import org.openapitools.model.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,7 +34,8 @@ public class BinaryExpressionDslMapperImpl implements ExpressionDslMapper<Binary
         var orChainedExpressions = getOrChainedExpressions(expression);
         if (!orChainedExpressions.isEmpty()) {
             var mergedConditions = orChainedExpressions.stream()
-                    .collect(Collectors.groupingBy(Expression::getClass)).values().stream()
+                    .collect(Collectors.groupingBy(Expression::getClass, LinkedHashMap::new, Collectors.toList()))
+                    .values().stream()
                     .map(parent::mergeConditions)
                     .toList();
             String dsl = String.join(" eller ", mergedConditions);

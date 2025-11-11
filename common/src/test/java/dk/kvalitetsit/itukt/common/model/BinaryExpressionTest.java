@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.common.model;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -135,5 +136,20 @@ class BinaryExpressionTest {
         boolean success = binaryExpression.validates(validationInput).isEmpty();
 
         assertTrue(success);
+    }
+
+    @Test
+    @Tag("PerformanceTest")
+    void validates_WithOrOperatorWhenLeftValidates_RightShouldNotBeEvaluated() {
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = new AgeConditionExpression(Operator.EQUAL, 0);
+        var rightSpy = Mockito.spy(right);
+        var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, rightSpy);
+        var validationInput = Mockito.mock(ValidationInput.class);
+        Mockito.when(left.validates(validationInput)).thenReturn(Optional.empty());
+
+        binaryExpression.validates(validationInput);
+
+        Mockito.verify(rightSpy, Mockito.times(0)).validates(validationInput);
     }
 }

@@ -129,7 +129,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         repository.create(clauseA);
 
-        Assertions.assertThrows(ServiceException.class, () -> repository.create(clauseB), "Expected an exception since duplicate entry");
+        var ex = Assertions.assertThrows(ServiceException.class, () -> repository.create(clauseB), "Expected an exception since duplicate entry");
+        assertEquals("Clause already exists", ex.getMessage());
     }
 
 

@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.common.model;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static dk.kvalitetsit.itukt.common.model.BinaryExpression.OptionalValidationError.*;
+import static dk.kvalitetsit.itukt.common.model.BinaryExpression.Option.*;
 import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
 import static java.util.Optional.*;
 
@@ -13,15 +13,15 @@ public record BinaryExpression(Expression left, Operator operator, Expression ri
     @Override
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
         var leftError = fromOptional(left.validates(validationInput));
-        Supplier<OptionalValidationError> rightError = () -> fromOptional(right.validates(validationInput));
+        Supplier<Option<ValidationFailed>> rightError = () -> fromOptional(right.validates(validationInput));
         return switch (operator) {
             case AND -> and(leftError, rightError.get());
             case OR -> or(leftError, rightError);
         };
     }
 
-    static Optional<ValidationFailed> and(OptionalValidationError left, OptionalValidationError right) {
-        return switch (new Pair(left, right)) {
+    static Optional<ValidationFailed> and(Option<ValidationFailed> left, Option<ValidationFailed> right) {
+        return switch (new Pair<>(left, right)) {
             case Pair(Present(ExistingDrugMedicationRequired existingRequired), var __) -> of(existingRequired);
             case Pair(var __, Present(ExistingDrugMedicationRequired existingRequired)) -> of(existingRequired);
             case Pair(Present(ValidationError l), Present(ValidationError r)) -> of(new AndError(l, r));
@@ -32,11 +32,11 @@ public record BinaryExpression(Expression left, Operator operator, Expression ri
         };
     }
 
-    static Optional<ValidationFailed> or(OptionalValidationError left, Supplier<OptionalValidationError> right) {
+    static Optional<ValidationFailed> or(Option<ValidationFailed> left, Supplier<Option<ValidationFailed>> right) {
         if (left instanceof Empty)
             return empty();
         else
-            return switch (new Pair(left, right.get())) {
+            return switch (new Pair<>(left, right.get())) {
                 case Pair(Empty l, var __) -> empty();
                 case Pair(var __, Empty r) -> empty();
                 case Pair(Present(ValidationError l), Present(ValidationError r)) -> of(new OrError(l, r));
@@ -48,15 +48,16 @@ public record BinaryExpression(Expression left, Operator operator, Expression ri
     }
 
     // Java cannot pattern match on Optional. This wrapper class allows it.
-    sealed interface OptionalValidationError permits Present, Empty {
-        record Present(ValidationFailed f) implements OptionalValidationError {}
-        record Empty() implements OptionalValidationError {}
+    sealed interface Option<A> permits Present, Empty {
+        record Present<B>(B value) implements Option<B> {}
+        record Empty() implements Option {}
 
-        static OptionalValidationError fromOptional(Optional<ValidationFailed> o) {
-            return o.<OptionalValidationError>map(Present::new).orElse(new Empty());
+        static <C> Option<C> fromOptional(Optional<C> o) {
+            Option<C> empty = new Empty();
+            return o.<Option<C>>map(Present::new).orElse(empty);
         }
     }
 
     // To help pattern matching
-    record Pair(OptionalValidationError vf1, OptionalValidationError vf2) {}
+    record Pair<A, B>(Option<A> vf1, Option<B> vf2) {}
 }

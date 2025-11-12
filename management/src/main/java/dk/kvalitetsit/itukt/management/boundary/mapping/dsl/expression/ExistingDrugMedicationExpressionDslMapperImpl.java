@@ -5,7 +5,7 @@ import org.openapitools.model.ExistingDrugMedicationCondition;
 
 import java.util.List;
 
-public class ExistingDrugMedicationExpressionDslMapperImpl implements ExpressionDslMapper<ExistingDrugMedicationCondition> {
+class ExistingDrugMedicationExpressionDslMapperImpl implements ExpressionDslMapper<ExistingDrugMedicationCondition> {
 
     private static String toString(ExistingDrugMedicationCondition expression) {
         return String.format("{%s = %s, %s = %s, %s = %s}",

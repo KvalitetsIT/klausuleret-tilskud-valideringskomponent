@@ -387,6 +387,8 @@ class ClauseDslDtoMapperTest {
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13"
         ).map(x -> new DslInput(new Error("blaah"), x)).toList();
+
+        dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
 
 

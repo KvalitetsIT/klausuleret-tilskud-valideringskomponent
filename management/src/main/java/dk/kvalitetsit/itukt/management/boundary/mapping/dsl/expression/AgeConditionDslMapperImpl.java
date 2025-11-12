@@ -10,11 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class AgeConditionDslMapperImpl implements ExpressionDslMapper<AgeCondition> {
-    private final ExpressionDtoDslMapper parent;
+class AgeConditionDslMapperImpl implements ExpressionDslMapper<AgeCondition> {
 
-    public AgeConditionDslMapperImpl(ExpressionDtoDslMapper parent) {
-        this.parent = parent;
+    public AgeConditionDslMapperImpl() {
     }
 
     @Override
@@ -23,15 +21,15 @@ public class AgeConditionDslMapperImpl implements ExpressionDslMapper<AgeConditi
                 .collect(Collectors.groupingBy(AgeCondition::getOperator))
                 .entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
-                .map(this::toString)
+                .map(this::merge)
                 .collect(Collectors.joining(" eller "));
     }
 
-    private String toString(Map.Entry<@NotNull @Valid Operator, @NotNull List<AgeCondition>> entry) {
+    private String merge(Map.Entry<@NotNull @Valid Operator, @NotNull List<AgeCondition>> entry) {
         Operator operator = entry.getKey();
         List<AgeCondition> conditions = entry.getValue();
         if (operator == Operator.EQUAL) return mergeAgeEqualsConditions(conditions);
-        return conditions.stream().map(parent::map).collect(Collectors.joining(" eller "));
+        return conditions.stream().map(this::map).map(Dsl::dsl).collect(Collectors.joining(" eller "));
     }
 
     @Override
@@ -40,7 +38,7 @@ public class AgeConditionDslMapperImpl implements ExpressionDslMapper<AgeConditi
     }
 
     private String mergeAgeEqualsConditions(List<AgeCondition> ageConditions) {
-        if (ageConditions.size() == 1) return parent.map(ageConditions.getFirst());
+        if (ageConditions.size() == 1) return this.map(ageConditions.getFirst()).dsl();
         return ExpressionDtoDslMapper.mergeConditions(Identifier.AGE, ageConditions, e -> Integer.toString(e.getValue()));
     }
 

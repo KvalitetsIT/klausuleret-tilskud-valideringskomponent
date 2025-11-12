@@ -1,12 +1,10 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression;
 
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression.ExpressionDtoDslMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.*;
 
@@ -14,10 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @ExtendWith(MockitoExtension.class)
-class ExpressionDtoDslMapperTest {
+class ExpressionDtoDslMapperFeatureTest {
 
-    @InjectMocks
-    private ExpressionDtoDslMapper mapper;
+    private final ExpressionDtoDslMapper mapper = new ExpressionDtoDslMapper(new MapperFactory());
 
     @Test
     void givenMultipleIndications_whenMap_thenMergeIntoList() {

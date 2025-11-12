@@ -12,14 +12,14 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
 
     private final ExpressionDslMapper<IndicationCondition> indicationConditionExpressionDslMapper;
     private final ExpressionDslMapper<AgeCondition> ageConditionExpressionDslMapper;
-    private final ExpressionDslMapper<BinaryExpression> binaryExpressionExpressionDslMapper;
+    private final Mapper<BinaryExpression, Dsl> binaryExpressionExpressionDslMapper;
     private final ExpressionDslMapper<ExistingDrugMedicationCondition> existingDrugMedicationConditionExpressionDslMapper;
 
-    public ExpressionDtoDslMapper() {
-        existingDrugMedicationConditionExpressionDslMapper = new ExistingDrugMedicationExpressionDslMapperImpl();
-        binaryExpressionExpressionDslMapper = new BinaryExpressionDslMapperImpl(this);
-        ageConditionExpressionDslMapper = new AgeConditionDslMapperImpl(this);
-        indicationConditionExpressionDslMapper = new IndicationExpressionDslMapperImpl();
+    public ExpressionDtoDslMapper(MapperFactory factory) {
+        existingDrugMedicationConditionExpressionDslMapper = factory.getExistingDrugMedicationConditionExpressionDslMapper();
+        binaryExpressionExpressionDslMapper = factory.getBinaryExpressionExpressionDslMapper(this);
+        ageConditionExpressionDslMapper = factory.getAgeConditionExpressionDslMapper();
+        indicationConditionExpressionDslMapper = factory.getIndicationConditionExpressionDslMapper();
     }
 
     private static <T extends Expression> List<T> castList(List<?> list, Class<T> clazz) {
@@ -44,20 +44,25 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
         return switch (entry) {
             case BinaryExpression b -> binaryExpressionExpressionDslMapper.map(b);
             case AgeCondition ageCondition -> ageConditionExpressionDslMapper.map(ageCondition);
-            case ExistingDrugMedicationCondition existingDrugMedicationCondition -> existingDrugMedicationConditionExpressionDslMapper.map(existingDrugMedicationCondition);
-            case IndicationCondition indicationCondition -> indicationConditionExpressionDslMapper.map(indicationCondition);
+            case ExistingDrugMedicationCondition existingDrugMedicationCondition ->
+                    existingDrugMedicationConditionExpressionDslMapper.map(existingDrugMedicationCondition);
+            case IndicationCondition indicationCondition ->
+                    indicationConditionExpressionDslMapper.map(indicationCondition);
         };
     }
 
     protected String mergeConditions(List<? extends Expression> conditions) {
-        if (conditions.isEmpty()) return "";
+        if (conditions.isEmpty()) throw new IllegalStateException("Expected at least a single condition, but none were given");
         if (conditions.size() == 1) return this.map(conditions.getFirst());
 
         return switch (conditions.getFirst()) {
-            case AgeCondition ignored -> ageConditionExpressionDslMapper.merge(castList(conditions, AgeCondition.class));
-            case ExistingDrugMedicationCondition ignored -> existingDrugMedicationConditionExpressionDslMapper.merge(castList(conditions, ExistingDrugMedicationCondition.class));
-            case IndicationCondition ignored -> indicationConditionExpressionDslMapper.merge(castList(conditions, IndicationCondition.class));
-            case BinaryExpression ignored ->binaryExpressionExpressionDslMapper.merge(castList(conditions, BinaryExpression.class));
+            case AgeCondition ignored ->
+                    ageConditionExpressionDslMapper.merge(castList(conditions, AgeCondition.class));
+            case ExistingDrugMedicationCondition ignored ->
+                    existingDrugMedicationConditionExpressionDslMapper.merge(castList(conditions, ExistingDrugMedicationCondition.class));
+            case IndicationCondition ignored ->
+                    indicationConditionExpressionDslMapper.merge(castList(conditions, IndicationCondition.class));
+            default -> throw new IllegalStateException("Unexpected value: " + conditions.getFirst());
         };
     }
 }

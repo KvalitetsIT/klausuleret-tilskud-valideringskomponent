@@ -31,57 +31,76 @@ public class ExpressionTests {
         assertEquals(Optional.of(v), o.map(ValidationError::toErrorString));
     }
 
-    static Stream<Arguments> allValidNumberConditionCombinations() {
-        return Stream.of(Operator.values())
-                .flatMap(ExpressionTests::toValidAgeConditionExpression)
-                .map(Arguments::of);
-    }
-
-    static Stream<AgeConditionExpression> toValidAgeConditionExpression(Operator op) {
-        var validatingAges = switch (op) {
-            case EQUAL -> Stream.of(inputAge);
-            case LESS_THAN_OR_EQUAL_TO -> Stream.of(inputAge, inputAge + 1);
-            case GREATER_THAN_OR_EQUAL_TO -> Stream.of(inputAge, inputAge - 1);
-            case GREATER_THAN -> Stream.of(inputAge - 1);
-            case LESS_THAN -> Stream.of(inputAge + 1);
-        };
-        return validatingAges.map(v -> new AgeConditionExpression(op, v));
-    }
-
-    static Stream<Arguments> allErrorNumberConditionCombinations() {
-        return Stream.of(Operator.values())
-                .map(ExpressionTests::toExpressionAndExpectedError)
-                .map(Arguments::of);
-    }
-
-    static ExpressionAndExpectedError toExpressionAndExpectedError(Operator op) {
-        var failingAgesWithError = switch (op) {
-            case EQUAL -> new ExpectedAgeAndError(inputAge + 1, "alder skal være " + (inputAge + 1));
-            case GREATER_THAN -> new ExpectedAgeAndError(inputAge + 1, "alder skal være større end " + (inputAge + 1));
-            case LESS_THAN_OR_EQUAL_TO -> new ExpectedAgeAndError(inputAge - 1, "alder skal være mindre end eller lig " + (inputAge - 1));
-            case GREATER_THAN_OR_EQUAL_TO -> new ExpectedAgeAndError(inputAge + 1, "alder skal være større end eller lig " + (inputAge + 1));
-            case LESS_THAN -> new ExpectedAgeAndError(inputAge - 1, "alder skal være mindre end " + (inputAge - 1));
-        };
-        return new ExpressionAndExpectedError(
-                new AgeConditionExpression(op, failingAgesWithError.age),
-                failingAgesWithError.error);
-    }
-
-    record ExpectedAgeAndError(Integer age, String error) {}
-
-    record ExpressionAndExpectedError(Expression expression, String expectedError) {}
-
-    @ParameterizedTest
-    @MethodSource("allValidNumberConditionCombinations")
-    void validateNumber_noError(AgeConditionExpression expression) {
+    @Test
+    void validateNumber_equal_noError() {
+        var expression = new AgeConditionExpression(Operator.EQUAL, inputAge);
         assertEquals(empty(), expression.validates(validationInput));
     }
 
+    @Test
+    void validateNumber_lessThanOrEqual_inputAge_noError() {
+        var expression = new AgeConditionExpression(Operator.LESS_THAN_OR_EQUAL_TO, inputAge);
+        assertEquals(empty(), expression.validates(validationInput));
+    }
 
-    @ParameterizedTest
-    @MethodSource("allErrorNumberConditionCombinations")
-    void validateNumber_error(ExpressionAndExpectedError expressionAndError) {
-        assertErrorMessage(expressionAndError.expectedError, expressionAndError.expression.validates(validationInput));
+    @Test
+    void validateNumber_lessThanOrEqual_inputAgePlusOne_noError() {
+        var expression = new AgeConditionExpression(Operator.LESS_THAN_OR_EQUAL_TO, inputAge + 1);
+        assertEquals(empty(), expression.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_greaterThanOrEqual_inputAge_noError() {
+        var expression = new AgeConditionExpression(Operator.GREATER_THAN_OR_EQUAL_TO, inputAge);
+        assertEquals(empty(), expression.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_greaterThanOrEqual_inputAgeMinusOne_noError() {
+        var expression = new AgeConditionExpression(Operator.GREATER_THAN_OR_EQUAL_TO, inputAge - 1);
+        assertEquals(empty(), expression.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_greaterThan_inputAgeMinusOne_noError() {
+        var expression = new AgeConditionExpression(Operator.GREATER_THAN, inputAge - 1);
+        assertEquals(empty(), expression.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_lessThan_inputAgePlusOne_noError() {
+        var expression = new AgeConditionExpression(Operator.LESS_THAN, inputAge + 1);
+        assertEquals(empty(), expression.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_equal_error() {
+        var expr = new AgeConditionExpression(Operator.EQUAL, inputAge + 1);
+        assertErrorMessage("alder skal være " + (inputAge + 1), expr.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_greaterThan_error() {
+        var expr = new AgeConditionExpression(Operator.GREATER_THAN, inputAge + 1);
+        assertErrorMessage("alder skal være større end " + (inputAge + 1), expr.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_lessThanOrEqual_error() {
+        var expr = new AgeConditionExpression(Operator.LESS_THAN_OR_EQUAL_TO, inputAge - 1);
+        assertErrorMessage("alder skal være mindre end eller lig " + (inputAge - 1), expr.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_greaterThanOrEqual_error() {
+        var expr = new AgeConditionExpression(Operator.GREATER_THAN_OR_EQUAL_TO, inputAge + 1);
+        assertErrorMessage("alder skal være større end eller lig " + (inputAge + 1), expr.validates(validationInput));
+    }
+
+    @Test
+    void validateNumber_lessThan_error() {
+        var expr = new AgeConditionExpression(Operator.LESS_THAN, inputAge - 1);
+        assertErrorMessage("alder skal være mindre end " + (inputAge - 1), expr.validates(validationInput));
     }
 
     @Test
@@ -222,23 +241,44 @@ public class ExpressionTests {
         assertErrorMessage("alder skal være 38 eller indikation skal være indication-no-match eller indikation skal være indication-no-match2", result);
     }
 
-    private static Stream<Arguments> allAndCombinations() {
-        return Stream.of(
-                Arguments.of(inputAge, inputIndication, empty()),
-                Arguments.of(inputAge - 1, inputIndication, Optional.of("alder skal være " + (inputAge - 1))),
-                Arguments.of(inputAge, inputIndication + "-no-match", Optional.of("indikation skal være " + inputIndication + "-no-match")),
-                Arguments.of(inputAge - 1, inputIndication + "-no-match", Optional.of("alder skal være " + (inputAge - 1) + " og " + "indikation skal være " + inputIndication + "-no-match"))
-        );
+    @Test
+    void validate_and_noError() {
+        var exp1 = new AgeConditionExpression(Operator.EQUAL, inputAge);
+        var exp2 = new IndicationConditionExpression(inputIndication);
+        var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
+        var result = combined.validates(validationInput);
+        assertEquals(empty(), result.map(ValidationError::toErrorString));
     }
 
-    @ParameterizedTest
-    @MethodSource("allAndCombinations")
-    void validate_andErrorShouldBeReturned(int age, String indication, Optional<String> expectedError) {
+    @Test
+    void validate_and_ageError() {
+        var age = inputAge - 1;
+        var exp1 = new AgeConditionExpression(Operator.EQUAL, age);
+        var exp2 = new IndicationConditionExpression(inputIndication);
+        var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
+        var result = combined.validates(validationInput);
+        assertErrorMessage("alder skal være " + age, result);
+    }
+
+    @Test
+    void validate_and_indicationError() {
+        var indication = inputIndication + "-no-match";
+        var exp1 = new AgeConditionExpression(Operator.EQUAL, inputAge);
+        var exp2 = new IndicationConditionExpression(indication);
+        var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
+        var result = combined.validates(validationInput);
+        assertErrorMessage("indikation skal være " + indication, result);
+    }
+
+    @Test
+    void validate_and_bothError() {
+        var age = inputAge - 1;
+        var indication = inputIndication + "-no-match";
         var exp1 = new AgeConditionExpression(Operator.EQUAL, age);
         var exp2 = new IndicationConditionExpression(indication);
         var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
         var result = combined.validates(validationInput);
-        assertEquals(expectedError, result.map(ValidationError::toErrorString));
+        assertErrorMessage("alder skal være " + age + " og indikation skal være " + indication, result);
     }
 
     @Test
@@ -247,52 +287,174 @@ public class ExpressionTests {
         assertEquals(empty(), exp.validates(validationInputWithHistory));
     }
 
-    private static Stream<Arguments> nonValidatingHistoryExpressionCodes() {
-        return Stream.of(
-                Arguments.of(inputAtcCode + "-no-match", inputFormCode, inputRouteOfAdministrationCode),
-                Arguments.of(inputAtcCode, inputFormCode + "-no-match", inputRouteOfAdministrationCode),
-                Arguments.of(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode + "-no-match")
+    @Test
+    void validate_existingMedication_error_atcMismatch() {
+        var atcCode = inputAtcCode + "-no-match";
+        var formCode = inputFormCode;
+        var route = inputRouteOfAdministrationCode;
+        var exp = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var result = exp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "Tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
+                        ", Formkode = " + formCode +
+                        ", Administrationsrutekode = " + route,
+                result
         );
     }
 
-    @ParameterizedTest
-    @MethodSource("nonValidatingHistoryExpressionCodes")
-    void validate_existingMedication_errorShouldBeReturned(String atcCode, String formCode, String routeOfAdministrationCode) {
-        var exp = new ExistingDrugMedicationConditionExpression(atcCode, formCode, routeOfAdministrationCode);
-        Optional<ValidationError> result = exp.validates(validationInputWithHistory);
-        assertErrorMessage("Tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + routeOfAdministrationCode, result);
+    @Test
+    void validate_existingMedication_error_formMismatch() {
+        var atcCode = inputAtcCode;
+        var formCode = inputFormCode + "-no-match";
+        var route = inputRouteOfAdministrationCode;
+        var exp = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var result = exp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "Tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
+                        ", Formkode = " + formCode +
+                        ", Administrationsrutekode = " + route,
+                result
+        );
     }
 
-    @ParameterizedTest
-    @MethodSource("nonValidatingHistoryExpressionCodes")
-    void validate_existingMedication_nestedErrorShouldBeReturned(String atcCode, String formCode, String routeOfAdministrationCode) {
+    @Test
+    void validate_existingMedication_error_routeMismatch() {
+        var atcCode = inputAtcCode;
+        var formCode = inputFormCode;
+        var route = inputRouteOfAdministrationCode + "-no-match";
+        var exp = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var result = exp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "Tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
+                        ", Formkode = " + formCode +
+                        ", Administrationsrutekode = " + route,
+                result
+        );
+    }
+
+    @Test
+    void validate_existingMedication_nestedError_atcMismatch() {
+        var atcCode = inputAtcCode + "-no-match";
+        var formCode = inputFormCode;
+        var route = inputRouteOfAdministrationCode;
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
-        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, routeOfAdministrationCode);
+        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
         var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
 
-        Optional<ValidationError> result = andExp.validates(validationInputWithHistory);
-        assertErrorMessage("alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
-                atcCode + ", Formkode = " +
-                formCode + ", Administrationsrutekode = " +
-                routeOfAdministrationCode +
-                " eller indikation skal være indication-no-match)", result);
+        var result = andExp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
+                        " eller indikation skal være indication-no-match)",
+                result
+        );
     }
 
-    @ParameterizedTest
-    @MethodSource("nonValidatingHistoryExpressionCodes")
-    void validate_existingMedication_nestedErrorShouldBeReturned2(String atcCode, String formCode, String routeOfAdministrationCode) {
+    @Test
+    void validate_existingMedication_nestedError_formMismatch() {
+        var atcCode = inputAtcCode;
+        var formCode = inputFormCode + "-no-match";
+        var route = inputRouteOfAdministrationCode;
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
-        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, routeOfAdministrationCode);
+        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
+        var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
+        var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
+
+        var result = andExp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
+                        " eller indikation skal være indication-no-match)",
+                result
+        );
+    }
+
+    @Test
+    void validate_existingMedication_nestedError_routeMismatch() {
+        var atcCode = inputAtcCode;
+        var formCode = inputFormCode;
+        var route = inputRouteOfAdministrationCode + "-no-match";
+        var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
+        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
+        var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
+        var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
+
+        var result = andExp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
+                        " eller indikation skal være indication-no-match)",
+                result
+        );
+    }
+
+    @Test
+    void validate_existingMedication_nestedError2_atcMismatch() {
+        var atcCode = inputAtcCode + "-no-match";
+        var formCode = inputFormCode;
+        var route = inputRouteOfAdministrationCode;
+        var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
+        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
         var exp3 = new IndicationConditionExpression(inputIndication);
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.AND, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.OR, orExp);
 
-        Optional<ValidationError> result = andExp.validates(validationInputWithHistory);
-        assertErrorMessage("alder skal være 18 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
-                atcCode + ", Formkode = " +
-                formCode + ", Administrationsrutekode = " +
-                routeOfAdministrationCode, result);
+        var result = andExp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "alder skal være 18 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
+                result
+        );
+    }
+
+    @Test
+    void validate_existingMedication_nestedError2_formMismatch() {
+        var atcCode = inputAtcCode;
+        var formCode = inputFormCode + "-no-match";
+        var route = inputRouteOfAdministrationCode;
+        var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
+        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var exp3 = new IndicationConditionExpression(inputIndication);
+        var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.AND, exp3);
+        var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.OR, orExp);
+
+        var result = andExp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "alder skal være 18 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
+                result
+        );
+    }
+
+    @Test
+    void validate_existingMedication_nestedError2_routeMismatch() {
+        var atcCode = inputAtcCode;
+        var formCode = inputFormCode;
+        var route = inputRouteOfAdministrationCode + "-no-match";
+        var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
+        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var exp3 = new IndicationConditionExpression(inputIndication);
+        var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.AND, exp3);
+        var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.OR, orExp);
+
+        var result = andExp.validates(validationInputWithHistory);
+
+        assertErrorMessage(
+                "alder skal være 18 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
+                result
+        );
     }
 }

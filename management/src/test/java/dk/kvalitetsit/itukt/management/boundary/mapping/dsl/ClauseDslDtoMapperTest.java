@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.ClauseDslDtoMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +15,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
-class ClauseDslModelMapperTest {
+class ClauseDslDtoMapperTest {
 
 
     @InjectMocks
-    private ClauseDslModelMapper mapper;
+    private ClauseDslDtoMapper mapper;
 
     @Test
     void givenTwoValidDslWithAndWithoutParenthesis_whenMap_thenAssertAndHasHigherPrecedence() {
@@ -378,6 +379,7 @@ class ClauseDslModelMapperTest {
                 ),
                 new Error("blaah")
         );
+
         var dsls = Stream.of(
                 "Klausul CLAUSE: (INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)",
                 "Klausul CLAUSE: (INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13))",
@@ -385,7 +387,6 @@ class ClauseDslModelMapperTest {
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13"
         ).map(x -> new DslInput(new Error("blaah"), x)).toList();
-
 
         dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
@@ -716,5 +717,14 @@ class ClauseDslModelMapperTest {
                 () -> mapper.map(new DslInput(new Error("blaah"), dsl)),
                 "If a dsl with an invalid array is given an exception is expected to be thrown");
     }
+
+
+
+
+
+
+
+
+
 
 }

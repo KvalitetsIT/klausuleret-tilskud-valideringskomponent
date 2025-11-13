@@ -1,7 +1,8 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause;
 
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import org.openapitools.model.*;
 
 import java.util.*;

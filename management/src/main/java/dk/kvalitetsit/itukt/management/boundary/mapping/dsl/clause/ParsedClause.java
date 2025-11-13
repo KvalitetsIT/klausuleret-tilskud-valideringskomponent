@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause;
 
 import org.openapitools.model.Expression;
 

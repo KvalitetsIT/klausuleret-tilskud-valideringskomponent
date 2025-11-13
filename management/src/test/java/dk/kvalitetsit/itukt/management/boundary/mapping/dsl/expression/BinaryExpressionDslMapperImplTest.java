@@ -24,8 +24,8 @@ class BinaryExpressionDslMapperImplTest {
 
     @Test
     void merge_givenDslWithTwoIndicationConditions_whenMap_thenReturnExpectedDsl() {
-        IndicationCondition left = new IndicationCondition().type(ExpressionType.INDICATION).value("indication1");
-        IndicationCondition right = new IndicationCondition().type(ExpressionType.INDICATION).value("indication2");
+        IndicationCondition left = Mockito.mock(IndicationCondition.class);
+        IndicationCondition right = Mockito.mock(IndicationCondition.class);
 
         var subject = new BinaryExpression(
                 left,
@@ -34,11 +34,11 @@ class BinaryExpressionDslMapperImplTest {
                 ExpressionType.BINARY
         );
 
-        Mockito.when(parent.toDsl(left)).thenReturn(new Dsl(Identifier.INDICATION + " = indication1", Dsl.Type.CONDITION));
-        Mockito.when(parent.toDsl(right)).thenReturn(new Dsl(Identifier.INDICATION + " = indication2", Dsl.Type.CONDITION));
+        Mockito.when(parent.toDsl(left)).thenReturn(new Dsl("left", Dsl.Type.CONDITION));
+        Mockito.when(parent.toDsl(right)).thenReturn(new Dsl("right", Dsl.Type.CONDITION));
 
 
-        Dsl expected = new Dsl(Identifier.INDICATION + " = indication1 og " + Identifier.INDICATION + " = indication2", Dsl.Type.AND);
+        Dsl expected = new Dsl("left og right", Dsl.Type.AND);
         Dsl actual = mapper.map(subject);
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }

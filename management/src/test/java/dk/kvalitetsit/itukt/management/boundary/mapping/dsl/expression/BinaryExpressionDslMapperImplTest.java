@@ -9,7 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openapitools.model.*;
+import org.openapitools.model.AgeCondition;
+import org.openapitools.model.BinaryExpression;
+import org.openapitools.model.BinaryOperator;
+import org.openapitools.model.IndicationCondition;
 
 import java.util.List;
 
@@ -46,15 +49,16 @@ class BinaryExpressionDslMapperImplTest {
     @Test
     void map_givenAValidIBinaryExpressions_whenMap_thenReturnExpectedDsl() {
 
-        var left = new AgeCondition(Operator.EQUAL, 20, ExpressionType.BINARY);
-        var right = new IndicationCondition().type(ExpressionType.INDICATION).value("indication1");
+        var left = Mockito.mock(AgeCondition.class);
+        var right = Mockito.mock(IndicationCondition.class);
 
         var subject = new BinaryExpression().left(left).operator(BinaryOperator.OR).right(right);
-        var expected = new Dsl(Identifier.AGE + " = 20 eller " + Identifier.INDICATION + " = indication1", Dsl.Type.OR);
+        String leftDsl = Identifier.AGE + " = 20";
+        String rightDsl = Identifier.INDICATION + " = indication1";
+        var expected = new Dsl(leftDsl + " eller " + rightDsl, Dsl.Type.OR);
 
-
-        Mockito.when(parent.mergeConditions(List.of(left))).thenReturn(Identifier.AGE + " = 20");
-        Mockito.when(parent.mergeConditions(List.of(right))).thenReturn(Identifier.INDICATION + " = indication1");
+        Mockito.when(parent.mergeConditions(List.of(left))).thenReturn(leftDsl);
+        Mockito.when(parent.mergeConditions(List.of(right))).thenReturn(rightDsl);
 
         var actual = mapper.map(subject);
 

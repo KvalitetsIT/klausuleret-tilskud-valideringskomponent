@@ -2,12 +2,12 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
-import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import org.openapitools.model.*;
+import org.openapitools.model.BinaryExpression;
+import org.openapitools.model.Operator;
 
 public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapitools.model.Expression> {
 
@@ -20,11 +20,16 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
             case IndicationConditionExpression s -> this.map(s);
             case AgeConditionExpression n -> this.map(n);
             case ExistingDrugMedicationConditionExpression e -> this.map(e);
+            case DoctorSpecialityConditionExpression a -> this.map(a);
         };
     }
 
     private IndicationCondition map(IndicationConditionExpression s) {
         return new IndicationCondition(s.requiredValue(), ExpressionType.INDICATION);
+    }
+
+    private DoctorSpecialityCondition map(DoctorSpecialityConditionExpression a) {
+        return new DoctorSpecialityCondition(a.speciality(), ExpressionType.DOCTOR_SPECIALITY);
     }
 
     private AgeCondition map(AgeConditionExpression n) {
@@ -38,5 +43,4 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
     private BinaryExpression map(dk.kvalitetsit.itukt.common.model.BinaryExpression b) {
         return new BinaryExpression(this.map(b.left()), BinaryOperator.fromValue(b.operator().toString()), this.map((b.right())), ExpressionType.BINARY);
     }
-
 }

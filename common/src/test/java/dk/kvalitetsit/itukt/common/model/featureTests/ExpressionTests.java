@@ -2,13 +2,9 @@ package dk.kvalitetsit.itukt.common.model.featureTests;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ExpressionTests {
     final static int inputAge = 40;
     final static String inputIndication = "input-indication";
-    final ValidationInput validationInput = new ValidationInput("", "", empty(), List.of(), inputAge, 0, inputIndication, empty());
+    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.CreatedBy("", "speciale"), empty(), List.of(), inputAge, 0, inputIndication, empty());
 
     final static String
             inputAtcCode = "atcCode",
@@ -25,7 +21,7 @@ public class ExpressionTests {
     final List<ExistingDrugMedication> existingMedications =
             List.of(new ExistingDrugMedication(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode));
     final ValidationInput validationInputWithHistory =
-            new ValidationInput("", "", empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications));
+            new ValidationInput("", new ValidationInput.CreatedBy("speciale"), empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications));
 
     static void assertErrorMessage(String v, Optional<ValidationFailed> o) {
         assertEquals(Optional.of(v), o.map(failed -> assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed).toErrorString()));
@@ -248,6 +244,20 @@ public class ExpressionTests {
 
         var result = combined.validates(validationInput);
         assertErrorMessage("alder skal være 38 eller indikation skal være input-indication-no-match eller indikation skal være input-indication-no-match2", result);
+    }
+
+    @Test
+    void validate_noError() {
+        var expression = new DoctorSpecialityConditionExpression("speciale");
+        var result = expression.validates(validationInput);
+        assertEquals(empty(), result);
+    }
+
+    @Test
+    void validate_errorShouldBeReturned11() {
+        var expression = new DoctorSpecialityConditionExpression("speciale-no-match");
+        var result = expression.validates(validationInput);
+        assertErrorMessage("lægespeciale skal være speciale-no-match", result);
     }
 
     @Test

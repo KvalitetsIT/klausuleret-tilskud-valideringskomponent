@@ -36,7 +36,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {
-        var validationInput = new ValidationInput("1234", "creator", Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.empty());
 
         var result = service.validate(validationInput);
@@ -46,7 +46,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenClauseCacheDoesNotContainClauseForDrugId_ReturnsSuccess() {
-        var validationInput = new ValidationInput("1234", "creator", Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1234L), Set.of(new StamData.Clause("0000", null)));
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(stamdataClause.clauses().iterator().next().code())).thenReturn(Optional.empty());
@@ -58,7 +58,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationSucceeds_ReturnsSuccess() {
-        var validationInput = new ValidationInput("1234", "creator", Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1234L), Set.of(new StamData.Clause("0000", null)));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, null, expression);
@@ -75,7 +75,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationFails_ReturnsValidationError() {
-        var validationInput = new ValidationInput("1234", "creator", Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(null), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("message", 10800), expression);
@@ -98,7 +98,7 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheContainsMultipleClausesWhereTwoFails_ReturnsValidationErrors() {
         // Arrange
-        var validationInput = new ValidationInput("1234", "creator", Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
 
         // two clauses in stamdata
         var stamdataClause = new StamData(
@@ -141,7 +141,7 @@ class ValidationServiceImplTest {
     @Test
     void validate_WithoutReportedBy_CreatesSkippedValidationsForCreator() {
         String creator = "creator";
-        var validationInput = new ValidationInput("1234", creator, Optional.empty(), List.of(1, 2, 3), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.empty(), List.of(1, 2, 3), 5, 1234, "", Optional.empty());
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.empty());
 
         service.validate(validationInput);
@@ -154,7 +154,7 @@ class ValidationServiceImplTest {
     void validate_WithReportedBy_CreatesSkippedValidationsForCreatorAndReporter() {
         String creator = "creator";
         String reporter = "reporter";
-        var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(1, 2, 3), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.of(reporter), List.of(1, 2, 3), 5, 1234, "", Optional.empty());
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.empty());
 
         service.validate(validationInput);
@@ -168,7 +168,7 @@ class ValidationServiceImplTest {
     void validate_WhenClauseValidationShouldBeSkippedForCreator_DoesNotValidateClause() {
         String creator = "creator";
         String reporter = "reporter";
-        var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
@@ -185,7 +185,7 @@ class ValidationServiceImplTest {
     void validate_WhenClauseValidationShouldBeSkippedForReporter_DoesNotValidateClause() {
         String creator = "creator";
         String reporter = "reporter";
-        var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
@@ -203,7 +203,7 @@ class ValidationServiceImplTest {
     void validate_WhenClauseValidationShouldNotBeSkippedForCreatorOrReporter_ValidatesClause() {
         String creator = "creator";
         String reporter = "reporter";
-        var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
+        var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);

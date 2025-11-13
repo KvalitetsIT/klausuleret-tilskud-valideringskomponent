@@ -16,8 +16,13 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
         };
     }
 
-    private IndicationConditionExpression map(ExpressionEntity.StringConditionEntity b) {
-        return new IndicationConditionExpression(b.value());
+    private Expression.Condition map(ExpressionEntity.StringConditionEntity b) {
+        return switch(b.field()) {
+            case AGE -> throw new RuntimeException("Error mapping age entity");
+            case INDICATION -> new IndicationConditionExpression(b.value());
+            case DOCTOR_SPECIALITY -> new DoctorSpecialityConditionExpression(b.value());
+            case EXISTING_DRUG_MEDICATION -> throw new RuntimeException("Error mapping existing medication entity");
+        };
     }
 
     private AgeConditionExpression map(ExpressionEntity.NumberConditionEntity n) {
@@ -31,6 +36,4 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
     private BinaryExpression map(ExpressionEntity.BinaryExpressionEntity b) {
         return new BinaryExpression(this.map(b.left()), b.operator(), this.map((b.right())));
     }
-
-
 }

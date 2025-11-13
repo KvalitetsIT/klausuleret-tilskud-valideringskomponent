@@ -48,6 +48,7 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
                     existingDrugMedicationConditionExpressionDslMapper.map(existingDrugMedicationCondition);
             case IndicationCondition indicationCondition ->
                     indicationConditionExpressionDslMapper.map(indicationCondition);
+            case DoctorSpecialityCondition doctorSpecialityCondition -> throw new RuntimeException("TODO");
         };
     }
 

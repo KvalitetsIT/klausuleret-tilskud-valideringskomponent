@@ -7,6 +7,8 @@ import org.openapitools.model.*;
 import java.util.List;
 import java.util.Optional;
 
+import static dk.kvalitetsit.itukt.common.model.ValidationInput.*;
+
 /**
  * The {@code ValidationServiceAdaptor} class is responsible for adapting between the boundary layer and the service layer {@link ValidationServiceImpl}.
  * <p>
@@ -65,10 +67,10 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                 .map(e -> e.stream()
                         .map(this::mapExistingDrugMedication)
                         .toList());
+        Actor createdBy = validate.getNewDrugMedication().getCreatedBy();
         return new ValidationInput(
                 validationRequest.getPersonIdentifier(),
-                validate.getNewDrugMedication().getCreatedBy().getIdentifier(),
-                validate.getNewDrugMedication().getReportedBy().map(Actor::getIdentifier),
+                new CreatedBy(createdBy.getIdentifier(), createdBy.getSpecialityCode()), validate.getNewDrugMedication().getReportedBy().map(Actor::getIdentifier),
                 validationRequest.getSkipValidations(),
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),

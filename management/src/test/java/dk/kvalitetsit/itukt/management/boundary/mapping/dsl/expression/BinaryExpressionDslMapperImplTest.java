@@ -9,13 +9,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openapitools.model.AgeCondition;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.BinaryOperator;
-import org.openapitools.model.IndicationCondition;
+import org.openapitools.model.*;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +43,7 @@ class BinaryExpressionDslMapperImplTest {
 
         Dsl expected = new Dsl("left og right", Dsl.Type.AND);
         Dsl actual = mapper.map(subject);
-        Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+        assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
     @Test
@@ -64,7 +62,7 @@ class BinaryExpressionDslMapperImplTest {
 
         var actual = mapper.map(subject);
 
-        Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+        assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
     @Test
@@ -84,7 +82,7 @@ class BinaryExpressionDslMapperImplTest {
         Dsl actual = mapper.map(subject);
 
         Dsl expected = new Dsl("left eller right", Dsl.Type.CONDITION);
-        Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+        assertEquals(expected, actual, "Unexpected mapping of: " + subject);
 
         verify(parent).mergeConditions(List.of(left, right));
         verifyNoMoreInteractions(parent);
@@ -115,8 +113,8 @@ class BinaryExpressionDslMapperImplTest {
 
         Dsl actual = mapper.map(subject);
 
-        Assertions.assertEquals("indicationConditions eller age", actual.dsl());
-        Assertions.assertEquals(Dsl.Type.OR, actual.type());
+        assertEquals("indicationConditions eller age", actual.dsl());
+        assertEquals(Dsl.Type.OR, actual.type());
 
         verify(parent).mergeConditions(List.of(indicationCondition1, indicationCondition2));
         verify(parent).mergeConditions(List.of(ageCondition));
@@ -138,7 +136,61 @@ class BinaryExpressionDslMapperImplTest {
 
         Dsl actual = mapper.map(subject);
 
-        Assertions.assertEquals("blaah", actual.dsl());
-        Assertions.assertEquals(Dsl.Type.CONDITION, actual.type());
+        assertEquals("blaah", actual.dsl());
+        assertEquals(Dsl.Type.CONDITION, actual.type());
     }
+
+    @Test
+    void map_givenAndBetweenTwoConditions_whenMap_thenNoParentheses() {
+        Expression left = mock(IndicationCondition.class);
+        Expression right = mock(AgeCondition.class);
+        BinaryExpression expr = new BinaryExpression(left, BinaryOperator.AND, right, ExpressionType.BINARY);
+
+        when(parent.toDsl(left)).thenReturn(new Dsl("A", Dsl.Type.CONDITION));
+        when(parent.toDsl(right)).thenReturn(new Dsl("B", Dsl.Type.CONDITION));
+
+        Dsl result = mapper.map(expr);
+
+        assertEquals("A og B", result.dsl());
+        assertEquals(Dsl.Type.AND, result.type());
+    }
+
+    @Test
+    void map_givenAndWithRightSideOr_whenMap_thenParenthesizeRight() {
+        Expression left = mock(IndicationCondition.class);
+        Expression rightLeft = mock(AgeCondition.class);
+        Expression rightRight = mock(ExistingDrugMedicationCondition.class);
+
+        BinaryExpression orExpr = new BinaryExpression(rightLeft, BinaryOperator.OR, rightRight, ExpressionType.BINARY);
+        BinaryExpression expr = new BinaryExpression(left, BinaryOperator.AND, orExpr, ExpressionType.BINARY);
+
+        when(parent.toDsl(left)).thenReturn(new Dsl("A", Dsl.Type.CONDITION));
+        when(parent.toDsl(orExpr)).thenReturn(new Dsl("B eller C", Dsl.Type.OR));
+
+        Dsl result = mapper.map(expr);
+
+        assertEquals("A og (B eller C)", result.dsl());
+        assertEquals(Dsl.Type.AND, result.type());
+    }
+
+    @Test
+    void map_givenAndWithLeftAndRightOr_whenMap_thenParenthesizeBothSides() {
+        Expression leftLeft = mock(IndicationCondition.class);
+        Expression leftRight = mock(AgeCondition.class);
+        Expression rightLeft = mock(ExistingDrugMedicationCondition.class);
+        Expression rightRight = mock(IndicationCondition.class);
+
+        BinaryExpression leftOr = new BinaryExpression(leftLeft, BinaryOperator.OR, leftRight, ExpressionType.BINARY);
+        BinaryExpression rightOr = new BinaryExpression(rightLeft, BinaryOperator.OR, rightRight, ExpressionType.BINARY);
+        BinaryExpression expr = new BinaryExpression(leftOr, BinaryOperator.AND, rightOr, ExpressionType.BINARY);
+
+        when(parent.toDsl(leftOr)).thenReturn(new Dsl("A eller B", Dsl.Type.OR));
+        when(parent.toDsl(rightOr)).thenReturn(new Dsl("C eller D", Dsl.Type.OR));
+
+        Dsl result = mapper.map(expr);
+
+        assertEquals("(A eller B) og (C eller D)", result.dsl());
+        assertEquals(Dsl.Type.AND, result.type());
+    }
+
 }

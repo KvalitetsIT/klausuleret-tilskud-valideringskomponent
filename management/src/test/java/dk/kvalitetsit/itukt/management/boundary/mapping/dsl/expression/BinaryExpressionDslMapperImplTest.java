@@ -16,6 +16,8 @@ import org.openapitools.model.IndicationCondition;
 
 import java.util.List;
 
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class BinaryExpressionDslMapperImplTest {
 
@@ -37,8 +39,8 @@ class BinaryExpressionDslMapperImplTest {
                 ExpressionType.BINARY
         );
 
-        Mockito.when(parent.toDsl(left)).thenReturn(new Dsl("left", Dsl.Type.CONDITION));
-        Mockito.when(parent.toDsl(right)).thenReturn(new Dsl("right", Dsl.Type.CONDITION));
+        when(parent.toDsl(left)).thenReturn(new Dsl("left", Dsl.Type.CONDITION));
+        when(parent.toDsl(right)).thenReturn(new Dsl("right", Dsl.Type.CONDITION));
 
 
         Dsl expected = new Dsl("left og right", Dsl.Type.AND);
@@ -57,11 +59,86 @@ class BinaryExpressionDslMapperImplTest {
         String rightDsl = Identifier.INDICATION + " = indication1";
         var expected = new Dsl(leftDsl + " eller " + rightDsl, Dsl.Type.OR);
 
-        Mockito.when(parent.mergeConditions(List.of(left))).thenReturn(leftDsl);
-        Mockito.when(parent.mergeConditions(List.of(right))).thenReturn(rightDsl);
+        when(parent.mergeConditions(List.of(left))).thenReturn(leftDsl);
+        when(parent.mergeConditions(List.of(right))).thenReturn(rightDsl);
 
         var actual = mapper.map(subject);
 
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+    }
+
+    @Test
+    void merge_givenDslWithTwoIndicationConditionsWithOrOperator_whenMap_thenReturnExpectedDsl() {
+        IndicationCondition left = mock(IndicationCondition.class);
+        IndicationCondition right = mock(IndicationCondition.class);
+
+        BinaryExpression subject = new BinaryExpression(
+                left,
+                BinaryOperator.OR,
+                right,
+                ExpressionType.BINARY
+        );
+
+        when(parent.mergeConditions(List.of(left, right))).thenReturn("left eller right");
+
+        Dsl actual = mapper.map(subject);
+
+        Dsl expected = new Dsl("left eller right", Dsl.Type.CONDITION);
+        Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+
+        verify(parent).mergeConditions(List.of(left, right));
+        verifyNoMoreInteractions(parent);
+    }
+
+    @Test
+    void merge_givenOrChainOfMixedConditionTypes_whenMap_thenGroupsByType() {
+        // given
+        IndicationCondition indicationCondition1 = mock(IndicationCondition.class);
+        IndicationCondition indicationCondition2 = mock(IndicationCondition.class);
+        AgeCondition ageCondition = mock(AgeCondition.class);
+
+        BinaryExpression inner = new BinaryExpression(
+                indicationCondition1,
+                BinaryOperator.OR,
+                indicationCondition2,
+                ExpressionType.BINARY
+        );
+        BinaryExpression subject = new BinaryExpression(
+                inner,
+                BinaryOperator.OR,
+                ageCondition,
+                ExpressionType.BINARY
+        );
+
+        when(parent.mergeConditions(List.of(indicationCondition1, indicationCondition2))).thenReturn("indicationConditions");
+        when(parent.mergeConditions(List.of(ageCondition))).thenReturn("age");
+
+        Dsl actual = mapper.map(subject);
+
+        Assertions.assertEquals("indicationConditions eller age", actual.dsl());
+        Assertions.assertEquals(Dsl.Type.OR, actual.type());
+
+        verify(parent).mergeConditions(List.of(indicationCondition1, indicationCondition2));
+        verify(parent).mergeConditions(List.of(ageCondition));
+    }
+
+    @Test
+    void merge_givenSingleOrCondition_whenMap_thenReturnsConditionDsl() {
+        IndicationCondition left = mock(IndicationCondition.class);
+        IndicationCondition right = mock(IndicationCondition.class);
+
+        BinaryExpression subject = new BinaryExpression(
+                left,
+                BinaryOperator.OR,
+                right,
+                ExpressionType.BINARY
+        );
+
+        when(parent.mergeConditions(List.of(left, right))).thenReturn("blaah");
+
+        Dsl actual = mapper.map(subject);
+
+        Assertions.assertEquals("blaah", actual.dsl());
+        Assertions.assertEquals(Dsl.Type.CONDITION, actual.type());
     }
 }

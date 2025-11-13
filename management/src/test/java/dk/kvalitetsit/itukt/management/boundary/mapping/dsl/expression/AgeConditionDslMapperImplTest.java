@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.AgeCondition;
 import org.openapitools.model.Operator;
 
+import java.util.Arrays;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,7 +28,7 @@ class AgeConditionDslMapperImplTest {
     }
 
     @Test
-    void merge_givenDslWithTwoAgeConditions_whenMap_thenMergeCorrectly() {
+    void merge_givenDslWithTwoAgeConditions_whenMerge_thenMergeCorrectly() {
         var conditions = List.of(
                 new AgeCondition().type(ExpressionType.AGE).operator(Operator.EQUAL).value(10),
                 new AgeCondition().type(ExpressionType.AGE).operator(Operator.EQUAL).value(20)
@@ -36,5 +37,22 @@ class AgeConditionDslMapperImplTest {
         String expected = Identifier.AGE + " i [10, 20]";
         String actual = mapper.merge(conditions);
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + conditions);
+    }
+
+    @Test
+    void merge_givenMultipleConditions_whenMap_thenMergeIfOperatorIsEqual() {
+        Arrays.stream(Operator.values()).forEach(operator -> {
+            var conditions = List.of(
+                    new AgeCondition().type(ExpressionType.AGE).operator(operator).value(10),
+                    new AgeCondition().type(ExpressionType.AGE).operator(operator).value(20)
+            );
+
+            String mergedConditions = Identifier.AGE + " i [10, 20]";
+            String unmergedConditions = "ALDER " + operator + " 10 eller ALDER " + operator + " 20";
+            String expected = operator == Operator.EQUAL ? mergedConditions : unmergedConditions;
+            String actual = mapper.merge(conditions);
+
+            Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + conditions);
+        });
     }
 }

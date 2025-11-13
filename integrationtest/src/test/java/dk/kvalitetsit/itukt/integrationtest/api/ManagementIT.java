@@ -5,16 +5,12 @@ import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
 import org.openapitools.client.model.Error;
 
-import java.util.UUID;
-
-import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
-import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
+import static dk.kvalitetsit.itukt.integrationtest.MockFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -58,6 +54,20 @@ class ManagementIT extends BaseTest {
                 .usingRecursiveComparison()
                 .ignoringFields("uuid")
                 .isEqualTo(CLAUSE_1_OUTPUT);
+    }
+
+    @Test
+    void testPostAndGetClause2() {
+        api.call20250801clausesPost(CLAUSE_2_INPUT);
+        var clauses = api.call20250801clausesGet();
+
+        assertEquals(1, clauses.size());
+        var clause = clauses.getFirst();
+
+        assertThat(clause)
+                .usingRecursiveComparison()
+                .ignoringFields("uuid")
+                .isEqualTo(CLAUSE_2_OUTPUT);
     }
 
     @Test

@@ -3,13 +3,21 @@ package dk.kvalitetsit.itukt.common.model;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Optional.*;
+import static java.util.Optional.empty;
+
 public record ValidationInput(
         String personId,
-        String createdById,
+        CreatedBy createdBy,
         Optional<String> reportedById,
         List<Integer> skippedErrorCodes,
         int citizenAge,
         long drugId,
         String indicationCode,
         Optional<List<ExistingDrugMedication>> existingDrugMedication) {
+
+        public record CreatedBy(String id, Optional<String> specialityCode) {
+            public CreatedBy(String id) { this(id, empty()); }
+            public CreatedBy(String id, String specialityCode) { this(id, of(specialityCode)); }
+        }
 }

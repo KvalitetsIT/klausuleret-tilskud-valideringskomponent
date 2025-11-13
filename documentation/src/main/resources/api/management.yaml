@@ -261,6 +261,7 @@ components:
         - $ref: '#/components/schemas/AgeCondition'
         - $ref: '#/components/schemas/ExistingDrugMedicationCondition'
         - $ref: '#/components/schemas/BinaryExpression'
+        - $ref: '#/components/schemas/CreatedByCondition'
       discriminator:
         propertyName: type
         mapping:
@@ -268,6 +269,7 @@ components:
           AgeCondition: '#/components/schemas/AgeCondition'
           ExistingDrugMedicationCondition: '#/components/schemas/ExistingDrugMedicationCondition'
           BinaryExpression: '#/components/schemas/BinaryExpression'
+          CreatedByCondition: '#/components/schemas/CreatedByCondition'
 
     Operator:
       description: "The operator used in a number condition"
@@ -300,6 +302,19 @@ components:
           type: string
           description: "Identifies this object as a IndicationCondition expression"
           example: "IndicationCondition"
+
+    CreatedByCondition:
+      description: "A basic condition consisting of a field and a string value. This represents the most atomic form of an expression"
+      type: object
+      required: [ type, value ]
+      properties:
+        value:
+          description: "The value, that the field is compared against"
+          type: string
+        type:
+          type: string
+          description: "Identifies this object as a CreatedByCondition expression"
+          example: "CreatedByCondition"
 
     AgeCondition:
       description: "A basic condition consisting of a field, an operation and a number value. This represents the most atomic form of an expression"
@@ -391,12 +406,3 @@ components:
         message:
           type: string
           description: "An error message that is displayed if the clause may result in a validation error"
-
-
-
-
-
-
-
-
-

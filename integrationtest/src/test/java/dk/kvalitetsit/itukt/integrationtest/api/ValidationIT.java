@@ -35,11 +35,13 @@ public class ValidationIT extends BaseTest {
                 new ExpressionEntity.StringConditionEntity(Field.INDICATION, "313"));
 
         var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "ATC123", "*", "*");
-        var expression = new ExpressionEntity.BinaryExpressionEntity(
+        var orExpression = new ExpressionEntity.BinaryExpressionEntity(
                 ageAndIndication,
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
+        var createdByExpression = new ExpressionEntity.StringConditionEntity(Field.CREATED_BY, "speciale");
+        var expression = new ExpressionEntity.BinaryExpressionEntity(orExpression, AND, createdByExpression);
         var clause = new ClauseForCreation("KRINI", expression, "message");
 
         repository.create(clause);
@@ -182,6 +184,6 @@ public class ValidationIT extends BaseTest {
         return new Actor()
                 .identifier("actor1")
                 .organisationSpeciality("")
-                .specialityCode("");
+                .specialityCode("speciale");
     }
 }

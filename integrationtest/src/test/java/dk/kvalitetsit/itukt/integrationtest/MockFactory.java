@@ -79,6 +79,9 @@ public class MockFactory {
             )
     );
     public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
+    private static final org.openapitools.client.model.CreatedByCondition EXPRESSION_7_DTO = new org.openapitools.client.model.CreatedByCondition()
+            .type(ExpressionType.CREATED_BY)
+            .value("speciale");
     private static final org.openapitools.client.model.IndicationCondition EXPRESSION_2_DTO = new org.openapitools.client.model.IndicationCondition()
             .type(ExpressionType.INDICATION)
             .value((EXPRESSION_2_MODEL.requiredValue()));
@@ -100,6 +103,17 @@ public class MockFactory {
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
+            .error(new org.openapitools.client.model.Error().message("message"));
+
+    public static final ClauseOutput CLAUSE_2_OUTPUT = new ClauseOutput()
+            .name("CHOL")
+            .expression(EXPRESSION_7_DTO)
+            .uuid(CLAUSE_1_MODEL.uuid()).error(new org.openapitools.client.model.Error().message("message"));
+
+
+    public static final ClauseInput CLAUSE_2_INPUT = new ClauseInput()
+            .name("CHOL")
+            .expression(EXPRESSION_7_DTO)
             .error(new org.openapitools.client.model.Error().message("message"));
 
     public static org.openapitools.client.model.ExistingDrugMedicationCondition createExistingDrugMedicationCondition(

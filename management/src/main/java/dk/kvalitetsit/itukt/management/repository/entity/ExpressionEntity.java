@@ -7,7 +7,7 @@ public sealed interface ExpressionEntity permits
         ExpressionEntity.StringConditionEntity,
         ExpressionEntity.NumberConditionEntity,
         ExpressionEntity.BinaryExpressionEntity,
-        ExpressionEntity.ExistingDrugMedicationConditionEntity {
+        ExpressionEntity.ExistingDrugMedicationConditionEntity{
 
     ExpressionType type();
 
@@ -83,8 +83,4 @@ public sealed interface ExpressionEntity permits
             return new ExistingDrugMedicationConditionEntity(newId, atcCode, formCode, routeOfAdministrationCode);
         }
     }
-
 }
-
-
-

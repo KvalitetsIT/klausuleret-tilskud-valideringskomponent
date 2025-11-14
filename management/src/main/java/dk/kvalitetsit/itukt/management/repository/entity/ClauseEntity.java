@@ -6,7 +6,7 @@ public record ClauseEntity(
         Long id,
         UUID uuid,
         String name,
-        Integer errorCode,
+        ErrorCode errorCode,
         String errorMessage,
         ExpressionEntity expression) {
 }

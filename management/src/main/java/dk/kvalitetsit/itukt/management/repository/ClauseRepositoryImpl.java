@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ErrorCode;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            int errorCode = createErrorCode(clause.name());
+            ErrorCode errorCode = createErrorCode(clause.name());
 
             return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression);
 
@@ -65,17 +66,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
 
-    private synchronized int createErrorCode(String clauseName) {
+    private synchronized ErrorCode createErrorCode(String clauseName) {
         Integer max = template.getJdbcTemplate().queryForObject(
                 "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
                 Integer.class
         );
 
-        int next = max + 1;
-
-        if (next > 10999) {
-            throw new IllegalStateException("Exceeded the maximum number of allocated error codes (10800–10999 exhausted)");
-        }
+        ErrorCode next = new ErrorCode(max + 1);
 
         template.update(
                 "INSERT INTO error_code (error_code, clause_name) VALUES (:error_code, :clause_name)",
@@ -107,7 +104,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getLong("id"),
                                 uuid,
                                 rs.getString("name"),
-                                rs.getInt("error_code"),
+                                new ErrorCode(rs.getInt("error_code")),
                                 rs.getString("error_message"),
                                 expression
                         );

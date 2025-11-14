@@ -164,13 +164,16 @@ components:
           format: date-time
           example: "2025-06-13T14:24:03+02:00"
         drugIdentifier:
-          description: "Lægemidlets drugid. Kilde er foreløbigt altid Medicinpriser"
-          type: long
-          example: "28100902676"
+          $ref: "#/components/schemas/drugIdentifier"
         indicationCode:
           description: "Indikationen som angivet ved oprettelse af ordinationen. Kilde er altid Medicinpriser"
           type: string
           example: "31"
+
+    drugIdentifier:
+      description: "Lægemidlets drugid. Kilde er foreløbigt altid Medicinpriser"
+      type: long
+      example: "28100902676"
 
     actor:
       description: "Aktør for lægemiddelordinationen"
@@ -201,9 +204,7 @@ components:
         - routeOfAdministrationCode
       properties:
         drugIdentifier:
-          description: "Lægemidlet drugid, uanset kilde (dvs. f.eks. også magistrelle lægemidler)"
-          type: long
-          example: "28100645874"
+          $ref: "#/components/schemas/drugIdentifier"
         atcCode:
           description: "ATC-kode. Kilde er altid Medicinpriser"
           type: string

@@ -34,11 +34,10 @@ public record BinaryExpression(Expression left, Operator operator, Expression ri
 
     static ValidationFailed combineOr(ValidationFailed left, ValidationFailed right) {
         return switch (new Pair(left, right)) {
-            case Pair(ExistingDrugMedicationRequired l, var __) -> l;
-            case Pair(var __ , ExistingDrugMedicationRequired r) -> r;
+            case Pair(ExistingDrugMedicationRequired l, ValidationError __) -> l;
+            case Pair(ValidationError __, ExistingDrugMedicationRequired r) -> r;
+            case Pair(ExistingDrugMedicationRequired l, ExistingDrugMedicationRequired __) -> l;
             case Pair(ValidationError l, ValidationError r) -> new OrError(l, r);
-            case Pair(ValidationError l, var __) -> l;
-            case Pair(var __, ValidationError r) -> r;
         };
     }
 }

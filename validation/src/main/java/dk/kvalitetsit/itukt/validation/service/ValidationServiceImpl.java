@@ -37,12 +37,13 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
-        return shouldSkipClause(clause, validationInput)
-                ? Optional.empty()
-                : clause.expression().validates(validationInput).map(validationFailed -> switch (validationFailed) {
-            case ValidationFailed.ExistingDrugMedicationRequired ignored -> throw new ExistingDrugMedicationRequiredException();
-            case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()), error.toErrorString(), clause.error().code());
-        });
+        if (shouldSkipClause(clause, validationInput))
+            return Optional.empty();
+        else
+            return clause.expression().validates(validationInput).map(validationFailed -> switch (validationFailed) {
+                case ValidationFailed.ExistingDrugMedicationRequired ignored -> throw new ExistingDrugMedicationRequiredException();
+                case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()), error.toErrorString(), clause.error().code());
+            });
     }
 
     private void createSkippedValidations(ValidationInput validationInput) {

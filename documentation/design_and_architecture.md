@@ -16,9 +16,31 @@ Valideringsmodulet fungerer som grænseflade til FMK og benytter i den forbindel
 
 ![Sekvens digram: Validation](./src/main/resources/images/sequence_diagram_validation.svg)
 
+## Tech Stack
+Systemet er designet med fokus på modularitet, testbarhed og skalérbarhed. Her anvendes en **lagdelt arkitektur**, hvor forretningslogik, datatilgang og præsentationslag er klart adskilt. Dette sikrer, at ændringer i ét lag har minimal indvirkning på andre dele af systemet og fremmer genanvendelighed af komponenter. De centrale teknologier og designvalg omfatter:
+- **Java 21 med Spring Boot**: Primært backend-framework med dependency injection og hurtig opsætning.
+- **Contract-First API Design**: API’er defineres først via OpenAPI-specifikationer, hvilket sikrer konsistente kontrakter mellem services.
+- **RESTful Services**: Tjenester eksponeres som REST API’er, hvilket giver interoperabilitet og standardiseret kommunikation.
+- **MariaDB**: Relationel SQL database valgt for at afspejle stamdatabasen.
+- **OpenAPI Generator**: Automatiserer generering af klienter, serverstubs og dokumentation baseret på OpenAPI-specifikationer.
+- **JUnit 5 (Jupiter)**: Bruges til unit- og integrationstest for høj kodekvalitet og testdrevet udvikling.
+- **Testcontainers**: Muliggøre et testmiljø hvori integrationen mellem komponenten og dens afhængigheder, f.eks. databaser eller eksterne services kan testes.
+
+## Designprincipper
+- **Separation of Concerns (SoC)**: Klar adskillelse af ansvar mellem lag for at reducere kompleksitet.
+- **Skalerbarhed og fleksibilitet**: Arkitekturen understøtter horisontal skalering i den forstand at modulerne ville kunne adskilles og replikeres.
+- **Testbarhed**: Contract-first, JUnit og MockServer sikrer, at både komponenter og integrationer kan testes isoleret.
+- **Dokumentation og standardisering**: OpenAPI-specifikationer sikrer, at API-dokumentation altid er opdateret.
+- **SOLID-principper**: Arkitekturen følger så hvidt muligt objektorienterede designprincipper for at øge genanvendelse og den overordnede kvalitet af koden:
+    - **S**: Single Responsibility Principle – hver klasse har ét ansvar.
+    - **O**: Open/Closed Principle – systemet er åbent for udvidelse, men lukket for ændringer.
+    - **L**: Liskov Substitution Principle – objekter skal kunne erstattes af deres subtyper uden at bryde funktionalitet.
+    - **I**: Interface Segregation Principle – interfaces bør være specifikke og små fremfor brede og generelle.
+    - **D**: Dependency Inversion Principle – høj-niveau moduler bør ikke afhænge af lav-niveau moduler; begge bør afhænge af abstraktioner.
+
 ## Datamodel
 I stedet for at gemme rå DSL’er som tekststrenge er det valgt at modellere udtrykkene relationelt, som vist i den nedenstående [Datamodel](./src/main/resources/images/data_model.svg). Denne tilgang muliggør validering, type-sikkerhed og en tættere kobling til den anvendte domænemodel. 
 
-Datamodellen er bygget op omkring klausuler (clauses), der udgør kernen i projektet. Hver klausul indeholder et rekursivt udtryk (expression), som kan antage to former: et binært udtryk (binary_expression) eller en betingelse (string_condition_expression, number_condition_expression, existing_drug_medication_condition_expression).
+Datamodellen er bygget op omkring klausuler (clauses), der udgør kernen i projektet. Hver klausul indeholder et rekursivt udtryk (expression), som kan tage to former: et binært udtryk (binary_expression) eller en betingelse (string_condition_expression, number_condition_expression, existing_drug_medication_condition_expression).
 
 ![ER-Diagram](./src/main/resources/images/data_model.svg)

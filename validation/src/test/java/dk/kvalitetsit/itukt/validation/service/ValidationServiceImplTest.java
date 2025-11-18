@@ -87,10 +87,10 @@ class ValidationServiceImplTest {
         Mockito.verify(expression).validates(validationInput);
 
         assertEquals(1, result.size(), "Expected an error being returned");
-        assertEquals(clause.name(), result.getFirst().clauseCode());
-        assertEquals(clause.error().message(), result.getFirst().errorMessage());
-        assertEquals(clause.error().code(), result.getFirst().errorCode());
-        assertEquals(stamdataClause.clauses().iterator().next().text(), result.getFirst().clauseText());
+        assertEquals(clause.name(), result.getFirst().clause().code());
+        assertEquals(clause.error().message(), result.getFirst().clause().message());
+        assertEquals(clause.error().code(), result.getFirst().code());
+        assertEquals(stamdataClause.clauses().iterator().next().text(), result.getFirst().clause().text());
     }
 
 
@@ -133,8 +133,8 @@ class ValidationServiceImplTest {
 
         assertEquals(2, result.size(), "Expected the validation to fail and two validation errors to be returned");
 
-        assertEquals(clause_1.name(), result.get(0).clauseCode(), "Expected the name of the first failing clauses");
-        assertEquals(clause_3.name(), result.get(1).clauseCode(), "Expected the name of the second failing clauses");
+        assertEquals(clause_1.name(), result.get(0).clause().code(), "Expected the name of the first failing clauses");
+        assertEquals(clause_3.name(), result.get(1).clause().code(), "Expected the name of the second failing clauses");
     }
 
     @Test

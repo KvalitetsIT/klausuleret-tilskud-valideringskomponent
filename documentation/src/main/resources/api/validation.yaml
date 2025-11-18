@@ -274,35 +274,36 @@ components:
       description: "Detaljer om valideringsfejl"
       type: object
       required:
-        - errorCode
-        - errorMessage
+        - code
+        - message
         - elementPath
-        - clauseCode
-        - clauseText
-        - warningQuestion
+        - clause
       properties:
-        errorCode:
+        code:
           $ref: "#/components/schemas/validationCode"
-        errorMessage:
-          description: "Fejlbesked for valideringen"
+        message:
+          description: "Specifik fejlbesked for valideringen. Automatisk genereret ud fra hvilken del af valideringen der fejlede. Egnet til præsentation i LPS, EPJ-system mm."
           type: string
+          example: "alder skal være større end 5 år og indikation skal være 313"
         elementPath:
           description: "Element path for det validate element der fejlede valideringen"
           type: string
-        clauseCode:
+        clause:
+          $ref: "#/components/schemas/clause"
+
+    clause:
+      type: object
+      required:
+        - code
+        - text
+        - message
+      properties:
+        code:
           description: "Klausulkoden for medicintilskud"
           type: string
-        clauseText:
+        text:
           description: "Tekst for klausulen"
           type: string
-        warningQuestion:
-          description: "Tekst egnet til præsentation i LPS, EPJ-system mm."
+        message:
+          description: "Beskeden som er indtastet under oprettelses af en klausul"
           type: string
-
-
-
-
-
-
-
-

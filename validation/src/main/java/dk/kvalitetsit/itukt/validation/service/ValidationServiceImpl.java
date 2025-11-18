@@ -38,7 +38,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
         return shouldSkipClause(clause, validationInput)
                 ? Optional.empty()
                 : clause.expression().validates(validationInput)
-                    .map(todo -> new ValidationError(clause.name(), clauseText, clause.error().message(), clause.error().code()));
+                    .map(error -> new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()), error.toErrorString(), clause.error().code()));
     }
 
     private void createSkippedValidations(ValidationInput validationInput) {

@@ -1,6 +1,8 @@
 package dk.kvalitetsit.itukt.validation.service;
 
+import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
+import dk.kvalitetsit.itukt.common.model.Error;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import org.openapitools.model.*;
 
@@ -15,9 +17,14 @@ import java.util.Optional;
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
     private final ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService;
+    private final Mapper<Error, org.openapitools.model.Error> errorMapper;
 
-    public ValidationServiceAdaptor(ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService) {
+    public ValidationServiceAdaptor(
+            ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService,
+            Mapper<Error, org.openapitools.model.Error> errorMapper
+    ) {
         this.validationService = validationService;
+        this.errorMapper = errorMapper;
     }
 
     @Override
@@ -47,15 +54,15 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
     }
 
     private ValidationError mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {
-        var clause = new Clause()
-                .message(modelValidationError.clause().message())
-                .code(modelValidationError.clause().code())
-                .text(modelValidationError.clause().text());
         return new ValidationError()
-                .clause(clause)
                 .elementPath(validateInput.getElementPath())
                 .code(modelValidationError.code())
-                .message(modelValidationError.message());
+                .message(modelValidationError.message())
+                .clause(new Clause()
+                        .message(modelValidationError.clause().message())
+                        .code(modelValidationError.clause().code())
+                        .text(modelValidationError.clause().text())
+                );
     }
 
     private ValidationInput mapToValidationInput(ValidationRequest validationRequest, Validate validate) {
@@ -74,7 +81,7 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                 existingDrugMedication);
     }
 
-    private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedication existing) {
+    private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedicationOutput existing) {
         return new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existing.getAtcCode(), existing.getFormCode(), existing.getRouteOfAdministrationCode());
     }
 }

@@ -1,18 +1,16 @@
 package dk.kvalitetsit.itukt.management;
 
-import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.openapitools.model.*;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.Error;
-import org.openapitools.model.Operator;
 
 import java.util.UUID;
 
@@ -75,7 +73,7 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_MODEL()
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new dk.kvalitetsit.itukt.common.model.Error("message", 10800), EXPRESSION_1_MODEL);
 
     private static final IndicationCondition EXPRESSION_2_DTO = new IndicationCondition()
             .type(ExpressionType.INDICATION)
@@ -85,16 +83,16 @@ public class MockFactory {
             .operator(BinaryOperator.OR)
             .left(EXPRESSION_2_DTO)
             .right(EXPRESSION_7_DTO);
-    public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, new Error(CLAUSE_1_MODEL.error().message()), CLAUSE_1_MODEL.uuid());
-    public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, new Error(CLAUSE_1_MODEL.error().message()));
+    public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, CLAUSE_1_MODEL.error().message(), CLAUSE_1_MODEL.uuid());
+    public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, CLAUSE_1_MODEL.error().message());
 
     public static String EXPRESSION_1_DSL = "(INDIKATION = C10BA03) eller (INDIKATION i C10BA02, C10BA05) og (AGE >= 13)";
 
 
     // Note: This clause(CLAUSE_1_DSL) matches: clause_1_*
 
-    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput(new Error("message"), "Klausul CHOL: " + EXPRESSION_1_DSL);
-    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput(new Error("message"), CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid());
+    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput("message", "Klausul CHOL: " + EXPRESSION_1_DSL);
+    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput("message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid());
 
     private static dk.kvalitetsit.itukt.common.model.BinaryExpression EXPRESSION_7_MODEL() {
         return new dk.kvalitetsit.itukt.common.model.BinaryExpression(

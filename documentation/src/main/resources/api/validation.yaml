@@ -56,31 +56,9 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/basicError'
+            $ref: './common.yaml#/components/schemas/basicError'
 
   schemas:
-    basicError:
-      type: object
-      required:
-        - timestamp
-        - status
-        - error
-        - path
-      properties:
-        error:
-          description: Error message
-          type: string
-        path:
-          description: Path
-          type: string
-        status:
-          description: HTTP status code
-          type: integer
-        timestamp:
-          description: Time of error
-          type: string
-          format: date-time
-
     validationRequest:
       type: object
       required:
@@ -93,7 +71,7 @@ components:
           description: "Koder for fejltyper som skal tilsidesættes ved validering"
           type: array
           items:
-            $ref: "#/components/schemas/validationCode"
+            $ref: "./common.yaml#/components/schemas/ErrorCode"
         personIdentifier:
           description: "Unikt id svarende til CPR medicinkortets id, CPR-nummer eller eCPR-nummer, disse værdier medsendes ikke, da data i kaldet dermed er pseudonymiseret. Det skal være muligt at finde tilbage til CPR-nummer eller eCPR-nummer ved opslag i FMK, f.eks. ved fejlsøgning"
           type: string
@@ -113,12 +91,8 @@ components:
           type: array
           nullable: true
           items:
-            $ref: "#/components/schemas/existingDrugMedication"
+            $ref: "#/components/schemas/ExistingDrugMedicationOutput"
 
-    validationCode:
-      description: "Fejlkode for fejlet validering"
-      type: integer
-      example: 10908
 
     validate:
       description: "Data der skal valideres"
@@ -194,30 +168,16 @@ components:
           type: string
           example: "psykiatri"
 
-    existingDrugMedication:
+    ExistingDrugMedicationOutput:
       description: "Udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"
-      type: object
-      required:
-        - drugIdentifier
-        - atcCode
-        - formCode
-        - routeOfAdministrationCode
-      properties:
-        drugIdentifier:
-          $ref: "#/components/schemas/drugIdentifier"
-        atcCode:
-          description: "ATC-kode. Kilde er altid Medicinpriser"
-          type: string
-          example: "J01CE02"
-        formCode:
-          description: "Lægemidlets form-kode. Kilde er altid Medicinpriser"
-          type: string
-          example: "TABFILM"
-        routeOfAdministrationCode:
-          description: "Administrationsvejskode, som angivet på lægemiddelordinationen ved ordination. Kilde er altid Medicinpriser"
-          type: string
-          example: "OK"
-
+      allOf:
+        - $ref: "./common.yaml#/components/schemas/ExistingDrugMedication"
+        - type: object
+          required:
+            - drugIdentifier
+          properties:
+            drugIdentifier:
+              $ref: "#/components/schemas/drugIdentifier"
 
     validationResponse:
       type: object
@@ -273,24 +233,18 @@ components:
 
     validationError:
       description: "Detaljer om valideringsfejl"
-      type: object
-      required:
-        - code
-        - message
-        - elementPath
-        - clause
-      properties:
-        code:
-          $ref: "#/components/schemas/validationCode"
-        message:
-          description: "Specifik fejlbesked for valideringen. Automatisk genereret ud fra hvilken del af valideringen der fejlede. Egnet til præsentation i LPS, EPJ-system mm."
-          type: string
-          example: "alder skal være større end 5 år og indikation skal være 313"
-        elementPath:
-          description: "Element path for det validate element der fejlede valideringen"
-          type: string
-        clause:
-          $ref: "#/components/schemas/clause"
+      allOf:
+        - $ref: "./common.yaml#/components/schemas/Error"
+        - type: object
+          required:
+            - elementPath
+            - clause
+          properties:
+            elementPath:
+              description: "Element path for det validate element der fejlede valideringen"
+              type: string
+            clause:
+              $ref: "#/components/schemas/clause"
 
     clause:
       type: object

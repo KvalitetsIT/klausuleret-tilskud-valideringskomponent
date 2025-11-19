@@ -1,12 +1,14 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
+import dk.kvalitetsit.itukt.common.model.Error;
+
 import java.util.UUID;
 
 public record ClauseEntity(
         Long id,
         UUID uuid,
         String name,
-        Integer errorCode,
+        int errorCode,
         String errorMessage,
         ExpressionEntity expression) {
 }

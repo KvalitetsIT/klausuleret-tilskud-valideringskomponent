@@ -5,13 +5,10 @@ import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
 import org.openapitools.client.model.Error;
-
-import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
@@ -68,7 +65,7 @@ class ManagementIT extends BaseTest {
         var clauseInput = new ClauseInput()
                 .name("test")
                 .expression(expression)
-                .error(new Error().message("message"));
+                .error("message");
 
         api.call20250801clausesPost(clauseInput);
         var clauses = api.call20250801clausesGet();
@@ -77,15 +74,21 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid")
+                .ignoringFields("uuid", "error")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
+
+        assertEquals(
+                clauseInput.getError(),
+                clause.getError(),
+                "The returned error message must match the input error string"
+        );
     }
 
     @Test
     void call20250801clausesPost_whenPostingAValidClauseThenRetrieveACorrectlyInterpretedDSL() {
 
-        Error error = new Error().message("blaah");
+        String error = "blaah";
 
         String dsl = "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13)";
 
@@ -140,8 +143,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void call20250801clausesDslPost_whenPostingAValidDSLThenRetrieveACorrectlyInterpretedClause() {
-        Error error = new Error().message("blaah");
-
+        String error = "blaah";
         String dsl = "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13)";
         DslInput dslInput = new DslInput().dsl(dsl).error(error);
 

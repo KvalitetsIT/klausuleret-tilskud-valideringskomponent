@@ -186,10 +186,23 @@ components:
           description: "Lægens speciale jf. autorisationsregistret"
           type: string
           example: "PSYK"
-        organisationSpeciality:
-          description: "Organisationens speciale jf. SOR"
+        organisationIdentifier:
+          $ref: "#/components/schemas/organisationIdentifier"
+
+    organisationIdentifier:
+      description: "Organisationens SOR eller SHAK kode"
+      properties:
+        code:
+          description: "Den konkrete kode om det måtte være SOR eller SHAK"
+          type: object
+          example: "950731000016005"
+        organisationType:
+          description: "Typen af organisationstype"
           type: string
-          example: "psykiatri"
+          example: "SOR"
+          enum:
+            - SOR
+            - SHAK
 
     existingDrugMedication:
       description: "Udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"

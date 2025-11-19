@@ -1,7 +1,10 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
+import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
+import dk.kvalitetsit.itukt.common.model.Error;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.validation.mapping.ErrorModelDtoMapper;
 import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.*;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
@@ -70,7 +73,9 @@ public class ValidationBeanRegistration {
                 new ValidationServiceImpl(
                         clauseService,
                         stamDataCache,
-                        skippedValidationService)
+                        skippedValidationService
+                ),
+                new ErrorModelDtoMapper()
         );
     }
 

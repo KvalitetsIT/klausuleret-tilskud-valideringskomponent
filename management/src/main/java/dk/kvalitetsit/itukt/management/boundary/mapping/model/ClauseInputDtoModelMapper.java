@@ -22,6 +22,6 @@ public class ClauseInputDtoModelMapper implements Mapper<ClauseInput, ClauseForC
     public ClauseForCreation map(ClauseInput clauseInput) {
         var expression = expressionDtoModelMapper.map(clauseInput.getExpression());
         var expressionEntity = expressionModelEntityMapper.map(expression);
-        return new ClauseForCreation(clauseInput.getName(), expressionEntity, clauseInput.getError().getMessage());
+        return new ClauseForCreation(clauseInput.getName(), expressionEntity, clauseInput.getError());
     }
 }

@@ -84,8 +84,7 @@ public class ManagementBeanRegistration {
         return new ManagementServiceAdaptor(
                 managementService,
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(
-                        new ExpressionModelDtoMapper(),
-                        errorMapper
+                        new ExpressionModelDtoMapper()
                 ),
                 new ClauseDslDtoMapper(),
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),

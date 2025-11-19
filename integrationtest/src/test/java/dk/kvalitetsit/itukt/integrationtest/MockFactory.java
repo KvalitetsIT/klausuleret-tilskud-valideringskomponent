@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.common.model.Error;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -22,7 +23,7 @@ public class MockFactory {
     // Note: This clause(clause_1_dsl) matches: clause_1_*
     public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput()
             .dsl("Klausul CHOL: (INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)")
-            .error(new org.openapitools.client.model.Error().message("message"));
+            .error("message");
     private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Field.INDICATION, "C10BA03");
     private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Field.INDICATION, "C10BA02");
     private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, Field.INDICATION, "C10BA05");
@@ -78,7 +79,7 @@ public class MockFactory {
                     EXPRESSION_6_MODEL
             )
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Error("message", 10800), EXPRESSION_1_MODEL);
     private static final org.openapitools.client.model.IndicationCondition EXPRESSION_2_DTO = new org.openapitools.client.model.IndicationCondition()
             .type(ExpressionType.INDICATION)
             .value((EXPRESSION_2_MODEL.requiredValue()));
@@ -95,12 +96,12 @@ public class MockFactory {
     public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
-            .uuid(CLAUSE_1_MODEL.uuid()).error(new org.openapitools.client.model.Error().message("message"));
+            .uuid(CLAUSE_1_MODEL.uuid()).error("message");
 
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
-            .error(new org.openapitools.client.model.Error().message("message"));
+            .error("message");
 
     public static org.openapitools.client.model.ExistingDrugMedicationCondition createExistingDrugMedicationCondition(
             String atcCode,

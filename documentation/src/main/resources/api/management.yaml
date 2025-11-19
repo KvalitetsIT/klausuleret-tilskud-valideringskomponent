@@ -183,7 +183,7 @@ components:
   schemas:
     detailedError:
       allOf:
-        - $ref: '#/components/schemas/basicError'
+        - $ref: './common.yaml#/components/schemas/basicError'
         - type: object
           required:
             - detailed_error
@@ -201,29 +201,6 @@ components:
               enum:
                 - "10"
                 - "20"
-
-    basicError:
-      type: object
-      required:
-        - timestamp
-        - status
-        - error
-        - path
-      properties:
-        error:
-          description: Error message.
-          type: string
-        path:
-          description: Path
-          type: string
-        status:
-          description: HTTP status code
-          type: integer
-        timestamp:
-          description: Time of error
-          type: string
-          format: date-time
-
     ClauseInput:
       type: object
       required:
@@ -238,7 +215,7 @@ components:
         expression:
           $ref: '#/components/schemas/Expression'
         error:
-          $ref: '#/components/schemas/Error'
+          $ref: './common.yaml#/components/schemas/ErrorMessage'
 
     ClauseOutput:
       allOf:
@@ -252,6 +229,8 @@ components:
               format: uuid
               description: an unique id which addresses the single clause
               example: 3d1006d3-3d2a-4361-b9b2-8f255d2aeaae
+            error:
+              $ref: './common.yaml#/components/schemas/ErrorMessage'
 
     Expression:
       type: object
@@ -318,22 +297,16 @@ components:
 
     ExistingDrugMedicationCondition:
       description: "A condition for existing drug medication"
-      type: object
-      required: [ type, atcCode, formCode, routeOfAdministrationCode ]
-      properties:
-        atcCode:
-          description: "ATC code for the ordination. '*' can be used as a wildcard to match any string"
-          type: string
-        formCode:
-          description: "Form code for the ordination. '*' can be used as a wildcard to match any string"
-          type: string
-        routeOfAdministrationCode:
-          description: "Route of administration code for the ordination. '*' can be used as a wildcard to match any string"
-          type: string
-        type:
-          type: string
-          description: "Identifies this object as a ExistingDrugMedicationCondition expression"
-          example: "ExistingDrugMedicationCondition"
+      allOf:
+        - $ref: "./common.yaml#/components/schemas/ExistingDrugMedication"
+        - type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              description: "Identifies this object as a ExistingDrugMedicationCondition expression"
+              example: "ExistingDrugMedicationCondition"
 
     BinaryExpression:
       description: "A compound expression combining two expressions with a binary operator such as AND or OR"
@@ -360,7 +333,7 @@ components:
         - error
       properties:
         error:
-          $ref: '#/components/schemas/Error'
+          $ref: './common.yaml#/components/schemas/ErrorMessage'
         dsl:
           $ref: '#/components/schemas/Dsl'
 
@@ -376,21 +349,14 @@ components:
               description: An unique id which is used to address a single clause
               format: uuid
               example: 3d1006d3-3d2a-4361-b9b2-8f255d2aeaae
+            error:
+              $ref: './common.yaml#/components/schemas/ErrorMessage'
 
     Dsl:
       description: "A clause specified in a domain specific language (DSL)"
       type: string
       #      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
       example: "Klausul CHOL: (ATC = C10BA03) eller (ATC in C10BA02, C10BA05) og (ALDER >= 13)"
-
-    Error:
-      type: object
-      required:
-        - message
-      properties:
-        message:
-          type: string
-          description: "An error message that is displayed if the clause may result in a validation error"
 
 
 

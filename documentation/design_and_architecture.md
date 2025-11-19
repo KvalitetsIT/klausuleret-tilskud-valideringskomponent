@@ -32,11 +32,6 @@ Systemet er designet med fokus på modularitet, testbarhed og skalérbarhed. Her
 - **Testbarhed**: Contract-first, JUnit og MockServer sikrer, at både komponenter og integrationer kan testes isoleret.
 - **Dokumentation og standardisering**: OpenAPI-specifikationer sikrer, at API-dokumentation altid er opdateret.
 - **SOLID-principper**: Arkitekturen følger så hvidt muligt objektorienterede designprincipper for at øge genanvendelse og den overordnede kvalitet af koden:
-    - **S**: Single Responsibility Principle – hver klasse har ét ansvar.
-    - **O**: Open/Closed Principle – systemet er åbent for udvidelse, men lukket for ændringer.
-    - **L**: Liskov Substitution Principle – objekter skal kunne erstattes af deres subtyper uden at bryde funktionalitet.
-    - **I**: Interface Segregation Principle – interfaces bør være specifikke og små fremfor brede og generelle.
-    - **D**: Dependency Inversion Principle – høj-niveau moduler bør ikke afhænge af lav-niveau moduler; begge bør afhænge af abstraktioner.
 
 ## Datamodel
 I stedet for at gemme rå DSL’er som tekststrenge er det valgt at modellere udtrykkene relationelt, som vist i den nedenstående [Datamodel](./src/main/resources/images/data_model.svg). Denne tilgang muliggør validering, type-sikkerhed og en tættere kobling til den anvendte domænemodel. 

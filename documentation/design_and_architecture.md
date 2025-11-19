@@ -24,7 +24,7 @@ Systemet er designet med fokus på modularitet, testbarhed og skalérbarhed. Her
 - **MariaDB**: Relationel SQL database valgt for at afspejle stamdatabasen.
 - **OpenAPI Generator**: Automatiserer generering af klienter, serverstubs og dokumentation baseret på OpenAPI-specifikationer.
 - **JUnit 5 (Jupiter)**: Bruges til unit- og integrationstest for høj kodekvalitet og testdrevet udvikling.
-- **Testcontainers**: Muliggøre et testmiljø hvori integrationen mellem komponenten og dens afhængigheder, f.eks. databaser eller eksterne services kan testes.
+- **Testcontainers**: Muliggøre et testmiljø hvori integrationen mellem komponenten og dens afhængigheder, f.eks. databaser eller eksterne services, kan testes.
 
 ## Designprincipper
 - **Separation of Concerns (SoC)**: Klar adskillelse af ansvar mellem lag for at reducere kompleksitet.

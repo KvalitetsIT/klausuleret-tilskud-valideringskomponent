@@ -184,7 +184,7 @@ public class ValidationIT extends BaseTest {
     private static Actor createActor() {
         return new Actor()
                 .identifier("actor1")
-                .organisationSpeciality("")
+                .organisationIdentifier(new OrganisationIdentifier())
                 .specialityCode("");
     }
 }

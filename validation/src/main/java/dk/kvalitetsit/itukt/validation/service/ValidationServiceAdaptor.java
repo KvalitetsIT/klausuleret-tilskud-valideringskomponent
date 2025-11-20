@@ -47,13 +47,15 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
     }
 
     private ValidationError mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {
+        var clause = new Clause()
+                .message(modelValidationError.clause().message())
+                .code(modelValidationError.clause().code())
+                .text(modelValidationError.clause().text());
         return new ValidationError()
-                .errorCode(modelValidationError.errorCode())
-                .errorMessage(modelValidationError.errorMessage())
+                .clause(clause)
                 .elementPath(validateInput.getElementPath())
-                .clauseCode(modelValidationError.clauseCode())
-                .clauseText(modelValidationError.clauseText())
-                .warningQuestion("TODO: IUAKT-78");
+                .code(modelValidationError.code())
+                .message(modelValidationError.message());
     }
 
     private ValidationInput mapToValidationInput(ValidationRequest validationRequest, Validate validate) {

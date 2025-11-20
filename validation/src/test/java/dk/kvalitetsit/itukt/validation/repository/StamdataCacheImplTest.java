@@ -25,7 +25,7 @@ class StamDataCacheTest {
     @Test
     void getStamDataByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
         long drugId = 1L;
-        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
+        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.load();
@@ -38,7 +38,7 @@ class StamDataCacheTest {
     @Test
     void get_WhenDrugIdIsInCache_ReturnsStamDataName() {
         long drugId = 1L;
-        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
+        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
 
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
@@ -53,7 +53,7 @@ class StamDataCacheTest {
     @Test
     void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamdataAndNoMoreInteractions() {
         long drugId = 1L;
-        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("clauseCode", "long clause text")));
+        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
         StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.load();

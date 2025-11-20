@@ -97,17 +97,18 @@ public class ValidationIT extends BaseTest {
         int age = 50;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(elementPath, age, VALID_INDICATION, List.of());
         var response = validationApi.call20250801validatePost(request);
-
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().getFirst();
-        String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
-        assertEquals(expectedClauseCode, validationError.getClauseCode());
-        String expectedErrorMessage = "message";
-        assertEquals(expectedErrorMessage, validationError.getErrorMessage());
-        assertEquals(elementPath, validationError.getElementPath());
-        int expectedErrorCode = 10800; // Hardcoded error code in clause cache
-        assertEquals(expectedErrorCode, validationError.getErrorCode());
+        ValidationError expectedValidationError = new ValidationError()
+                .elementPath(elementPath)
+                .message("alder skal være større end 50 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *")
+                .code(10800)
+                .clause(new Clause()
+                        .code("KRINI") // Hardcoded clause code in stamdata cache
+                        .text("Kronisk Rhinitis")
+                        .message("message"));
+        assertEquals(expectedValidationError, validationError);
     }
 
     @Test
@@ -115,17 +116,19 @@ public class ValidationIT extends BaseTest {
         String elementPath = "path";
         int age = 51;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(elementPath, age, INVALID_INDICATION, List.of());
-
         var response = validationApi.call20250801validatePost(request);
-
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().getFirst();
-        String expectedClauseCode = "KRINI"; // Hardcoded clause code in stamdata cache
-        String expectedErrorMessage = "message";
-        assertEquals(expectedClauseCode, validationError.getClauseCode());
-        assertEquals(expectedErrorMessage, validationError.getErrorMessage());
-        assertEquals(elementPath, validationError.getElementPath());
+        ValidationError expectedValidationError = new ValidationError()
+                .elementPath(elementPath)
+                .message("indikation skal være 313 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *")
+                .code(10800)
+                .clause(new Clause()
+                        .code("KRINI") // Hardcoded clause code in stamdata cache
+                        .text("Kronisk Rhinitis")
+                        .message("message"));
+        assertEquals(expectedValidationError, validationError);
     }
 
     @Test

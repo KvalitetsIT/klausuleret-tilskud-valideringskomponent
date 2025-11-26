@@ -3,7 +3,6 @@ package dk.kvalitetsit.itukt.integrationtest;
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.entity.Field;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
@@ -40,48 +39,21 @@ public class MockFactory {
             BinaryExpression.Operator.OR,
             EXPRESSION_7_ENTITY
     );
-    // Note: This clause(clause_1_entity) matches: clause_1_dsl
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(null, UUID.randomUUID(), "CHOL", 0, "message", EXPRESSION_1_ENTITY);
-    private static final AgeConditionExpression EXPRESSION_6_MODEL = new AgeConditionExpression(
-            EXPRESSION_6_ENTITY.operator(),
-            EXPRESSION_6_ENTITY.value()
-    );
     private static final org.openapitools.client.model.AgeCondition EXPRESSION_6_DTO = new org.openapitools.client.model.AgeCondition().type(ExpressionType.AGE)
             .operator(org.openapitools.client.model.Operator.GREATER_THAN_OR_EQUAL_TO)
-            .value(EXPRESSION_6_MODEL.value());
-    private static final IndicationConditionExpression EXPRESSION_3_MODEL = new IndicationConditionExpression(
-            EXPRESSION_3_ENTITY.value());
+            .value(EXPRESSION_6_ENTITY.value());
     private static final org.openapitools.client.model.IndicationCondition EXPRESSION_3_DTO = new org.openapitools.client.model.IndicationCondition().type("IndicationCondition")
-            .value((EXPRESSION_3_MODEL.requiredValue()));
-    private static final IndicationConditionExpression EXPRESSION_4_MODEL = new IndicationConditionExpression(
-            EXPRESSION_4_ENTITY.value());
-    private static final BinaryExpression EXPRESSION_5_MODEL = new BinaryExpression(
-            EXPRESSION_3_MODEL,
-            EXPRESSION_5_ENTITY.operator(),
-            EXPRESSION_4_MODEL);
+            .value((EXPRESSION_3_ENTITY.value()));
     private static final org.openapitools.client.model.IndicationCondition EXPRESSION_4_DTO = new org.openapitools.client.model.IndicationCondition().type(ExpressionType.INDICATION)
-            .value(EXPRESSION_4_MODEL.requiredValue());
+            .value(EXPRESSION_4_ENTITY.value());
     private static final org.openapitools.client.model.BinaryExpression EXPRESSION_5_DTO = new org.openapitools.client.model.BinaryExpression()
             .type(ExpressionType.BINARY)
             .left(EXPRESSION_3_DTO)
-            .operator(org.openapitools.client.model.BinaryOperator.fromValue(EXPRESSION_5_MODEL.operator().name()))
+            .operator(org.openapitools.client.model.BinaryOperator.fromValue(EXPRESSION_5_ENTITY.operator().name()))
             .right(EXPRESSION_4_DTO);
-    private static final IndicationConditionExpression EXPRESSION_2_MODEL = new IndicationConditionExpression(
-            EXPRESSION_2_ENTITY.value()
-    );
-    private static final BinaryExpression EXPRESSION_1_MODEL = new BinaryExpression(
-            EXPRESSION_2_MODEL,
-            BinaryExpression.Operator.OR,
-            new BinaryExpression(
-                    EXPRESSION_5_MODEL,
-                    BinaryExpression.Operator.AND,
-                    EXPRESSION_6_MODEL
-            )
-    );
-    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
     private static final org.openapitools.client.model.IndicationCondition EXPRESSION_2_DTO = new org.openapitools.client.model.IndicationCondition()
             .type(ExpressionType.INDICATION)
-            .value((EXPRESSION_2_MODEL.requiredValue()));
+            .value((EXPRESSION_2_ENTITY.value()));
     private static final org.openapitools.client.model.Expression EXPRESSION_1_DTO = new org.openapitools.client.model.BinaryExpression()
             .type(ExpressionType.BINARY)
             .operator(org.openapitools.client.model.BinaryOperator.OR)
@@ -95,7 +67,7 @@ public class MockFactory {
     public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
-            .uuid(CLAUSE_1_MODEL.uuid()).error("message");
+            .uuid(UUID.randomUUID()).error("message");
 
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")
@@ -124,6 +96,4 @@ public class MockFactory {
                 .operator(BinaryOperator.AND)
                 .right(right);
     }
-
 }
-

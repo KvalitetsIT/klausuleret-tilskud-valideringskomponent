@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.common.model;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -10,11 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BinaryExpressionTest {
 
-    private final String expectedAge = "20", expectedIndication = "indication";;
-    private final ConditionError expectedAgeError = new ConditionError(ValidationError.Field.AGE, Operator.EQUAL, expectedAge);
-    private final Optional<ValidationError> expectedAgeOpt = Optional.of(expectedAgeError);
-    private final ConditionError expectedIndicationError = new ConditionError(ValidationError.Field.INDICATION, Operator.EQUAL, expectedIndication);
-    private final Optional<ValidationError> expectedIndicationOpt = Optional.of(expectedIndicationError);
+    private final ConditionError expectedAgeError = new ConditionError(Field.AGE, Operator.EQUAL, "20");
+    private final Optional<ValidationFailed> expectedAgeOpt = Optional.of(expectedAgeError);
+    private final ConditionError expectedIndicationError = new ConditionError(Field.INDICATION, Operator.EQUAL, "indication");
+    private final Optional<ValidationFailed> expectedIndicationOpt = Optional.of(expectedIndicationError);
 
     @Test
     void validates_WithOrOperatorWhenNeitherLeftOrRightValidates_ReturnsFalse() {
@@ -28,7 +28,7 @@ class BinaryExpressionTest {
         var validationError = binaryExpression.validates(validationInput);
 
         assertTrue(validationError.isPresent());
-        var binaryError = assertInstanceOf(ValidationError.OrError.class, validationError.get());
+        var binaryError = assertInstanceOf(OrError.class, validationError.get());
         assertEquals(expectedAgeError, binaryError.e1());
         assertEquals(expectedIndicationError, binaryError.e2());
     }
@@ -87,7 +87,7 @@ class BinaryExpressionTest {
         var validationError = binaryExpression.validates(validationInput);
 
         assertTrue(validationError.isPresent());
-        var binaryError = assertInstanceOf(ValidationError.AndError.class, validationError.get());
+        var binaryError = assertInstanceOf(AndError.class, validationError.get());
         assertEquals(expectedAgeError, binaryError.e1());
         assertEquals(expectedIndicationError, binaryError.e2());
     }
@@ -104,7 +104,7 @@ class BinaryExpressionTest {
         var validationError = binaryExpression.validates(validationInput);
 
         assertTrue(validationError.isPresent());
-        var error = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        var error = assertInstanceOf(ConditionError.class, validationError.get());
         assertEquals(expectedAgeError, error);
     }
 
@@ -120,7 +120,7 @@ class BinaryExpressionTest {
         var validationError = binaryExpression.validates(validationInput);
 
         assertTrue(validationError.isPresent());
-        var error = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
+        var error = assertInstanceOf(ConditionError.class, validationError.get());
         assertEquals(expectedAgeError, error);
     }
 
@@ -136,5 +136,20 @@ class BinaryExpressionTest {
         boolean success = binaryExpression.validates(validationInput).isEmpty();
 
         assertTrue(success);
+    }
+
+    @Test
+    @Tag("PerformanceTest")
+    void validates_WithOrOperatorWhenLeftValidates_RightShouldNotBeEvaluated() {
+        var left = Mockito.mock(IndicationConditionExpression.class);
+        var right = new AgeConditionExpression(Operator.EQUAL, 0);
+        var rightSpy = Mockito.spy(right);
+        var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.OR, rightSpy);
+        var validationInput = Mockito.mock(ValidationInput.class);
+        Mockito.when(left.validates(validationInput)).thenReturn(Optional.empty());
+
+        binaryExpression.validates(validationInput);
+
+        Mockito.verify(rightSpy, Mockito.times(0)).validates(validationInput);
     }
 }

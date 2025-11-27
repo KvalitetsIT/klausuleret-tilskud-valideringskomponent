@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,7 +32,7 @@ class ValidationServiceImplTest {
     @Mock
     private SkippedValidationService skippedValidationService;
 
-    private final Optional<ValidationError> someError = Optional.of(new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.EQUAL, "20"));
+    private final Optional<ValidationFailed> someError = Optional.of(new ConditionError(ConditionError.Field.AGE, Operator.EQUAL, "20"));
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {

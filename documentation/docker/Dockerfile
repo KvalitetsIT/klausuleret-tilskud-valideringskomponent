@@ -10,7 +10,6 @@ RUN addgroup -g ${GROUP_ID} appgroup && \
     
 COPY /maven/*.yaml /usr/share/nginx/html/
 
-COPY /versions /kit/versions
 COPY /config/setVersion.sh /kit/setVersion.sh
 COPY /config/setServers.sh /kit/setServers.sh
 COPY /config/config.sh /config.sh

@@ -1,47 +1,40 @@
 #!/bin/sh
+set -euo pipefail
 
-function updateFile {
+
+# Update file only if changed
+updateFile() {
     local f="$1"
-    cmp -s "$f" "$f.tmp"
-    if [ $? = 0 ] ; then
-      /bin/rm $f.tmp
+    if cmp -s "$f" "$f.tmp"; then
+        /bin/rm "$f.tmp"
     else
-      /bin/mv "$f.tmp" "$f"
+        /bin/mv "$f.tmp" "$f"
     fi
 }
 
-echo "Add Dev version to list of versions"
-GIT_BRANCH=$(cat /kit/runningVersion.json | jq -r '."git.commit.id.describe"')
-echo "[]" > /kit/env
+# Configuration
+BASE_URL=${BASE_URL:-"/"}         # fallback to root if not set
+PREFIX="api_"                     # The expected file prefix
+ENV_FILE="/kit/env"
+API_DIR="/usr/share/nginx/html"   # where the files are located
 
-if (echo "$GIT_BRANCH" | grep -Eq ^v[0-9]*\\.[0-9]*\\.[0-9]*$); then
-  echo "Release version"
-else
-  echo "Is dev version"
+echo "[]" > "$ENV_FILE"
 
-  url="${BASE_URL}/${GIT_BRANCH}.yaml"
+# Find all api_*.yaml files in the folder
+for api_file in "$API_DIR"/$PREFIX*.yaml; do
+    [ -e "$api_file" ] || continue
 
-  cat /kit/env | jq --arg u $url '. += [{"name": "Dev", "url": $u }] | sort_by(.name)' > /kit/env.tmp
-  updateFile /kit/env
-fi
+    filename=$(basename "$api_file")
+    api_name=$(echo "${filename#api_}" | sed 's/\.yaml$//')
+    capitalized_api=$(echo "$api_name" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
 
-echo "Creating file with version and path"
-(
-   IFS=$'\n'
-   for version in $(cat kit/versions)
-   do
-     url="${BASE_URL}/${version}.yaml"
+    file_url="${BASE_URL}/${filename}"
+    echo "Adding $capitalized_api -> $file_url"
 
-     cat /kit/env | jq --arg n $version --arg u $url '. += [{"name": $n, "url": $u}]' > /kit/env.tmp
-     updateFile /kit/env
-   done
-)
-
-
-
-echo "Updates version in doc file"
-for file in $DOC_FILES
-do
-   file_name=${file##*/}
-   yq w -i $file 'info.version' $(echo ${file_name%.*} | cut -d "v" -f 2)
+    # Fix quotes in jq
+    jq --arg n "$capitalized_api" --arg u "$file_url" \
+       '. += [{"name": $n, "url": $u}]' "$ENV_FILE" > "$ENV_FILE.tmp"
+    updateFile "$ENV_FILE"
 done
+
+echo "setVersion.sh completed. Generated $ENV_FILE"

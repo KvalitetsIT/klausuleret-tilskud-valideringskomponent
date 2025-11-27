@@ -31,7 +31,7 @@ Systemet er designet med fokus på modularitet, testbarhed og skalérbarhed. Her
 - **Skalerbarhed og fleksibilitet**: Arkitekturen understøtter horisontal skalering i den forstand at modulerne ville kunne adskilles og replikeres.
 - **Testbarhed**: Contract-first, JUnit og MockServer sikrer, at både komponenter og integrationer kan testes isoleret.
 - **Dokumentation og standardisering**: OpenAPI-specifikationer sikrer, at API-dokumentation altid er opdateret.
-- **SOLID-principper**: Arkitekturen følger så hvidt muligt objektorienterede designprincipper for at øge genanvendelse og den overordnede kvalitet af koden:
+- **SOLID-principper**: Arkitekturen følger så hvidt muligt objektorienterede designprincipper for at øge genanvendelse og den overordnede kvalitet af koden.
 
 ## Datamodel
 I stedet for at gemme rå DSL’er som tekststrenge er det valgt at modellere udtrykkene relationelt, som vist i den nedenstående [Datamodel](./src/main/resources/images/data_model.svg). Denne tilgang muliggør validering, type-sikkerhed og en tættere kobling til den anvendte domænemodel. 

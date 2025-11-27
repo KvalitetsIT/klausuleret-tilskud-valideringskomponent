@@ -107,11 +107,6 @@
 												<source>${project.basedir}/src/main/resources/api/validation.yaml</source>
 												<destName>api_validation.yaml</destName>
 											</file>
-
-                                            <file>
-												<source>${project.build.outputDirectory}/git.properties</source>
-												<destName>runningVersion.json</destName>
-											</file>
 										</files>
 										<fileSets>
 											<fileSet>

@@ -37,4 +37,4 @@ for api_file in "$API_DIR"/$PREFIX*.yaml; do
     updateFile "$ENV_FILE"
 done
 
-echo "setVersion.sh completed. Generated $ENV_FILE"
+echo "setDefinitions.sh completed. Generated $ENV_FILE"

@@ -9,7 +9,6 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression.Expressio
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression.MapperFactory;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.model.ErrorModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
 import dk.kvalitetsit.itukt.management.repository.cache.ClauseCache;
@@ -80,7 +79,6 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService managementService, @Autowired MapperFactory mapperFactory) {
-        var errorMapper = new ErrorModelDtoMapper();
         return new ManagementServiceAdaptor(
                 managementService,
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(

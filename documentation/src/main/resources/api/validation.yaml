@@ -71,7 +71,7 @@ components:
           description: "Koder for fejltyper som skal tilsidesættes ved validering"
           type: array
           items:
-            $ref: "./common.yaml#/components/schemas/ErrorCode"
+            $ref: "#/components/schemas/ErrorCode"
         personIdentifier:
           description: "Unikt id svarende til CPR medicinkortets id, CPR-nummer eller eCPR-nummer, disse værdier medsendes ikke, da data i kaldet dermed er pseudonymiseret. Det skal være muligt at finde tilbage til CPR-nummer eller eCPR-nummer ved opslag i FMK, f.eks. ved fejlsøgning"
           type: string
@@ -91,7 +91,7 @@ components:
           type: array
           nullable: true
           items:
-            $ref: "#/components/schemas/ExistingDrugMedicationOutput"
+            $ref: "#/components/schemas/ExistingDrugMedicationInput"
 
 
     validate:
@@ -168,7 +168,7 @@ components:
           type: string
           example: "psykiatri"
 
-    ExistingDrugMedicationOutput:
+    ExistingDrugMedicationInput:
       description: "Udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"
       allOf:
         - $ref: "./common.yaml#/components/schemas/ExistingDrugMedication"
@@ -234,7 +234,7 @@ components:
     validationError:
       description: "Detaljer om valideringsfejl"
       allOf:
-        - $ref: "./common.yaml#/components/schemas/Error"
+        - $ref: "#/components/schemas/Error"
         - type: object
           required:
             - elementPath
@@ -262,3 +262,19 @@ components:
         message:
           description: "Beskeden som er indtastet under oprettelses af en klausul"
           type: string
+
+    Error:
+      type: object
+      required:
+        - message
+        - code
+      properties:
+        message:
+          $ref: "./common.yaml#/components/schemas/ErrorMessage"
+        code:
+          $ref: "#/components/schemas/ErrorCode"
+
+    ErrorCode:
+      description: "Fejlkode for fejlet validering"
+      type: integer
+      example: 10908

@@ -20,25 +20,10 @@ components:
           type: string
           example: "OK"
 
-    Error:
-      type: object
-      required:
-        - message
-        - code
-      properties:
-        message:
-          $ref: "#/components/schemas/ErrorMessage"
-        code:
-          $ref: "#/components/schemas/ErrorCode"
 
     ErrorMessage:
       type: string
       description: "An error message that is displayed if the clause may result in a validation error"
-
-    ErrorCode:
-      description: "Fejlkode for fejlet validering"
-      type: integer
-      example: 10908
 
     basicError:
       type: object

@@ -74,15 +74,9 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "error")
+                .ignoringFields("uuid")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
-
-        assertEquals(
-                clauseInput.getError(),
-                clause.getError(),
-                "The returned error message must match the input error string"
-        );
     }
 
     @Test

@@ -45,7 +45,7 @@ class ValidationServiceAdaptorTest {
         String creator2 = "creator2";
         String reporter2 = "reporter2";
         Validate validate2 = createValidate(2L, "2222", "path2", creator2, reporter2);
-        ExistingDrugMedicationOutput existingDrugMedication = new ExistingDrugMedicationOutput("atc", "form", "adm", 1L);
+        ExistingDrugMedicationInput existingDrugMedication = new ExistingDrugMedicationInput("atc", "form", "adm", 1L);
         ValidationRequest request = createValidationRequest(List.of(1), 10, List.of(existingDrugMedication), validate1, validate2);
         Mockito.when(validationService.validate(Mockito.any())).thenReturn(List.of());
 
@@ -122,7 +122,7 @@ class ValidationServiceAdaptorTest {
                 "Reason should be that existing drug medications are required");
     }
 
-    private ValidationRequest createValidationRequest(List<Integer> skippedValidations, int age, List<ExistingDrugMedicationOutput> existingDrugMedication, Validate... validates) {
+    private ValidationRequest createValidationRequest(List<Integer> skippedValidations, int age, List<ExistingDrugMedicationInput> existingDrugMedication, Validate... validates) {
         return new ValidationRequest()
                 .personIdentifier("1234")
                 .skipValidations(skippedValidations)

@@ -1,8 +1,6 @@
 package dk.kvalitetsit.itukt.validation.service;
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
-import dk.kvalitetsit.itukt.common.model.Error;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import org.openapitools.model.*;
 
@@ -17,14 +15,11 @@ import java.util.Optional;
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
     private final ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService;
-    private final Mapper<Error, org.openapitools.model.Error> errorMapper;
 
     public ValidationServiceAdaptor(
-            ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService,
-            Mapper<Error, org.openapitools.model.Error> errorMapper
+            ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService
     ) {
         this.validationService = validationService;
-        this.errorMapper = errorMapper;
     }
 
     @Override
@@ -81,7 +76,7 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                 existingDrugMedication);
     }
 
-    private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedicationOutput existing) {
+    private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedicationInput existing) {
         return new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existing.getAtcCode(), existing.getFormCode(), existing.getRouteOfAdministrationCode());
     }
 }

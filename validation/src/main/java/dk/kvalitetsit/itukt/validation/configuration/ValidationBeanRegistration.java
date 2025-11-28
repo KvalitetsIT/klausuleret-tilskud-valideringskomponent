@@ -5,8 +5,11 @@ import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.*;
 import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
+import dk.kvalitetsit.itukt.validation.repository.cache.DepartmentCache;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.service.*;
+import dk.kvalitetsit.itukt.validation.service.model.Department;
+import dk.kvalitetsit.itukt.validation.service.model.SOR;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.openapitools.model.ValidationRequest;
 import org.openapitools.model.ValidationResponse;
@@ -33,12 +36,12 @@ public class ValidationBeanRegistration {
 
 
     @Bean
-    public StamDataRepository<StamDataEntity> stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
+    public Repository<StamDataEntity> stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
         return new StamDataRepositoryImpl(dataSource);
     }
 
     @Bean
-    public StamDataRepositoryAdaptor stamDataRepositoryAdaptor(StamDataRepository<StamDataEntity> stamDataRepository) {
+    public StamDataRepositoryAdaptor stamDataRepositoryAdaptor(Repository<StamDataEntity> stamDataRepository) {
         StamDataMapper mapper = new StamDataMapper();
         return new StamDataRepositoryAdaptor(mapper, stamDataRepository);
     }
@@ -48,6 +51,12 @@ public class ValidationBeanRegistration {
         return new StamdataCache(configuration.stamdata().cache(), stamDataRepository);
     }
 
+
+    @Bean
+    public Cache<Department, SOR> stamDataCache(DepartmentRepositoryAdaptor adaptor) {
+        return new DepartmentCache(configuration.stamdata().cache(), adaptor);
+    }
+    
     @Bean
     public SkippedValidationRepository skippedValidationRepository(@Qualifier("appDataSource") DataSource dataSource) {
         return new SkippedValidationRepositoryImpl(dataSource);

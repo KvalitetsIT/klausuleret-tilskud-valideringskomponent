@@ -6,7 +6,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 
-public class DepartmentRepositoryAdaptor implements DepartmentRepository<Department> {
+public class DepartmentRepositoryAdaptor implements Repository<Department> {
 
     @Override
     public List<Department> findAll() throws ServiceException {

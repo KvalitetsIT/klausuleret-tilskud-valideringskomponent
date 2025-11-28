@@ -16,7 +16,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class StamDataCacheTest {
+class StamdataCacheTest {
 
     @Mock
     private StamDataRepositoryAdaptor mock;
@@ -26,7 +26,7 @@ class StamDataCacheTest {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
-        Cache stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
+        Cache<StamData, Long> stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         var result = stamDataCache.get(2L);
@@ -40,7 +40,7 @@ class StamDataCacheTest {
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
 
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
-        Cache stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
+        Cache<StamData, Long> stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         var result = stamDataCache.get(drugId);
@@ -54,7 +54,7 @@ class StamDataCacheTest {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
-        Cache stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
+        Cache<StamData, Long> stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         Mockito.verify(mock, Mockito.times(1)).findAll();

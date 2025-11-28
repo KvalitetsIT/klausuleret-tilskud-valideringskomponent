@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.validation.service.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
-public record Department(SOR sor, ArrayList<Speciality> specialities) {
+public record Department(SOR sor, List<Speciality> specialities) {
 }

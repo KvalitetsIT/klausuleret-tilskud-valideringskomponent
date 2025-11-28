@@ -1,15 +1,16 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import org.openapitools.model.AgeCondition;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.ExistingDrugMedicationCondition;
-import org.openapitools.model.IndicationCondition;
+import org.openapitools.model.*;
 
 public class MapperFactory {
 
     public ExpressionDslMapper<IndicationCondition> getIndicationConditionExpressionDslMapper() {
         return new IndicationExpressionDslMapperImpl();
+    }
+
+    public ExpressionDslMapper<DoctorSpecialityCondition> getDoctorSpecialityConditionExpressionDslMapper() {
+        return new SpecialityExpressionDslMapperImpl();
     }
 
     public ExpressionDslMapper<AgeCondition> getAgeConditionExpressionDslMapper() {

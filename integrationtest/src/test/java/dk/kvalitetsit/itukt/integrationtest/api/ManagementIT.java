@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
+import org.openapitools.client.model.Error;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
@@ -99,9 +100,9 @@ class ManagementIT extends BaseTest {
     @Test
     void call20250801clausesPost_whenPostingAValidClauseThenRetrieveACorrectlyInterpretedDSL() {
 
-        String error = "blaah";
+        var error = "blaah";
 
-        String dsl = "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13)";
+        String dsl = "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = læge eller LÆGESPECIALE i [kæbekirurg, ortopædkirurg] og ALDER >= 18))";
 
         ClauseInput clauseInput = new ClauseInput().name("CLAUSE").expression(new BinaryExpression()
                         .type(ExpressionType.BINARY)
@@ -134,10 +135,37 @@ class ManagementIT extends BaseTest {
                                                 .atcCode("*")
                                         )
                                         .operator(BinaryOperator.OR)
-                                        .right(new AgeCondition()
-                                                .type(ExpressionType.AGE)
-                                                .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
-                                                .value(13)
+                                        .right(new BinaryExpression()
+                                                .type(ExpressionType.BINARY)
+                                                .left(new AgeCondition()
+                                                        .type(ExpressionType.AGE)
+                                                        .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
+                                                        .value(13)
+                                                )
+                                                .operator(BinaryOperator.AND)
+                                                .right(new BinaryExpression()
+                                                        .type(ExpressionType.BINARY)
+                                                        .left(new DoctorSpecialityCondition()
+                                                                .type(ExpressionType.DOCTOR_SPECIALITY)
+                                                                .value("læge"))
+                                                        .operator(BinaryOperator.OR)
+                                                        .right(new BinaryExpression()
+                                                                .type(ExpressionType.BINARY)
+                                                                .left(new BinaryExpression()
+                                                                        .type(ExpressionType.BINARY)
+                                                                        .left(new DoctorSpecialityCondition()
+                                                                                .type(ExpressionType.DOCTOR_SPECIALITY)
+                                                                                .value("kæbekirurg"))
+                                                                        .operator(BinaryOperator.OR)
+                                                                        .right(new DoctorSpecialityCondition()
+                                                                                .type(ExpressionType.DOCTOR_SPECIALITY)
+                                                                                .value("ortopædkirurg")))
+                                                                .operator(BinaryOperator.AND)
+                                                                .right(new AgeCondition()
+                                                                        .type(ExpressionType.AGE)
+                                                                        .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
+                                                                        .value(18)))
+                                                )
                                         )
                                 )
                         ))
@@ -154,8 +182,9 @@ class ManagementIT extends BaseTest {
 
     @Test
     void call20250801clausesDslPost_whenPostingAValidDSLThenRetrieveACorrectlyInterpretedClause() {
-        String error = "blaah";
-        String dsl = "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13)";
+        var error = "blaah";
+
+        String dsl = "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13) og LÆGESPECIALE = LÆGE";
         DslInput dslInput = new DslInput().dsl(dsl).error(error);
 
         var createDslResponse = api.call20250801clausesDslPost(dslInput);
@@ -194,10 +223,18 @@ class ManagementIT extends BaseTest {
                                                 .atcCode("*")
                                         )
                                         .operator(BinaryOperator.OR)
-                                        .right(new AgeCondition()
-                                                .type(ExpressionType.AGE)
-                                                .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
-                                                .value(13)
+                                        .right(new BinaryExpression()
+                                                .type(ExpressionType.BINARY)
+                                                .left(new AgeCondition()
+                                                        .type(ExpressionType.AGE)
+                                                        .operator(Operator.GREATER_THAN_OR_EQUAL_TO)
+                                                        .value(13)
+                                                )
+                                                .operator(BinaryOperator.AND)
+                                                .right(new DoctorSpecialityCondition()
+                                                        .type(ExpressionType.DOCTOR_SPECIALITY)
+                                                        .value("LÆGE")
+                                                )
                                         )
                                 )
                         ))

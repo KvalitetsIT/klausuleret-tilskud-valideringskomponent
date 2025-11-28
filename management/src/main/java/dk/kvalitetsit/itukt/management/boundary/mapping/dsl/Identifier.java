@@ -6,7 +6,8 @@ public enum Identifier {
     AGE("ALDER"),
     ATC_CODE("ATC"),
     FORM_CODE("FORM"),
-    ROUTE("ROUTE");
+    ROUTE("ROUTE"),
+    DOCTOR_SPECIALITY("LÆGESPECIALE");
 
     private final String value;
 

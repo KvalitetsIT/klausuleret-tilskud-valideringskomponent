@@ -2,19 +2,18 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.repository.StamDataRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class StamDataRepositoryImplIT extends BaseTest {
+class StamDataRepositoryIT extends BaseTest {
 
-    private StamDataRepositoryImpl repository;
+    private StamDataRepository repository;
 
     @BeforeAll
     void setup() {
-        this.repository = new StamDataRepositoryImpl(stamDatabase.getDatasource());
+        this.repository = new StamDataRepository(stamDatabase.getDatasource());
     }
 
     @Test

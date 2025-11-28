@@ -8,13 +8,13 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.util.List;
 
-public class DepartmentRepositoryImpl implements Repository<DepartmentEntity> {
+public class DepartmentRepository implements Repository<DepartmentEntity> {
 
     private final DataClassRowMapper<DepartmentEntity> clauseRowMapper;
 
     private final NamedParameterJdbcTemplate template;
 
-    public DepartmentRepositoryImpl(DataSource dataSource) {
+    public DepartmentRepository(DataSource dataSource) {
         this.template = new NamedParameterJdbcTemplate(dataSource);
         clauseRowMapper = DataClassRowMapper.newInstance(DepartmentEntity.class);
     }

@@ -29,7 +29,7 @@ class ValidationServiceImplTest {
     @Mock
     private ClauseService clauseService;
     @Mock
-    private Cache<StamData> stamDataCache;
+    private Cache<StamData, Long> stamDataCache;
     @Mock
     private SkippedValidationService skippedValidationService;
 

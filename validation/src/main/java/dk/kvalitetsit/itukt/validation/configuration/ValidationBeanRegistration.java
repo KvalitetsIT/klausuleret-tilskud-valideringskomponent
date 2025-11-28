@@ -5,7 +5,7 @@ import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.*;
 import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
+import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.service.*;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.openapitools.model.ValidationRequest;
@@ -44,8 +44,8 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public Cache<StamData> stamDataCache(StamDataRepositoryAdaptor stamDataRepository) {
-        return new StamdataCacheImpl(configuration.stamdata().cache(), stamDataRepository);
+    public Cache<StamData, Long> stamDataCache(StamDataRepositoryAdaptor stamDataRepository) {
+        return new StamdataCache(configuration.stamdata().cache(), stamDataRepository);
     }
 
     @Bean
@@ -64,7 +64,7 @@ public class ValidationBeanRegistration {
     @Bean
     public ValidationService<ValidationRequest, ValidationResponse> validationService(
             @Autowired ClauseService clauseService,
-            @Autowired Cache<StamData> stamDataCache,
+            @Autowired Cache<StamData, Long> stamDataCache,
             @Autowired SkippedValidationService skippedValidationService
     ) {
         return new ValidationServiceAdaptor(

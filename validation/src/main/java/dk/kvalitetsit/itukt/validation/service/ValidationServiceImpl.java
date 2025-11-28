@@ -14,10 +14,10 @@ import java.util.Optional;
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
 
     private final ClauseService clauseCache;
-    private final Cache<StamData> stamDataCache;
+    private final Cache<StamData, Long> stamDataCache;
     private final SkippedValidationService skippedValidationService;
 
-    public ValidationServiceImpl(ClauseService clauseCache, Cache<StamData> stamDataCache, SkippedValidationService skippedValidationService) {
+    public ValidationServiceImpl(ClauseService clauseCache, Cache<StamData, Long> stamDataCache, SkippedValidationService skippedValidationService) {
         this.clauseCache = clauseCache;
         this.stamDataCache = stamDataCache;
         this.skippedValidationService = skippedValidationService;

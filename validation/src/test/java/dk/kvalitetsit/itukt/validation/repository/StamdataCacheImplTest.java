@@ -1,7 +1,8 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
+import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
+import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +26,7 @@ class StamDataCacheTest {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
-        StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        Cache stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         var result = stamDataCache.get(2L);
@@ -39,7 +40,7 @@ class StamDataCacheTest {
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
 
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
-        StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        Cache stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         var result = stamDataCache.get(drugId);
@@ -53,7 +54,7 @@ class StamDataCacheTest {
         long drugId = 1L;
         StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(List.of(data));
-        StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        Cache stamDataCache = new StamdataCache(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         Mockito.verify(mock, Mockito.times(1)).findAll();

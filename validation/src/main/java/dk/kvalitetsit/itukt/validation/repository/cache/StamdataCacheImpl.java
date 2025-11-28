@@ -6,10 +6,14 @@ import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class StamdataCacheImpl implements StamdataCache, CacheLoader {
+public class StamdataCacheImpl implements Cache<StamData>, CacheLoader {
 
     private final CacheConfiguration configuration;
     private final StamDataRepositoryAdaptor concreteStamDataRepository;
@@ -20,6 +24,21 @@ public class StamdataCacheImpl implements StamdataCache, CacheLoader {
         this.concreteStamDataRepository = concreteStamDataRepository;
     }
 
+    private static StamData merge(StamData x, StamData y) {
+        var clauses = Stream.concat(x.clauses().stream(), y.clauses().stream()).collect(Collectors.toSet());
+        return new StamData(x.drug(), clauses);
+    }
+
+    private static Map<Long, StamData> toMap(List<StamData> entry) {
+        return entry.stream()
+                .distinct()
+                .collect(Collectors.toMap(
+                        x -> x.drug().id(),
+                        Function.identity(),
+                        StamdataCacheImpl::merge
+                ));
+    }
+
     @Override
     public String getCron() {
         return configuration.cron();
@@ -27,7 +46,7 @@ public class StamdataCacheImpl implements StamdataCache, CacheLoader {
 
     @Override
     public void load() {
-        drugIdToClauseMap = concreteStamDataRepository.findAll();
+        drugIdToClauseMap = toMap(concreteStamDataRepository.findAll());
     }
 
     @Override

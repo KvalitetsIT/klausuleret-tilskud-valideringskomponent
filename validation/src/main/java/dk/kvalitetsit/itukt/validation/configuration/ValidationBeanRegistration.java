@@ -4,9 +4,10 @@ import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
 import dk.kvalitetsit.itukt.validation.repository.*;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
+import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
 import dk.kvalitetsit.itukt.validation.service.*;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.openapitools.model.ValidationRequest;
 import org.openapitools.model.ValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,18 +33,18 @@ public class ValidationBeanRegistration {
 
 
     @Bean
-    public StamDataRepository stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
+    public StamDataRepository<StamDataEntity> stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
         return new StamDataRepositoryImpl(dataSource);
     }
 
     @Bean
-    public StamDataRepositoryAdaptor stamDataRepositoryAdaptor(StamDataRepository stamDataRepository) {
+    public StamDataRepositoryAdaptor stamDataRepositoryAdaptor(StamDataRepository<StamDataEntity> stamDataRepository) {
         StamDataMapper mapper = new StamDataMapper();
         return new StamDataRepositoryAdaptor(mapper, stamDataRepository);
     }
 
     @Bean
-    public StamdataCache stamDataCache(StamDataRepositoryAdaptor stamDataRepository) {
+    public Cache<StamData> stamDataCache(StamDataRepositoryAdaptor stamDataRepository) {
         return new StamdataCacheImpl(configuration.stamdata().cache(), stamDataRepository);
     }
 
@@ -63,7 +64,7 @@ public class ValidationBeanRegistration {
     @Bean
     public ValidationService<ValidationRequest, ValidationResponse> validationService(
             @Autowired ClauseService clauseService,
-            @Autowired StamdataCache stamDataCache,
+            @Autowired Cache<StamData> stamDataCache,
             @Autowired SkippedValidationService skippedValidationService
     ) {
         return new ValidationServiceAdaptor(

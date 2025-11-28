@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.util.List;
 
-public class StamDataRepositoryImpl implements StamDataRepository {
+public class StamDataRepositoryImpl implements StamDataRepository<StamDataEntity> {
 
     private final DataClassRowMapper<StamDataEntity> clauseRowMapper;
 

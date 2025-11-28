@@ -4,7 +4,7 @@ package dk.kvalitetsit.itukt.validation.service;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
+import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 
@@ -14,10 +14,10 @@ import java.util.Optional;
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
 
     private final ClauseService clauseCache;
-    private final StamdataCache stamDataCache;
+    private final Cache<StamData, Long> stamDataCache;
     private final SkippedValidationService skippedValidationService;
 
-    public ValidationServiceImpl(ClauseService clauseCache, StamdataCache stamDataCache, SkippedValidationService skippedValidationService) {
+    public ValidationServiceImpl(ClauseService clauseCache, Cache<StamData, Long> stamDataCache, SkippedValidationService skippedValidationService) {
         this.clauseCache = clauseCache;
         this.stamDataCache = stamDataCache;
         this.skippedValidationService = skippedValidationService;
@@ -38,7 +38,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
         return shouldSkipClause(clause, validationInput)
                 ? Optional.empty()
                 : clause.expression().validates(validationInput)
-                    .map(error -> new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()), error.toErrorString(), clause.error().code()));
+                .map(error -> new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()), error.toErrorString(), clause.error().code()));
     }
 
     private void createSkippedValidations(ValidationInput validationInput) {

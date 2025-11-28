@@ -1,6 +1,8 @@
 package dk.kvalitetsit.itukt.validation.service;
 
+import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
+import dk.kvalitetsit.itukt.common.model.Error;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,6 @@ class ValidationServiceAdaptorTest {
     @Mock
     private ValidationService<ValidationInput, List<ValidationError>> validationService;
 
-
     @Test
     void validate_WithRequestWithoutValidateElements_ReturnsSuccess() {
         ValidationRequest request = new ValidationRequest();
@@ -44,7 +45,7 @@ class ValidationServiceAdaptorTest {
         String creator2 = "creator2";
         String reporter2 = "reporter2";
         Validate validate2 = createValidate(2L, "2222", "path2", creator2, reporter2);
-        ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication(1L, "atc", "form", "adm");
+        ExistingDrugMedicationInput existingDrugMedication = new ExistingDrugMedicationInput("atc", "form", "adm", 1L);
         ValidationRequest request = createValidationRequest(List.of(1), 10, List.of(existingDrugMedication), validate1, validate2);
         Mockito.when(validationService.validate(Mockito.any())).thenReturn(List.of());
 
@@ -121,7 +122,7 @@ class ValidationServiceAdaptorTest {
                 "Reason should be that existing drug medications are required");
     }
 
-    private ValidationRequest createValidationRequest(List<Integer> skippedValidations, int age, List<ExistingDrugMedication> existingDrugMedication, Validate ... validates) {
+    private ValidationRequest createValidationRequest(List<Integer> skippedValidations, int age, List<ExistingDrugMedicationInput> existingDrugMedication, Validate... validates) {
         return new ValidationRequest()
                 .personIdentifier("1234")
                 .skipValidations(skippedValidations)

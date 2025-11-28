@@ -52,7 +52,7 @@ class ClauseDslDtoMapperTest {
                                 .value(13)
                         )
                 ),
-                new Error("blaah")
+                "blaah"
         );
 
         List<DslInput> validDSLs = Stream.of(
@@ -61,7 +61,7 @@ class ClauseDslDtoMapperTest {
                         "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
                         "Klausul CLAUSE: (((INDIKATION = C10BA03) eller (((INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)))))"
                 )
-                .map(x -> new DslInput(new Error("blaah"), x))
+                .map(x -> new DslInput("blaah", x))
                 .toList();
 
         validDSLs.forEach(dsl -> Assertions.assertEquals(mapper.map(dsl), expected, "Unexpected mapping of: " + dsl + " - The AND operator is expected to have higher precedence"));
@@ -92,14 +92,14 @@ class ClauseDslDtoMapperTest {
                         BinaryOperator.AND,
                         new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 10, ExpressionType.AGE),
                         ExpressionType.BINARY
-                ), new Error("blaah")
+                ), "blaah"
         );
 
         List<DslInput> subjects = Stream.of(
                         "Klausul DEEP: ((INDIKATION = X eller INDIKATION = Y) og (INDIKATION = Z eller INDIKATION = W)) og (ALDER >= 10)",
                         "Klausul DEEP: ((INDIKATION = X eller INDIKATION = Y) og (INDIKATION = Z eller INDIKATION = W)) og ALDER >= 10"
                 )
-                .map(x -> new DslInput(new Error("blaah"), x))
+                .map(x -> new DslInput("blaah", x))
                 .toList();
 
 
@@ -131,9 +131,9 @@ class ClauseDslDtoMapperTest {
                         ),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul DEEP: (INDIKATION = X eller INDIKATION = Y) og ((INDIKATION = Z eller INDIKATION = W) og ALDER >= 10)");
+        DslInput subject = new DslInput("blaah", "Klausul DEEP: (INDIKATION = X eller INDIKATION = Y) og ((INDIKATION = Z eller INDIKATION = W) og ALDER >= 10)");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -153,13 +153,13 @@ class ClauseDslDtoMapperTest {
                         new IndicationCondition("C10BA03", ExpressionType.INDICATION),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
         List<DslInput> validDSLs = Stream.of(
                 "Klausul LIST: INDIKATION i [C10BA01, C10BA02, C10BA03]",
                 "Klausul LIST: (INDIKATION i [C10BA01, C10BA02]) eller INDIKATION = C10BA03",
                 "Klausul LIST: ((INDIKATION i [C10BA01, C10BA02]) eller INDIKATION = C10BA03)"
-        ).map(x -> new DslInput(new Error("blaah"), x)).toList();
+        ).map(x -> new DslInput("blaah", x)).toList();
         validDSLs.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
 
@@ -170,8 +170,8 @@ class ClauseDslDtoMapperTest {
                 BinaryOperator.AND,
                 new AgeCondition(Operator.LESS_THAN_OR_EQUAL_TO, 65, ExpressionType.AGE),
                 ExpressionType.BINARY
-        ), new Error("blaah"));
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: ALDER >= 18 og ALDER <= 65");
+        ), "blaah");
+        DslInput subject = new DslInput("blaah", "Klausul CLAUSE: ALDER >= 18 og ALDER <= 65");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -186,17 +186,17 @@ class ClauseDslDtoMapperTest {
                         new AgeCondition(Operator.LESS_THAN, 100, ExpressionType.AGE),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: ALDER > 0 eller ALDER < 100");
+        DslInput subject = new DslInput("blaah", "Klausul CLAUSE: ALDER > 0 eller ALDER < 100");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
     void givenDslWithNumericCondition_whenMap_thenEqualIsParsedCorrectly() {
         final ClauseInput expected = new ClauseInput("CLAUSE", new AgeCondition(Operator.EQUAL, 42, ExpressionType.AGE),
-                new Error("blaah"));
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: ALDER = 42");
+                "blaah");
+        DslInput subject = new DslInput("blaah", "Klausul CLAUSE: ALDER = 42");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -207,18 +207,18 @@ class ClauseDslDtoMapperTest {
                 BinaryOperator.OR,
                 new ExistingDrugMedicationCondition("B01AC", "INJEKTION", "INTRAVENØS", ExpressionType.EXISTING_DRUG_MEDICATION),
                 ExpressionType.BINARY
-        ), new Error("blaah")
+        ), "blaah"
         );
 
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul DRUG: EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = tablet, ROUTE = oral}, {ATC = B01AC, FORM = injektion, ROUTE = intravenøs}]");
+        DslInput subject = new DslInput("blaah", "Klausul DRUG: EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = tablet, ROUTE = oral}, {ATC = B01AC, FORM = injektion, ROUTE = intravenøs}]");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
     void givenDslWithExistingDrugConditionIncludingWildcards_whenMap_thenParseDrugCorrectly() {
         final ClauseInput expected = new ClauseInput("DRUG", new ExistingDrugMedicationCondition("C10B", "*", "*", ExpressionType.EXISTING_DRUG_MEDICATION),
-                new Error("blaah"));
-        DslInput subject = new DslInput(new Error("blaah"), "Klausul DRUG: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}");
+                "blaah");
+        DslInput subject = new DslInput("blaah", "Klausul DRUG: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -235,11 +235,11 @@ class ClauseDslDtoMapperTest {
                                 ExpressionType.BINARY
                         ),
                         ExpressionType.BINARY),
-                new Error("blaah")
+                "blaah"
         );
 
-        DslInput subject_1 = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: INDIKATION = X eller INDIKATION = Y og INDIKATION = Z");
-        DslInput subject_2 = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: INDIKATION = X eller (INDIKATION = Y og INDIKATION= Z)");
+        DslInput subject_1 = new DslInput("blaah", "Klausul PRECEDENCE: INDIKATION = X eller INDIKATION = Y og INDIKATION = Z");
+        DslInput subject_2 = new DslInput("blaah", "Klausul PRECEDENCE: INDIKATION = X eller (INDIKATION = Y og INDIKATION= Z)");
 
         Assertions.assertEquals(expected, mapper.map(subject_1), "Unexpected mapping of: " + subject_1);
         Assertions.assertEquals(expected, mapper.map(subject_2), "Unexpected mapping of: " + subject_2);
@@ -257,11 +257,11 @@ class ClauseDslDtoMapperTest {
                         ), BinaryOperator.AND,
                         new IndicationCondition("Z", ExpressionType.INDICATION),
                         ExpressionType.BINARY),
-                new Error("blaah")
+                "blaah"
 
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "Klausul PRECEDENCE: (INDIKATION = X eller INDIKATION = Y) og INDIKATION = Z");
+        final DslInput subject = new DslInput("blaah", "Klausul PRECEDENCE: (INDIKATION = X eller INDIKATION = Y) og INDIKATION = Z");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -278,10 +278,10 @@ class ClauseDslDtoMapperTest {
                         BinaryOperator.OR,
                         new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                         ExpressionType.BINARY),
-                new Error("blaah")
+                "blaah"
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: INDIKATION =          C10BA03    OG ALDER >= 13 eLLer ALDER = 10");
+        final DslInput subject = new DslInput("blaah", "Klausul CLAUSE: INDIKATION =          C10BA03    OG ALDER >= 13 eLLer ALDER = 10");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -298,10 +298,10 @@ class ClauseDslDtoMapperTest {
                         BinaryOperator.OR,
                         new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                         ExpressionType.BINARY),
-                new Error("blaah")
+                "blaah"
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "klausul clause: INDIKATION = c10ba03 og ALDER >= 13 eller ALDER = 10");
+        final DslInput subject = new DslInput("blaah", "klausul clause: INDIKATION = c10ba03 og ALDER >= 13 eller ALDER = 10");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -319,10 +319,10 @@ class ClauseDslDtoMapperTest {
                         BinaryOperator.OR,
                         new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                         ExpressionType.BINARY),
-                new Error("blaah")
+                "blaah"
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "kLausul CLAUSE: indiKaTion = C10BA03 OG ALDER >= 13 ELLER aLder = 10)");
+        final DslInput subject = new DslInput("blaah", "kLausul CLAUSE: indiKaTion = C10BA03 OG ALDER >= 13 ELLER aLder = 10)");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -339,10 +339,10 @@ class ClauseDslDtoMapperTest {
                         BinaryOperator.OR,
                         new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                         ExpressionType.BINARY),
-                new Error("blaah")
+                "blaah"
         );
 
-        final DslInput subject = new DslInput(new Error("blaah"), "Klausul CLAUSE: INDIKATION = C10BA03 eller ALDER >= 13 eller ALDER = 10");
+        final DslInput subject = new DslInput("blaah", "Klausul CLAUSE: INDIKATION = C10BA03 eller ALDER >= 13 eller ALDER = 10");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -377,7 +377,7 @@ class ClauseDslDtoMapperTest {
                                 .value(13)
                         )
                 ),
-                new Error("blaah")
+                "blaah"
         );
 
         var dsls = Stream.of(
@@ -386,7 +386,7 @@ class ClauseDslDtoMapperTest {
                 "Klausul CLAUSE: ((INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)))",
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
                 "Klausul CLAUSE: INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13"
-        ).map(x -> new DslInput(new Error("blaah"), x)).toList();
+        ).map(x -> new DslInput("blaah", x)).toList();
 
         dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
@@ -402,7 +402,7 @@ class ClauseDslDtoMapperTest {
                                 ExpressionType.EXISTING_DRUG_MEDICATION),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
 
         var dsls = Stream.of(
@@ -410,7 +410,7 @@ class ClauseDslDtoMapperTest {
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL i [{FORM = TABLET, ATC = C10B, ROUTE = ORAL}, {ROUTE = INTRAVENØS, ATC = B01AC, FORM = INJEKTION}]",
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B,FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, ROUTE = INTRAVENØS, FORM = INJEKTION}]",
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, ROUTE = ORAL, FORM = TABLET}, {ATC = B01AC, ROUTE = INTRAVENØS, FORM = INJEKTION}]"
-        ).map(x -> new DslInput(new Error("blaah"), x)).toList();
+        ).map(x -> new DslInput("blaah", x)).toList();
 
         dsls.forEach(dsl -> Assertions.assertEquals(expected, mapper.map(dsl), "Unexpected mapping of: " + dsl));
     }
@@ -427,7 +427,7 @@ class ClauseDslDtoMapperTest {
                                 "ORAL",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")
+                        "blaah"
                 ),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = *}",
                 new ClauseInput("BLAAH",
@@ -437,7 +437,7 @@ class ClauseDslDtoMapperTest {
                                 "*",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")
+                        "blaah"
                 ),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = ORAL}",
                 new ClauseInput("BLAAH",
@@ -447,7 +447,7 @@ class ClauseDslDtoMapperTest {
                                 "ORAL",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")
+                        "blaah"
                 ),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = ORAL}",
                 new ClauseInput("BLAAH",
@@ -457,7 +457,7 @@ class ClauseDslDtoMapperTest {
                                 "ORAL",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")
+                        "blaah"
                 ),
 
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}",
@@ -468,7 +468,7 @@ class ClauseDslDtoMapperTest {
                                 "*",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")),
+                        "blaah"),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  ORAL}",
                 new ClauseInput("BLAAH",
                         new ExistingDrugMedicationCondition(
@@ -477,7 +477,7 @@ class ClauseDslDtoMapperTest {
                                 "ORAL",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")),
+                        "blaah"),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE =  *}",
                 new ClauseInput("BLAAH",
                         new ExistingDrugMedicationCondition(
@@ -486,7 +486,7 @@ class ClauseDslDtoMapperTest {
                                 "*",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")),
+                        "blaah"),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  *}",
                 new ClauseInput("BLAAH",
                         new ExistingDrugMedicationCondition(
@@ -495,11 +495,11 @@ class ClauseDslDtoMapperTest {
                                 "*",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah"))
+                        "blaah")
         );
 
         cases.forEach((key, value) -> {
-            DslInput input = new DslInput(new Error("blaah"), key);
+            DslInput input = new DslInput("blaah", key);
             Assertions.assertEquals(value, mapper.map(input), "Unexpected mapping of: " + input.getDsl());
         });
     }
@@ -517,7 +517,7 @@ class ClauseDslDtoMapperTest {
                                 "ORAL",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")
+                        "blaah"
                 ),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET}",
                 new ClauseInput("BLAAH",
@@ -527,7 +527,7 @@ class ClauseDslDtoMapperTest {
                                 "*",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")
+                        "blaah"
                 ),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, ROUTE = ORAL}",
                 new ClauseInput("BLAAH",
@@ -537,7 +537,7 @@ class ClauseDslDtoMapperTest {
                                 "ORAL",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")
+                        "blaah"
                 ),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {FORM = TABLET, ROUTE = ORAL}",
                 new ClauseInput("BLAAH",
@@ -547,7 +547,7 @@ class ClauseDslDtoMapperTest {
                                 "ORAL",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")
+                        "blaah"
                 ),
 
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B}",
@@ -558,7 +558,7 @@ class ClauseDslDtoMapperTest {
                                 "*",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")),
+                        "blaah"),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {ROUTE =  ORAL}",
                 new ClauseInput("BLAAH",
                         new ExistingDrugMedicationCondition(
@@ -567,7 +567,7 @@ class ClauseDslDtoMapperTest {
                                 "ORAL",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah")),
+                        "blaah"),
                 "Klausul BLAAH: EKSISTERENDE_LÆGEMIDDEL = {FORM = TABLET}",
                 new ClauseInput("BLAAH",
                         new ExistingDrugMedicationCondition(
@@ -576,11 +576,11 @@ class ClauseDslDtoMapperTest {
                                 "*",
                                 ExpressionType.EXISTING_DRUG_MEDICATION
                         ),
-                        new Error("blaah"))
+                        "blaah")
         );
 
         cases.forEach((key, value) -> {
-            DslInput input = new DslInput(new Error("blaah"), key);
+            DslInput input = new DslInput("blaah", key);
             Assertions.assertEquals(value, mapper.map(input), "Unexpected mapping of: " + input.getDsl());
         });
     }
@@ -602,12 +602,12 @@ class ClauseDslDtoMapperTest {
                         new AgeCondition(Operator.EQUAL, 30, ExpressionType.AGE),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
 
         var dsl = "Klausul BLAAH: ALDER i [10, 20, 30]";
 
-        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+        Assertions.assertEquals(expected, mapper.map(new DslInput("blaah", dsl)), "Unexpected mapping of: " + dsl);
     }
 
 
@@ -626,12 +626,12 @@ class ClauseDslDtoMapperTest {
                         new AgeCondition(Operator.LESS_THAN, 30, ExpressionType.AGE),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
 
         var dsl = "Klausul BLAAH: ALDER = 10 ELLER ALDER >= 20 ELLER ALDER < 30";
 
-        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+        Assertions.assertEquals(expected, mapper.map(new DslInput("blaah", dsl)), "Unexpected mapping of: " + dsl);
     }
 
 
@@ -650,12 +650,12 @@ class ClauseDslDtoMapperTest {
                         new AgeCondition(Operator.EQUAL, 30, ExpressionType.AGE),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
 
         var dsl = "Klausul BLAAH: (ALDER = 10 ELLER ALDER >= 20) og ALDER = 30";
 
-        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+        Assertions.assertEquals(expected, mapper.map(new DslInput("blaah", dsl)), "Unexpected mapping of: " + dsl);
 
     }
 
@@ -674,12 +674,12 @@ class ClauseDslDtoMapperTest {
                         new AgeCondition(Operator.EQUAL, 30, ExpressionType.AGE),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
 
         var dsl = "Klausul BLAAH: (ALDER i [10, 20]) og ALDER = 30";
 
-        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+        Assertions.assertEquals(expected, mapper.map(new DslInput("blaah", dsl)), "Unexpected mapping of: " + dsl);
 
     }
 
@@ -699,12 +699,12 @@ class ClauseDslDtoMapperTest {
                         ),
                         ExpressionType.BINARY
                 ),
-                new Error("blaah")
+                "blaah"
         );
 
         var dsl = "Klausul BLAAH: ALDER = 10 eller alder = 20 og ALDER = 30";
 
-        Assertions.assertEquals(expected, mapper.map(new DslInput(new Error("blaah"), dsl)), "Unexpected mapping of: " + dsl);
+        Assertions.assertEquals(expected, mapper.map(new DslInput("blaah", dsl)), "Unexpected mapping of: " + dsl);
 
     }
 
@@ -714,7 +714,7 @@ class ClauseDslDtoMapperTest {
         var dsl = "Klausul BLAAH: ALDER i 10, 20, 30";
         Assertions.assertThrows(
                 RuntimeException.class,
-                () -> mapper.map(new DslInput(new Error("blaah"), dsl)),
+                () -> mapper.map(new DslInput("blaah", dsl)),
                 "If a dsl with an invalid array is given an exception is expected to be thrown");
     }
 

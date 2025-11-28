@@ -70,7 +70,8 @@ public class ValidationBeanRegistration {
                 new ValidationServiceImpl(
                         clauseService,
                         stamDataCache,
-                        skippedValidationService)
+                        skippedValidationService
+                )
         );
     }
 

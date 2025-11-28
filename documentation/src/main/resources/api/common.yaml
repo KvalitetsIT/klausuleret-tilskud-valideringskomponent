@@ -1,0 +1,51 @@
+openapi: 3.0.1
+components:
+  schemas:
+    ExistingDrugMedication:
+      required:
+        - atcCode
+        - formCode
+        - routeOfAdministrationCode
+      properties:
+        atcCode:
+          description: "ATC-kode. Kilde er altid Medicinpriser"
+          type: string
+          example: "J01CE02"
+        formCode:
+          description: "Form code for the ordination. '*' can be used as a wildcard to match any string"
+          type: string
+          example: "TABFILM"
+        routeOfAdministrationCode:
+          description: "Route of administration code for the ordination. '*' can be used as a wildcard to match any string"
+          type: string
+          example: "OK"
+
+
+    ErrorMessage:
+      type: string
+      description: "An error message that is displayed if the clause may result in a validation error"
+
+    basicError:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - path
+      properties:
+        error:
+          description: Error message
+          type: string
+        path:
+          description: Path
+          type: string
+        status:
+          description: HTTP status code
+          type: integer
+        timestamp:
+          description: Time of error
+          type: string
+          format: date-time
+
+
+

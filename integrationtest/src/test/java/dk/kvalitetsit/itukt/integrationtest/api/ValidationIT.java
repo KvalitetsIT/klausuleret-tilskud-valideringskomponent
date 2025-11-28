@@ -79,7 +79,7 @@ public class ValidationIT extends BaseTest {
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndValidatesExistingDrugMedication_ReturnsSuccess() {
         int age = 1;  // Hardcoded clause in cache requires age > 50
-        var existingDrugMedication = new ExistingDrugMedication()
+        var existingDrugMedication = new ExistingDrugMedicationInput()
                 .drugIdentifier(0L)
                 .atcCode("ATC123") // Matches hardcoded clause
                 .formCode("anything") // Hardcoded clause has wildcard for form
@@ -155,7 +155,7 @@ public class ValidationIT extends BaseTest {
         assertInstanceOf(ValidationSuccess.class, successfulResponse, "Validation should succeed when error code is skipped");
     }
 
-    private ValidationRequest createValidationRequest(String elementPath, int age, String indication, List<ExistingDrugMedication> existingDrugMedication) {
+    private ValidationRequest createValidationRequest(String elementPath, int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication) {
         Validate validate = createValidateElement(elementPath, indication);
         return new ValidationRequest()
                 .age(age)

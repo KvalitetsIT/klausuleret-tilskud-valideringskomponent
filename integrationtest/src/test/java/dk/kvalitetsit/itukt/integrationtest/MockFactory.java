@@ -54,16 +54,16 @@ public class MockFactory {
     private static final org.openapitools.client.model.IndicationCondition EXPRESSION_2_DTO = new org.openapitools.client.model.IndicationCondition()
             .type(ExpressionType.INDICATION)
             .value((EXPRESSION_2_ENTITY.value()));
+    private static final org.openapitools.client.model.BinaryExpression EXPRESSION_7_DTO = new org.openapitools.client.model.BinaryExpression()
+            .type(ExpressionType.BINARY)
+            .left(EXPRESSION_5_DTO)
+            .operator(BinaryOperator.AND)
+            .right(EXPRESSION_6_DTO);
     private static final org.openapitools.client.model.Expression EXPRESSION_1_DTO = new org.openapitools.client.model.BinaryExpression()
             .type(ExpressionType.BINARY)
-            .operator(org.openapitools.client.model.BinaryOperator.OR)
             .left(EXPRESSION_2_DTO)
-            .right(new org.openapitools.client.model.BinaryExpression()
-                    .type(ExpressionType.BINARY)
-                    .left(EXPRESSION_5_DTO)
-                    .operator(org.openapitools.client.model.BinaryOperator.AND)
-                    .right(EXPRESSION_6_DTO)
-            );
+            .operator(org.openapitools.client.model.BinaryOperator.OR)
+            .right(EXPRESSION_7_DTO);
     public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)

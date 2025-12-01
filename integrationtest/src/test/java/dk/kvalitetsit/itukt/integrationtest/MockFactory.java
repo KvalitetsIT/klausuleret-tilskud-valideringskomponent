@@ -53,19 +53,19 @@ public class MockFactory {
             .value(EXPRESSION_10_ENTITY.value().toUpperCase());
     private static final org.openapitools.client.model.BinaryExpression EXPRESSION_7_DTO = new org.openapitools.client.model.BinaryExpression()
             .type(ExpressionType.BINARY)
-            .left(EXPRESSION_10_DTO)
+            .left(EXPRESSION_11_DTO)
             .operator(BinaryOperator.OR)
-            .right(EXPRESSION_11_DTO);
+            .right(EXPRESSION_10_DTO);
     private static final org.openapitools.client.model.BinaryExpression EXPRESSION_8_DTO = new org.openapitools.client.model.BinaryExpression()
-            .type(ExpressionType.BINARY)
-            .left(EXPRESSION_6_DTO)
-            .operator(BinaryOperator.AND)
-            .right(EXPRESSION_7_DTO);
-    private static final org.openapitools.client.model.BinaryExpression EXPRESSION_9_DTO = new org.openapitools.client.model.BinaryExpression()
             .type(ExpressionType.BINARY)
             .left(EXPRESSION_5_DTO)
             .operator(BinaryOperator.AND)
-            .right(EXPRESSION_8_DTO);
+            .right(EXPRESSION_6_DTO);
+    private static final org.openapitools.client.model.BinaryExpression EXPRESSION_9_DTO = new org.openapitools.client.model.BinaryExpression()
+            .type(ExpressionType.BINARY)
+            .left(EXPRESSION_8_DTO)
+            .operator(BinaryOperator.AND)
+            .right(EXPRESSION_7_DTO);
     private static final org.openapitools.client.model.Expression EXPRESSION_1_DTO = new org.openapitools.client.model.BinaryExpression()
             .type(ExpressionType.BINARY)
             .left(EXPRESSION_2_DTO)

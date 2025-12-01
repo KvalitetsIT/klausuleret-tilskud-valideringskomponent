@@ -17,8 +17,7 @@ final class InDockerComponent implements Component {
         this.component = new ComposeContainer(getComposeFile("docker-compose.app.yaml"))
                 .withServices(SERVICE_NAME)
                 .withExposedService(SERVICE_NAME, 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer(SERVICE_NAME, new Slf4jLogConsumer(logger).withPrefix(SERVICE_NAME))
-                .withLocalCompose(true);
+                .withLogConsumer(SERVICE_NAME, new Slf4jLogConsumer(logger).withPrefix(SERVICE_NAME));
     }
 
     @Override

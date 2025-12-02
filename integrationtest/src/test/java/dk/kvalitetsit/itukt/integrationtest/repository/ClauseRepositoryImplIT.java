@@ -123,14 +123,17 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void getTwoClauseWithSameName() {
-        var clauseA = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "blah");
-        var clauseB = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "blah");
+    void createTwoClauseWithSameName_ThenReadAll_ReturnsLatestClause() {
+        var clauseA = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
+        var clauseB = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
 
         repository.create(clauseA);
+        repository.create(clauseB);
+        var clauses = repository.readAll();
 
-        var ex = Assertions.assertThrows(ServiceException.class, () -> repository.create(clauseB), "Expected an exception since duplicate entry");
-        assertEquals("Clause already exists", ex.getMessage());
+        assertEquals(1, clauses.size(), "Expected only the latest version of the clause");
+        assertEquals(clauseB.errorMessage(), clauses.getFirst().errorMessage(),
+                "Expected the error message of the latest version of the clause to be returned");
     }
 
     @Test

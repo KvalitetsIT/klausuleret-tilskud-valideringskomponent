@@ -7,7 +7,6 @@ import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -52,18 +51,26 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
-            int errorCode = createErrorCode(clause.name());
+            int errorCode = createOrGetErrorCode(clause.name());
 
             return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression);
 
-        } catch (DuplicateKeyException e) {
-            throw new ServiceException("Clause already exists", e);
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
             throw new ServiceException("Failed to create clause", e);
         }
     }
 
+
+    private int createOrGetErrorCode(String clauseName) {
+        var existingErrorCodes = template.queryForList(
+                "SELECT error_code FROM error_code WHERE clause_name = :clause_name",
+                Map.of("clause_name", clauseName),
+                Integer.class
+        );
+        return existingErrorCodes.isEmpty() ? createErrorCode(clauseName)
+                : existingErrorCodes.getFirst();
+    }
 
     private synchronized int createErrorCode(String clauseName) {
         Integer max = template.getJdbcTemplate().queryForObject(
@@ -140,7 +147,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        JOIN expression e ON c.expression_id = e.id
+                        JOIN (
+                            SELECT name, MAX(created_time) AS max_created_time
+                            FROM clause
+                            GROUP BY name
+                        ) latest
+                          ON c.name = latest.name
+                            AND c.created_time = latest.max_created_time
                         ORDER BY c.id
                     """;
 

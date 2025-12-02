@@ -194,13 +194,15 @@ components:
               type: string
             detailed_error_code:
               description: >-
-                Detailed error code. This could be a code describing an validation error.
-                * 10: Input validation error
-                * 20: Other error.
+                Detailed error code. This could be a code describing a validation error.
+                <ul>
+                  <li>1: Bad request</li>
+                  <li>2: Not found</li>
+                </ul>
               type: string
               enum:
-                - "10"
-                - "20"
+                - "1"
+                - "2"
     ClauseInput:
       type: object
       required:

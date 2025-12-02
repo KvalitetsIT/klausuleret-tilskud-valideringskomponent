@@ -32,4 +32,9 @@ public class ClauseRepositoryAdaptor {
     public List<Clause> readAll() throws ServiceException {
         return this.entityMapper.map(clauseRepository.readAll());
     }
+
+    public boolean nameExists(String name) throws ServiceException {
+        return clauseRepository.nameExists(name);
+    }
+
 }

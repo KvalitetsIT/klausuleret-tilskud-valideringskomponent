@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
@@ -11,6 +10,7 @@ import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -133,6 +133,25 @@ public class ClauseRepositoryImplIT extends BaseTest {
         assertEquals("Clause already exists", ex.getMessage());
     }
 
+    @Test
+    void nameExists_WhenNoClauseMatchesName_ReturnsFalse() {
+        var clause = new ClauseForCreation("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
+        repository.create(clause);
+
+        boolean nameExists = repository.nameExists("nonExistingName");
+
+        assertFalse(nameExists, "Expected nameExists to return false when no clause matches the given name");
+    }
+
+    @Test
+    void nameExists_WhenClauseMatchesName_ReturnsTrue() {
+        var clause = new ClauseForCreation("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
+        repository.create(clause);
+
+        boolean nameExists = repository.nameExists(clause.name());
+
+        assertTrue(nameExists, "Expected nameExists to return true when a clause matches the given name");
+    }
 
     @Test
     void givenADeepClause_whenCreateAndRead_thenAssertEqual() {

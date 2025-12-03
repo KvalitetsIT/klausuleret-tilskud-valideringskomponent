@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class ClauseRepositoryAdaptorTest {
@@ -79,6 +80,16 @@ public class ClauseRepositoryAdaptorTest {
 
         var result = adaptor.readAll();
         assertEquals(List.of(clause), result);
+    }
+
+    @Test
+    void nameExists() {
+        String clauseName = "Test Clause";
+        Mockito.when(concreteRepository.nameExists(clauseName)).thenReturn(true);
+
+        boolean exists = adaptor.nameExists(clauseName);
+
+        assertTrue(exists, "nameExists should return the same value as the concrete repository");
     }
 }
 

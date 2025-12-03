@@ -123,6 +123,16 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         }
     }
 
+    @Override
+    public boolean nameExists(String name) throws ServiceException {
+        String sql = "SELECT COUNT(*) FROM clause WHERE name = :name";
+        Integer count = template.queryForObject(
+                sql,
+                Map.of("name", name),
+                Integer.class);
+        return count != null && count > 0;
+    }
+
 
     @Override
     public List<ClauseEntity> readAll() throws ServiceException {

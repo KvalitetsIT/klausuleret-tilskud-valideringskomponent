@@ -11,5 +11,6 @@ import java.util.UUID;
 public interface ClauseRepository {
     ClauseEntity create(ClauseForCreation clause) throws ServiceException;
     Optional<ClauseEntity> read(UUID id) throws ServiceException;
+    boolean nameExists(String name) throws ServiceException;
     List<ClauseEntity> readAll() throws ServiceException;
 }

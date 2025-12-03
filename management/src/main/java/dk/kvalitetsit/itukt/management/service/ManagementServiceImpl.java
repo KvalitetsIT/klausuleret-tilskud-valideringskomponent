@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
@@ -20,6 +21,9 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause create(ClauseForCreation clause) throws ServiceException {
+        if (repository.nameExists(clause.name())) {
+            throw new BadRequestException("Clause with name '" + clause.name() + "' already exists");
+        }
         return repository.create(clause);
     }
 

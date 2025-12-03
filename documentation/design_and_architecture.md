@@ -36,6 +36,10 @@ Systemet er designet med fokus på modularitet, testbarhed og skalérbarhed. Her
 ## Datamodel
 I stedet for at gemme rå DSL’er som tekststrenge er det valgt at modellere udtrykkene relationelt, som vist i den nedenstående [Datamodel](./src/main/resources/images/data_model.svg). Denne tilgang muliggør validering, type-sikkerhed og en tættere kobling til den anvendte domænemodel. 
 
-Datamodellen er bygget op omkring klausuler (clauses), der udgør kernen i projektet. Hver klausul indeholder et rekursivt udtryk (expression), som kan tage to former: et binært udtryk (binary_expression) eller en betingelse (string_condition_expression, number_condition_expression, existing_drug_medication_condition_expression).
+Datamodellen er bygget op omkring klausuler (clauses), der udgør kernen i projektet. 
+Hver klausul indeholder et rekursivt udtryk (expression), som kan tage to former: et binært udtryk (binary_expression) eller en betingelse (string_condition_expression, number_condition_expression, existing_drug_medication_condition_expression).
+
+For at bevare historiske data er der implementeret en versioneringsmekanisme, hvor hver ændring i en klausul resulterer i en ny version, mens tidligere versioner bevares uændret.
+Den aktive version af en klausul vil her være den med det nyeste tidsstempel i feltet created_time.
 
 ![ER-Diagram](./src/main/resources/images/data_model.svg)

@@ -124,6 +124,33 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
+  /2025/08/01/clauses/{name}:
+    put:
+      tags:
+        - management
+      summary: "Update clause"
+      description: "Creates a new version of the clause matching the specified name"
+      parameters:
+        - $ref: '#/components/parameters/name'
+      requestBody:
+        description: "A list of expressions"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClauseUpdateInput'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClauseOutput'
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404'
+
   /2025/08/01/clauses/{id}:
     get:
       tags:
@@ -157,6 +184,8 @@ components:
       description: "Unauthorized. This could be because: <br> * The calling system has not been properly authenticated."
     '403':
       description: "Forbidden. This could be because: <br> * The requested information does not belong the organisation of the user <br> * The calling user does not have the required roles"
+    '404':
+      description: "Not found. The requested resource could not be found."
 
   parameters:
     id:
@@ -167,6 +196,13 @@ components:
       schema:
         type: string
         format: uuid
+    name:
+      name: name
+      in: path
+      description: a clause name.
+      required: true
+      schema:
+        type: string
     offset:
       name: offset
       in: query
@@ -214,6 +250,17 @@ components:
           type: string
           description: "The name of the clause"
           example: "CHOL"
+        expression:
+          $ref: '#/components/schemas/Expression'
+        error:
+          $ref: './common.yaml#/components/schemas/ErrorMessage'
+
+    ClauseUpdateInput:
+      type: object
+      required:
+        - expression
+        - error
+      properties:
         expression:
           $ref: '#/components/schemas/Expression'
         error:

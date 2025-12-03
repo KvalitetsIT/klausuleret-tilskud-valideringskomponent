@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
+import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,8 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openapitools.model.*;
-import org.openapitools.model.Error;
+import org.openapitools.model.BinaryExpression;
+import org.openapitools.model.ClauseOutput;
+import org.openapitools.model.DslInput;
+import org.openapitools.model.DslOutput;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +35,13 @@ public class ManagementServiceAdaptorTest {
     private Mapper<Clause, org.openapitools.model.ClauseOutput> clauseModelDtoMapper;
 
     @Mock
-    private Mapper<DslInput, ClauseInput> clauseDslDtoMapper;
+    private Mapper<DslInput, org.openapitools.model.ClauseInput> clauseDslDtoMapper;
 
     @Mock
     private Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
 
     @Mock
-    private Mapper<ClauseInput, ClauseForCreation> clauseInputMapper;
+    private Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
 
 
     @BeforeEach
@@ -55,10 +57,10 @@ public class ManagementServiceAdaptorTest {
 
     @Test
     void testCreate() {
-        var clauseInput = new ClauseInput("testName", Mockito.mock(BinaryExpression.class), "Message");
+        var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "Message");
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
-        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
+        var clauseForCreation = Mockito.mock(ClauseInput.class);
         Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForCreation);
         Mockito.when(managementServiceImpl.create(clauseForCreation)).thenReturn(clause);
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
@@ -69,13 +71,28 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
+    void testUpdate() {
+        var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "Message");
+        var clause = Mockito.mock(Clause.class);
+        var clauseOutput = Mockito.mock(ClauseOutput.class);
+        var clauseForUpdate = Mockito.mock(ClauseInput.class);
+        Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForUpdate);
+        Mockito.when(managementServiceImpl.update(clauseForUpdate)).thenReturn(clause);
+        Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
+
+        var result = adaptor.update(clauseInput);
+
+        assertEquals(clauseOutput, result);
+    }
+
+    @Test
     void testCreateDsl() {
         var dslInput = new DslInput("message", "test");
-        var clauseInput = new ClauseInput("testName", Mockito.mock(BinaryExpression.class), "message");
+        var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "message");
         var clause = Mockito.mock(Clause.class);
         var dslOutput = Mockito.mock(DslOutput.class);
         ClauseOutput clauseDto = Mockito.mock(ClauseOutput.class);
-        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
+        var clauseForCreation = Mockito.mock(ClauseInput.class);
 
         Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForCreation);
         Mockito.when(clauseDslDtoMapper.map(dslInput)).thenReturn(clauseInput);

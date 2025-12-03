@@ -4,8 +4,7 @@ package dk.kvalitetsit.itukt.management.service;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
-import org.openapitools.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.openapitools.model.ClauseOutput;
 import org.openapitools.model.DslInput;
 import org.openapitools.model.DslOutput;
@@ -18,16 +17,16 @@ public class ManagementServiceAdaptor {
 
     private final ManagementService clauseService;
     private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
-    private final Mapper<DslInput, ClauseInput> dslClauseMapper;
+    private final Mapper<DslInput, org.openapitools.model.ClauseInput> dslClauseMapper;
     private final Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
-    private final Mapper<ClauseInput, ClauseForCreation> clauseInputMapper;
+    private final Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
             Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
-            Mapper<DslInput, ClauseInput> dslClauseMapper,
+            Mapper<DslInput, org.openapitools.model.ClauseInput> dslClauseMapper,
             Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper,
-            Mapper<ClauseInput, ClauseForCreation> clauseInputMapper
+            Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper
     ) {
         this.clauseService = clauseService;
         this.clauseDtoMapper = modelDtoMapper;
@@ -37,9 +36,14 @@ public class ManagementServiceAdaptor {
 
     }
 
-    public ClauseOutput create(ClauseInput clauseInput) throws ServiceException {
+    public ClauseOutput create(org.openapitools.model.ClauseInput clauseInput) throws ServiceException {
         var clauseForCreation = clauseInputMapper.map(clauseInput);
         return clauseDtoMapper.map(clauseService.create(clauseForCreation));
+    }
+
+    public ClauseOutput update(org.openapitools.model.ClauseInput clauseInput) throws ServiceException {
+        var clauseForUpdate = clauseInputMapper.map(clauseInput);
+        return clauseDtoMapper.map(clauseService.update(clauseForUpdate));
     }
 
     public DslOutput createDSL(DslInput dsl) throws ServiceException {

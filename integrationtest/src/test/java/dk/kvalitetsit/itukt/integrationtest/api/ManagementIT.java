@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
-import org.openapitools.client.model.Error;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
@@ -55,6 +54,24 @@ class ManagementIT extends BaseTest {
                 .usingRecursiveComparison()
                 .ignoringFields("uuid")
                 .isEqualTo(CLAUSE_1_OUTPUT);
+    }
+
+    @Test
+    void testPostPutAndGetClause() {
+        var postInput = CLAUSE_1_INPUT;
+        var updateInput = new ClauseUpdateInput().expression(postInput.getExpression()).error("updated error");
+
+        api.call20250801clausesPost(postInput);
+        var updateResponse = api.call20250801clausesNamePut(postInput.getName(), updateInput);
+        var clauses = api.call20250801clausesGet();
+
+        assertEquals(1, clauses.size());
+        var expectedClause = new ClauseOutput()
+                .uuid(updateResponse.getUuid())
+                .name(postInput.getName())
+                .expression(updateInput.getExpression())
+                .error(updateInput.getError());
+        assertEquals(expectedClause, clauses.getFirst());
     }
 
     @Test

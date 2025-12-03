@@ -3,10 +3,9 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
-import org.openapitools.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
-public class ClauseInputDtoModelMapper implements Mapper<ClauseInput, ClauseForCreation> {
+public class ClauseInputDtoModelMapper implements Mapper<org.openapitools.model.ClauseInput, ClauseInput> {
     private final Mapper<org.openapitools.model.Expression, Expression> expressionDtoModelMapper;
     private final Mapper<Expression, ExpressionEntity> expressionModelEntityMapper;
 
@@ -19,9 +18,9 @@ public class ClauseInputDtoModelMapper implements Mapper<ClauseInput, ClauseForC
     }
 
     @Override
-    public ClauseForCreation map(ClauseInput clauseInput) {
+    public ClauseInput map(org.openapitools.model.ClauseInput clauseInput) {
         var expression = expressionDtoModelMapper.map(clauseInput.getExpression());
         var expressionEntity = expressionModelEntityMapper.map(expression);
-        return new ClauseForCreation(clauseInput.getName(), expressionEntity, clauseInput.getError());
+        return new ClauseInput(clauseInput.getName(), expressionEntity, clauseInput.getError());
     }
 }

@@ -4,10 +4,7 @@ package dk.kvalitetsit.itukt.management.boundary;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
-import org.openapitools.model.ClauseInput;
-import org.openapitools.model.ClauseOutput;
-import org.openapitools.model.DslInput;
-import org.openapitools.model.DslOutput;
+import org.openapitools.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +56,15 @@ public class ManagementController implements ManagementApi {
         return service.read(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new NotFoundException("Clause was not found"));
+    }
+
+    @Override
+    public ResponseEntity<ClauseOutput> call20250801clausesNamePut(String name, ClauseUpdateInput clauseUpdateInput) {
+        var clauseInput = new ClauseInput(name, clauseUpdateInput.getExpression(), clauseUpdateInput.getError());
+        var clause = service.update(clauseInput);
+        UUID uuid = clause.getUuid();
+        URI location = getLocation(c -> c.call20250801clausesIdGet(uuid), uuid);
+        return ResponseEntity.created(location).body(clause);
     }
 
     @Override

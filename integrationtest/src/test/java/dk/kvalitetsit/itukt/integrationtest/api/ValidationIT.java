@@ -1,12 +1,12 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
+import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
@@ -40,7 +40,7 @@ public class ValidationIT extends BaseTest {
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
-        var clause = new ClauseForCreation("KRINI", expression, "message");
+        var clause = new ClauseInput("KRINI", expression, "message");
 
         repository.create(clause);
     }

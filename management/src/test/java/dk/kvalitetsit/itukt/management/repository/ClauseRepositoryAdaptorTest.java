@@ -4,7 +4,7 @@ package dk.kvalitetsit.itukt.management.repository;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
+import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +44,7 @@ public class ClauseRepositoryAdaptorTest {
     void testCreate() {
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clauseForCreation = Mockito.mock(ClauseForCreation.class);
+        var clauseForCreation = Mockito.mock(ClauseInput.class);
         Mockito.when(concreteRepository.create(clauseForCreation)).thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 

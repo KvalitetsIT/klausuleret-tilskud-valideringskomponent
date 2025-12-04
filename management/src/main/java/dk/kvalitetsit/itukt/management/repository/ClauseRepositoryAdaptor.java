@@ -4,7 +4,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
+import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +20,7 @@ public class ClauseRepositoryAdaptor {
         this.entityMapper = entityMapper;
     }
 
-    public Clause create(ClauseForCreation clause) throws ServiceException {
+    public Clause create(ClauseInput clause) throws ServiceException {
         var createdClause = clauseRepository.create(clause);
         return entityMapper.map(createdClause);
     }

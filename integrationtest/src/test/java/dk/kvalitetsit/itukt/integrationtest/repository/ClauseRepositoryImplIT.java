@@ -11,7 +11,7 @@ import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.Field;
-import dk.kvalitetsit.itukt.management.service.model.ClauseForCreation;
+import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -35,8 +35,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void testReadAll() {
-        var clause1 = new ClauseForCreation("clause1", MockFactory.EXPRESSION_1_ENTITY, "message");
-        var clause2 = new ClauseForCreation("clause2", MockFactory.EXPRESSION_1_ENTITY, "message");
+        var clause1 = new ClauseInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message");
+        var clause2 = new ClauseInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message");
 
         var clauses = List.of(clause1, clause2);
 
@@ -74,7 +74,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 ServiceException.class,
                 () -> IntStream.rangeClosed(10800, 11000)
                         .parallel()
-                        .mapToObj((i) -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
+                        .mapToObj((i) -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
                         .forEach(repository::create),
                 "An error is expected since only 199 clauses should be creatable as the limit of error code would be exceeded otherwise"
         );
@@ -89,7 +89,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         var written = IntStream.range(OFFSET, OFFSET + LIMIT)
                 .parallel()
-                .mapToObj((i) -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
+                .mapToObj((i) -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
                 .map(repository::create).toList();
 
         Assertions.assertEquals(LIMIT, written.size(), LIMIT + " written clauses is expected since FMK only allocates error codes from " + LIMIT + " - " + (OFFSET + LIMIT - 1));
@@ -111,31 +111,34 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         Assertions.assertDoesNotThrow(() -> IntStream.range(OFFSET, OFFSET + LIMIT)
                 .parallel()
-                .mapToObj(i -> new ClauseForCreation("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "blah"))
+                .mapToObj(i -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "blah"))
                 .forEach(repository::create));
 
         var err = Assertions.assertThrows(
                 ServiceException.class,
-                () -> repository.create(new ClauseForCreation("clause" + 200, MockFactory.EXPRESSION_1_ENTITY, "blah"))
+                () -> repository.create(new ClauseInput("clause" + 200, MockFactory.EXPRESSION_1_ENTITY, "blah"))
         );
 
         Assertions.assertEquals("Failed to create clause", err.getMessage());
     }
 
     @Test
-    void getTwoClauseWithSameName() {
-        var clauseA = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "blah");
-        var clauseB = new ClauseForCreation("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "blah");
+    void createTwoClauseWithSameName_ThenReadAll_ReturnsLatestClause() {
+        var clauseA = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
+        var clauseB = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
 
         repository.create(clauseA);
+        repository.create(clauseB);
+        var clauses = repository.readAll();
 
-        var ex = Assertions.assertThrows(ServiceException.class, () -> repository.create(clauseB), "Expected an exception since duplicate entry");
-        assertEquals("Clause already exists", ex.getMessage());
+        assertEquals(1, clauses.size(), "Expected only the latest version of the clause");
+        assertEquals(clauseB.errorMessage(), clauses.getFirst().errorMessage(),
+                "Expected the error message of the latest version of the clause to be returned");
     }
 
     @Test
     void nameExists_WhenNoClauseMatchesName_ReturnsFalse() {
-        var clause = new ClauseForCreation("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
+        var clause = new ClauseInput("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
         repository.create(clause);
 
         boolean nameExists = repository.nameExists("nonExistingName");
@@ -145,7 +148,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void nameExists_WhenClauseMatchesName_ReturnsTrue() {
-        var clause = new ClauseForCreation("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
+        var clause = new ClauseInput("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
         repository.create(clause);
 
         boolean nameExists = repository.nameExists(clause.name());
@@ -156,7 +159,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void givenADeepClause_whenCreateAndRead_thenAssertEqual() {
 
-        var deepClause = new ClauseForCreation("ClauseName", new ExpressionEntity.BinaryExpressionEntity(
+        var deepClause = new ClauseInput("ClauseName", new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.BinaryExpressionEntity(
                         new ExpressionEntity.BinaryExpressionEntity(
                                 new ExpressionEntity.StringConditionEntity(Field.AGE, "whatEver"),
@@ -191,7 +194,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void testCreateAndReadExistingDrugMedicationCondition() {
         var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
-        var clauseForCreation = new ClauseForCreation("CLAUSE", existingDrugMedicationCondition, "message");
+        var clauseForCreation = new ClauseInput("CLAUSE", existingDrugMedicationCondition, "message");
 
         UUID clauseUuid = repository.create(clauseForCreation).uuid();
         var readClause = repository.read(clauseUuid);

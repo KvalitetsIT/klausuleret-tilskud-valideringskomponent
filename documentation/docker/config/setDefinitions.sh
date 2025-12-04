@@ -13,7 +13,6 @@ updateFile() {
 }
 
 # Configuration
-BASE_URL=${BASE_URL:-"/"}         # fallback to root if not set
 PREFIX="api_"                     # The expected file prefix
 ENV_FILE="/kit/env"
 API_DIR="/usr/share/nginx/html"   # where the files are located

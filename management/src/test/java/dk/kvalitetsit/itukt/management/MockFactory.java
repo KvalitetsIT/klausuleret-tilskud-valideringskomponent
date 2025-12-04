@@ -73,7 +73,7 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_MODEL()
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new dk.kvalitetsit.itukt.common.model.Error("message", 10800), EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
 
     private static final IndicationCondition EXPRESSION_2_DTO = new IndicationCondition()
             .type(ExpressionType.INDICATION)

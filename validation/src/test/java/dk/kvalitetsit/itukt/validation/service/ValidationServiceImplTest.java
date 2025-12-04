@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.validation.service;
 
 
 import dk.kvalitetsit.itukt.common.model.*;
-import dk.kvalitetsit.itukt.common.model.Error;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
@@ -23,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class ValidationServiceImplTest {
 
-    private final Optional<ValidationError> someError = Optional.of(new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.EQUAL, "20"));
+    private final Optional<ValidationFailed> someError = Optional.of(new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.EQUAL, "20"));
+
     @InjectMocks
     private ValidationServiceImpl service;
     @Mock
@@ -77,7 +77,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", "creator", Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(null), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Error("message", 10800), expression);
+        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("message", 10800), expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(someError);
@@ -117,9 +117,9 @@ class ValidationServiceImplTest {
         Mockito.when(failingExpression.validates(validationInput)).thenReturn(someError);
 
 
-        var clause_1 = new Clause(1L, clauses.get(0).code(), null, new Error(null, 10800), failingExpression);
-        var clause_2 = new Clause(2L, clauses.get(1).code(), null, new Error(null, 10800), succeedingExpression);
-        var clause_3 = new Clause(2L, clauses.get(2).code(), null, new Error(null, 10800), failingExpression);
+        var clause_1 = new Clause(1L, clauses.get(0).code(), null, new Clause.Error(null, 10800), failingExpression);
+        var clause_2 = new Clause(2L, clauses.get(1).code(), null,  new Clause.Error(null, 10800), succeedingExpression);
+        var clause_3 = new Clause(2L, clauses.get(2).code(), null,  new Clause.Error(null, 10800), failingExpression);
 
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
 
@@ -170,7 +170,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Error("", 10800), expression);
+        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(true);
@@ -187,7 +187,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Error("", 10800), expression);
+        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(false);
@@ -205,7 +205,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty());
         var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Error("", 10800), expression);
+        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(false);

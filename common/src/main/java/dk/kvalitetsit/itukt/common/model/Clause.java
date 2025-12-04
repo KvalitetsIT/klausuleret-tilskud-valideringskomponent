@@ -9,4 +9,5 @@ public record Clause(
         Error error,
         Expression expression
 ) {
+    public record Error(String message, int code) { }
 }

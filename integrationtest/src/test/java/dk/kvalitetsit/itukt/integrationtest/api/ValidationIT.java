@@ -155,6 +155,14 @@ public class ValidationIT extends BaseTest {
     }
 
     @Test
+    void call20250801validatePost_WithInputThatMatchesClauseAndValidatesReportedByValidation_ReturnsSuccess() {
+        int age = 51;  // Hardcoded clause in cache requires age > 50
+        var request = createValidationRequest("path", age, VALID_INDICATION, List.of(), "invalid speciale", "ortopædkirurg");
+        var response = validationApi.call20250801validatePost(request);
+        assertInstanceOf(ValidationSuccess.class, response);;
+    }
+
+    @Test
     void call20250801validatePost_WithInputThatFailsValidationButErrorCodeSkipped_ReturnsSuccess() {
         String elementPath = "path";
         int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
@@ -179,7 +187,11 @@ public class ValidationIT extends BaseTest {
     }
 
     private ValidationRequest createValidationRequest(String elementPath, int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality) {
-        Validate validate = createValidateElement(elementPath, indication, doctorSpeciality);
+        return createValidationRequest(elementPath, age, indication, existingDrugMedication, doctorSpeciality, "");
+    }
+
+    private ValidationRequest createValidationRequest(String elementPath, int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality, String reportedByDoctorSpeciality) {
+        Validate validate = createValidateElement(elementPath, indication, doctorSpeciality, reportedByDoctorSpeciality);
         return new ValidationRequest()
                 .age(age)
                 .personIdentifier("1234567890")
@@ -187,26 +199,26 @@ public class ValidationIT extends BaseTest {
                 .existingDrugMedications(existingDrugMedication);
     }
 
-    private Validate createValidateElement(String path, String indication, String doctorSpeciality) {
-        NewDrugMedication newDrugMedication = createNewDrugMedication(indication, doctorSpeciality);
+    private Validate createValidateElement(String path, String indication, String doctorSpeciality, String reportedByDoctorSpeciality) {
+        NewDrugMedication newDrugMedication = createNewDrugMedication(indication, doctorSpeciality, reportedByDoctorSpeciality);
         return new Validate()
                 .action(Validate.ActionEnum.CREATE_DRUG_MEDICATION)
                 .elementPath(path)
                 .newDrugMedication(newDrugMedication);
     }
 
-    private NewDrugMedication createNewDrugMedication(String indication, String doctorSpeciality) {
+    private NewDrugMedication createNewDrugMedication(String indication, String doctorSpeciality, String reportedByDoctorSpeciality) {
         return new NewDrugMedication()
                 .drugIdentifier(DRUG_ID)
                 .indicationCode(indication)
                 .createdBy(createActor(doctorSpeciality))
-                .reportedBy(createActor(""))
+                .reportedBy(createActor(reportedByDoctorSpeciality))
                 .createdDateTime(OffsetDateTime.now());
     }
 
-    private static Actor createActor(String doctorSpeciality) {
+    private static Actor createActor(String speciality) {
         return new Actor()
                 .identifier("actor1")
-                .specialityCode(doctorSpeciality);
+                .specialityCode(speciality);
     }
 }

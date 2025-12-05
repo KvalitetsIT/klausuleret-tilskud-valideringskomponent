@@ -50,8 +50,8 @@ class ValidationServiceAdaptorTest {
         validationServiceAdaptor.validate(request);
 
         var expectedExistingDrugMedication = new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existingDrugMedication.getAtcCode(), existingDrugMedication.getFormCode(), existingDrugMedication.getRouteOfAdministrationCode());
-        ValidationInput expectedValidationInput1 = new ValidationInput(request.getPersonIdentifier(), new ValidationInput.CreatedBy(creator1), of(reporter1), request.getSkipValidations(), request.getAge(), validate1.getNewDrugMedication().getDrugIdentifier(), validate1.getNewDrugMedication().getIndicationCode(), of(List.of(expectedExistingDrugMedication)));
-        ValidationInput expectedValidationInput2 = new ValidationInput(request.getPersonIdentifier(), new ValidationInput.CreatedBy(creator2), of(reporter2), request.getSkipValidations(), request.getAge(), validate2.getNewDrugMedication().getDrugIdentifier(), validate2.getNewDrugMedication().getIndicationCode(), of(List.of(expectedExistingDrugMedication)));
+        ValidationInput expectedValidationInput1 = new ValidationInput(request.getPersonIdentifier(), new ValidationInput.CreatedBy(creator1), of(new ValidationInput.ReportedBy(reporter1)), request.getSkipValidations(), request.getAge(), validate1.getNewDrugMedication().getDrugIdentifier(), validate1.getNewDrugMedication().getIndicationCode(), of(List.of(expectedExistingDrugMedication)));
+        ValidationInput expectedValidationInput2 = new ValidationInput(request.getPersonIdentifier(), new ValidationInput.CreatedBy(creator2), of(new ValidationInput.ReportedBy(reporter2)), request.getSkipValidations(), request.getAge(), validate2.getNewDrugMedication().getDrugIdentifier(), validate2.getNewDrugMedication().getIndicationCode(), of(List.of(expectedExistingDrugMedication)));
         Mockito.verify(validationService).validate(Mockito.eq(expectedValidationInput1));
         Mockito.verify(validationService).validate(Mockito.eq(expectedValidationInput2));
     }

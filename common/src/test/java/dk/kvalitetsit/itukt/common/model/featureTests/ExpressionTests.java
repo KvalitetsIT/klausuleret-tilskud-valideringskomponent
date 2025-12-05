@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ExpressionTests {
     final static int inputAge = 40;
     final static String inputIndication = "input-indication";
-    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.CreatedBy("", "speciale"), empty(), List.of(), inputAge, 0, inputIndication, empty());
+    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.CreatedBy("", "speciale"), Optional.of(new ValidationInput.ReportedBy("", "reported by speciale")), List.of(), inputAge, 0, inputIndication, empty());
 
     final static String
             inputAtcCode = "atcCode",
@@ -249,6 +249,13 @@ public class ExpressionTests {
     @Test
     void validate_noError() {
         var expression = new DoctorSpecialityConditionExpression("speciale");
+        var result = expression.validates(validationInput);
+        assertEquals(empty(), result);
+    }
+
+    @Test
+    void validate_noError2() {
+        var expression = new DoctorSpecialityConditionExpression("reported by speciale");
         var result = expression.validates(validationInput);
         assertEquals(empty(), result);
     }

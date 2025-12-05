@@ -9,7 +9,7 @@ import static java.util.Optional.empty;
 public record ValidationInput(
         String personId,
         CreatedBy createdBy,
-        Optional<String> reportedById,
+        Optional<ReportedBy> reportedBy,
         List<Integer> skippedErrorCodes,
         int citizenAge,
         long drugId,
@@ -23,5 +23,15 @@ public record ValidationInput(
         public record CreatedBy(String id, Optional<String> specialityCode) {
             public CreatedBy(String id) { this(id, empty()); }
             public CreatedBy(String id, String specialityCode) { this(id, of(specialityCode)); }
+        }
+
+        /**
+         * Represents the actor who reports a prescription
+         * @param id Unique ID of the actor
+         * @param specialityCode Example values: ortopædkirurg, sygeplejeske etc.
+         */
+        public record ReportedBy(String id, Optional<String> specialityCode) {
+            public ReportedBy(String id) { this(id, empty()); }
+            public ReportedBy(String id, String specialityCode) { this(id, of(specialityCode)); }
         }
 }

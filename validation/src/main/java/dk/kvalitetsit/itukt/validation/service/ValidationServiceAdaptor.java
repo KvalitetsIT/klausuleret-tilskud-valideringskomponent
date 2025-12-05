@@ -68,9 +68,11 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                         .map(this::mapExistingDrugMedication)
                         .toList());
         Actor createdBy = validate.getNewDrugMedication().getCreatedBy();
+        Optional<Actor> reportedBy = validate.getNewDrugMedication().getReportedBy();
         return new ValidationInput(
                 validationRequest.getPersonIdentifier(),
-                new CreatedBy(createdBy.getIdentifier(), createdBy.getSpecialityCode()), validate.getNewDrugMedication().getReportedBy().map(Actor::getIdentifier),
+                new CreatedBy(createdBy.getIdentifier(), createdBy.getSpecialityCode()),
+                reportedBy.map(actor -> new ReportedBy(actor.getIdentifier(), actor.getSpecialityCode())),
                 validationRequest.getSkipValidations(),
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),

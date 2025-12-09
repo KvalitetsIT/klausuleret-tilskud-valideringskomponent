@@ -420,4 +420,4 @@ components:
       description: "A clause specified in a domain specific language (DSL)"
       type: string
       #      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
-      example: "Klausul CHOL: (ATC = C10BA03) eller (ATC in C10BA02, C10BA05) og (ALDER >= 13)"
+      example: "Klausul CHOL: ALDER >= 13 og EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} og SPECIALE = psyk"

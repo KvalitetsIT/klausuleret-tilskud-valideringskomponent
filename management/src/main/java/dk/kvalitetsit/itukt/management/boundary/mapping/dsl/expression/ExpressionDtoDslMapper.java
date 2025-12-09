@@ -14,6 +14,7 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
     private final ExpressionDslMapper<AgeCondition> ageConditionExpressionDslMapper;
     private final Mapper<BinaryExpression, Dsl> binaryExpressionExpressionDslMapper;
     private final ExpressionDslMapper<ExistingDrugMedicationCondition> existingDrugMedicationConditionExpressionDslMapper;
+    private ExpressionDslMapper<DepartmentCondition> departmentConditionExpressionDslMapper;
 
     public ExpressionDtoDslMapper(MapperFactory factory) {
         existingDrugMedicationConditionExpressionDslMapper = factory.getExistingDrugMedicationConditionExpressionDslMapper();
@@ -48,11 +49,14 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
                     existingDrugMedicationConditionExpressionDslMapper.map(existingDrugMedicationCondition);
             case IndicationCondition indicationCondition ->
                     indicationConditionExpressionDslMapper.map(indicationCondition);
+            case DepartmentCondition departmentCondition ->
+                    departmentConditionExpressionDslMapper.map(departmentCondition);
         };
     }
 
     protected String mergeConditions(List<? extends Expression> conditions) {
-        if (conditions.isEmpty()) throw new IllegalStateException("Expected at least a single condition, but none were given");
+        if (conditions.isEmpty())
+            throw new IllegalStateException("Expected at least a single condition, but none were given");
         if (conditions.size() == 1) return this.map(conditions.getFirst());
 
         return switch (conditions.getFirst()) {

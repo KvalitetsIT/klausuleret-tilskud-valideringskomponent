@@ -70,16 +70,36 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
         var existingDrugMedication = Optional.ofNullable(validationRequest.getExistingDrugMedications().orElse(null))
                 .map(e -> e.stream()
                         .map(this::mapExistingDrugMedication)
-                        .toList());
+                        .toList()
+                );
+
+        var createdBy = getSpecialities(validate.getNewDrugMedication().getCreatedBy());
+        var reportedBy = validate.getNewDrugMedication().getReportedBy().map(this::getSpecialities);
+
         return new ValidationInput(
                 validationRequest.getPersonIdentifier(),
-                validate.getNewDrugMedication().getCreatedBy().getIdentifier(),
-                validate.getNewDrugMedication().getReportedBy().map(Actor::getIdentifier),
+                createdBy,
+                reportedBy,
                 validationRequest.getSkipValidations(),
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),
                 validate.getNewDrugMedication().getIndicationCode(),
-                existingDrugMedication);
+                null,
+                existingDrugMedication
+        );
+    }
+
+    private ValidationInput.Actor getSpecialities(Actor actor) {
+        var department = actor.getDepartmentIdentifier().flatMap(x -> {
+            var id = switch (x.getType()) {
+                case SOR -> new Department.Identifier.SOR(x.getCode());
+                case SHAK -> new Department.Identifier.SHAK(x.getCode());
+            };
+
+            return departmentCache.get(id);
+        });
+
+        return new ValidationInput.Actor(actor.getIdentifier(), department);
     }
 
     private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedicationInput existing) {

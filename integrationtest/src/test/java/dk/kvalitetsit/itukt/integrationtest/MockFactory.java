@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;

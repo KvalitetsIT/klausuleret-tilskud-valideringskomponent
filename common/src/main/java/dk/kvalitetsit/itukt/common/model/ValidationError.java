@@ -5,11 +5,10 @@ import static java.lang.String.join;
 
 sealed public interface ValidationError extends ValidationFailed permits AndError, ConditionError, ExistingDrugMedicationError, OrError {
     String toErrorString();
-    enum Field {AGE, INDICATION}
 
     record ConditionError(Field field, Operator operator, String value) implements ValidationError {
-        private static String toErrorString(Operator field) {
-            return switch (field) {
+        private static String toErrorString(Operator operator) {
+            return switch (operator) {
                 case EQUAL -> "skal være";
                 case GREATER_THAN_OR_EQUAL_TO -> "skal være større end eller lig";
                 case LESS_THAN_OR_EQUAL_TO -> "skal være mindre end eller lig";
@@ -22,6 +21,7 @@ sealed public interface ValidationError extends ValidationFailed permits AndErro
             return switch (field) {
                 case AGE -> "alder";
                 case INDICATION -> "indikation";
+                case DEPARTMENT_SPECIALITY -> "afdelingens speciale";
             };
         }
 
@@ -32,16 +32,20 @@ sealed public interface ValidationError extends ValidationFailed permits AndErro
                     value
             );
         }
+
+        public enum Field {AGE, INDICATION, DEPARTMENT_SPECIALITY}
     }
+
     record ExistingDrugMedicationError(String atcCode, String formCode, String routeOfAdministrationCode) implements ValidationError {
         @Override
         public String toErrorString() {
-            return "Tidligere medicinsk behandling med følgende påkrævet:" +
+            return "tidligere medicinsk behandling med følgende påkrævet:" +
                     " ATC = " + atcCode +
                     ", Formkode = " + formCode +
                     ", Administrationsrutekode = " + routeOfAdministrationCode;
         }
     }
+
     record AndError(ValidationError e1, ValidationError e2) implements ValidationError {
         private static String parenthesesIfNecessary(ValidationError error) {
             return error instanceof OrError ? "(" + error.toErrorString() + ")" : error.toErrorString();
@@ -52,6 +56,7 @@ sealed public interface ValidationError extends ValidationFailed permits AndErro
             return parenthesesIfNecessary(e1) + " og " + parenthesesIfNecessary(e2);
         }
     }
+
     record OrError(ValidationError e1, ValidationError e2) implements ValidationError {
         @Override
         public String toErrorString() {

@@ -119,8 +119,8 @@ class ValidationServiceImplTest {
 
 
         var clause_1 = new Clause(1L, clauses.get(0).code(), null, new Clause.Error(null, 10800), failingExpression);
-        var clause_2 = new Clause(2L, clauses.get(1).code(), null,  new Clause.Error(null, 10800), succeedingExpression);
-        var clause_3 = new Clause(2L, clauses.get(2).code(), null,  new Clause.Error(null, 10800), failingExpression);
+        var clause_2 = new Clause(2L, clauses.get(1).code(), null, new Clause.Error(null, 10800), succeedingExpression);
+        var clause_3 = new Clause(2L, clauses.get(2).code(), null, new Clause.Error(null, 10800), failingExpression);
 
         Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
 

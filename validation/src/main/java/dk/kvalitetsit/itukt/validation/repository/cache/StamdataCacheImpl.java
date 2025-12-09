@@ -36,6 +36,7 @@ public class StamdataCacheImpl implements Cache<Long, StamData>, CacheLoader {
         ));
     }
 
+    @Override
     public String getCron() {
         return configuration.cron();
     }

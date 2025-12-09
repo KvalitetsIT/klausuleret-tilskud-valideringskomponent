@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.validation.repository.cache;
 
-import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.junit.jupiter.api.Disabled;
@@ -21,9 +20,6 @@ class StamdataCacheImplTest {
 
     @Mock
     private StamDataRepositoryAdaptor adaptor;
-
-    @Mock
-    private CacheConfiguration configuration;
 
     @InjectMocks
     private StamdataCacheImpl cache;

@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpressi
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,4 +48,19 @@ public class ExpressionEntityModelMapperTest {
         assertEquals(expectedExpression, mappedExpression);
     }
 
+    @Test
+    public void testMappingWithSpecialityCondition(){
+        var expressionEntity = new ExpressionEntity.StringConditionEntity(Field.DOCTOR_SPECIALITY, "læge");
+        var mappedExpression = mapper.map(expressionEntity);
+        var expectedExpression = new dk.kvalitetsit.itukt.common.model.DoctorSpecialityConditionExpression("læge");
+        assertEquals(expectedExpression, mappedExpression);
+    }
+
+    @Test
+    public void testMappingWithIndicationCondition(){
+        var expressionEntity = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "læge");
+        var mappedExpression = mapper.map(expressionEntity);
+        var expectedExpression = new dk.kvalitetsit.itukt.common.model.IndicationConditionExpression("læge");
+        assertEquals(expectedExpression, mappedExpression);
+    }
 }

@@ -8,10 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openapitools.model.AgeCondition;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.ExistingDrugMedicationCondition;
-import org.openapitools.model.IndicationCondition;
+import org.openapitools.model.*;
 
 import java.util.List;
 
@@ -37,6 +34,9 @@ class ExpressionDtoDslMapperTest {
     private ExpressionDslMapper<IndicationCondition> indicationConditionExpressionDslMapper;
 
     @Mock
+    private ExpressionDslMapper<DoctorSpecialityCondition> specialityConditionExpressionDslMapper;
+
+    @Mock
     private ExpressionDslMapper<ExistingDrugMedicationCondition> existingDrugMedicationConditionExpressionDslMapper;
 
     @BeforeEach
@@ -44,6 +44,7 @@ class ExpressionDtoDslMapperTest {
         Mockito.when(factory.getBinaryExpressionExpressionDslMapper(Mockito.any())).thenReturn(binaryExpressionExpressionDslMapper);
         Mockito.when(factory.getAgeConditionExpressionDslMapper()).thenReturn(ageConditionExpressionDslMapper);
         Mockito.when(factory.getIndicationConditionExpressionDslMapper()).thenReturn(indicationConditionExpressionDslMapper);
+        Mockito.when(factory.getDoctorSpecialityConditionExpressionDslMapper()).thenReturn(specialityConditionExpressionDslMapper);
         Mockito.when(factory.getExistingDrugMedicationConditionExpressionDslMapper()).thenReturn(existingDrugMedicationConditionExpressionDslMapper);
         mapper = new ExpressionDtoDslMapper(factory);
     }
@@ -80,6 +81,14 @@ class ExpressionDtoDslMapperTest {
         Mockito.verify(indicationConditionExpressionDslMapper, Mockito.times(1)).map(subject);
     }
 
+    @Test
+    void givenASpecialityCondition_whenMap_thenInvokeCorrectMapper() {
+        var subject = mock(DoctorSpecialityCondition.class);
+        Mockito.when(specialityConditionExpressionDslMapper.map(subject)).thenReturn(mock(Dsl.class));
+        this.mapper.map(subject);
+        Mockito.verify(specialityConditionExpressionDslMapper, Mockito.times(1)).map(subject);
+    }
+
 
     @Test
     void givenASingleCondition_whenMergeConditions_thenCallMapForSingleCondition() {
@@ -91,7 +100,7 @@ class ExpressionDtoDslMapperTest {
 
         Assertions.assertEquals("blaah", result);
         verify(spyMapper).map(single);
-        verifyNoInteractions(ageConditionExpressionDslMapper, indicationConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper);
+        verifyNoInteractions(ageConditionExpressionDslMapper, indicationConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, specialityConditionExpressionDslMapper);
     }
 
     @Test
@@ -104,7 +113,7 @@ class ExpressionDtoDslMapperTest {
 
         Assertions.assertEquals("blaah", result);
         verify(ageConditionExpressionDslMapper).merge(anyList());
-        verifyNoInteractions(indicationConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper);
+        verifyNoInteractions(indicationConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, specialityConditionExpressionDslMapper);
     }
 
     @Test
@@ -117,7 +126,20 @@ class ExpressionDtoDslMapperTest {
 
         Assertions.assertEquals("blaah", result);
         verify(indicationConditionExpressionDslMapper).merge(anyList());
-        verifyNoInteractions(ageConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper);
+        verifyNoInteractions(ageConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, specialityConditionExpressionDslMapper);
+    }
+
+    @Test
+    void givenTwoSpecialityConditions_whenMergeConditions_thenInvokeCorrespondingMapper() {
+        var c1 = mock(DoctorSpecialityCondition.class);
+        var c2 = mock(DoctorSpecialityCondition.class);
+        when(specialityConditionExpressionDslMapper.merge(anyList())).thenReturn("blaah");
+
+        String result = mapper.mergeConditions(List.of(c1, c2));
+
+        Assertions.assertEquals("blaah", result);
+        verify(specialityConditionExpressionDslMapper).merge(anyList());
+        verifyNoInteractions(ageConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, indicationConditionExpressionDslMapper);
     }
 
     @Test
@@ -130,7 +152,7 @@ class ExpressionDtoDslMapperTest {
 
         Assertions.assertEquals("blaah", result);
         verify(existingDrugMedicationConditionExpressionDslMapper).merge(anyList());
-        verifyNoInteractions(ageConditionExpressionDslMapper, indicationConditionExpressionDslMapper);
+        verifyNoInteractions(ageConditionExpressionDslMapper, indicationConditionExpressionDslMapper, specialityConditionExpressionDslMapper);
     }
 
     @Test

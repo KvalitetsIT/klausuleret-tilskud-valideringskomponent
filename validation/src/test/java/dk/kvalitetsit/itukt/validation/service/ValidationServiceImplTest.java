@@ -3,7 +3,8 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
+
+import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +30,7 @@ class ValidationServiceImplTest {
     @Mock
     private ClauseService clauseService;
     @Mock
-    private StamdataCache stamDataCache;
+    private Cache<Long, StamData> stamDataCache;
     @Mock
     private SkippedValidationService skippedValidationService;
 

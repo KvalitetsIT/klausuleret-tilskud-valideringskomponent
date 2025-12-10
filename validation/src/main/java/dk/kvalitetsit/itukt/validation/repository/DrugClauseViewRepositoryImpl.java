@@ -1,26 +1,26 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.validation.repository.mapping.RowStamDataMapper;
+import dk.kvalitetsit.itukt.validation.repository.mapping.DrugClauseViewMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.util.List;
 
-public class StamDataRepositoryImpl implements StamDataRepository {
+public class DrugClauseViewRepositoryImpl implements DrugClauseViewRepository {
 
-    private final RowMapper<StamDataEntity> clauseRowMapper;
+    private final RowMapper<DrugClauseView> clauseRowMapper;
 
     private final NamedParameterJdbcTemplate template;
 
-    public StamDataRepositoryImpl(DataSource dataSource) {
+    public DrugClauseViewRepositoryImpl(DataSource dataSource) {
         this.template = new NamedParameterJdbcTemplate(dataSource);
-        clauseRowMapper = new RowStamDataMapper(); // DataClassRowMapper.newInstance(StamDataEntity.class);
+        clauseRowMapper = new DrugClauseViewMapper(); // DataClassRowMapper.newInstance(StamDataEntity.class);
     }
 
     @Override
-    public List<StamDataEntity> findAll() throws ServiceException {
+    public List<DrugClauseView> findAll() throws ServiceException {
         try {
             String sql = """
                     SELECT d.DrugId, k.Kode, k.Tekst

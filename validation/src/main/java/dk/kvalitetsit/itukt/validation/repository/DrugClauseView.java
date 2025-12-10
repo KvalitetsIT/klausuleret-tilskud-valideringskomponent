@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.validation.repository;
 
-public record StamDataEntity(Laegemiddel laegemiddel, Klausulering klausulering) {
+public record DrugClauseView(Laegemiddel laegemiddel, Klausulering klausulering) {
     public record Klausulering(String Kode, String Tekst) {
 
     }

@@ -3,8 +3,8 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
-import dk.kvalitetsit.itukt.validation.service.model.StamData;
+import dk.kvalitetsit.itukt.validation.repository.cache.DrugClauseCache;
+import dk.kvalitetsit.itukt.validation.service.model.DrugClause;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,14 +30,14 @@ class ValidationServiceImplTest {
     @Mock
     private ClauseService clauseService;
     @Mock
-    private StamdataCache stamDataCache;
+    private DrugClauseCache drugClauseCache;
     @Mock
     private SkippedValidationService skippedValidationService;
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.empty());
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.empty());
 
         var result = service.validate(validationInput);
 
@@ -47,9 +47,9 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheDoesNotContainClauseForDrugId_ReturnsSuccess() {
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
-        var stamdataClause = new StamData(new StamData.Drug(1234L), Set.of(new StamData.Clause("0000", null)));
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
-        Mockito.when(clauseService.get(stamdataClause.clauses().iterator().next().code())).thenReturn(Optional.empty());
+        var drugClause = new DrugClause(new DrugClause.Drug(1234L), Set.of(new DrugClause.Clause("0000", null)));
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
+        Mockito.when(clauseService.get(drugClause.clauses().iterator().next().code())).thenReturn(Optional.empty());
 
         var result = service.validate(validationInput);
 
@@ -59,11 +59,11 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationSucceeds_ReturnsSuccess() {
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
-        var stamdataClause = new StamData(new StamData.Drug(1234L), Set.of(new StamData.Clause("0000", null)));
+        var drugClause = new DrugClause(new DrugClause.Drug(1234L), Set.of(new DrugClause.Clause("0000", null)));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, null, expression);
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, null, expression);
 
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(Optional.empty());
 
@@ -76,10 +76,10 @@ class ValidationServiceImplTest {
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationFails_ReturnsValidationError() {
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
-        var stamdataClause = new StamData(new StamData.Drug(null), Set.of(new StamData.Clause("0000", "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(null), Set.of(new DrugClause.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("message", 10800), expression);
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, new Clause.Error("message", 10800), expression);
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(someError);
 
@@ -91,7 +91,7 @@ class ValidationServiceImplTest {
         assertEquals(clause.name(), result.getFirst().clause().code());
         assertEquals(clause.error().message(), result.getFirst().clause().message());
         assertEquals(clause.error().code(), result.getFirst().code());
-        assertEquals(stamdataClause.clauses().iterator().next().text(), result.getFirst().clause().text());
+        assertEquals(drugClause.clauses().iterator().next().text(), result.getFirst().clause().text());
     }
 
 
@@ -101,15 +101,15 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty());
 
         // two clauses in stamdata
-        var stamdataClause = new StamData(
-                new StamData.Drug(validationInput.drugId()),
+        var drugClause = new DrugClause(
+                new DrugClause.Drug(validationInput.drugId()),
                 Set.of(
-                        new StamData.Clause("0001", "clauses text"),
-                        new StamData.Clause("0002", "clauses text"),
-                        new StamData.Clause("0003", "clauses text")
+                        new DrugClause.Clause("0001", "clauses text"),
+                        new DrugClause.Clause("0002", "clauses text"),
+                        new DrugClause.Clause("0003", "clauses text")
                 )
         );
-        var clauses = stamdataClause.clauses().stream().toList();
+        var clauses = drugClause.clauses().stream().toList();
 
         var succeedingExpression = Mockito.mock(BinaryExpression.class);
         Mockito.when(succeedingExpression.validates(validationInput)).thenReturn(Optional.empty());
@@ -122,7 +122,7 @@ class ValidationServiceImplTest {
         var clause_2 = new Clause(2L, clauses.get(1).code(), null,  new Clause.Error(null, 10800), succeedingExpression);
         var clause_3 = new Clause(2L, clauses.get(2).code(), null,  new Clause.Error(null, 10800), failingExpression);
 
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
 
         Mockito.when(clauseService.get(clauses.get(0).code())).thenReturn(Optional.of(clause_1));
         Mockito.when(clauseService.get(clauses.get(1).code())).thenReturn(Optional.of(clause_2));
@@ -142,7 +142,7 @@ class ValidationServiceImplTest {
     void validate_WithoutReportedBy_CreatesSkippedValidationsForCreator() {
         String creator = "creator";
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.empty(), List.of(1, 2, 3), 5, 1234, "", Optional.empty());
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.empty());
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.empty());
 
         service.validate(validationInput);
 
@@ -155,7 +155,7 @@ class ValidationServiceImplTest {
         String creator = "creator";
         String reporter = "reporter";
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.of(new ValidationInput.ReportedBy(reporter)), List.of(1, 2, 3), 5, 1234, "", Optional.empty());
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.empty());
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.empty());
 
         service.validate(validationInput);
 
@@ -169,10 +169,10 @@ class ValidationServiceImplTest {
         String creator = "creator";
         String reporter = "reporter";
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.of(new ValidationInput.ReportedBy(reporter)), List.of(), 5, 1234, "", Optional.empty());
-        var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(true);
 
@@ -186,10 +186,10 @@ class ValidationServiceImplTest {
         String creator = "creator";
         String reporter = "reporter";
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.of(new ValidationInput.ReportedBy(reporter)), List.of(), 5, 1234, "", Optional.empty());
-        var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(false);
         Mockito.when(skippedValidationService.shouldSkipValidation(reporter, validationInput.personId(), clause.id())).thenReturn(true);
@@ -204,10 +204,10 @@ class ValidationServiceImplTest {
         String creator = "creator";
         String reporter = "reporter";
         var validationInput = new ValidationInput("1234", new ValidationInput.CreatedBy(creator), Optional.of(new ValidationInput.ReportedBy(reporter)), List.of(), 5, 1234, "", Optional.empty());
-        var stamdataClause = new StamData(new StamData.Drug(1L), Set.of(new StamData.Clause("0000", "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, stamdataClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
-        Mockito.when(stamDataCache.get(validationInput.drugId())).thenReturn(Optional.of(stamdataClause));
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression);
+        Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator, validationInput.personId(), clause.id())).thenReturn(false);
         Mockito.when(skippedValidationService.shouldSkipValidation(reporter, validationInput.personId(), clause.id())).thenReturn(false);

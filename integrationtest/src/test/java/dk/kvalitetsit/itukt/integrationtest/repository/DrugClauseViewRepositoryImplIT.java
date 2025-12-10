@@ -2,19 +2,18 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.repository.DrugClauseViewRepositoryImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class StamDataRepositoryImplIT extends BaseTest {
+class DrugClauseViewRepositoryImplIT extends BaseTest {
 
-    private StamDataRepositoryImpl repository;
+    private DrugClauseViewRepositoryImpl repository;
 
     @BeforeAll
     void setup() {
-        this.repository = new StamDataRepositoryImpl(stamDatabase.getDatasource());
+        this.repository = new DrugClauseViewRepositoryImpl(stamDatabase.getDatasource());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 
 public sealed interface ExpressionEntity permits

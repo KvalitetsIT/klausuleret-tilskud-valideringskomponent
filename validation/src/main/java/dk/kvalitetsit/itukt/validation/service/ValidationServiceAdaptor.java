@@ -1,7 +1,9 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
+import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
+import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
 import org.openapitools.model.*;
 
 import java.util.List;
@@ -14,12 +16,16 @@ import java.util.Optional;
  */
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
+
     private final ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService;
+    private final Cache<Department.Identifier, Department> departmentCache;
 
     public ValidationServiceAdaptor(
+            Cache<Department.Identifier, Department> departmentCache,
             ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService
     ) {
         this.validationService = validationService;
+        this.departmentCache = departmentCache;
     }
 
     @Override

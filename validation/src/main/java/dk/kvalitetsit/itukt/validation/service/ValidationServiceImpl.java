@@ -6,7 +6,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationFailed;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
+import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 
@@ -16,10 +16,10 @@ import java.util.Optional;
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
 
     private final ClauseService clauseCache;
-    private final StamdataCache stamDataCache;
+    private final Cache<Long, StamData> stamDataCache;
     private final SkippedValidationService skippedValidationService;
 
-    public ValidationServiceImpl(ClauseService clauseCache, StamdataCache stamDataCache, SkippedValidationService skippedValidationService) {
+    public ValidationServiceImpl(ClauseService clauseCache, Cache<Long, StamData> stamDataCache, SkippedValidationService skippedValidationService) {
         this.clauseCache = clauseCache;
         this.stamDataCache = stamDataCache;
         this.skippedValidationService = skippedValidationService;
@@ -47,8 +47,8 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private void createSkippedValidations(ValidationInput validationInput) {
-        skippedValidationService.createSkippedValidations(validationInput.createdById(), validationInput.personId(), validationInput.skippedErrorCodes());
-        validationInput.reportedById().ifPresent(reportedBy -> skippedValidationService.createSkippedValidations(reportedBy, validationInput.personId(), validationInput.skippedErrorCodes()));
+        skippedValidationService.createSkippedValidations(validationInput.createdById().id(), validationInput.personId(), validationInput.skippedErrorCodes());
+        validationInput.reportedBy().ifPresent(reportedBy -> skippedValidationService.createSkippedValidations(reportedBy.id(), validationInput.personId(), validationInput.skippedErrorCodes()));
     }
 
     private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, StamData.Clause clause) {
@@ -57,7 +57,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private boolean shouldSkipClause(Clause clause, ValidationInput validationInput) {
-        return skippedValidationService.shouldSkipValidation(validationInput.createdById(), validationInput.personId(), clause.id()) ||
-                (validationInput.reportedById().isPresent() && skippedValidationService.shouldSkipValidation(validationInput.reportedById().get(), validationInput.personId(), clause.id()));
+        return skippedValidationService.shouldSkipValidation(validationInput.createdById().id(), validationInput.personId(), clause.id()) ||
+                (validationInput.reportedBy().isPresent() && skippedValidationService.shouldSkipValidation(validationInput.reportedBy().get().id(), validationInput.personId(), clause.id()));
     }
 }

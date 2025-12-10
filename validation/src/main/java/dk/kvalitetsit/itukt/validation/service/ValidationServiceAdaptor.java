@@ -1,7 +1,9 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
+import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
+import dk.kvalitetsit.itukt.validation.repository.cache.Cache;
 import org.openapitools.model.*;
 
 import java.util.List;
@@ -14,12 +16,16 @@ import java.util.Optional;
  */
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
+
     private final ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService;
+    private final Cache<Department.Identifier, Department> departmentCache;
 
     public ValidationServiceAdaptor(
+            Cache<Department.Identifier, Department> departmentCache,
             ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService
     ) {
         this.validationService = validationService;
+        this.departmentCache = departmentCache;
     }
 
     @Override
@@ -64,16 +70,36 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
         var existingDrugMedication = Optional.ofNullable(validationRequest.getExistingDrugMedications().orElse(null))
                 .map(e -> e.stream()
                         .map(this::mapExistingDrugMedication)
-                        .toList());
+                        .toList()
+                );
+
+        var createdBy = getSpecialities(validate.getNewDrugMedication().getCreatedBy());
+        var reportedBy = validate.getNewDrugMedication().getReportedBy().map(this::getSpecialities);
+
         return new ValidationInput(
                 validationRequest.getPersonIdentifier(),
-                validate.getNewDrugMedication().getCreatedBy().getIdentifier(),
-                validate.getNewDrugMedication().getReportedBy().map(Actor::getIdentifier),
+                createdBy,
+                reportedBy,
                 validationRequest.getSkipValidations(),
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),
                 validate.getNewDrugMedication().getIndicationCode(),
-                existingDrugMedication);
+                null,
+                existingDrugMedication
+        );
+    }
+
+    private ValidationInput.Actor getSpecialities(Actor actor) {
+        var department = actor.getDepartmentIdentifier().flatMap(x -> {
+            var id = switch (x.getType()) {
+                case SOR -> new Department.Identifier.SOR(x.getCode());
+                case SHAK -> new Department.Identifier.SHAK(x.getCode());
+            };
+
+            return departmentCache.get(id);
+        });
+
+        return new ValidationInput.Actor(actor.getIdentifier(), department);
     }
 
     private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedicationInput existing) {

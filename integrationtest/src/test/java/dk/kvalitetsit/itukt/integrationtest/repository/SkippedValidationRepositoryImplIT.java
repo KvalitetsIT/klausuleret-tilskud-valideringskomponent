@@ -1,11 +1,11 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;

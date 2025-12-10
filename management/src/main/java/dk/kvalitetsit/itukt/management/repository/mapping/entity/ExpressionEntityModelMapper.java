@@ -16,8 +16,13 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
         };
     }
 
-    private IndicationConditionExpression map(ExpressionEntity.StringConditionEntity b) {
-        return new IndicationConditionExpression(b.value());
+    private Expression.Condition map(ExpressionEntity.StringConditionEntity b) {
+        return switch (b.field()) {
+            case INDICATION -> new IndicationConditionExpression(b.value());
+            case DEPARTMENT_SPECIALITY -> new DepartmentConditionExpression(b.value());
+            default -> throw new IllegalStateException("Unexpected value: " + b.field());
+        };
+
     }
 
     private AgeConditionExpression map(ExpressionEntity.NumberConditionEntity n) {

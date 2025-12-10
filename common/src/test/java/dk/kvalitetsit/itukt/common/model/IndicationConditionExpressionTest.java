@@ -17,7 +17,7 @@ class IndicationConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.INDICATION, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.INDICATION, conditionError.field());
         assertEquals(Operator.EQUAL, conditionError.operator());
         assertEquals("testValue", conditionError.value());
     }
@@ -32,7 +32,7 @@ class IndicationConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.INDICATION, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.INDICATION, conditionError.field());
         assertEquals(Operator.EQUAL, conditionError.operator());
         assertEquals("testValue", conditionError.value());
     }

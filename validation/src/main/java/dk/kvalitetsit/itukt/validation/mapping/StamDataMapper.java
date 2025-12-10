@@ -31,8 +31,8 @@ public class StamDataMapper {
 
     private StamData map(StamDataEntity entity) {
         return new StamData(
-                new StamData.Drug(entity.DrugId()),
-                Set.of(new StamData.Clause(entity.Kode(), entity.Tekst()))
+                new StamData.Drug(entity.laegemiddel().DrugId()),
+                Set.of(new StamData.Clause(entity.klausulering().Kode(), entity.klausulering().Tekst()))
         );
     }
 }

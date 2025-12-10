@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.validation.mapping;
 
-import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import dk.kvalitetsit.itukt.validation.repository.StamDataEntity;
+import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,13 +18,13 @@ class StamDataMapperTest {
     void map_givenAListOf5Entries_whenDrugIdIsRedundant_thenMergeAndReturnMapOfFiveEntries() {
 
         List<StamDataEntity> given = List.of(
-                new StamDataEntity(1L, "kode1", "tekst"),
-                new StamDataEntity(2L, "kode2", "tekst"),
-                new StamDataEntity(2L, "kode3", "tekst"),
-                new StamDataEntity(4L, "kode4", "tekst"),
-                new StamDataEntity(5L, "kode5", "tekst"),
-                new StamDataEntity(5L, "kode6", "tekst"),
-                new StamDataEntity(5L, "kode7", "tekst")
+                new StamDataEntity(new StamDataEntity.Laegemiddel(1L), new StamDataEntity.Klausulering("kode1", "tekst")),
+                new StamDataEntity(new StamDataEntity.Laegemiddel(2L), new StamDataEntity.Klausulering("kode2", "tekst")),
+                new StamDataEntity(new StamDataEntity.Laegemiddel(2L), new StamDataEntity.Klausulering("kode3", "tekst")),
+                new StamDataEntity(new StamDataEntity.Laegemiddel(4L), new StamDataEntity.Klausulering("kode4", "tekst")),
+                new StamDataEntity(new StamDataEntity.Laegemiddel(5L), new StamDataEntity.Klausulering("kode5", "tekst")),
+                new StamDataEntity(new StamDataEntity.Laegemiddel(5L), new StamDataEntity.Klausulering("kode6", "tekst")),
+                new StamDataEntity(new StamDataEntity.Laegemiddel(5L), new StamDataEntity.Klausulering("kode7", "tekst"))
         );
 
 

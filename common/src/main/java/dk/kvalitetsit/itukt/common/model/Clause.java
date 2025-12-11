@@ -11,5 +11,11 @@ public record Clause(
         Expression expression,
         Date createdAt
 ) {
-    public record Error(String message, int code) { }
+    public record Error(String message, int code) {
+    }
+
+    public enum Status {
+        DRAFT,
+        ACTIVE
+    }
 }

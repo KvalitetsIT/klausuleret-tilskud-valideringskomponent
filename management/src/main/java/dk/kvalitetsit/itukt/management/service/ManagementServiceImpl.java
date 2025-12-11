@@ -42,7 +42,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public List<Clause> readAll() throws ServiceException {
-        return repository.readAll();
+    public List<Clause> readByStatus(Clause.Status status) throws ServiceException {
+        return repository.readByStatus(status);
     }
 }

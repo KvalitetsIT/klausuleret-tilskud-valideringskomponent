@@ -11,10 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openapitools.model.BinaryExpression;
-import org.openapitools.model.ClauseOutput;
-import org.openapitools.model.DslInput;
-import org.openapitools.model.DslOutput;
+import org.openapitools.model.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -118,15 +115,29 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void testReadAll() {
+    void testReadByStatus() {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
-        Mockito.when(managementServiceImpl.readAll()).thenReturn(List.of(clause));
+        Mockito.when(managementServiceImpl.readByStatus(Clause.Status.ACTIVE)).thenReturn(List.of(clause));
         Mockito.when(clauseModelDtoMapper.map(List.of(clause))).thenReturn(List.of(clauseOutput));
 
-        var result = adaptor.readAll();
+        var result = adaptor.readByStatus(ClauseStatus.ACTIVE);
 
         assertEquals(List.of(clauseOutput), result);
+    }
+
+    @Test
+    void testReadDslByStatus() {
+        var clause = Mockito.mock(Clause.class);
+        var clauseOutput = Mockito.mock(ClauseOutput.class);
+        var dslOutput = Mockito.mock(DslOutput.class);
+        Mockito.when(managementServiceImpl.readByStatus(Clause.Status.DRAFT)).thenReturn(List.of(clause));
+        Mockito.when(clauseModelDtoMapper.map(List.of(clause))).thenReturn(List.of(clauseOutput));
+        Mockito.when(clauseDtoDslMapper.map(List.of(clauseOutput))).thenReturn(List.of(dslOutput));
+
+        var result = adaptor.readDslByStatus(ClauseStatus.DRAFT);
+
+        assertEquals(List.of(dslOutput), result);
     }
 }
 

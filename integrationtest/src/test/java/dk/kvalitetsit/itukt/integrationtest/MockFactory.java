@@ -2,11 +2,11 @@ package dk.kvalitetsit.itukt.integrationtest;
 
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.openapitools.client.model.*;
 
 import java.util.UUID;

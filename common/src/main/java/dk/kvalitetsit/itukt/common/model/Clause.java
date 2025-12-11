@@ -9,5 +9,11 @@ public record Clause(
         Error error,
         Expression expression
 ) {
-    public record Error(String message, int code) { }
+    public record Error(String message, int code) {
+    }
+
+    public enum Status {
+        DRAFT,
+        ACTIVE
+    }
 }

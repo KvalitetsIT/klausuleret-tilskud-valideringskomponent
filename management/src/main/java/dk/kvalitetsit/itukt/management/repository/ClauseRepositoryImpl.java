@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -22,7 +23,6 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     private final NamedParameterJdbcTemplate template;
     private final ExpressionRepository expressionRepository;
 
-
     public ClauseRepositoryImpl(DataSource dataSource, ExpressionRepository expressionRepository) {
         template = new NamedParameterJdbcTemplate(dataSource);
         this.expressionRepository = expressionRepository;
@@ -37,12 +37,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
 
             template.update(
-                    "INSERT INTO clause (uuid, name, expression_id, error_message) VALUES (:uuid, :name, :expression_id, :error_message)",
+                    "INSERT INTO clause (uuid, name, expression_id, error_message, status) VALUES (:uuid, :name, :expression_id, :error_message, :status)",
                     new MapSqlParameterSource()
                             .addValue("uuid", uuid.toString())
                             .addValue("name", clause.name())
                             .addValue("expression_id", createdExpression.id())
-                            .addValue("error_message", clause.errorMessage()),
+                            .addValue("error_message", clause.errorMessage())
+                            .addValue("status", Clause.Status.DRAFT.name()),
                     keyHolder,
                     new String[]{"id"}
             );

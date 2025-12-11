@@ -127,4 +127,13 @@ class ManagementControllerTest {
 
         assertEquals(List.of(CLAUSE_1_DSL_OUTPUT), clausesResponse.getBody());
     }
+
+    @Test
+    void call20250801clausesIdApprovePatch_ApprovesClause() {
+        UUID uuid = UUID.randomUUID();
+
+        managementController.call20250801clausesIdApprovePatch(uuid);
+
+        Mockito.verify(clauseService, times(1)).approve(uuid);
+    }
 }

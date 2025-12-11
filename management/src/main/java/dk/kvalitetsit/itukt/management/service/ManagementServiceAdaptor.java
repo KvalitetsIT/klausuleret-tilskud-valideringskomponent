@@ -77,6 +77,10 @@ public class ManagementServiceAdaptor {
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
     }
 
+    public void approve(UUID clauseUuid) throws ServiceException {
+        clauseService.approve(clauseUuid);
+    }
+
     private Clause.Status mapStatus(ClauseStatus status) {
         return switch (status) {
             case DRAFT -> Clause.Status.DRAFT;

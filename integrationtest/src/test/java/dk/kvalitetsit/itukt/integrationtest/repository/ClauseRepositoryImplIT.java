@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
@@ -240,5 +241,29 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var versions = repository.readHistory("UPDATED_CLAUSE");
 
         assertEquals(numberOfCreates, versions.size(), "Expected the same number of versions of the clause as it was updated");
+    }
+
+    @Test
+    void updateDraftToActive_WhenNoClauseWithUuidExist_ThrowsException() {
+        UUID nonExistingUuid = UUID.randomUUID();
+
+        var e = assertThrows(
+                NotFoundException.class,
+                () -> repository.updateDraftToActive(nonExistingUuid));
+
+        assertEquals("No clause found with uuid %s in DRAFT status".formatted(nonExistingUuid), e.getDetailedError());
+    }
+
+    @Test
+    void updateDraftToActive_WhenUuidMatchesClause_SucceedsOnlyWhenInDraft() {
+        var clauseInput = new ClauseInput("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
+        var clause = repository.create(clauseInput);
+
+        assertDoesNotThrow(() -> repository.updateDraftToActive(clause.uuid()));
+        var e = assertThrows(
+                NotFoundException.class,
+                () -> repository.updateDraftToActive(clause.uuid()));
+
+        assertEquals("No clause found with uuid %s in DRAFT status".formatted(clause.uuid()), e.getDetailedError());
     }
 }

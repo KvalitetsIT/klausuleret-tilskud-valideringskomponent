@@ -114,6 +114,15 @@ class ManagementServiceImplTest {
     }
 
     @Test
+    void approve_UpdatesClauseStatusFromDraftToActive() {
+        var uuid = UUID.randomUUID();
+
+        service.approve(uuid);
+
+        Mockito.verify(dao, Mockito.times(1)).updateDraftToActive(uuid);
+    }
+
+    @Test
     void readHistory_assertThrowsNotFoundIfEmpty() {
         String name = "blaah";
         Mockito.when(dao.readHistory(name)).thenReturn(List.of());

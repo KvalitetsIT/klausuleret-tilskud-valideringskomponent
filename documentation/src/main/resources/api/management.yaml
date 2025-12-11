@@ -194,6 +194,20 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
+  /2025/08/01/clauses/{id}/approve:
+    patch:
+      tags:
+        - management
+      summary: "Approve clause"
+      description: "Approves the draft clause matching the specified id"
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Ok
+        '404':
+          $ref: '#/components/responses/404'
+
 components:
   responses:
     '400':

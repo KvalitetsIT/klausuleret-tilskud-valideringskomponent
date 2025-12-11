@@ -53,4 +53,9 @@ public class ManagementServiceImpl implements ManagementService {
             throw new NotFoundException(String.format("clause with name '%s' was not found", name));
         return history;
     }
+
+    @Override
+    public void approve(UUID clauseUuid) throws ServiceException {
+        repository.updateDraftToActive(clauseUuid);
+    }
 }

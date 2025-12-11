@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -205,6 +206,25 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             throw new ServiceException(message, e);
         }
 
+    }
+
+    @Override
+    public void updateDraftToActive(UUID uuid) throws NotFoundException {
+        String sql = """
+                UPDATE clause
+                SET status = :new_status
+                WHERE uuid = :uuid AND status = :current_status
+                """;
+
+        int rowsAffected = template.update(
+                sql,
+                Map.of("uuid", uuid.toString(),
+                        "current_status", Clause.Status.DRAFT.name(),
+                        "new_status", Clause.Status.ACTIVE.name()));
+
+        if (rowsAffected == 0) {
+            throw new NotFoundException("No clause found with uuid %s in DRAFT status".formatted(uuid));
+        }
     }
 
 

@@ -58,6 +58,12 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
+    public ResponseEntity<Void> call20250801clausesIdApprovePatch(UUID id) {
+        service.approve(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
     public ResponseEntity<ClauseOutput> call20250801clausesIdGet(UUID id) {
         return service.read(id)
                 .map(ResponseEntity::ok)

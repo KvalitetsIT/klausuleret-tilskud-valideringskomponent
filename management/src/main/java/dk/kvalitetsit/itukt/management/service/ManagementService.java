@@ -19,4 +19,6 @@ public interface ManagementService {
     List<Clause> readByStatus(Clause.Status status) throws ServiceException;
 
     List<Clause> readHistory(String name) throws ServiceException;
+
+    void approve(UUID clauseUuid) throws ServiceException;
 }

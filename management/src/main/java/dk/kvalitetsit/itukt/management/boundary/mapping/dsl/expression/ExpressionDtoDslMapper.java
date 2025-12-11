@@ -14,12 +14,14 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
     private final ExpressionDslMapper<AgeCondition> ageConditionExpressionDslMapper;
     private final Mapper<BinaryExpression, Dsl> binaryExpressionExpressionDslMapper;
     private final ExpressionDslMapper<ExistingDrugMedicationCondition> existingDrugMedicationConditionExpressionDslMapper;
+    private final ExpressionDslMapper<DoctorSpecialityCondition> doctorSpecialityConditionExpressionDslMapper;
 
     public ExpressionDtoDslMapper(MapperFactory factory) {
         existingDrugMedicationConditionExpressionDslMapper = factory.getExistingDrugMedicationConditionExpressionDslMapper();
         binaryExpressionExpressionDslMapper = factory.getBinaryExpressionExpressionDslMapper(this);
         ageConditionExpressionDslMapper = factory.getAgeConditionExpressionDslMapper();
         indicationConditionExpressionDslMapper = factory.getIndicationConditionExpressionDslMapper();
+        doctorSpecialityConditionExpressionDslMapper = factory.getDoctorSpecialityConditionExpressionDslMapper();
     }
 
     private static <T extends Expression> List<T> castList(List<?> list, Class<T> clazz) {
@@ -48,6 +50,8 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
                     existingDrugMedicationConditionExpressionDslMapper.map(existingDrugMedicationCondition);
             case IndicationCondition indicationCondition ->
                     indicationConditionExpressionDslMapper.map(indicationCondition);
+            case DoctorSpecialityCondition doctorSpecialityCondition ->
+                    doctorSpecialityConditionExpressionDslMapper.map(doctorSpecialityCondition);
         };
     }
 
@@ -62,6 +66,8 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
                     existingDrugMedicationConditionExpressionDslMapper.merge(castList(conditions, ExistingDrugMedicationCondition.class));
             case IndicationCondition ignored ->
                     indicationConditionExpressionDslMapper.merge(castList(conditions, IndicationCondition.class));
+            case DoctorSpecialityCondition ignored ->
+                    doctorSpecialityConditionExpressionDslMapper.merge(castList(conditions, DoctorSpecialityCondition.class));
             default -> throw new IllegalStateException("Unexpected value: " + conditions.getFirst());
         };
     }

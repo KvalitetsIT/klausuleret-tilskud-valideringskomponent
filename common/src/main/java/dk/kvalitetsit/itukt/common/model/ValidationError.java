@@ -5,7 +5,7 @@ import static java.lang.String.join;
 
 sealed public interface ValidationError extends ValidationFailed permits AndError, ConditionError, ExistingDrugMedicationError, OrError {
     String toErrorString();
-    enum Field {AGE, INDICATION}
+    enum Field {AGE, INDICATION, DOCTOR_SPECIALITY}
 
     record ConditionError(Field field, Operator operator, String value) implements ValidationError {
         private static String toErrorString(Operator field) {
@@ -22,6 +22,7 @@ sealed public interface ValidationError extends ValidationFailed permits AndErro
             return switch (field) {
                 case AGE -> "alder";
                 case INDICATION -> "indikation";
+                case DOCTOR_SPECIALITY -> "lægespeciale";
             };
         }
 

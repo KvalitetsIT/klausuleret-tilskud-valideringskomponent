@@ -42,13 +42,13 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
         else
             return clause.expression().validates(validationInput).map(validationFailed -> switch (validationFailed) {
                 case ValidationFailed.ExistingDrugMedicationRequired ignored -> throw new ExistingDrugMedicationRequiredException();
-                case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()), error.toErrorString(), clause.error().code());
+                case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()) , error.toErrorString(), clause.error().code());
             });
     }
 
     private void createSkippedValidations(ValidationInput validationInput) {
-        skippedValidationService.createSkippedValidations(validationInput.createdById(), validationInput.personId(), validationInput.skippedErrorCodes());
-        validationInput.reportedById().ifPresent(reportedBy -> skippedValidationService.createSkippedValidations(reportedBy, validationInput.personId(), validationInput.skippedErrorCodes()));
+        skippedValidationService.createSkippedValidations(validationInput.createdBy().id(), validationInput.personId(), validationInput.skippedErrorCodes());
+        validationInput.reportedBy().ifPresent(reportedBy -> skippedValidationService.createSkippedValidations(reportedBy.id(), validationInput.personId(), validationInput.skippedErrorCodes()));
     }
 
     private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, StamData.Clause clause) {
@@ -57,7 +57,9 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private boolean shouldSkipClause(Clause clause, ValidationInput validationInput) {
-        return skippedValidationService.shouldSkipValidation(validationInput.createdById(), validationInput.personId(), clause.id()) ||
-                (validationInput.reportedById().isPresent() && skippedValidationService.shouldSkipValidation(validationInput.reportedById().get(), validationInput.personId(), clause.id()));
+        return skippedValidationService.shouldSkipValidation(validationInput.createdBy().id(), validationInput.personId(), clause.id()) ||
+                validationInput.reportedBy()
+                        .map(reportedBy -> skippedValidationService.shouldSkipValidation(reportedBy.id(), validationInput.personId(), clause.id()))
+                        .orElse(false);
     }
 }

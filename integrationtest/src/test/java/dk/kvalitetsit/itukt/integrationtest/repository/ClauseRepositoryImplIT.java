@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,13 +55,32 @@ public class ClauseRepositoryImplIT extends BaseTest {
             assertNotNull(writtenClause.uuid(), "A uuid is expected to be assigned by the database when writing a clause");
             assertNotNull(writtenClause.errorCode(), "An error code is expected to be assigned by the database when writing a clause");
             assertEquals(clauseForCreation.name(), writtenClause.name(), "The input name is expected to be used in the written clause");
+            var idPathsToIgnore = ignoreFieldRecursive(writtenClause.expression(), "id");
             assertThat(writtenClause.expression())
                     .usingRecursiveComparison()
-                    .ignoringFields("id", "left.id", "right.id", "right.left.id", "right.right.id", "right.left.left.id", "right.left.right.id")
+                    .ignoringFields(idPathsToIgnore.toArray(new String[0]))
                     .withFailMessage("The input expression is expected to be used in the written clause")
                     .isEqualTo(clauseForCreation.expression());
             assertEquals(writtenClause, readClause, "The clause read from the database is expected to match the one written beforehand");
         }
+    }
+
+    List<String> ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore) {
+        return ignoreFieldRecursive(expression, fieldToIgnore,  "").toList();
+    }
+
+    Stream<String> ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore, String path) {
+        return switch (expression) {
+            case ExpressionEntity.BinaryExpressionEntity binaryExp ->
+                    Stream.concat(
+                            Stream.of(path + "id"),
+                            Stream.concat(
+                                    ignoreFieldRecursive(binaryExp.left(), fieldToIgnore, path + "left."),
+                                    ignoreFieldRecursive(binaryExp.right(), fieldToIgnore, path + "right.")));
+            case ExpressionEntity.ExistingDrugMedicationConditionEntity __ -> Stream.of(path + fieldToIgnore);
+            case ExpressionEntity.NumberConditionEntity __ -> Stream.of(path + fieldToIgnore);
+            case ExpressionEntity.StringConditionEntity __ -> Stream.of(path + fieldToIgnore);
+        };
     }
 
     @Override

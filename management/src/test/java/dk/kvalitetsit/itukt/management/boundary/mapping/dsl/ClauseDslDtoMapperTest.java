@@ -201,6 +201,27 @@ class ClauseDslDtoMapperTest {
     }
 
     @Test
+    void givenDslWithSpecialityCondition_whenMap_thenItIsParsedCorrectly() {
+        final ClauseInput expected = new ClauseInput("CLAUSE", new DoctorSpecialityCondition("LÆGE", ExpressionType.DOCTOR_SPECIALITY),
+                "blaah");
+        DslInput subject = new DslInput("blaah", "Klausul CLAUSE: LÆGESPECIALE = læge");
+        Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
+    }
+
+    @Test
+    void givenDslWithOrSpecialityCondition_whenMap_thenItIsParsedCorrectly() {
+        var expression = new BinaryExpression()
+                .type(ExpressionType.BINARY)
+                .left(new DoctorSpecialityCondition("LÆGE1", ExpressionType.DOCTOR_SPECIALITY))
+                .operator(BinaryOperator.OR)
+                .right(new DoctorSpecialityCondition("LÆGE2", ExpressionType.DOCTOR_SPECIALITY));
+        final ClauseInput expected = new ClauseInput("CLAUSE", expression,
+                "blaah");
+        DslInput subject = new DslInput("blaah", "Klausul CLAUSE: LÆGESPECIALE i [læge1, læge2]");
+        Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
+    }
+
+    @Test
     void givenDslWithMultipleExistingDrugConditions_whenMap_thenParseDrugCorrectly() {
         final ClauseInput expected = new ClauseInput("DRUG", new BinaryExpression(
                 new ExistingDrugMedicationCondition("C10B", "TABLET", "ORAL", ExpressionType.EXISTING_DRUG_MEDICATION),

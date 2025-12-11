@@ -5,12 +5,15 @@ import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpressi
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class ExpressionModelEntityMapperTest {
@@ -51,5 +54,13 @@ public class ExpressionModelEntityMapperTest {
                 .usingRecursiveComparison()
                 .ignoringFields("id", "left.id", "right.id")
                 .isEqualTo(expectedExpression);
+    }
+
+    @Test
+    public void testMappingWithSpecialityCondition(){
+        var expression = new dk.kvalitetsit.itukt.common.model.DoctorSpecialityConditionExpression("læge");
+        var mappedExpression = mapper.map(expression);
+        var expectedExpression = new ExpressionEntity.StringConditionEntity(Field.DOCTOR_SPECIALITY, "læge");
+        assertEquals(expectedExpression, mappedExpression);
     }
 }

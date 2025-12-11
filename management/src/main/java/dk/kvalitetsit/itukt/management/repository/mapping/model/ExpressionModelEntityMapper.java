@@ -13,6 +13,7 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
             case IndicationConditionExpression s -> this.map(s);
             case AgeConditionExpression n -> this.map(n);
             case ExistingDrugMedicationConditionExpression p -> this.map(p);
+            case DoctorSpecialityConditionExpression a -> this.map(a);
         };
     }
 
@@ -32,5 +33,7 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
         return new ExpressionEntity.BinaryExpressionEntity(null, this.map(b.left()), b.operator(), this.map((b.right())));
     }
 
-
+    private ExpressionEntity.StringConditionEntity map(DoctorSpecialityConditionExpression a) {
+        return new ExpressionEntity.StringConditionEntity(Field.DOCTOR_SPECIALITY, a.speciality());
+    }
 }

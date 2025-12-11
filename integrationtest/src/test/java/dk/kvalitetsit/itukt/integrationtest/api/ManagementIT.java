@@ -86,7 +86,7 @@ class ManagementIT extends BaseTest {
         var dsl = MockFactory.CLAUSE_1_DSL_INPUT;
 
         api.call20250801clausesDslPost(dsl);
-        var clauses = api.call20250801clausesGet();
+        var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
         assertThat(clauses.getFirst())
@@ -98,7 +98,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testPostAndGetClause() {
         api.call20250801clausesPost(CLAUSE_1_INPUT);
-        var clauses = api.call20250801clausesGet();
+        var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
         var clause = clauses.getFirst();
@@ -116,7 +116,7 @@ class ManagementIT extends BaseTest {
 
         api.call20250801clausesPost(postInput);
         var updateResponse = api.call20250801clausesNamePut(postInput.getName(), updateInput);
-        var clauses = api.call20250801clausesGet();
+        var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
         var expectedClause = new ClauseOutput()
@@ -139,7 +139,7 @@ class ManagementIT extends BaseTest {
                 .error("message");
 
         api.call20250801clausesPost(clauseInput);
-        var clauses = api.call20250801clausesGet();
+        var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size(), "Expected the same number of clauses as were created");
         var clause = clauses.getFirst();

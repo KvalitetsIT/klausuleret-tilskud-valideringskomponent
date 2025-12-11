@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.ClauseInput;
+import org.openapitools.model.ClauseStatus;
 import org.openapitools.model.ClauseUpdateInput;
 import org.openapitools.model.DslInput;
 import org.springframework.http.HttpStatus;
@@ -109,13 +110,21 @@ class ManagementControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
-
     @Test
     void call20250801clausesGet_ReturnsClausesFromService() {
-        Mockito.when(clauseService.readAll()).thenReturn(List.of(CLAUSE_1_OUTPUT));
+        Mockito.when(clauseService.readByStatus(ClauseStatus.DRAFT)).thenReturn(List.of(CLAUSE_1_OUTPUT));
 
-        var clausesResponse = managementController.call20250801clausesGet();
+        var clausesResponse = managementController.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(List.of(CLAUSE_1_OUTPUT), clausesResponse.getBody());
+    }
+
+    @Test
+    void call20250801clausesDslGet_ReturnsClausesFromService() {
+        Mockito.when(clauseService.readDslByStatus(ClauseStatus.ACTIVE)).thenReturn(List.of(CLAUSE_1_DSL_OUTPUT));
+
+        var clausesResponse = managementController.call20250801clausesDslGet(ClauseStatus.ACTIVE);
+
+        assertEquals(List.of(CLAUSE_1_DSL_OUTPUT), clausesResponse.getBody());
     }
 }

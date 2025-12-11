@@ -48,7 +48,9 @@ paths:
     get:
       tags:
         - management
-      description: "Retrieves all clauses as dsl"
+      description: "Retrieves all clauses as dsl matching the specified status"
+      parameters:
+        - $ref: '#/components/parameters/clauseStatus'
       responses:
         '200':
           description: Ok
@@ -126,8 +128,9 @@ paths:
     get:
       tags:
         - management
-      summary: "API to test body validation"
-      description: "Retrieves all clauses"
+      description: "Retrieves all clauses matching the specified status"
+      parameters:
+        - $ref: '#/components/parameters/clauseStatus'
       responses:
         '200':
           description: Ok
@@ -234,6 +237,12 @@ components:
       schema:
         type: integer
       description: The maximum number of items to retrieve. Used together with the 'offset' parameter to control pagination.
+    clauseStatus:
+      name: status
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/ClauseStatus'
 
   schemas:
     detailedError:
@@ -342,6 +351,13 @@ components:
       enum:
         - "AND"
         - "OR"
+
+    ClauseStatus:
+      description: The clause status
+      type: string
+      enum:
+        - "DRAFT"
+        - "ACTIVE"
 
     IndicationCondition:
       description: "A basic condition consisting of a field and a string value. This represents the most atomic form of an expression"

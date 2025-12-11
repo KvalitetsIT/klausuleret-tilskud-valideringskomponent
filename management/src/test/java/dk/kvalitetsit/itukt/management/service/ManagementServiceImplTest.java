@@ -90,10 +90,13 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void testReadAll() {
+    void testReadByStatus() {
         var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.readAll()).thenReturn(List.of(model));
-        var result = service.readAll();
+        var status = Mockito.mock(Clause.Status.class);
+        Mockito.when(dao.readByStatus(status)).thenReturn(List.of(model));
+
+        var result = service.readByStatus(status);
+
         assertEquals(List.of(model), result);
     }
 

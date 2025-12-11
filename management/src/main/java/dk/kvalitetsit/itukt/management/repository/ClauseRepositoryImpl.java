@@ -13,7 +13,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ClauseRepositoryImpl implements ClauseRepository {
 
@@ -147,7 +150,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
 
     @Override
-    public List<ClauseEntity> readAll() throws ServiceException {
+    public List<ClauseEntity> readByStatus(Clause.Status status) throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid
@@ -155,6 +158,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         JOIN (
                             SELECT name, MAX(created_time) AS max_created_time
                             FROM clause
+                            WHERE status = :status
                             GROUP BY name
                         ) latest
                           ON c.name = latest.name
@@ -162,8 +166,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         ORDER BY c.id
                     """;
 
-            List<UUID> uuids = template.query(sql, Collections.emptyMap(), (rs, rowNum) ->
-                    UUID.fromString(rs.getString("uuid"))
+            List<UUID> uuids = template.query(sql,
+                    Map.of("status", status.name()),
+                    (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
             );
 
             return uuids.stream()

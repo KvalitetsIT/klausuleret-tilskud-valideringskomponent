@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.openapitools.model.ClauseOutput;
+import org.openapitools.model.ClauseStatus;
 import org.openapitools.model.DslInput;
 import org.openapitools.model.DslOutput;
 
@@ -67,12 +68,19 @@ public class ManagementServiceAdaptor {
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
     }
 
-    public List<ClauseOutput> readAll() throws ServiceException {
-        return clauseDtoMapper.map(clauseService.readAll());
+    public List<ClauseOutput> readByStatus(ClauseStatus status) throws ServiceException {
+        return clauseDtoMapper.map(clauseService.readByStatus(mapStatus(status)));
     }
 
-    public List<DslOutput> readAllDsl() throws ServiceException {
-        List<Clause> clauses = clauseService.readAll();
+    public List<DslOutput> readDslByStatus(ClauseStatus status) throws ServiceException {
+        List<Clause> clauses = clauseService.readByStatus(mapStatus(status));
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
+    }
+
+    private Clause.Status mapStatus(ClauseStatus status) {
+        return switch (status) {
+            case DRAFT -> Clause.Status.DRAFT;
+            case ACTIVE -> Clause.Status.ACTIVE;
+        };
     }
 }

@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
@@ -35,14 +36,14 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void testReadAll() {
+    void testReadByStatus() {
         var clause1 = new ClauseInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message");
         var clause2 = new ClauseInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message");
 
         var clauses = List.of(clause1, clause2);
 
         var written = clauses.stream().map(repository::create).toList();
-        var read = this.repository.readAll();
+        var read = this.repository.readByStatus(Clause.Status.DRAFT);
         assertEquals(clauses.size(), read.size());
         for (int i = 0; i < written.size(); i++) {
 
@@ -113,7 +114,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         Assertions.assertEquals(LIMIT, written.size(), LIMIT + " written clauses is expected since FMK only allocates error codes from " + LIMIT + " - " + (OFFSET + LIMIT - 1));
 
-        var read = this.repository.readAll();
+        var read = this.repository.readByStatus(Clause.Status.DRAFT);
         Assertions.assertEquals(LIMIT, read.size(), LIMIT + " clauses is expected to be read since this amount was written");
 
         Assertions.assertEquals(
@@ -148,7 +149,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         repository.create(clauseA);
         repository.create(clauseB);
-        var clauses = repository.readAll();
+        var clauses = repository.readByStatus(Clause.Status.DRAFT);
 
         assertEquals(1, clauses.size(), "Expected only the latest version of the clause");
         assertEquals(clauseB.errorMessage(), clauses.getFirst().errorMessage(),

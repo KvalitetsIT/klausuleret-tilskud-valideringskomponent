@@ -11,8 +11,8 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMa
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
-import dk.kvalitetsit.itukt.management.repository.cache.ClauseCache;
-import dk.kvalitetsit.itukt.management.repository.cache.ClauseCacheImpl;
+import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCache;
+import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCacheImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
@@ -38,8 +38,8 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseCache clauseCache(ClauseRepository clauseRepository) {
-        return new ClauseCacheImpl(configuration.clause().cache(), clauseRepository);
+    public ActiveClauseCache activeClauseCache(ClauseRepository clauseRepository) {
+        return new ActiveClauseCacheImpl(configuration.clause().cache(), clauseRepository);
     }
 
     @Bean
@@ -53,7 +53,7 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseService clauseService(ClauseCache cache, Mapper<ClauseEntity, Clause> mapper) {
+    public ClauseService clauseService(ActiveClauseCache cache, Mapper<ClauseEntity, Clause> mapper) {
         return new ClauseServiceImpl(cache, mapper);
     }
 

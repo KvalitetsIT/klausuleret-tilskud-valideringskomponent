@@ -28,8 +28,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<DslOutput>> call20250801clausesDslGet() {
-        return ResponseEntity.ok(service.readAllDsl());
+    public ResponseEntity<List<DslOutput>> call20250801clausesDslGet(ClauseStatus status) {
+        return ResponseEntity.ok(service.readDslByStatus(status));
     }
 
     @Override
@@ -53,8 +53,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<ClauseOutput>> call20250801clausesGet() {
-        return ResponseEntity.ok(service.readAll());
+    public ResponseEntity<List<ClauseOutput>> call20250801clausesGet(ClauseStatus status) {
+        return ResponseEntity.ok(service.readByStatus(status));
     }
 
     @Override

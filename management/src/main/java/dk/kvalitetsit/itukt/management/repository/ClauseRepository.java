@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
@@ -15,7 +16,7 @@ public interface ClauseRepository {
     /**
      * Retrieves all clauses, including only the latest version of each clause.
      */
-    List<ClauseEntity> readAll() throws ServiceException;
+    List<ClauseEntity> readByStatus(Clause.Status status) throws ServiceException;
 
     List<ClauseEntity> readHistory(String name);
 }

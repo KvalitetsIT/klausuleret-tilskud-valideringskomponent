@@ -29,8 +29,8 @@ public class ClauseRepositoryAdaptor {
         return clauseRepository.read(id).map(entityMapper::map);
     }
 
-    public List<Clause> readAll() throws ServiceException {
-        return this.entityMapper.map(clauseRepository.readAll());
+    public List<Clause> readByStatus(Clause.Status status) throws ServiceException {
+        return this.entityMapper.map(clauseRepository.readByStatus(status));
     }
 
 

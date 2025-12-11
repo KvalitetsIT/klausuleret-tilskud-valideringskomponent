@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -92,6 +93,15 @@ class ManagementServiceImplTest {
         var result = service.readByStatus(status);
 
         assertEquals(List.of(model), result);
+    }
+
+    @Test
+    void approve_UpdatesClauseStatusFromDraftToActive() {
+        var uuid = UUID.randomUUID();
+
+        service.approve(uuid);
+
+        Mockito.verify(dao, Mockito.times(1)).updateDraftToActive(uuid);
     }
 
 

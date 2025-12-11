@@ -37,4 +37,7 @@ public class ClauseRepositoryAdaptor {
         return clauseRepository.nameExists(name);
     }
 
+    public void updateDraftToActive(UUID uuid) throws ServiceException {
+        clauseRepository.updateDraftToActive(uuid);
+    }
 }

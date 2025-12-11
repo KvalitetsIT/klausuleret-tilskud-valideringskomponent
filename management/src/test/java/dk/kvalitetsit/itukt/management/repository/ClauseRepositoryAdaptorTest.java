@@ -92,6 +92,15 @@ public class ClauseRepositoryAdaptorTest {
 
         assertTrue(exists, "nameExists should return the same value as the concrete repository");
     }
+
+    @Test
+    void updateDraftToActive() {
+        UUID uuid = UUID.randomUUID();
+
+        adaptor.updateDraftToActive(uuid);
+
+        Mockito.verify(concreteRepository).updateDraftToActive(uuid);
+    }
 }
 
 

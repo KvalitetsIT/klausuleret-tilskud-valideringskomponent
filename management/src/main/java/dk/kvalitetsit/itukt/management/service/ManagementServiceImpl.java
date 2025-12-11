@@ -45,4 +45,9 @@ public class ManagementServiceImpl implements ManagementService {
     public List<Clause> readByStatus(Clause.Status status) throws ServiceException {
         return repository.readByStatus(status);
     }
+
+    @Override
+    public void approve(UUID clauseUuid) throws ServiceException {
+        repository.updateDraftToActive(clauseUuid);
+    }
 }

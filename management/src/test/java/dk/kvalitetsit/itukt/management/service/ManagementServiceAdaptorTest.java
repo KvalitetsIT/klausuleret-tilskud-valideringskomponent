@@ -139,6 +139,15 @@ public class ManagementServiceAdaptorTest {
 
         assertEquals(List.of(dslOutput), result);
     }
+
+    @Test
+    void approve() {
+        var uuid = UUID.randomUUID();
+
+        adaptor.approve(uuid);
+
+        Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid);
+    }
 }
 
 

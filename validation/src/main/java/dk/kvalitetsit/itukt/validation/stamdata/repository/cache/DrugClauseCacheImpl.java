@@ -1,9 +1,9 @@
-package dk.kvalitetsit.itukt.validation.repository.cache;
+package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
-import dk.kvalitetsit.itukt.validation.repository.DrugClauseViewRepositoryAdaptor;
-import dk.kvalitetsit.itukt.validation.service.model.DrugClause;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryAdaptor;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 
 import java.util.HashMap;
 import java.util.Map;

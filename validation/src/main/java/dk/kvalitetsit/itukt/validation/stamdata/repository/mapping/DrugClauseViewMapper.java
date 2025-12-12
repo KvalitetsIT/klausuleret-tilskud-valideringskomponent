@@ -1,8 +1,8 @@
-package dk.kvalitetsit.itukt.validation.mapping;
+package dk.kvalitetsit.itukt.validation.stamdata.repository.mapping;
 
 
-import dk.kvalitetsit.itukt.validation.service.model.DrugClause;
-import dk.kvalitetsit.itukt.validation.repository.DrugClauseView;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 
 import java.util.List;
 import java.util.Map;

@@ -3,8 +3,8 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.repository.cache.DrugClauseCache;
-import dk.kvalitetsit.itukt.validation.service.model.DrugClause;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCache;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

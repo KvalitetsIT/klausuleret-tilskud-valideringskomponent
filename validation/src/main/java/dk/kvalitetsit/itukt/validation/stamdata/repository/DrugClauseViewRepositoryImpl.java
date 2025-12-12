@@ -1,7 +1,7 @@
-package dk.kvalitetsit.itukt.validation.repository;
+package dk.kvalitetsit.itukt.validation.stamdata.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.validation.repository.mapping.DrugClauseViewMapper;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -10,13 +10,18 @@ import java.util.List;
 
 public class DrugClauseViewRepositoryImpl implements DrugClauseViewRepository {
 
-    private final RowMapper<DrugClauseView> clauseRowMapper;
+    private final static RowMapper<DrugClauseView> clauseRowMapper = (rs, rowNum) -> new DrugClauseView(
+            new DrugClauseView.Laegemiddel(rs.getLong("d.DrugId")),
+            new DrugClauseView.Klausulering(
+                    rs.getString("k.Kode"),
+                    rs.getString("k.Tekst")
+            )
+    );
 
     private final NamedParameterJdbcTemplate template;
 
     public DrugClauseViewRepositoryImpl(DataSource dataSource) {
         this.template = new NamedParameterJdbcTemplate(dataSource);
-        clauseRowMapper = new DrugClauseViewMapper(); // DataClassRowMapper.newInstance(StamDataEntity.class);
     }
 
     @Override

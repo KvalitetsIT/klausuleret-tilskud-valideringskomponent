@@ -1,7 +1,9 @@
-package dk.kvalitetsit.itukt.validation.mapping;
+package dk.kvalitetsit.itukt.validation.stamdata.mapping;
 
-import dk.kvalitetsit.itukt.validation.repository.DrugClauseView;
-import dk.kvalitetsit.itukt.validation.service.model.DrugClause;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
+
+import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DrugClauseViewMapper;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

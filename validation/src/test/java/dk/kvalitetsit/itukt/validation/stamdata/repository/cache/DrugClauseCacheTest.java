@@ -1,8 +1,8 @@
-package dk.kvalitetsit.itukt.validation.repository;
+package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.validation.repository.cache.DrugClauseCacheImpl;
-import dk.kvalitetsit.itukt.validation.service.model.DrugClause;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryAdaptor;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

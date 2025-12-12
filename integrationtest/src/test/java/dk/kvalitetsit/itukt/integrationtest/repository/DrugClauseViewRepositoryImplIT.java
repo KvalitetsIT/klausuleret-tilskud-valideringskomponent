@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.validation.repository.DrugClauseViewRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

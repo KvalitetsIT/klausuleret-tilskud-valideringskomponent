@@ -34,13 +34,13 @@ sealed public interface ValidationError extends ValidationFailed permits AndErro
             );
         }
     }
-    record ExistingDrugMedicationError(String atcCode, String formCode, String routeOfAdministrationCode) implements ValidationError {
+    record ExistingDrugMedicationError(ExistingDrugMedication existingDrugMedication) implements ValidationError {
         @Override
         public String toErrorString() {
             return "Tidligere medicinsk behandling med følgende påkrævet:" +
-                    " ATC = " + atcCode +
-                    ", Formkode = " + formCode +
-                    ", Administrationsrutekode = " + routeOfAdministrationCode;
+                    " ATC = " + existingDrugMedication.atcCode() +
+                    ", Formkode = " + existingDrugMedication.formCode() +
+                    ", Administrationsrutekode = " + existingDrugMedication.routeOfAdministrationCode();
         }
     }
     record AndError(ValidationError e1, ValidationError e2) implements ValidationError {

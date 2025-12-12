@@ -3,12 +3,10 @@ package dk.kvalitetsit.itukt.common.model;
 import java.util.List;
 import java.util.Optional;
 
-import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
+import static dk.kvalitetsit.itukt.common.model.ValidationError.ExistingDrugMedicationError;
+import static dk.kvalitetsit.itukt.common.model.ValidationError.ExistingDrugMedicationRequired;
 
-public record ExistingDrugMedicationConditionExpression(
-        String atcCode,
-        String formCode,
-        String routeOfAdministrationCode) implements Expression.Condition {
+public record ExistingDrugMedicationConditionExpression(ExistingDrugMedication existingDrugMedication) implements Expression.Condition {
 
     @Override
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
@@ -20,13 +18,13 @@ public record ExistingDrugMedicationConditionExpression(
     private Optional<ValidationFailed> validate(List<ExistingDrugMedication> existingDrugMedications) {
         return existingDrugMedications.stream().anyMatch(this::itemMatches)
                 ? Optional.empty()
-                : Optional.of(new ExistingDrugMedicationError(atcCode, formCode, routeOfAdministrationCode));
+                : Optional.of(new ExistingDrugMedicationError(existingDrugMedication));
     }
 
     private boolean itemMatches(ExistingDrugMedication value) {
-        return valueMatchesCondition(value.atcCode(), this.atcCode) &&
-                valueMatchesCondition(value.formCode(), this.formCode) &&
-                valueMatchesCondition(value.routeOfAdministrationCode(), this.routeOfAdministrationCode);
+        return valueMatchesCondition(value.atcCode(), this.existingDrugMedication.atcCode()) &&
+                valueMatchesCondition(value.formCode(), this.existingDrugMedication.formCode()) &&
+                valueMatchesCondition(value.routeOfAdministrationCode(), this.existingDrugMedication.routeOfAdministrationCode());
     }
 
     private boolean valueMatchesCondition(String value, String condition) {

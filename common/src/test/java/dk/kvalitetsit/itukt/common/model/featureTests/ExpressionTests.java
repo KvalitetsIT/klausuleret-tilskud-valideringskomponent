@@ -114,7 +114,8 @@ public class ExpressionTests {
 
     @Test
     void validateHistory_whenNoHistoryIsInInputAndOrExpressionValidatesThenNoErrorShouldBeReturned() {
-        var exp1 = new ExistingDrugMedicationConditionExpression("atc", "form", "routeOfAdmin");
+        ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication("atc", "form", "routeOfAdmin");
+        var exp1 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var exp2 = new AgeConditionExpression(Operator.EQUAL, inputAge);
         var or = new BinaryExpression(exp1, BinaryExpression.Operator.OR, exp2);
         var result = or.validates(validationInput);
@@ -309,7 +310,8 @@ public class ExpressionTests {
 
     @Test
     void validate_existingMedication_ShouldSucceed() {
-        var exp = new ExistingDrugMedicationConditionExpression(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode);
+        ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode);
+        var exp = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         assertEquals(empty(), exp.validates(validationInputWithHistory));
     }
 
@@ -318,7 +320,8 @@ public class ExpressionTests {
         var atcCode = inputAtcCode + "-no-match";
         var formCode = inputFormCode;
         var route = inputRouteOfAdministrationCode;
-        var exp = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var result = exp.validates(validationInputWithHistory);
 
         assertErrorMessage(
@@ -334,7 +337,8 @@ public class ExpressionTests {
         var atcCode = inputAtcCode;
         var formCode = inputFormCode + "-no-match";
         var route = inputRouteOfAdministrationCode;
-        var exp = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var result = exp.validates(validationInputWithHistory);
 
         assertErrorMessage(
@@ -350,7 +354,8 @@ public class ExpressionTests {
         var atcCode = inputAtcCode;
         var formCode = inputFormCode;
         var route = inputRouteOfAdministrationCode + "-no-match";
-        var exp = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var result = exp.validates(validationInputWithHistory);
 
         assertErrorMessage(
@@ -367,7 +372,8 @@ public class ExpressionTests {
         var formCode = inputFormCode;
         var route = inputRouteOfAdministrationCode;
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
-        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
@@ -388,7 +394,8 @@ public class ExpressionTests {
         var formCode = inputFormCode + "-no-match";
         var route = inputRouteOfAdministrationCode;
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
-        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
@@ -409,7 +416,8 @@ public class ExpressionTests {
         var formCode = inputFormCode;
         var route = inputRouteOfAdministrationCode + "-no-match";
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
-        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
@@ -430,7 +438,8 @@ public class ExpressionTests {
         var formCode = inputFormCode;
         var route = inputRouteOfAdministrationCode;
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
-        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var exp3 = new IndicationConditionExpression(inputIndication);
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.AND, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.OR, orExp);
@@ -450,7 +459,8 @@ public class ExpressionTests {
         var formCode = inputFormCode + "-no-match";
         var route = inputRouteOfAdministrationCode;
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
-        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var exp3 = new IndicationConditionExpression(inputIndication);
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.AND, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.OR, orExp);
@@ -470,7 +480,8 @@ public class ExpressionTests {
         var formCode = inputFormCode;
         var route = inputRouteOfAdministrationCode + "-no-match";
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
-        var exp2 = new ExistingDrugMedicationConditionExpression(atcCode, formCode, route);
+        var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
+        var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
         var exp3 = new IndicationConditionExpression(inputIndication);
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.AND, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.OR, orExp);

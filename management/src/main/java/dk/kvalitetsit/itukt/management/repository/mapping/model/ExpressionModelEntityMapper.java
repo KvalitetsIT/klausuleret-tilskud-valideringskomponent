@@ -26,7 +26,12 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
     }
 
     private ExpressionEntity.ExistingDrugMedicationConditionEntity map(ExistingDrugMedicationConditionExpression e) {
-        return new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, e.atcCode(), e.formCode(), e.routeOfAdministrationCode());
+        return new ExpressionEntity.ExistingDrugMedicationConditionEntity(
+                null,
+                e.existingDrugMedication().atcCode(),
+                e.existingDrugMedication().formCode(),
+                e.existingDrugMedication().routeOfAdministrationCode()
+        );
     }
 
     private ExpressionEntity.BinaryExpressionEntity map(BinaryExpression b) {

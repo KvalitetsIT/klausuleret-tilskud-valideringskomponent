@@ -30,7 +30,7 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
     }
 
     private ExistingDrugMedicationConditionExpression map(ExpressionEntity.ExistingDrugMedicationConditionEntity e) {
-        return new ExistingDrugMedicationConditionExpression(e.atcCode(), e.formCode(), e.routeOfAdministrationCode());
+        return new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(e.atcCode(), e.formCode(), e.routeOfAdministrationCode()));
     }
 
     private BinaryExpression map(ExpressionEntity.BinaryExpressionEntity b) {

@@ -37,7 +37,12 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
     }
 
     private ExistingDrugMedicationCondition map(ExistingDrugMedicationConditionExpression e) {
-        return new ExistingDrugMedicationCondition(e.atcCode(), e.formCode(), e.routeOfAdministrationCode(), ExpressionType.EXISTING_DRUG_MEDICATION);
+        return new ExistingDrugMedicationCondition(
+                e.existingDrugMedication().atcCode(),
+                e.existingDrugMedication().formCode(),
+                e.existingDrugMedication().routeOfAdministrationCode(),
+                ExpressionType.EXISTING_DRUG_MEDICATION
+        );
     }
 
     private BinaryExpression map(dk.kvalitetsit.itukt.common.model.BinaryExpression b) {

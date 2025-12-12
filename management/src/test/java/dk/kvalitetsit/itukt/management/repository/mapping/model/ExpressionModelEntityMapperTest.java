@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.mapping.model;
 
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.ExistingDrugMedication;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.MockFactory;
@@ -37,9 +38,9 @@ public class ExpressionModelEntityMapperTest {
     @Test
     void testMappingWithExistingDrugMedicationConditions() {
         var expression = new BinaryExpression(
-                new ExistingDrugMedicationConditionExpression("atc1", "form1", "adm1"),
+                new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("atc1", "form1", "adm1")),
                 BinaryExpression.Operator.AND,
-                new ExistingDrugMedicationConditionExpression("atc2", "form2", "adm2")
+                new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("atc2", "form2", "adm2"))
         );
 
         var mappedExpression = mapper.map(expression);

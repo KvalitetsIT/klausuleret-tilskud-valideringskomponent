@@ -2,8 +2,11 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dto;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.common.model.ExistingDrugMedication;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import org.openapitools.model.*;
+import dk.kvalitetsit.itukt.common.model.*;
+import org.openapitools.model.AgeCondition;
 import org.openapitools.model.BinaryExpression;
 
 public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.Expression, Expression> {
@@ -34,7 +37,7 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
     }
 
     private ExistingDrugMedicationConditionExpression map(ExistingDrugMedicationCondition e) {
-        return new ExistingDrugMedicationConditionExpression(e.getAtcCode(), e.getFormCode(), e.getRouteOfAdministrationCode());
+        return new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(e.getAtcCode(), e.getFormCode(), e.getRouteOfAdministrationCode()));
     }
 
     private dk.kvalitetsit.itukt.common.model.BinaryExpression map(BinaryExpression b) {

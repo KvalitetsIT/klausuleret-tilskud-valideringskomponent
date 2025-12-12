@@ -89,7 +89,8 @@ class ValidationErrorTest {
 
     @Test
     void existingDrugMedicationErrorToErrorString_ReturnsCorrespondingErrorString() {
-        var conditionError = new ValidationError.ExistingDrugMedicationError("atc", "form", "adm");
+        ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication("atc", "form", "adm");
+        var conditionError = new ValidationError.ExistingDrugMedicationError(existingDrugMedication);
 
         String errorString = conditionError.toErrorString();
 

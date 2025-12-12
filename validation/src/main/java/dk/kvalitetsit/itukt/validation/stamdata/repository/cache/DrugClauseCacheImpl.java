@@ -1,21 +1,21 @@
-package dk.kvalitetsit.itukt.validation.repository.cache;
+package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
-import dk.kvalitetsit.itukt.validation.repository.StamDataRepositoryAdaptor;
-import dk.kvalitetsit.itukt.validation.service.model.StamData;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryAdaptor;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class StamdataCacheImpl implements StamdataCache, CacheLoader {
+public class DrugClauseCacheImpl implements DrugClauseCache, CacheLoader {
 
     private final CacheConfiguration configuration;
-    private final StamDataRepositoryAdaptor concreteStamDataRepository;
-    private Map<Long, StamData> drugIdToClauseMap = new HashMap<>();
+    private final DrugClauseViewRepositoryAdaptor concreteStamDataRepository;
+    private Map<Long, DrugClause> drugIdToClauseMap = new HashMap<>();
 
-    public StamdataCacheImpl(CacheConfiguration configuration, StamDataRepositoryAdaptor concreteStamDataRepository) {
+    public DrugClauseCacheImpl(CacheConfiguration configuration, DrugClauseViewRepositoryAdaptor concreteStamDataRepository) {
         this.configuration = configuration;
         this.concreteStamDataRepository = concreteStamDataRepository;
     }
@@ -31,7 +31,7 @@ public class StamdataCacheImpl implements StamdataCache, CacheLoader {
     }
 
     @Override
-    public Optional<StamData> get(Long id) {
+    public Optional<DrugClause> get(Long id) {
         return Optional.ofNullable(this.drugIdToClauseMap.get(id));
     }
 }

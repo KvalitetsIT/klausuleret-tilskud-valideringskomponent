@@ -2,11 +2,15 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.mapping.StamDataMapper;
-import dk.kvalitetsit.itukt.validation.repository.*;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
+import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
+import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DrugClauseViewMapper;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCache;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCacheImpl;
 import dk.kvalitetsit.itukt.validation.service.*;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepository;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryAdaptor;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryImpl;
 import org.openapitools.model.ValidationRequest;
 import org.openapitools.model.ValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +36,19 @@ public class ValidationBeanRegistration {
 
 
     @Bean
-    public StamDataRepository stamDataRepository(@Qualifier("stamDataSource") DataSource dataSource) {
-        return new StamDataRepositoryImpl(dataSource);
+    public DrugClauseViewRepository drugClauseRepository(@Qualifier("stamDataSource") DataSource dataSource) {
+        return new DrugClauseViewRepositoryImpl(dataSource);
     }
 
     @Bean
-    public StamDataRepositoryAdaptor stamDataRepositoryAdaptor(StamDataRepository stamDataRepository) {
-        StamDataMapper mapper = new StamDataMapper();
-        return new StamDataRepositoryAdaptor(mapper, stamDataRepository);
+    public DrugClauseViewRepositoryAdaptor drugClauseViewRepositoryAdaptor(DrugClauseViewRepository drugClauseViewRepository) {
+        DrugClauseViewMapper mapper = new DrugClauseViewMapper();
+        return new DrugClauseViewRepositoryAdaptor(mapper, drugClauseViewRepository);
     }
 
     @Bean
-    public StamdataCache stamDataCache(StamDataRepositoryAdaptor stamDataRepository) {
-        return new StamdataCacheImpl(configuration.stamdata().cache(), stamDataRepository);
+    public DrugClauseCache drugClauseCache(DrugClauseViewRepositoryAdaptor stamDataRepository) {
+        return new DrugClauseCacheImpl(configuration.stamdata().cache(), stamDataRepository);
     }
 
     @Bean
@@ -63,7 +67,7 @@ public class ValidationBeanRegistration {
     @Bean
     public ValidationService<ValidationRequest, ValidationResponse> validationService(
             @Autowired ClauseService clauseService,
-            @Autowired StamdataCache stamDataCache,
+            @Autowired DrugClauseCache stamDataCache,
             @Autowired SkippedValidationService skippedValidationService
     ) {
         return new ValidationServiceAdaptor(

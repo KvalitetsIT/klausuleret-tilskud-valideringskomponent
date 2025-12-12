@@ -6,9 +6,9 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationFailed;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
-import dk.kvalitetsit.itukt.validation.service.model.StamData;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCache;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,12 +16,12 @@ import java.util.Optional;
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
 
     private final ClauseService clauseCache;
-    private final StamdataCache stamDataCache;
+    private final DrugClauseCache drugClauseCache;
     private final SkippedValidationService skippedValidationService;
 
-    public ValidationServiceImpl(ClauseService clauseCache, StamdataCache stamDataCache, SkippedValidationService skippedValidationService) {
+    public ValidationServiceImpl(ClauseService clauseCache, DrugClauseCache drugClauseCache, SkippedValidationService skippedValidationService) {
         this.clauseCache = clauseCache;
-        this.stamDataCache = stamDataCache;
+        this.drugClauseCache = drugClauseCache;
         this.skippedValidationService = skippedValidationService;
     }
 
@@ -29,9 +29,9 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     public List<ValidationError> validate(ValidationInput validationInput) {
         createSkippedValidations(validationInput);
 
-        Optional<StamData> stamDataByDrugId = stamDataCache.get(validationInput.drugId());
+        Optional<DrugClause> drugClauseByDrugId = drugClauseCache.get(validationInput.drugId());
 
-        return stamDataByDrugId.map(stamData -> stamData.clauses().stream()
+        return drugClauseByDrugId.map(stamData -> stamData.clauses().stream()
                 .flatMap(sc -> validateStamDataClause(validationInput, sc).stream())
                 .toList()).orElseGet(List::of);
     }
@@ -41,8 +41,10 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
             return Optional.empty();
         else
             return clause.expression().validates(validationInput).map(validationFailed -> switch (validationFailed) {
-                case ValidationFailed.ExistingDrugMedicationRequired ignored -> throw new ExistingDrugMedicationRequiredException();
-                case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()) , error.toErrorString(), clause.error().code());
+                case ValidationFailed.ExistingDrugMedicationRequired ignored ->
+                        throw new ExistingDrugMedicationRequiredException();
+                case dk.kvalitetsit.itukt.common.model.ValidationError error ->
+                        new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()), error.toErrorString(), clause.error().code());
             });
     }
 
@@ -51,7 +53,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
         validationInput.reportedBy().ifPresent(reportedBy -> skippedValidationService.createSkippedValidations(reportedBy.id(), validationInput.personId(), validationInput.skippedErrorCodes()));
     }
 
-    private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, StamData.Clause clause) {
+    private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, DrugClause.Clause clause) {
         return clauseCache.get(clause.code())
                 .flatMap(c -> validateClause(c, clause.text(), validationInput));
     }

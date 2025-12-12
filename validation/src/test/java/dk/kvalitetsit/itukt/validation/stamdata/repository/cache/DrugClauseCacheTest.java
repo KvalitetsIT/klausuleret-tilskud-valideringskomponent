@@ -1,10 +1,8 @@
-package dk.kvalitetsit.itukt.validation.repository;
+package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCache;
-import dk.kvalitetsit.itukt.validation.repository.cache.StamdataCacheImpl;
-import dk.kvalitetsit.itukt.validation.service.model.StamData;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryAdaptor;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -17,17 +15,17 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class StamDataCacheTest {
+class DrugClauseCacheTest {
 
     @Mock
-    private StamDataRepositoryAdaptor mock;
+    private DrugClauseViewRepositoryAdaptor mock;
 
     @Test
     void getStamDataByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
         long drugId = 1L;
-        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
+        DrugClause data = new DrugClause(new DrugClause.Drug(drugId), Set.of(new DrugClause.Clause("code", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
-        StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         var result = stamDataCache.get(2L);
@@ -38,10 +36,10 @@ class StamDataCacheTest {
     @Test
     void get_WhenDrugIdIsInCache_ReturnsStamDataName() {
         long drugId = 1L;
-        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
+        DrugClause data = new DrugClause(new DrugClause.Drug(drugId), Set.of(new DrugClause.Clause("code", "long clause text")));
 
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
-        StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         var result = stamDataCache.get(drugId);
@@ -53,9 +51,9 @@ class StamDataCacheTest {
     @Test
     void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamdataAndNoMoreInteractions() {
         long drugId = 1L;
-        StamData data = new StamData(new StamData.Drug(drugId), Set.of(new StamData.Clause("code", "long clause text")));
+        DrugClause data = new DrugClause(new DrugClause.Drug(drugId), Set.of(new DrugClause.Clause("code", "long clause text")));
         Mockito.when(mock.findAll()).thenReturn(Map.of(drugId, data));
-        StamdataCacheImpl stamDataCache = new StamdataCacheImpl(new CacheConfiguration(""), mock);
+        DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.load();
 
         Mockito.verify(mock, Mockito.times(1)).findAll();

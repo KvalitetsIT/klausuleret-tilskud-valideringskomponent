@@ -42,11 +42,6 @@ public class ManagementServiceAdaptor {
         return clauseDtoMapper.map(clauseService.create(clauseForCreation));
     }
 
-    public ClauseOutput update(org.openapitools.model.ClauseInput clauseInput) throws ServiceException {
-        var clauseForUpdate = clauseInputMapper.map(clauseInput);
-        return clauseDtoMapper.map(clauseService.update(clauseForUpdate));
-    }
-
     public DslOutput createDSL(DslInput dsl) throws ServiceException {
         var clauseInput = this.dslClauseMapper.map(dsl);
         return clauseDtoDslMapper.map(this.create(clauseInput));

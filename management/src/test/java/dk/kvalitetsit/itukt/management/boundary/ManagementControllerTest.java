@@ -13,7 +13,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.ClauseInput;
 import org.openapitools.model.ClauseStatus;
-import org.openapitools.model.ClauseUpdateInput;
 import org.openapitools.model.DslInput;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -56,18 +55,6 @@ class ManagementControllerTest {
         managementController.call20250801clausesPost(CLAUSE_1_INPUT);
 
         Mockito.verify(clauseService, times(1)).create(CLAUSE_1_INPUT);
-    }
-
-    @Test
-    void call20250801clausesNamePut_UpdatesClause() {
-        String name = "test";
-        var input = new ClauseUpdateInput(EXPRESSION_1_DTO, "test-error");
-        Mockito.when(clauseService.update(Mockito.any(ClauseInput.class))).thenReturn(CLAUSE_1_OUTPUT);
-
-        managementController.call20250801clausesNamePut(name, input);
-
-        var expectedInput = new ClauseInput(name, input.getExpression(), input.getError());
-        Mockito.verify(clauseService, times(1)).update(expectedInput);
     }
 
     @Test

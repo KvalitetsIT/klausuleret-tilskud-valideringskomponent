@@ -174,26 +174,6 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void nameExists_WhenNoClauseMatchesName_ReturnsFalse() {
-        var clause = new ClauseInput("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
-        repository.create(clause);
-
-        boolean nameExists = repository.nameExists("nonExistingName");
-
-        assertFalse(nameExists, "Expected nameExists to return false when no clause matches the given name");
-    }
-
-    @Test
-    void nameExists_WhenClauseMatchesName_ReturnsTrue() {
-        var clause = new ClauseInput("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
-        repository.create(clause);
-
-        boolean nameExists = repository.nameExists(clause.name());
-
-        assertTrue(nameExists, "Expected nameExists to return true when a clause matches the given name");
-    }
-
-    @Test
     void givenADeepClause_whenCreateAndRead_thenAssertEqual() {
 
         var deepClause = new ClauseInput("ClauseName", new ExpressionEntity.BinaryExpressionEntity(

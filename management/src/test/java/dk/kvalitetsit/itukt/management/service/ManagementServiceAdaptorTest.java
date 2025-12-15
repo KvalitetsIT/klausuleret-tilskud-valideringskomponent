@@ -68,21 +68,6 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void testUpdate() {
-        var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "Message");
-        var clause = Mockito.mock(Clause.class);
-        var clauseOutput = Mockito.mock(ClauseOutput.class);
-        var clauseForUpdate = Mockito.mock(ClauseInput.class);
-        Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForUpdate);
-        Mockito.when(managementServiceImpl.update(clauseForUpdate)).thenReturn(clause);
-        Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
-
-        var result = adaptor.update(clauseInput);
-
-        assertEquals(clauseOutput, result);
-    }
-
-    @Test
     void testCreateDsl() {
         var dslInput = new DslInput("message", "test");
         var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "message");

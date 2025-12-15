@@ -12,8 +12,6 @@ import java.util.UUID;
 public interface ManagementService {
     Clause create(ClauseInput clause) throws ServiceException;
 
-    Clause update(ClauseInput clause) throws ServiceException;
-
     Optional<Clause> read(UUID id) throws ServiceException;
 
     List<Clause> readByStatus(Clause.Status status) throws ServiceException;

@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
@@ -38,8 +37,8 @@ class ManagementIT extends BaseTest {
 
         var created = List.of(
                 api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression)),
-                api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error2").expression(expression)),
-                api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error3").expression(expression))
+                api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error2").expression(expression)),
+                api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error3").expression(expression))
         );
 
         List<DslOutput> clauses = api.call20250801clausesDslNameHistoryGet("blaaaaah");
@@ -110,22 +109,20 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void testPostPutAndGetClause() {
-        var postInput = CLAUSE_1_INPUT;
-        var updateInput = new ClauseUpdateInput().expression(postInput.getExpression()).error("updated error");
+    void testDraftAndApproveExistingClause() {
+        var postInput1 = CLAUSE_1_INPUT;
+        var postInput2 = postInput1.error("updated error");
 
-        api.call20250801clausesPost(postInput);
-        var updateResponse = api.call20250801clausesNamePut(postInput.getName(), updateInput);
-        var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
+        var clause = api.call20250801clausesPost(postInput1);
+        api.call20250801clausesIdApprovePatch(clause.getUuid());
+        var updatedClause = api.call20250801clausesPost(postInput2);
+        api.call20250801clausesIdApprovePatch(updatedClause.getUuid());
+        var drafts = api.call20250801clausesGet(ClauseStatus.DRAFT);
+        var activeClauses = api.call20250801clausesGet(ClauseStatus.ACTIVE);
 
-        assertEquals(1, clauses.size());
-        var expectedClause = new ClauseOutput()
-                .uuid(updateResponse.getUuid())
-                .name(postInput.getName())
-                .expression(updateInput.getExpression())
-                .error(updateInput.getError())
-                .createdAt(updateResponse.getCreatedAt());
-        assertEquals(expectedClause, clauses.getFirst());
+        assertTrue(drafts.isEmpty());
+        assertEquals(1, activeClauses.size());
+        assertEquals(updatedClause, activeClauses.getFirst());
     }
 
     @Test

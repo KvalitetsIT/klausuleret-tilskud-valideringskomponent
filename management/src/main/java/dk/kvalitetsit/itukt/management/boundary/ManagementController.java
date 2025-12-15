@@ -71,15 +71,6 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<ClauseOutput> call20250801clausesNamePut(String name, ClauseUpdateInput clauseUpdateInput) {
-        var clauseInput = new ClauseInput(name, clauseUpdateInput.getExpression(), clauseUpdateInput.getError());
-        var clause = service.update(clauseInput);
-        UUID uuid = clause.getUuid();
-        URI location = getLocation(c -> c.call20250801clausesIdGet(uuid), uuid);
-        return ResponseEntity.created(location).body(clause);
-    }
-
-    @Override
     public ResponseEntity<ClauseOutput> call20250801clausesPost(ClauseInput clause) {
         var created = service.create(clause);
         UUID uuid = created.getUuid();

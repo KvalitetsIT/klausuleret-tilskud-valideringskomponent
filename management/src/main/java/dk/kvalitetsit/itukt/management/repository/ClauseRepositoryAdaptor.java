@@ -45,10 +45,6 @@ public class ClauseRepositoryAdaptor {
         return this.entityMapper.map(clauseRepository.readHistory(name));
     }
 
-    public boolean nameExists(String name) throws ServiceException {
-        return clauseRepository.nameExists(name);
-    }
-
     public void updateDraftToActive(UUID uuid) throws ServiceException {
         clauseRepository.updateDraftToActive(uuid);
     }

@@ -29,8 +29,15 @@ public class ClauseRepositoryAdaptor {
         return clauseRepository.read(id).map(entityMapper::map);
     }
 
-    public List<Clause> readByStatus(Clause.Status status) throws ServiceException {
-        return this.entityMapper.map(clauseRepository.readByStatus(status));
+    /**
+     * Retrieves active clauses, including only the latest version of each clause.
+     */
+    public List<Clause> readAllActive() throws ServiceException {
+        return this.entityMapper.map(clauseRepository.readAllActive());
+    }
+
+    public List<Clause> readAllDrafts() throws ServiceException {
+        return this.entityMapper.map(clauseRepository.readAllDrafts());
     }
 
 

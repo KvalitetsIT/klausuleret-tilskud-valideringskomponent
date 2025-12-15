@@ -37,14 +37,14 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void testReadByStatus() {
+    void testReadAllDrafts() {
         var clause1 = new ClauseInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message");
         var clause2 = new ClauseInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message");
 
         var clauses = List.of(clause1, clause2);
 
         var written = clauses.stream().map(repository::create).toList();
-        var read = this.repository.readByStatus(Clause.Status.DRAFT);
+        var read = this.repository.readAllDrafts();
         assertEquals(clauses.size(), read.size());
         for (int i = 0; i < written.size(); i++) {
 
@@ -115,7 +115,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         Assertions.assertEquals(LIMIT, written.size(), LIMIT + " written clauses is expected since FMK only allocates error codes from " + LIMIT + " - " + (OFFSET + LIMIT - 1));
 
-        var read = this.repository.readByStatus(Clause.Status.DRAFT);
+        var read = this.repository.readAllDrafts();
         Assertions.assertEquals(LIMIT, read.size(), LIMIT + " clauses is expected to be read since this amount was written");
 
         Assertions.assertEquals(
@@ -144,16 +144,32 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createTwoClauseWithSameName_ThenReadAll_ReturnsLatestClause() {
-        var clauseA = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
-        var clauseB = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
+    void createTwoClauseWithSameName_ThenReadAllDrafts_ReturnsBothClauses() {
+        var clauseAInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
+        var clauseBInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
 
-        repository.create(clauseA);
-        repository.create(clauseB);
-        var clauses = repository.readByStatus(Clause.Status.DRAFT);
+        var clauseA = repository.create(clauseAInput);
+        var clauseB = repository.create(clauseBInput);
+        var clauses = repository.readAllDrafts();
+
+        assertEquals(2, clauses.size(), "Expected both clauses to be returned");
+        assertTrue(clauses.contains(clauseA));
+        assertTrue(clauses.contains(clauseB));
+    }
+
+    @Test
+    void createAndApproveTwoClauseWithSameName_ThenReadAllActive_ReturnsLatestClause() {
+        var clauseAInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
+        var clauseBInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
+
+        var clauseA = repository.create(clauseAInput);
+        var clauseB = repository.create(clauseBInput);
+        repository.updateDraftToActive(clauseA.uuid());
+        repository.updateDraftToActive(clauseB.uuid());
+        var clauses = repository.readAllActive();
 
         assertEquals(1, clauses.size(), "Expected only the latest version of the clause");
-        assertEquals(clauseB.errorMessage(), clauses.getFirst().errorMessage(),
+        assertEquals(clauseB, clauses.getFirst(),
                 "Expected the error message of the latest version of the clause to be returned");
     }
 

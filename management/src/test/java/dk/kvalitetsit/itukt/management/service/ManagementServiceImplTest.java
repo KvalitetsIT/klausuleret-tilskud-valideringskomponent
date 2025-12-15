@@ -90,12 +90,21 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void testReadByStatus() {
+    void readByStatus_WithStatusActive_ReturnsActiveClauses() {
         var model = MockFactory.CLAUSE_1_MODEL;
-        var status = Mockito.mock(Clause.Status.class);
-        Mockito.when(dao.readByStatus(status)).thenReturn(List.of(model));
+        Mockito.when(dao.readAllActive()).thenReturn(List.of(model));
 
-        var result = service.readByStatus(status);
+        var result = service.readByStatus(Clause.Status.ACTIVE);
+
+        assertEquals(List.of(model), result);
+    }
+
+    @Test
+    void readByStatus_WithStatusDraft_ReturnsDraftClauses() {
+        var model = MockFactory.CLAUSE_1_MODEL;
+        Mockito.when(dao.readAllDrafts()).thenReturn(List.of(model));
+
+        var result = service.readByStatus(Clause.Status.DRAFT);
 
         assertEquals(List.of(model), result);
     }

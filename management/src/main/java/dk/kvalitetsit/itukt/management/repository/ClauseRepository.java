@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
@@ -15,9 +14,10 @@ public interface ClauseRepository {
     Optional<ClauseEntity> read(UUID uuid) throws ServiceException;
     boolean nameExists(String name) throws ServiceException;
     /**
-     * Retrieves clauses by status, including only the latest version of each clause.
+     * Retrieves active clauses, including only the latest version of each clause.
      */
-    List<ClauseEntity> readByStatus(Clause.Status status) throws ServiceException;
+    List<ClauseEntity> readAllActive() throws ServiceException;
+    List<ClauseEntity> readAllDrafts() throws ServiceException;
 
     List<ClauseEntity> readHistory(String name);
 

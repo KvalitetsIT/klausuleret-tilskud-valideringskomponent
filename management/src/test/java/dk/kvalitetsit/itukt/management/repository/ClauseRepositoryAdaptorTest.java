@@ -27,7 +27,7 @@ public class ClauseRepositoryAdaptorTest {
     private ClauseRepositoryAdaptor adaptor;
 
     @Mock
-    private ClauseRepositoryImpl concreteRepository;
+    private ClauseRepository concreteRepository;
 
     @Mock
     private ClauseEntityModelMapper clauseEntityModelMapper;
@@ -69,17 +69,30 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testReadByStatus() {
+    void testReadAllActive() {
 
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
-        var status = Mockito.mock(Clause.Status.class);
 
-        Mockito.when(concreteRepository.readByStatus(status)).thenReturn(List.of(clauseEntity));
+        Mockito.when(concreteRepository.readAllActive()).thenReturn(List.of(clauseEntity));
 
         Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
 
-        var result = adaptor.readByStatus(status);
+        var result = adaptor.readAllActive();
+        assertEquals(List.of(clause), result);
+    }
+
+    @Test
+    void testReadAllDrafts() {
+
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+
+        Mockito.when(concreteRepository.readAllDrafts()).thenReturn(List.of(clauseEntity));
+
+        Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
+
+        var result = adaptor.readAllDrafts();
         assertEquals(List.of(clause), result);
     }
 

@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -41,7 +40,7 @@ public class ActiveClauseCacheImpl implements ActiveClauseCache, CacheLoader {
 
     @Override
     public void load() {
-        var clauses = clauseRepository.readByStatus(Clause.Status.ACTIVE);
+        var clauses = clauseRepository.readAllActive();
         nameToClauseMap = clauses.stream().collect(Collectors.toMap(ClauseEntity::name, Function.identity()));
         errorCodeToClauseMap = clauses.stream().collect(Collectors.toMap(ClauseEntity::errorCode, Function.identity()));
     }

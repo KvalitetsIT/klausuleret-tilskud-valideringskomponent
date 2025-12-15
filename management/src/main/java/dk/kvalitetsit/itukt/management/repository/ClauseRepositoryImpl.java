@@ -151,7 +151,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
 
     @Override
-    public List<ClauseEntity> readByStatus(Clause.Status status) throws ServiceException {
+    public List<ClauseEntity> readAllActive() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid
@@ -168,7 +168,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     """;
 
             List<UUID> uuids = template.query(sql,
-                    Map.of("status", status.name()),
+                    Map.of("status", Clause.Status.ACTIVE.name()),
                     (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
             );
 
@@ -179,7 +179,33 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
         } catch (Exception e) {
             logger.error("Failed to read all clauses", e);
-            throw new ServiceException("Failed to read clauses", e);
+            throw new ServiceException("Failed to read active clauses", e);
+        }
+    }
+
+    @Override
+    public List<ClauseEntity> readAllDrafts() throws ServiceException {
+        try {
+            String sql = """
+                        SELECT c.uuid
+                        FROM clause c
+                        WHERE status = :status
+                        ORDER BY c.id
+                    """;
+
+            List<UUID> uuids = template.query(sql,
+                    Map.of("status", Clause.Status.DRAFT.name()),
+                    (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
+            );
+
+            return uuids.stream()
+                    .map(this::read)
+                    .flatMap(Optional::stream)
+                    .toList();
+
+        } catch (Exception e) {
+            logger.error("Failed to read all clauses", e);
+            throw new ServiceException("Failed to read draft clauses", e);
         }
     }
 

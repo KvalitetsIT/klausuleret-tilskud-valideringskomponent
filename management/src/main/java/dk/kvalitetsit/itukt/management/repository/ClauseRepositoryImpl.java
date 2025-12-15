@@ -146,13 +146,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         SELECT c.uuid
                         FROM clause c
                         JOIN (
-                            SELECT name, MAX(created_time) AS max_created_time
+                            SELECT name, MAX(valid_from) AS max_valid_from
                             FROM clause
-                            WHERE status = :status
+                            WHERE status = :status AND valid_from IS NOT NULL
                             GROUP BY name
                         ) latest
                           ON c.name = latest.name
-                            AND c.created_time = latest.max_created_time
+                            AND c.valid_from = latest.max_valid_from
                         ORDER BY c.id
                     """;
 
@@ -227,7 +227,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public void updateDraftToActive(UUID uuid) throws NotFoundException {
         String sql = """
                 UPDATE clause
-                SET status = :new_status
+                SET status = :new_status, valid_from = NOW(3)
                 WHERE uuid = :uuid AND status = :current_status
                 """;
 

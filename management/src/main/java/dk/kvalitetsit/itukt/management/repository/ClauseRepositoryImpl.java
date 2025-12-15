@@ -172,5 +172,31 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         }
     }
 
+    @Override
+    public List<ClauseEntity> readHistory(String name) {
+        try {
+            String sql = """
+                        SELECT c.*
+                        FROM clause c
+                        WHERE c.name = :name
+                        ORDER BY c.created_time
+                    """;
+
+            List<UUID> uuids = template.query(sql, Map.of("name", name), (rs, rowNum) ->
+                    UUID.fromString(rs.getString("uuid"))
+            );
+
+            return uuids.stream()
+                    .map(this::read)
+                    .flatMap(Optional::stream)
+                    .toList();
+
+        } catch (Exception e) {
+            logger.error("Failed to read all clauses", e);
+            throw new ServiceException("Failed to read clauses", e);
+        }
+
+    }
+
 
 }

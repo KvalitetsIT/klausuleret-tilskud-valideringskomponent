@@ -45,4 +45,9 @@ public class ManagementServiceImpl implements ManagementService {
     public List<Clause> readAll() throws ServiceException {
         return repository.readAll();
     }
+
+    @Override
+    public List<Clause> readHistory(String name) throws ServiceException {
+        return repository.readHistory(name);
+    }
 }

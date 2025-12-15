@@ -8,7 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
-import org.openapitools.client.model.Error;
+
+import java.util.List;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
@@ -27,6 +28,24 @@ class ManagementIT extends BaseTest {
     @Override
     protected void load(ClauseRepository repository) {
         // Load data before component initialization
+    }
+
+    @Test
+    void testGetClauseHistory() {
+        AgeCondition expression = new AgeCondition().type("AgeCondition").operator(Operator.EQUAL).value(20);
+
+        api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression));
+        api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error2").expression(expression));
+        api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error3").expression(expression));
+
+        List<DslOutput> clauses = api.call20250801clausesDslNameHistoryGet("blaaaaah");
+
+        assertEquals(3, clauses.size());
+
+        assertEquals("error1", clauses.get(0).getError());
+        assertEquals("error2", clauses.get(1).getError());
+        assertEquals("error3", clauses.get(2).getError());
+
     }
 
     @Test

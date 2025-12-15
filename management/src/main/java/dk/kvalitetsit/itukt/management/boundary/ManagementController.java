@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
 import org.openapitools.model.*;
@@ -36,6 +37,11 @@ public class ManagementController implements ManagementApi {
         return service.readDsl(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new NotFoundException("Clause was not found"));
+    }
+
+    @Override
+    public ResponseEntity<List<DslOutput>> call20250801clausesDslNameHistoryGet(String name) {
+        return ResponseEntity.ok(service.readHistoryDsl(name));
     }
 
     @Override

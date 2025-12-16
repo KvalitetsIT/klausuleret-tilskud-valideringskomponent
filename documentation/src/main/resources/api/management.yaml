@@ -291,6 +291,7 @@ components:
         - type: object
           required:
             - uuid
+            - createdAt
           properties:
             uuid:
               type: string
@@ -299,6 +300,11 @@ components:
               example: 3d1006d3-3d2a-4361-b9b2-8f255d2aeaae
             error:
               $ref: './common.yaml#/components/schemas/ErrorMessage'
+            createdAt:
+              description: When contact was created.
+              type: string
+              format: date-time
+
 
     Expression:
       type: object
@@ -426,6 +432,7 @@ components:
         - type: object
           required:
             - uuid
+            - createdAt
           properties:
             uuid:
               type: string
@@ -434,6 +441,11 @@ components:
               example: 3d1006d3-3d2a-4361-b9b2-8f255d2aeaae
             error:
               $ref: './common.yaml#/components/schemas/ErrorMessage'
+            createdAt:
+              description: When contact was created.
+              type: string
+              format: date-time
+
 
     Dsl:
       description: "A clause specified in a domain specific language (DSL)"

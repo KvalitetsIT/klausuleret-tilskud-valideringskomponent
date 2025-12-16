@@ -10,6 +10,7 @@ import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
@@ -34,18 +35,22 @@ class ManagementIT extends BaseTest {
     void testGetClauseHistory() {
         AgeCondition expression = new AgeCondition().type("AgeCondition").operator(Operator.EQUAL).value(20);
 
-        api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression));
-        api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error2").expression(expression));
-        api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error3").expression(expression));
+        var created = List.of(
+                api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression)),
+                api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error2").expression(expression)),
+                api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error3").expression(expression))
+        );
 
         List<DslOutput> clauses = api.call20250801clausesDslNameHistoryGet("blaaaaah");
 
-        assertEquals(3, clauses.size());
+        assertEquals(created.size(), clauses.size());
 
-        assertEquals("error1", clauses.get(0).getError());
-        assertEquals("error2", clauses.get(1).getError());
-        assertEquals("error3", clauses.get(2).getError());
-
+        for (int i = 0; i < created.size(); i++) {
+            var x = created.get(i);
+            var y = clauses.get(i);
+            assertEquals(x.getError(), y.getError());
+            assertEquals(x.getCreatedAt(), y.getCreatedAt());
+        }
     }
 
     @Test
@@ -58,7 +63,7 @@ class ManagementIT extends BaseTest {
         assertEquals(1, clauses.size());
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("uuid")
+                .ignoringFields("uuid", "createdAt")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -72,7 +77,7 @@ class ManagementIT extends BaseTest {
 
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid")
+                .ignoringFields("uuid", "createdAt")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -90,7 +95,8 @@ class ManagementIT extends BaseTest {
                 .uuid(updateResponse.getUuid())
                 .name(postInput.getName())
                 .expression(updateInput.getExpression())
-                .error(updateInput.getError());
+                .error(updateInput.getError())
+                .createdAt(updateResponse.getCreatedAt());
         assertEquals(expectedClause, clauses.getFirst());
     }
 
@@ -111,7 +117,7 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid")
+                .ignoringFields("uuid", "createdAt")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
@@ -192,7 +198,7 @@ class ManagementIT extends BaseTest {
 
         ClauseOutput createClauseResponse = api.call20250801clausesPost(clauseInput);
 
-        DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createClauseResponse.getUuid());
+        DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createClauseResponse.getUuid()).createdAt(createClauseResponse.getCreatedAt());
 
         var getDslResponse = api.call20250801clausesDslIdGet(createClauseResponse.getUuid());
 
@@ -210,6 +216,8 @@ class ManagementIT extends BaseTest {
 
         DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createDslResponse.getUuid());
         assertEquals(dslOutput.getDsl(), createDslResponse.getDsl(), "Expected the input dsl to match the dsl in the response");
+
+        var getClauseResponse = api.call20250801clausesIdGet(dslOutput.getUuid());
 
         ClauseOutput clauseOutput = new ClauseOutput().name("CLAUSE").expression(new BinaryExpression()
                         .type(ExpressionType.BINARY)
@@ -273,9 +281,9 @@ class ManagementIT extends BaseTest {
                                                                         .value(18))
                                                         ))))))
                 .error(error)
-                .uuid(dslOutput.getUuid());
+                .uuid(dslOutput.getUuid())
+                .createdAt(getClauseResponse.getCreatedAt());
 
-        var getClauseResponse = api.call20250801clausesIdGet(dslOutput.getUuid());
         assertEquals(clauseOutput, getClauseResponse, "Expected the clause to match the dsl initially created");
 
     }

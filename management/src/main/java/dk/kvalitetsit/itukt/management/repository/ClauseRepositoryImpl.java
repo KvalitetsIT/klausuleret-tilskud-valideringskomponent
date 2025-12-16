@@ -14,6 +14,10 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 public class ClauseRepositoryImpl implements ClauseRepository {
@@ -51,9 +55,17 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
                     .longValue();
 
+            LocalDateTime ldt = template.queryForObject(
+                    "SELECT created_time FROM clause WHERE id = :id",
+                    new MapSqlParameterSource("id", clauseId),
+                    LocalDateTime.class
+            );
+
+            Instant createdAt = ldt.toInstant(ZoneOffset.UTC);
+
             int errorCode = createOrGetErrorCode(clause.name());
 
-            return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression);
+            return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression, Date.from(createdAt));
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
@@ -97,7 +109,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message
+                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message, c.created_time
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -116,7 +128,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getString("name"),
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
-                                expression
+                                expression,
+                                Date.from(rs.getTimestamp("created_time",  Calendar.getInstance(TimeZone.getTimeZone("UTC"))).toInstant())
                         );
                     });
 

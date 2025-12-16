@@ -5,10 +5,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
-import org.openapitools.model.ClauseOutput;
-import org.openapitools.model.ClauseStatus;
-import org.openapitools.model.DslInput;
-import org.openapitools.model.DslOutput;
+import org.openapitools.model.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -72,8 +69,10 @@ public class ManagementServiceAdaptor {
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
     }
 
-    public void approve(UUID clauseUuid) throws ServiceException {
-        clauseService.approve(clauseUuid);
+    public void updateStatus(UUID clauseUuid, ClauseStatusInput status) throws ServiceException {
+        switch (status.getStatus()) {
+            case ClauseStatusInput.StatusEnum.ACTIVE -> clauseService.approve(clauseUuid);
+        }
     }
 
     private Clause.Status mapStatus(ClauseStatus status) {

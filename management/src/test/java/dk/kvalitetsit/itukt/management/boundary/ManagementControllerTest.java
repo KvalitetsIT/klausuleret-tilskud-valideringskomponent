@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.ClauseInput;
 import org.openapitools.model.ClauseStatus;
+import org.openapitools.model.ClauseStatusInput;
 import org.openapitools.model.DslInput;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -116,11 +117,12 @@ class ManagementControllerTest {
     }
 
     @Test
-    void call20250801clausesIdApprovePatch_ApprovesClause() {
+    void call20250801clausesIdStatusPut_UpdatesClauseStatus() {
         UUID uuid = UUID.randomUUID();
+        ClauseStatusInput status = new ClauseStatusInput(ClauseStatusInput.StatusEnum.ACTIVE);
 
-        managementController.call20250801clausesIdApprovePatch(uuid);
+        managementController.call20250801clausesIdStatusPut(uuid, status);
 
-        Mockito.verify(clauseService, times(1)).approve(uuid);
+        Mockito.verify(clauseService, times(1)).updateStatus(uuid, status);
     }
 }

@@ -167,14 +167,24 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /2025/08/01/clauses/{id}/approve:
-    patch:
+  /2025/08/01/clauses/{id}/status:
+    put:
       tags:
         - management
-      summary: "Approve clause"
-      description: "Approves the draft clause matching the specified id"
+      summary: "Update status of clause"
+      description:  >-
+        Update status of clause. Allowed transitions are:
+        <ul>
+          <li>DRAFT -> ACTIVE</li>
+        </ul>
       parameters:
         - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClauseStatusInput'
       responses:
         '200':
           description: Ok
@@ -334,6 +344,17 @@ components:
       enum:
         - "DRAFT"
         - "ACTIVE"
+
+    ClauseStatusInput:
+      description: Status input for clause transition
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - "ACTIVE"
 
     IndicationCondition:
       description: "A basic condition consisting of a field and a string value. This represents the most atomic form of an expression"

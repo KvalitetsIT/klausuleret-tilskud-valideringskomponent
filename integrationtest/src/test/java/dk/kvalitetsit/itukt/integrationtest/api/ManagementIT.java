@@ -114,9 +114,9 @@ class ManagementIT extends BaseTest {
         var postInput2 = postInput1.error("updated error");
 
         var clause = api.call20250801clausesPost(postInput1);
-        api.call20250801clausesIdApprovePatch(clause.getUuid());
+        api.call20250801clausesIdStatusPut(clause.getUuid(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
         var updatedClause = api.call20250801clausesPost(postInput2);
-        api.call20250801clausesIdApprovePatch(updatedClause.getUuid());
+        api.call20250801clausesIdStatusPut(updatedClause.getUuid(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
         var drafts = api.call20250801clausesGet(ClauseStatus.DRAFT);
         var activeClauses = api.call20250801clausesGet(ClauseStatus.ACTIVE);
 

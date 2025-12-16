@@ -126,10 +126,10 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void approve() {
+    void updateStatus_WithStatusActive_ApprovesClause() {
         var uuid = UUID.randomUUID();
 
-        adaptor.approve(uuid);
+        adaptor.updateStatus(uuid, new ClauseStatusInput(ClauseStatusInput.StatusEnum.ACTIVE));
 
         Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid);
     }

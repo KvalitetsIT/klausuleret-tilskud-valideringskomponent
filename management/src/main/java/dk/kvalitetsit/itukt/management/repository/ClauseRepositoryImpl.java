@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -36,32 +34,25 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public ClauseEntity create(ClauseInput clause) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
-            KeyHolder keyHolder = new GeneratedKeyHolder();
 
             ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
 
-            template.update(
-                    "INSERT INTO clause (uuid, name, expression_id, error_message) VALUES (:uuid, :name, :expression_id, :error_message)",
-                    new MapSqlParameterSource()
-                            .addValue("uuid", uuid.toString())
-                            .addValue("name", clause.name())
-                            .addValue("expression_id", createdExpression.id())
-                            .addValue("error_message", clause.errorMessage()),
-                    keyHolder,
-                    new String[]{"id"}
-            );
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message) " +
+                    "RETURNING id, created_time";
 
-            long clauseId = Optional.ofNullable(keyHolder.getKey())
-                    .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
-                    .longValue();
+            MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("uuid", uuid.toString())
+                    .addValue("name", clause.name())
+                    .addValue("expression_id", createdExpression.id())
+                    .addValue("error_message", clause.errorMessage());
 
-            LocalDateTime ldt = template.queryForObject(
-                    "SELECT created_time FROM clause WHERE id = :id",
-                    new MapSqlParameterSource("id", clauseId),
-                    LocalDateTime.class
-            );
 
-            Instant createdAt = ldt.toInstant(ZoneOffset.UTC);
+            Map<String, Object> result = template.queryForMap(sql, params);
+
+            Long clauseId = ((Number) result.get("id")).longValue();
+
+            Instant createdAt = ((Timestamp) result.get("created_time")).toLocalDateTime().toInstant(ZoneOffset.UTC);
 
             int errorCode = createOrGetErrorCode(clause.name());
 
@@ -129,7 +120,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
-                                Date.from(rs.getTimestamp("created_time",  Calendar.getInstance(TimeZone.getTimeZone("UTC"))).toInstant())
+                                Date.from(rs.getTimestamp("created_time", Calendar.getInstance(TimeZone.getTimeZone("UTC"))).toInstant())
                         );
                     });
 

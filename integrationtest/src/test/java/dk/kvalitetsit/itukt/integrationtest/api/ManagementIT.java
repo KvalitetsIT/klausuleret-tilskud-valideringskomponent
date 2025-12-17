@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
+import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
@@ -8,14 +9,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ManagementIT extends BaseTest {
 
@@ -65,6 +66,19 @@ class ManagementIT extends BaseTest {
                 );
             }
         }
+    }
+
+
+    @Test
+    void testGetHistoryThrowsNotFoundIfClauseDoesNotExist() {
+        var e = assertThrows(
+                HttpClientErrorException.NotFound.class,
+                () -> api.call20250801clausesDslNameHistoryGet("UNKNOWN_CLAUSE")
+        );
+
+        String body = e.getResponseBodyAsString();
+
+        assertTrue(body.contains("\"detailed_error\":\"clause with name 'UNKNOWN_CLAUSE' could was not found\""));
     }
 
     @Test

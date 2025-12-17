@@ -50,7 +50,7 @@ public class ManagementServiceImpl implements ManagementService {
     public List<Clause> readHistory(String name) throws ServiceException {
         List<Clause> history = repository.readHistory(name);
         if (history.isEmpty())
-            throw new NotFoundException(String.format("clause with name '%s' could was not found", name));
+            throw new NotFoundException(String.format("clause with name '%s' was not found", name));
         return history;
     }
 }

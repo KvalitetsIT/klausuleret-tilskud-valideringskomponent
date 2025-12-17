@@ -78,7 +78,7 @@ class ManagementIT extends BaseTest {
 
         String body = e.getResponseBodyAsString();
 
-        assertTrue(body.contains("\"detailed_error\":\"clause with name 'UNKNOWN_CLAUSE' could was not found\""));
+        assertTrue(body.contains("\"detailed_error\":\"clause with name 'UNKNOWN_CLAUSE' was not found\""));
     }
 
     @Test

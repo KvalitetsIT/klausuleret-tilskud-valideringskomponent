@@ -3,7 +3,9 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -13,12 +15,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.deser.CreatorProperty;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ManagementServiceImplTest {
@@ -29,8 +35,8 @@ class ManagementServiceImplTest {
 
     @Test
     void create_WhenClauseNameDoesNotAlreadyExist_CreatesClause() {
-        var clauseForCreation = Mockito.mock(ClauseInput.class);
-        var clause = Mockito.mock(Clause.class);
+        var clauseForCreation = mock(ClauseInput.class);
+        var clause = mock(Clause.class);
         Mockito.when(dao.create(clauseForCreation)).thenReturn(clause);
         Mockito.when(dao.nameExists(Mockito.any())).thenReturn(false);
 
@@ -41,7 +47,7 @@ class ManagementServiceImplTest {
 
     @Test
     void create_WhenClauseNameAlreadyExists_ThrowsBadRequestException() {
-        var clauseForCreation = Mockito.mock(ClauseInput.class);
+        var clauseForCreation = mock(ClauseInput.class);
         Mockito.when(clauseForCreation.name()).thenReturn("test");
         Mockito.when(dao.nameExists(clauseForCreation.name())).thenReturn(true);
 
@@ -53,7 +59,7 @@ class ManagementServiceImplTest {
 
     @Test
     void update_WhenClauseNameDoesNotExist_ThrowsNotFoundException() {
-        var clauseForUpdate = Mockito.mock(ClauseInput.class);
+        var clauseForUpdate = mock(ClauseInput.class);
         Mockito.when(clauseForUpdate.name()).thenReturn("test");
         Mockito.when(dao.nameExists(Mockito.any())).thenReturn(false);
 
@@ -65,8 +71,8 @@ class ManagementServiceImplTest {
 
     @Test
     void update_WhenClauseNameAlreadyExists_CreatesNewClauseVersion() {
-        var clauseForUpdate = Mockito.mock(ClauseInput.class);
-        var clause = Mockito.mock(Clause.class);
+        var clauseForUpdate = mock(ClauseInput.class);
+        var clause = mock(Clause.class);
         Mockito.when(dao.nameExists(clauseForUpdate.name())).thenReturn(true);
         Mockito.when(dao.create(clauseForUpdate)).thenReturn(clause);
 
@@ -91,5 +97,25 @@ class ManagementServiceImplTest {
         assertEquals(List.of(model), result);
     }
 
+    @Test
+    void readHistory_invokesRepositoryOnce() {
+        String name = "blaah";
+        var clauses = List.of(
+                new Clause(1L, name, null, new Clause.Error("message1", 10800), null, null),
+                new Clause(2L, name, null, new Clause.Error("message2", 10800), null, null)
+        );
+        Mockito.when(dao.readHistory(name)).thenReturn(clauses);
+        var result = service.readHistory(name);
+        verify(dao, times(1)).readHistory(name);
+        assertEquals(clauses, result);
+    }
 
+    @Test
+    void readHistory_assertThrowsNotFoundIfEmpty() {
+        String name = "blaah";
+        Mockito.when(dao.readHistory(name)).thenReturn(List.of());
+        var e = assertThrows(NotFoundException.class, () ->  service.readHistory(name));
+        verify(dao, times(1)).readHistory(name);
+        assertEquals(e.getDetailedError(), String.format("clause with name '%s' was not found", name));
+    }
 }

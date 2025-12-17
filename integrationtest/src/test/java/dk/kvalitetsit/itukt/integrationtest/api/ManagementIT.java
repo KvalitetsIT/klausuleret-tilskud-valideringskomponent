@@ -10,12 +10,12 @@ import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ManagementIT extends BaseTest {
 
@@ -50,6 +50,20 @@ class ManagementIT extends BaseTest {
             var y = clauses.get(i);
             assertEquals(x.getError(), y.getError());
             assertEquals(x.getCreatedAt(), y.getCreatedAt());
+            if (i != 0) {
+                // Assert that the timestamp is greater than the previous
+                ClauseOutput prev_x = created.get(i - 1);
+                DslOutput prev_y = clauses.get(i - 1);
+
+                assertTrue(
+                        x.getCreatedAt().isAfter(prev_x.getCreatedAt()),
+                        "The timestamp is expected to be greater than the previous version"
+                );
+                assertTrue(
+                        y.getCreatedAt().isAfter(prev_y.getCreatedAt()),
+                        "The timestamp is expected to be greater than the previous version"
+                );
+            }
         }
     }
 

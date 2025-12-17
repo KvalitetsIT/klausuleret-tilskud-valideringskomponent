@@ -66,17 +66,16 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     List<String> ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore) {
-        return ignoreFieldRecursive(expression, fieldToIgnore,  "").toList();
+        return ignoreFieldRecursive(expression, fieldToIgnore, "").toList();
     }
 
     Stream<String> ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore, String path) {
         return switch (expression) {
-            case ExpressionEntity.BinaryExpressionEntity binaryExp ->
+            case ExpressionEntity.BinaryExpressionEntity binaryExp -> Stream.concat(
+                    Stream.of(path + "id"),
                     Stream.concat(
-                            Stream.of(path + "id"),
-                            Stream.concat(
-                                    ignoreFieldRecursive(binaryExp.left(), fieldToIgnore, path + "left."),
-                                    ignoreFieldRecursive(binaryExp.right(), fieldToIgnore, path + "right.")));
+                            ignoreFieldRecursive(binaryExp.left(), fieldToIgnore, path + "left."),
+                            ignoreFieldRecursive(binaryExp.right(), fieldToIgnore, path + "right.")));
             case ExpressionEntity.ExistingDrugMedicationConditionEntity __ -> Stream.of(path + fieldToIgnore);
             case ExpressionEntity.NumberConditionEntity __ -> Stream.of(path + fieldToIgnore);
             case ExpressionEntity.StringConditionEntity __ -> Stream.of(path + fieldToIgnore);
@@ -226,5 +225,19 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 .ignoringFields("id", "uuid", "errorCode", "expression.id")
                 .withFailMessage("The clause read is expected to match the clause created")
                 .isEqualTo(expectedClause);
+    }
+
+    @Test
+    void readHistory_assertVersionAreReturnedAfterUpdates() {
+        var ageCondition = new ExpressionEntity.NumberConditionEntity(null, Field.AGE, Operator.EQUAL, 10);
+
+        int numberOfCreates = 10;
+
+        for (int i = 0; i < numberOfCreates; i++)
+            repository.create(new ClauseInput("UPDATED_CLAUSE", ageCondition, "message-" + 1));
+
+        var versions = repository.readHistory("UPDATED_CLAUSE");
+
+        assertEquals(numberOfCreates, versions.size(), "Expected the same number of versions of the clause as it was updated");
     }
 }

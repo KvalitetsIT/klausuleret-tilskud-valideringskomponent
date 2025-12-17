@@ -12,10 +12,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 
 public class ClauseRepositoryImpl implements ClauseRepository {
@@ -48,22 +44,26 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .addValue("error_message", clause.errorMessage());
 
 
-            Map<String, Object> result = template.queryForMap(sql, params);
+            return template.queryForObject(sql, params, (rs, rowNum) -> {
 
-            Long clauseId = ((Number) result.get("id")).longValue();
+                int errorCode = createOrGetErrorCode(clause.name());
 
-            Instant createdAt = ((Timestamp) result.get("created_time")).toLocalDateTime().toInstant(ZoneOffset.UTC);
-
-            int errorCode = createOrGetErrorCode(clause.name());
-
-            return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression, Date.from(createdAt));
+                return new ClauseEntity(
+                        rs.getLong("id"),
+                        uuid,
+                        clause.name(),
+                        errorCode,
+                        clause.errorMessage(),
+                        createdExpression,
+                        rs.getTimestamp("created_time")
+                );
+            });
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
             throw new ServiceException("Failed to create clause", e);
         }
     }
-
 
     private int createOrGetErrorCode(String clauseName) {
         var existingErrorCodes = template.queryForList(
@@ -120,7 +120,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
-                                Date.from(rs.getTimestamp("created_time", Calendar.getInstance(TimeZone.getTimeZone("UTC"))).toInstant())
+                                rs.getTimestamp("created_time")
                         );
                     });
 
@@ -180,15 +180,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public List<ClauseEntity> readHistory(String name) {
         try {
             String sql = """
-                        SELECT c.*
-                        FROM clause c
-                        WHERE c.name = :name
-                        ORDER BY c.created_time
+                        SELECT uuid
+                        FROM clause
+                        WHERE name = :name
+                        ORDER BY created_time
                     """;
 
-            List<UUID> uuids = template.query(sql, Map.of("name", name), (rs, rowNum) ->
-                    UUID.fromString(rs.getString("uuid"))
-            );
+            List<UUID> uuids = template.queryForList(sql, Map.of("name", name), UUID.class);
 
             return uuids.stream()
                     .map(this::read)
@@ -196,8 +194,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            logger.error("Failed to read all clauses", e);
-            throw new ServiceException("Failed to read clauses", e);
+            var message = String.format("Failed to read the history of clause '%s'", name);
+            logger.error(message, e);
+            throw new ServiceException(message, e);
         }
 
     }

@@ -301,7 +301,7 @@ components:
             error:
               $ref: './common.yaml#/components/schemas/ErrorMessage'
             createdAt:
-              description: When contact was created.
+              description: when the clause was created
               type: string
               format: date-time
 
@@ -442,7 +442,7 @@ components:
             error:
               $ref: './common.yaml#/components/schemas/ErrorMessage'
             createdAt:
-              description: When contact was created.
+              description: when the clause was created
               type: string
               format: date-time
 

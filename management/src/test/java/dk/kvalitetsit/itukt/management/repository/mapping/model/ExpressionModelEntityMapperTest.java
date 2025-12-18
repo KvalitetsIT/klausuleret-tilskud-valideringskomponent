@@ -1,12 +1,8 @@
 package dk.kvalitetsit.itukt.management.repository.mapping.model;
 
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.ExistingDrugMedication;
-import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
-import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

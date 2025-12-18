@@ -24,13 +24,15 @@ public class RequestLogger extends OncePerRequestFilter {
         } finally {
             long duration = System.currentTimeMillis() - startTime;
 
-            logger.debug(String.format("Request { id: %s, Method: %s, Uri: %s, Response: %d, Time: %d ms }\n",
+            String msg = String.format("Request { id: %s, Method: %s, Uri: %s, Response: %d, Time: %d ms }\n",
                     request.getRequestId(),
                     request.getMethod(),
                     request.getRequestURI(),
                     response.getStatus(),
                     duration
-            ));
+            );
+
+            logger.debug(msg);
         }
     }
 }

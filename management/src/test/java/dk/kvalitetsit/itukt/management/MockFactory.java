@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management;
 
 import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -9,7 +10,6 @@ import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.BinaryExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.NumberConditionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.StringConditionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.openapitools.model.*;
 
 import java.time.ZoneOffset;

@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.util.List;
 
-public class DrugClauseViewRepositoryImpl implements DrugClauseViewRepository {
+public class DrugClauseViewRepositoryImpl implements Repository<DrugClauseView> {
 
     private final static RowMapper<DrugClauseView> clauseRowMapper = (rs, rowNum) -> new DrugClauseView(
             new DrugClauseView.Laegemiddel(rs.getLong("d.DrugId")),
@@ -25,7 +25,7 @@ public class DrugClauseViewRepositoryImpl implements DrugClauseViewRepository {
     }
 
     @Override
-    public List<DrugClauseView> findAll() throws ServiceException {
+    public List<DrugClauseView> fetchAll() throws ServiceException {
         try {
             String sql = """
                     SELECT d.DrugId, k.Kode, k.Tekst

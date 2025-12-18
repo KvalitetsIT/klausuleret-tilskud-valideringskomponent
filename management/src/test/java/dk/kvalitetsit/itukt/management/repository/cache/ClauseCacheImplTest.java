@@ -1,10 +1,10 @@
 package dk.kvalitetsit.itukt.management.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

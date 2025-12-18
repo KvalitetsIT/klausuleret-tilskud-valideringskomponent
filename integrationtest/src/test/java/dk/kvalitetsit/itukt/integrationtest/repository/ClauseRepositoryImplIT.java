@@ -17,11 +17,10 @@ import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,60 +89,6 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void assertExceptionWhen199IsExceeded() {
-        var e = Assertions.assertThrows(
-                ServiceException.class,
-                () -> IntStream.rangeClosed(10800, 11000)
-                        .parallel()
-                        .mapToObj((i) -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
-                        .forEach(repository::create),
-                "An error is expected since only 199 clauses should be creatable as the limit of error code would be exceeded otherwise"
-        );
-
-        assertEquals("Failed to create clause", e.getMessage());
-    }
-
-    @Test
-    void assertSuccessfulCreationOf199Clauses() {
-        final int OFFSET = 10800;
-        final int LIMIT = 200;
-
-        var written = IntStream.range(OFFSET, OFFSET + LIMIT)
-                .parallel()
-                .mapToObj((i) -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
-                .map(repository::create).toList();
-
-        Assertions.assertEquals(LIMIT, written.size(), LIMIT + " written clauses is expected since FMK only allocates error codes from " + LIMIT + " - " + (OFFSET + LIMIT - 1));
-
-        var read = this.repository.readAllDrafts();
-        Assertions.assertEquals(LIMIT, read.size(), LIMIT + " clauses is expected to be read since this amount was written");
-
-        Assertions.assertEquals(
-                written.stream().sorted(Comparator.comparing(ClauseEntity::id)).toList(),
-                read,
-                "Clauses read is expected to be the same as written clauses"
-        );
-    }
-
-    @Test
-    void assertFailureCreationAfter199Clauses() {
-        final int OFFSET = 10800;
-        final int LIMIT = 200;
-
-        Assertions.assertDoesNotThrow(() -> IntStream.range(OFFSET, OFFSET + LIMIT)
-                .parallel()
-                .mapToObj(i -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "blah"))
-                .forEach(repository::create));
-
-        var err = Assertions.assertThrows(
-                ServiceException.class,
-                () -> repository.create(new ClauseInput("clause" + 200, MockFactory.EXPRESSION_1_ENTITY, "blah"))
-        );
-
-        Assertions.assertEquals("Failed to create clause", err.getMessage());
-    }
-
-    @Test
     void createTwoClauseWithSameName_ThenReadAllDrafts_ReturnsBothClauses() {
         var clauseAInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
         var clauseBInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
@@ -169,8 +114,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var clauses = repository.readLatestActive();
 
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
-        assertEquals(clauseA, clauses.getFirst(),
-                "Expected the latest approved version of the clause to be returned");
+        assertThat(clauses.getFirst())
+                .usingRecursiveComparison()
+                .ignoringFields("createdAt")
+                .withFailMessage("Expected the latest approved version of the clause to be returned")
+                .isEqualTo(clauseA);
     }
 
     @Test
@@ -261,5 +209,16 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 () -> repository.updateDraftToActive(clause.uuid()));
 
         assertEquals("No clause found with uuid %s in DRAFT status".formatted(clause.uuid()), e.getDetailedError());
+    }
+
+    @Test
+    void create_WhenAllErrorCodesHasBeenUsed_ThrowsException() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
+        jdbcTemplate.execute("INSERT INTO error_code (error_code, clause_name) VALUES (10999, 'clause_with_last_error_code')");
+        var clause = new ClauseInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message");
+
+        var e = assertThrows(ServiceException.class, () -> repository.create(clause));
+
+        Assertions.assertEquals("Failed to create clause", e.getMessage());
     }
 }

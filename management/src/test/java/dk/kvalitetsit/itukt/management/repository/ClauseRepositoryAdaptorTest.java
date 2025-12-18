@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class ClauseRepositoryAdaptorTest {
@@ -27,7 +26,7 @@ public class ClauseRepositoryAdaptorTest {
     private ClauseRepositoryAdaptor adaptor;
 
     @Mock
-    private ClauseRepositoryImpl concreteRepository;
+    private ClauseRepository concreteRepository;
 
     @Mock
     private ClauseEntityModelMapper clauseEntityModelMapper;
@@ -69,27 +68,40 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testReadAll() {
+    void testReadLatestActive() {
 
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
 
-        Mockito.when(concreteRepository.readAll()).thenReturn(List.of(clauseEntity));
+        Mockito.when(concreteRepository.readLatestActive()).thenReturn(List.of(clauseEntity));
 
         Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
 
-        var result = adaptor.readAll();
+        var result = adaptor.readLatestActive();
         assertEquals(List.of(clause), result);
     }
 
     @Test
-    void nameExists() {
-        String clauseName = "Test Clause";
-        Mockito.when(concreteRepository.nameExists(clauseName)).thenReturn(true);
+    void testReadAllDrafts() {
 
-        boolean exists = adaptor.nameExists(clauseName);
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
 
-        assertTrue(exists, "nameExists should return the same value as the concrete repository");
+        Mockito.when(concreteRepository.readAllDrafts()).thenReturn(List.of(clauseEntity));
+
+        Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
+
+        var result = adaptor.readAllDrafts();
+        assertEquals(List.of(clause), result);
+    }
+
+    @Test
+    void updateDraftToActive() {
+        UUID uuid = UUID.randomUUID();
+
+        adaptor.updateDraftToActive(uuid);
+
+        Mockito.verify(concreteRepository).updateDraftToActive(uuid);
     }
 }
 

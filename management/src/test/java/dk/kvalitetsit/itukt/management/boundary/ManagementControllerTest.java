@@ -12,7 +12,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.ClauseInput;
-import org.openapitools.model.ClauseUpdateInput;
+import org.openapitools.model.ClauseStatus;
+import org.openapitools.model.ClauseStatusInput;
 import org.openapitools.model.DslInput;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -58,18 +59,6 @@ class ManagementControllerTest {
     }
 
     @Test
-    void call20250801clausesNamePut_UpdatesClause() {
-        String name = "test";
-        var input = new ClauseUpdateInput(EXPRESSION_1_DTO, "test-error");
-        Mockito.when(clauseService.update(Mockito.any(ClauseInput.class))).thenReturn(CLAUSE_1_OUTPUT);
-
-        managementController.call20250801clausesNamePut(name, input);
-
-        var expectedInput = new ClauseInput(name, input.getExpression(), input.getError());
-        Mockito.verify(clauseService, times(1)).update(expectedInput);
-    }
-
-    @Test
     void call20250801clausesDslPost_CreatesClause() {
         Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(CLAUSE_1_DSL_OUTPUT);
 
@@ -109,13 +98,31 @@ class ManagementControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
-
     @Test
     void call20250801clausesGet_ReturnsClausesFromService() {
-        Mockito.when(clauseService.readAll()).thenReturn(List.of(CLAUSE_1_OUTPUT));
+        Mockito.when(clauseService.readByStatus(ClauseStatus.DRAFT)).thenReturn(List.of(CLAUSE_1_OUTPUT));
 
-        var clausesResponse = managementController.call20250801clausesGet();
+        var clausesResponse = managementController.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(List.of(CLAUSE_1_OUTPUT), clausesResponse.getBody());
+    }
+
+    @Test
+    void call20250801clausesDslGet_ReturnsClausesFromService() {
+        Mockito.when(clauseService.readDslByStatus(ClauseStatus.ACTIVE)).thenReturn(List.of(CLAUSE_1_DSL_OUTPUT));
+
+        var clausesResponse = managementController.call20250801clausesDslGet(ClauseStatus.ACTIVE);
+
+        assertEquals(List.of(CLAUSE_1_DSL_OUTPUT), clausesResponse.getBody());
+    }
+
+    @Test
+    void call20250801clausesIdStatusPut_UpdatesClauseStatus() {
+        UUID uuid = UUID.randomUUID();
+        ClauseStatusInput status = new ClauseStatusInput(ClauseStatusInput.StatusEnum.ACTIVE);
+
+        managementController.call20250801clausesIdStatusPut(uuid, status);
+
+        Mockito.verify(clauseService, times(1)).updateStatus(uuid, status);
     }
 }

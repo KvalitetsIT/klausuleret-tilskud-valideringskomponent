@@ -48,7 +48,9 @@ paths:
     get:
       tags:
         - management
-      description: "Retrieves all clauses as dsl"
+      description: "Retrieves all clauses as dsl matching the specified status"
+      parameters:
+        - $ref: '#/components/parameters/clauseStatus'
       responses:
         '200':
           description: Ok
@@ -126,8 +128,9 @@ paths:
     get:
       tags:
         - management
-      summary: "API to test body validation"
-      description: "Retrieves all clauses"
+      description: "Retrieves all clauses matching the specified status"
+      parameters:
+        - $ref: '#/components/parameters/clauseStatus'
       responses:
         '200':
           description: Ok
@@ -142,33 +145,6 @@ paths:
                 type: string
         '400':
           $ref: '#/components/responses/400'
-
-  /2025/08/01/clauses/{name}:
-    put:
-      tags:
-        - management
-      summary: "Update clause"
-      description: "Creates a new version of the clause matching the specified name"
-      parameters:
-        - $ref: '#/components/parameters/name'
-      requestBody:
-        description: "A list of expressions"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ClauseUpdateInput'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClauseOutput'
-        '400':
-          $ref: '#/components/responses/400'
-        '404':
-          $ref: '#/components/responses/404'
 
   /2025/08/01/clauses/{id}:
     get:
@@ -190,6 +166,30 @@ paths:
                 type: string
         '400':
           $ref: '#/components/responses/400'
+
+  /2025/08/01/clauses/{id}/status:
+    put:
+      tags:
+        - management
+      summary: "Update status of clause"
+      description:  >-
+        Update status of clause. Allowed transitions are:
+        <ul>
+          <li>DRAFT -> ACTIVE</li>
+        </ul>
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClauseStatusInput'
+      responses:
+        '200':
+          description: Ok
+        '404':
+          $ref: '#/components/responses/404'
 
 components:
   responses:
@@ -234,6 +234,12 @@ components:
       schema:
         type: integer
       description: The maximum number of items to retrieve. Used together with the 'offset' parameter to control pagination.
+    clauseStatus:
+      name: status
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/ClauseStatus'
 
   schemas:
     detailedError:
@@ -274,24 +280,13 @@ components:
         error:
           $ref: './common.yaml#/components/schemas/ErrorMessage'
 
-    ClauseUpdateInput:
-      type: object
-      required:
-        - expression
-        - error
-      properties:
-        expression:
-          $ref: '#/components/schemas/Expression'
-        error:
-          $ref: './common.yaml#/components/schemas/ErrorMessage'
-
     ClauseOutput:
       allOf:
         - $ref: "#/components/schemas/ClauseInput"
         - type: object
           required:
             - uuid
-            - createdAt
+            - validFrom
           properties:
             uuid:
               type: string
@@ -300,8 +295,8 @@ components:
               example: 3d1006d3-3d2a-4361-b9b2-8f255d2aeaae
             error:
               $ref: './common.yaml#/components/schemas/ErrorMessage'
-            createdAt:
-              description: when the clause was created
+            validFrom:
+              description: when the clause is valid from
               type: string
               format: date-time
 
@@ -342,6 +337,24 @@ components:
       enum:
         - "AND"
         - "OR"
+
+    ClauseStatus:
+      description: The clause status
+      type: string
+      enum:
+        - "DRAFT"
+        - "ACTIVE"
+
+    ClauseStatusInput:
+      description: Status input for clause transition
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - "ACTIVE"
 
     IndicationCondition:
       description: "A basic condition consisting of a field and a string value. This represents the most atomic form of an expression"
@@ -432,7 +445,7 @@ components:
         - type: object
           required:
             - uuid
-            - createdAt
+            - validFrom
           properties:
             uuid:
               type: string
@@ -441,8 +454,8 @@ components:
               example: 3d1006d3-3d2a-4361-b9b2-8f255d2aeaae
             error:
               $ref: './common.yaml#/components/schemas/ErrorMessage'
-            createdAt:
-              description: when the clause was created
+            validFrom:
+              description: when the clause is valid from
               type: string
               format: date-time
 

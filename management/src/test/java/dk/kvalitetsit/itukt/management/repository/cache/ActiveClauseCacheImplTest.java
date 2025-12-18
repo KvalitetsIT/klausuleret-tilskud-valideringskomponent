@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -19,10 +20,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class ClauseCacheImplTest {
+class ActiveClauseCacheImplTest {
 
     @InjectMocks
-    private ClauseCacheImpl cache;
+    private ActiveClauseCacheImpl cache;
 
     @Mock
     private ClauseRepositoryImpl concreteRepository;
@@ -36,7 +37,7 @@ class ClauseCacheImplTest {
     @Test
     void givenAValidCronFormattedString_whenGetCron_theReturnTheSame() {
         var expected = "0 0 0 * * *";
-        var cache = new ClauseCacheImpl(new CacheConfiguration(expected), null);
+        var cache = new ActiveClauseCacheImpl(new CacheConfiguration(expected), null);
 
         assertEquals(expected, cache.getCron());
     }
@@ -54,12 +55,12 @@ class ClauseCacheImplTest {
                         Field.AGE,
                         "value"
                 ),
-                null
+                Optional.empty()
         );
 
-        Mockito.when(concreteRepository.readAll()).thenReturn(List.of(expected));
+        Mockito.when(concreteRepository.readLatestActive()).thenReturn(List.of(expected));
         cache.load();
-        Mockito.verify(concreteRepository, Mockito.times(1)).readAll();
+        Mockito.verify(concreteRepository, Mockito.times(1)).readLatestActive();
 
         assertEquals(Optional.of(expected), cache.get("CLAUSE"));
     }
@@ -73,9 +74,9 @@ class ClauseCacheImplTest {
 
     @Test
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
-        var existingClause1 = new ClauseEntity(null, null, "test1", 111, "message1", null, null);
-        var existingClause2 = new ClauseEntity(null, null, "test2", 222, "message2", null, null);
-        Mockito.when(concreteRepository.readAll()).thenReturn(List.of(existingClause1, existingClause2));
+        var existingClause1 = new ClauseEntity(null, null, "test1", 111, "message1", null, Optional.empty());
+        var existingClause2 = new ClauseEntity(null, null, "test2", 222, "message2", null, Optional.empty());
+        Mockito.when(concreteRepository.readLatestActive()).thenReturn(List.of(existingClause1, existingClause2));
         cache.load();
 
         var result = cache.getByErrorCode(existingClause2.errorCode());

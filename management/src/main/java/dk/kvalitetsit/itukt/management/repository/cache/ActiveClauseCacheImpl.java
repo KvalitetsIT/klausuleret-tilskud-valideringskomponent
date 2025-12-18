@@ -11,14 +11,14 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ClauseCacheImpl implements ClauseCache, CacheLoader {
+public class ActiveClauseCacheImpl implements ActiveClauseCache, CacheLoader {
 
     private final CacheConfiguration configuration;
     private final ClauseRepository clauseRepository;
     private Map<String, ClauseEntity> nameToClauseMap = new HashMap<>();
     private Map<Integer, ClauseEntity> errorCodeToClauseMap = new HashMap<>();
 
-    public ClauseCacheImpl(CacheConfiguration configuration, ClauseRepository clauseRepository) {
+    public ActiveClauseCacheImpl(CacheConfiguration configuration, ClauseRepository clauseRepository) {
         this.configuration = configuration;
         this.clauseRepository = clauseRepository;
     }
@@ -40,7 +40,7 @@ public class ClauseCacheImpl implements ClauseCache, CacheLoader {
 
     @Override
     public void load() {
-        var clauses = clauseRepository.readAll();
+        var clauses = clauseRepository.readLatestActive();
         nameToClauseMap = clauses.stream().collect(Collectors.toMap(ClauseEntity::name, Function.identity()));
         errorCodeToClauseMap = clauses.stream().collect(Collectors.toMap(ClauseEntity::errorCode, Function.identity()));
     }

@@ -1,7 +1,9 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -12,14 +14,16 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ClauseRepositoryImpl implements ClauseRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
     private final NamedParameterJdbcTemplate template;
     private final ExpressionRepository expressionRepository;
-
 
     public ClauseRepositoryImpl(DataSource dataSource, ExpressionRepository expressionRepository) {
         template = new NamedParameterJdbcTemplate(dataSource);
@@ -33,15 +37,16 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
 
-            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message) " +
-                    "VALUES (:uuid, :name, :expression_id, :error_message) " +
-                    "RETURNING id, created_time";
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message, :status) " +
+                    "RETURNING id";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue("uuid", uuid.toString())
                     .addValue("name", clause.name())
                     .addValue("expression_id", createdExpression.id())
-                    .addValue("error_message", clause.errorMessage());
+                    .addValue("error_message", clause.errorMessage())
+                    .addValue("status", Clause.Status.DRAFT.name());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
@@ -55,7 +60,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         errorCode,
                         clause.errorMessage(),
                         createdExpression,
-                        rs.getTimestamp("created_time")
+                        Optional.empty()
                 );
             });
 
@@ -100,7 +105,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message, c.created_time
+                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message, c.valid_from
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -120,7 +125,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
-                                rs.getTimestamp("created_time")
+                                Optional.ofNullable(rs.getTimestamp("valid_from"))
                         );
                     });
 
@@ -135,34 +140,25 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public boolean nameExists(String name) throws ServiceException {
-        String sql = "SELECT COUNT(*) FROM clause WHERE name = :name";
-        Integer count = template.queryForObject(
-                sql,
-                Map.of("name", name),
-                Integer.class);
-        return count != null && count > 0;
-    }
-
-
-    @Override
-    public List<ClauseEntity> readAll() throws ServiceException {
+    public List<ClauseEntity> readLatestActive() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
                         JOIN (
-                            SELECT name, MAX(created_time) AS max_created_time
+                            SELECT name, MAX(valid_from) AS max_valid_from
                             FROM clause
+                            WHERE status = :status AND valid_from IS NOT NULL
                             GROUP BY name
                         ) latest
                           ON c.name = latest.name
-                            AND c.created_time = latest.max_created_time
+                            AND c.valid_from = latest.max_valid_from
                         ORDER BY c.id
                     """;
 
-            List<UUID> uuids = template.query(sql, Collections.emptyMap(), (rs, rowNum) ->
-                    UUID.fromString(rs.getString("uuid"))
+            List<UUID> uuids = template.query(sql,
+                    Map.of("status", Clause.Status.ACTIVE.name()),
+                    (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
             );
 
             return uuids.stream()
@@ -172,7 +168,33 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
         } catch (Exception e) {
             logger.error("Failed to read all clauses", e);
-            throw new ServiceException("Failed to read clauses", e);
+            throw new ServiceException("Failed to read active clauses", e);
+        }
+    }
+
+    @Override
+    public List<ClauseEntity> readAllDrafts() throws ServiceException {
+        try {
+            String sql = """
+                        SELECT c.uuid
+                        FROM clause c
+                        WHERE status = :status
+                        ORDER BY c.id
+                    """;
+
+            List<UUID> uuids = template.query(sql,
+                    Map.of("status", Clause.Status.DRAFT.name()),
+                    (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
+            );
+
+            return uuids.stream()
+                    .map(this::read)
+                    .flatMap(Optional::stream)
+                    .toList();
+
+        } catch (Exception e) {
+            logger.error("Failed to read all clauses", e);
+            throw new ServiceException("Failed to read draft clauses", e);
         }
     }
 
@@ -183,7 +205,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         SELECT uuid
                         FROM clause
                         WHERE name = :name
-                        ORDER BY created_time
+                        ORDER BY valid_from
                     """;
 
             List<UUID> uuids = template.queryForList(sql, Map.of("name", name), UUID.class);
@@ -199,6 +221,25 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             throw new ServiceException(message, e);
         }
 
+    }
+
+    @Override
+    public void updateDraftToActive(UUID uuid) throws NotFoundException {
+        String sql = """
+                UPDATE clause
+                SET status = :new_status, valid_from = NOW(3)
+                WHERE uuid = :uuid AND status = :current_status
+                """;
+
+        int rowsAffected = template.update(
+                sql,
+                Map.of("uuid", uuid.toString(),
+                        "current_status", Clause.Status.DRAFT.name(),
+                        "new_status", Clause.Status.ACTIVE.name()));
+
+        if (rowsAffected == 0) {
+            throw new NotFoundException("No clause found with uuid %s in DRAFT status".formatted(uuid));
+        }
     }
 
 

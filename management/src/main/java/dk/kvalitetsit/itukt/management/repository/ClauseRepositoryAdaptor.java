@@ -29,8 +29,15 @@ public class ClauseRepositoryAdaptor {
         return clauseRepository.read(id).map(entityMapper::map);
     }
 
-    public List<Clause> readAll() throws ServiceException {
-        return this.entityMapper.map(clauseRepository.readAll());
+    /**
+     * Retrieves active clauses, including only the latest version of each clause.
+     */
+    public List<Clause> readLatestActive() throws ServiceException {
+        return this.entityMapper.map(clauseRepository.readLatestActive());
+    }
+
+    public List<Clause> readAllDrafts() throws ServiceException {
+        return this.entityMapper.map(clauseRepository.readAllDrafts());
     }
 
 
@@ -38,8 +45,7 @@ public class ClauseRepositoryAdaptor {
         return this.entityMapper.map(clauseRepository.readHistory(name));
     }
 
-    public boolean nameExists(String name) throws ServiceException {
-        return clauseRepository.nameExists(name);
+    public void updateDraftToActive(UUID uuid) throws ServiceException {
+        clauseRepository.updateDraftToActive(uuid);
     }
-
 }

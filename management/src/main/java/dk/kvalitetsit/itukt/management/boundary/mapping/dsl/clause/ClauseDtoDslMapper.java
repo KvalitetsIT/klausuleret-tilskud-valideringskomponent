@@ -4,8 +4,6 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import org.openapitools.model.ClauseOutput;
 import org.openapitools.model.DslOutput;
 
-import java.time.ZoneOffset;
-
 public class ClauseDtoDslMapper implements Mapper<ClauseOutput, DslOutput> {
     private final Mapper<org.openapitools.model.Expression, String> expressionDslMapper;
 
@@ -19,7 +17,7 @@ public class ClauseDtoDslMapper implements Mapper<ClauseOutput, DslOutput> {
                 entry.getError(),
                 "Klausul " + entry.getName() + ": " + this.expressionDslMapper.map(entry.getExpression()),
                 entry.getUuid(),
-                entry.getCreatedAt()
+                entry.getValidFrom()
         );
     }
 }

@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.common.model.Expression;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Date;
 
 public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.model.ClauseOutput> {
 
@@ -22,7 +23,11 @@ public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.mod
                 this.expressionModelMapper.map(entry.expression()),
                 entry.error().message(),
                 entry.uuid(),
-                entry.createdAt().toInstant().atOffset(ZoneOffset.UTC)
+                entry.validFrom().map(this::dateToOffsetDateTime).orElse(null)
         );
+    }
+
+    private OffsetDateTime dateToOffsetDateTime(Date date) {
+        return date.toInstant().atOffset(ZoneOffset.UTC);
     }
 }

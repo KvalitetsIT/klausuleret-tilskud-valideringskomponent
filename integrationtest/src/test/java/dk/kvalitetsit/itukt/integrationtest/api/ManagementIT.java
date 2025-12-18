@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
@@ -38,9 +37,13 @@ class ManagementIT extends BaseTest {
 
         var created = List.of(
                 api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression)),
-                api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error2").expression(expression)),
-                api.call20250801clausesNamePut("blaaaaah", new ClauseUpdateInput().error("error3").expression(expression))
+                api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error2").expression(expression)),
+                api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error3").expression(expression))
         );
+        created.forEach(clause ->
+                api.call20250801clausesIdStatusPut(
+                        clause.getUuid(),
+                        new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE)));
 
         List<DslOutput> clauses = api.call20250801clausesDslNameHistoryGet("blaaaaah");
 
@@ -50,18 +53,12 @@ class ManagementIT extends BaseTest {
             var x = created.get(i);
             var y = clauses.get(i);
             assertEquals(x.getError(), y.getError());
-            assertEquals(x.getCreatedAt(), y.getCreatedAt());
             if (i != 0) {
                 // Assert that the timestamp is greater than the previous
-                ClauseOutput prev_x = created.get(i - 1);
                 DslOutput prev_y = clauses.get(i - 1);
 
                 assertTrue(
-                        x.getCreatedAt().isAfter(prev_x.getCreatedAt()),
-                        "The timestamp is expected to be greater than the previous version"
-                );
-                assertTrue(
-                        y.getCreatedAt().isAfter(prev_y.getCreatedAt()),
+                        y.getValidFrom().isAfter(prev_y.getValidFrom()),
                         "The timestamp is expected to be greater than the previous version"
                 );
             }
@@ -86,46 +83,47 @@ class ManagementIT extends BaseTest {
         var dsl = MockFactory.CLAUSE_1_DSL_INPUT;
 
         api.call20250801clausesDslPost(dsl);
-        var clauses = api.call20250801clausesGet();
+        var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "createdAt")
+                .ignoringFields("uuid", "validFrom")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
     @Test
     void testPostAndGetClause() {
         api.call20250801clausesPost(CLAUSE_1_INPUT);
-        var clauses = api.call20250801clausesGet();
+        var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
         var clause = clauses.getFirst();
 
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "createdAt")
+                .ignoringFields("uuid", "validFrom")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
     @Test
-    void testPostPutAndGetClause() {
-        var postInput = CLAUSE_1_INPUT;
-        var updateInput = new ClauseUpdateInput().expression(postInput.getExpression()).error("updated error");
+    void testDraftAndApproveExistingClause() {
+        var postInput1 = CLAUSE_1_INPUT;
+        var postInput2 = postInput1.error("updated error");
 
-        api.call20250801clausesPost(postInput);
-        var updateResponse = api.call20250801clausesNamePut(postInput.getName(), updateInput);
-        var clauses = api.call20250801clausesGet();
+        var clause = api.call20250801clausesPost(postInput1);
+        api.call20250801clausesIdStatusPut(clause.getUuid(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
+        var updatedClause = api.call20250801clausesPost(postInput2);
+        api.call20250801clausesIdStatusPut(updatedClause.getUuid(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
+        var drafts = api.call20250801clausesGet(ClauseStatus.DRAFT);
+        var activeClauses = api.call20250801clausesGet(ClauseStatus.ACTIVE);
 
-        assertEquals(1, clauses.size());
-        var expectedClause = new ClauseOutput()
-                .uuid(updateResponse.getUuid())
-                .name(postInput.getName())
-                .expression(updateInput.getExpression())
-                .error(updateInput.getError())
-                .createdAt(updateResponse.getCreatedAt());
-        assertEquals(expectedClause, clauses.getFirst());
+        assertTrue(drafts.isEmpty());
+        assertEquals(1, activeClauses.size());
+        assertThat(activeClauses.getFirst())
+                .usingRecursiveComparison()
+                .ignoringFields("validFrom")
+                .isEqualTo(updatedClause);
     }
 
     @Test
@@ -139,13 +137,13 @@ class ManagementIT extends BaseTest {
                 .error("message");
 
         api.call20250801clausesPost(clauseInput);
-        var clauses = api.call20250801clausesGet();
+        var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size(), "Expected the same number of clauses as were created");
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "createdAt")
+                .ignoringFields("uuid", "validFrom")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
@@ -226,7 +224,7 @@ class ManagementIT extends BaseTest {
 
         ClauseOutput createClauseResponse = api.call20250801clausesPost(clauseInput);
 
-        DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createClauseResponse.getUuid()).createdAt(createClauseResponse.getCreatedAt());
+        DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createClauseResponse.getUuid()).validFrom(createClauseResponse.getValidFrom());
 
         var getDslResponse = api.call20250801clausesDslIdGet(createClauseResponse.getUuid());
 
@@ -310,7 +308,7 @@ class ManagementIT extends BaseTest {
                                                         ))))))
                 .error(error)
                 .uuid(dslOutput.getUuid())
-                .createdAt(getClauseResponse.getCreatedAt());
+                .validFrom(getClauseResponse.getValidFrom());
 
         assertEquals(clauseOutput, getClauseResponse, "Expected the clause to match the dsl initially created");
 

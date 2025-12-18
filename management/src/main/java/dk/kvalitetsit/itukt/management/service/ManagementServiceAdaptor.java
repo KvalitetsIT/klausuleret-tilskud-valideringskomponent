@@ -5,9 +5,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
-import org.openapitools.model.ClauseOutput;
-import org.openapitools.model.DslInput;
-import org.openapitools.model.DslOutput;
+import org.openapitools.model.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,11 +39,6 @@ public class ManagementServiceAdaptor {
         return clauseDtoMapper.map(clauseService.create(clauseForCreation));
     }
 
-    public ClauseOutput update(org.openapitools.model.ClauseInput clauseInput) throws ServiceException {
-        var clauseForUpdate = clauseInputMapper.map(clauseInput);
-        return clauseDtoMapper.map(clauseService.update(clauseForUpdate));
-    }
-
     public DslOutput createDSL(DslInput dsl) throws ServiceException {
         var clauseInput = this.dslClauseMapper.map(dsl);
         return clauseDtoDslMapper.map(this.create(clauseInput));
@@ -67,12 +60,25 @@ public class ManagementServiceAdaptor {
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
     }
 
-    public List<ClauseOutput> readAll() throws ServiceException {
-        return clauseDtoMapper.map(clauseService.readAll());
+    public List<ClauseOutput> readByStatus(ClauseStatus status) throws ServiceException {
+        return clauseDtoMapper.map(clauseService.readByStatus(mapStatus(status)));
     }
 
-    public List<DslOutput> readAllDsl() throws ServiceException {
-        List<Clause> clauses = clauseService.readAll();
+    public List<DslOutput> readDslByStatus(ClauseStatus status) throws ServiceException {
+        List<Clause> clauses = clauseService.readByStatus(mapStatus(status));
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
+    }
+
+    public void updateStatus(UUID clauseUuid, ClauseStatusInput status) throws ServiceException {
+        switch (status.getStatus()) {
+            case ClauseStatusInput.StatusEnum.ACTIVE -> clauseService.approve(clauseUuid);
+        }
+    }
+
+    private Clause.Status mapStatus(ClauseStatus status) {
+        return switch (status) {
+            case DRAFT -> Clause.Status.DRAFT;
+            case ACTIVE -> Clause.Status.ACTIVE;
+        };
     }
 }

@@ -28,8 +28,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<DslOutput>> call20250801clausesDslGet() {
-        return ResponseEntity.ok(service.readAllDsl());
+    public ResponseEntity<List<DslOutput>> call20250801clausesDslGet(ClauseStatus status) {
+        return ResponseEntity.ok(service.readDslByStatus(status));
     }
 
     @Override
@@ -53,8 +53,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<ClauseOutput>> call20250801clausesGet() {
-        return ResponseEntity.ok(service.readAll());
+    public ResponseEntity<List<ClauseOutput>> call20250801clausesGet(ClauseStatus status) {
+        return ResponseEntity.ok(service.readByStatus(status));
     }
 
     @Override
@@ -65,12 +65,9 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<ClauseOutput> call20250801clausesNamePut(String name, ClauseUpdateInput clauseUpdateInput) {
-        var clauseInput = new ClauseInput(name, clauseUpdateInput.getExpression(), clauseUpdateInput.getError());
-        var clause = service.update(clauseInput);
-        UUID uuid = clause.getUuid();
-        URI location = getLocation(c -> c.call20250801clausesIdGet(uuid), uuid);
-        return ResponseEntity.created(location).body(clause);
+    public ResponseEntity<Void> call20250801clausesIdStatusPut(UUID id, ClauseStatusInput clauseStatusInput) {
+        service.updateStatus(id, clauseStatusInput);
+        return ResponseEntity.ok().build();
     }
 
     @Override

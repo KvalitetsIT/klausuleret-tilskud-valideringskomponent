@@ -1,7 +1,9 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
@@ -15,11 +17,10 @@ import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,14 +36,14 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void testReadAll() {
+    void testReadAllDrafts() {
         var clause1 = new ClauseInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message");
         var clause2 = new ClauseInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message");
 
         var clauses = List.of(clause1, clause2);
 
         var written = clauses.stream().map(repository::create).toList();
-        var read = this.repository.readAll();
+        var read = this.repository.readAllDrafts();
         assertEquals(clauses.size(), read.size());
         for (int i = 0; i < written.size(); i++) {
 
@@ -88,91 +89,36 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void assertExceptionWhen199IsExceeded() {
-        var e = Assertions.assertThrows(
-                ServiceException.class,
-                () -> IntStream.rangeClosed(10800, 11000)
-                        .parallel()
-                        .mapToObj((i) -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
-                        .forEach(repository::create),
-                "An error is expected since only 199 clauses should be creatable as the limit of error code would be exceeded otherwise"
-        );
+    void createTwoClauseWithSameName_ThenReadAllDrafts_ReturnsBothClauses() {
+        var clauseAInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
+        var clauseBInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
 
-        assertEquals("Failed to create clause", e.getMessage());
+        var clauseA = repository.create(clauseAInput);
+        var clauseB = repository.create(clauseBInput);
+        var clauses = repository.readAllDrafts();
+
+        assertEquals(2, clauses.size(), "Expected both clauses to be returned");
+        assertTrue(clauses.contains(clauseA));
+        assertTrue(clauses.contains(clauseB));
     }
 
     @Test
-    void assertSuccessfulCreationOf199Clauses() {
-        final int OFFSET = 10800;
-        final int LIMIT = 200;
+    void createAndApproveTwoClauseWithSameName_ThenReadLatestActive_ReturnsLatestApprovedClause() {
+        var clauseAInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
+        var clauseBInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
 
-        var written = IntStream.range(OFFSET, OFFSET + LIMIT)
-                .parallel()
-                .mapToObj((i) -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "message"))
-                .map(repository::create).toList();
+        var clauseA = repository.create(clauseAInput);
+        var clauseB = repository.create(clauseBInput);
+        repository.updateDraftToActive(clauseB.uuid());
+        repository.updateDraftToActive(clauseA.uuid());
+        var clauses = repository.readLatestActive();
 
-        Assertions.assertEquals(LIMIT, written.size(), LIMIT + " written clauses is expected since FMK only allocates error codes from " + LIMIT + " - " + (OFFSET + LIMIT - 1));
-
-        var read = this.repository.readAll();
-        Assertions.assertEquals(LIMIT, read.size(), LIMIT + " clauses is expected to be read since this amount was written");
-
-        Assertions.assertEquals(
-                written.stream().sorted(Comparator.comparing(ClauseEntity::id)).toList(),
-                read,
-                "Clauses read is expected to be the same as written clauses"
-        );
-    }
-
-    @Test
-    void assertFailureCreationAfter199Clauses() {
-        final int OFFSET = 10800;
-        final int LIMIT = 200;
-
-        Assertions.assertDoesNotThrow(() -> IntStream.range(OFFSET, OFFSET + LIMIT)
-                .parallel()
-                .mapToObj(i -> new ClauseInput("clause" + i, MockFactory.EXPRESSION_1_ENTITY, "blah"))
-                .forEach(repository::create));
-
-        var err = Assertions.assertThrows(
-                ServiceException.class,
-                () -> repository.create(new ClauseInput("clause" + 200, MockFactory.EXPRESSION_1_ENTITY, "blah"))
-        );
-
-        Assertions.assertEquals("Failed to create clause", err.getMessage());
-    }
-
-    @Test
-    void createTwoClauseWithSameName_ThenReadAll_ReturnsLatestClause() {
-        var clauseA = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
-        var clauseB = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
-
-        repository.create(clauseA);
-        repository.create(clauseB);
-        var clauses = repository.readAll();
-
-        assertEquals(1, clauses.size(), "Expected only the latest version of the clause");
-        assertEquals(clauseB.errorMessage(), clauses.getFirst().errorMessage(),
-                "Expected the error message of the latest version of the clause to be returned");
-    }
-
-    @Test
-    void nameExists_WhenNoClauseMatchesName_ReturnsFalse() {
-        var clause = new ClauseInput("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
-        repository.create(clause);
-
-        boolean nameExists = repository.nameExists("nonExistingName");
-
-        assertFalse(nameExists, "Expected nameExists to return false when no clause matches the given name");
-    }
-
-    @Test
-    void nameExists_WhenClauseMatchesName_ReturnsTrue() {
-        var clause = new ClauseInput("existingName", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
-        repository.create(clause);
-
-        boolean nameExists = repository.nameExists(clause.name());
-
-        assertTrue(nameExists, "Expected nameExists to return true when a clause matches the given name");
+        assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
+        assertThat(clauses.getFirst())
+                .usingRecursiveComparison()
+                .ignoringFields("validFrom")
+                .withFailMessage("Expected the latest approved version of the clause to be returned")
+                .isEqualTo(clauseA);
     }
 
     @Test
@@ -219,7 +165,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var readClause = repository.read(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
-        var expectedClause = new ClauseEntity(null, null, "CLAUSE", 10800, "message", existingDrugMedicationCondition, readClause.get().createdAt());
+        var expectedClause = new ClauseEntity(null, null, "CLAUSE", 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom());
         assertThat(readClause.get())
                 .usingRecursiveComparison()
                 .ignoringFields("id", "uuid", "errorCode", "expression.id")
@@ -239,5 +185,40 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var versions = repository.readHistory("UPDATED_CLAUSE");
 
         assertEquals(numberOfCreates, versions.size(), "Expected the same number of versions of the clause as it was updated");
+    }
+
+    @Test
+    void updateDraftToActive_WhenNoClauseWithUuidExist_ThrowsException() {
+        UUID nonExistingUuid = UUID.randomUUID();
+
+        var e = assertThrows(
+                NotFoundException.class,
+                () -> repository.updateDraftToActive(nonExistingUuid));
+
+        assertEquals("No clause found with uuid %s in DRAFT status".formatted(nonExistingUuid), e.getDetailedError());
+    }
+
+    @Test
+    void updateDraftToActive_WhenUuidMatchesClause_SucceedsOnlyWhenInDraft() {
+        var clauseInput = new ClauseInput("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
+        var clause = repository.create(clauseInput);
+
+        assertDoesNotThrow(() -> repository.updateDraftToActive(clause.uuid()));
+        var e = assertThrows(
+                NotFoundException.class,
+                () -> repository.updateDraftToActive(clause.uuid()));
+
+        assertEquals("No clause found with uuid %s in DRAFT status".formatted(clause.uuid()), e.getDetailedError());
+    }
+
+    @Test
+    void create_WhenAllErrorCodesHasBeenUsed_ThrowsException() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
+        jdbcTemplate.execute("INSERT INTO error_code (error_code, clause_name) VALUES (10999, 'clause_with_last_error_code')");
+        var clause = new ClauseInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message");
+
+        var e = assertThrows(ServiceException.class, () -> repository.create(clause));
+
+        Assertions.assertEquals("Failed to create clause", e.getMessage());
     }
 }

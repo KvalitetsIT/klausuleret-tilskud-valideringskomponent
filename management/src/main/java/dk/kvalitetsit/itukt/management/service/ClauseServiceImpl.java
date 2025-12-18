@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.management.service;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.management.repository.cache.ClauseCache;
+import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCache;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 
 import java.util.Optional;
@@ -11,10 +11,10 @@ import java.util.Optional;
 public class ClauseServiceImpl implements ClauseService {
 
 
-    private final ClauseCache cache;
+    private final ActiveClauseCache cache;
     private final Mapper<ClauseEntity, Clause> mapper;
 
-    public ClauseServiceImpl(ClauseCache cache, Mapper<ClauseEntity, Clause> mapper) {
+    public ClauseServiceImpl(ActiveClauseCache cache, Mapper<ClauseEntity, Clause> mapper) {
         this.cache = cache;
         this.mapper = mapper;
     }

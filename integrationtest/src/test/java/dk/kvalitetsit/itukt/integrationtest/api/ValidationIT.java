@@ -14,6 +14,7 @@ import org.openapitools.client.model.*;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,7 +46,8 @@ public class ValidationIT extends BaseTest {
         var expression = new ExpressionEntity.BinaryExpressionEntity(orExpression, AND, createdByExpression);
         var clause = new ClauseInput("KRINI", expression, "message");
 
-        repository.create(clause);
+        UUID uuid = repository.create(clause).uuid();
+        repository.updateDraftToActive(uuid);
     }
 
     @BeforeEach

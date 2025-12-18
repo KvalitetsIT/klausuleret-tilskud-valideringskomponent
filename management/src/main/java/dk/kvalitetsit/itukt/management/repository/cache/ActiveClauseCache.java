@@ -4,7 +4,7 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 
 import java.util.Optional;
 
-public interface ClauseCache {
+public interface ActiveClauseCache {
     /**
      * @param name the name of the clause you want to retrieve from the cache
      * @return the clause corresponding to that name if present otherwise Optional.empty

@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.common.model;
 
+import java.util.Date;
 import java.util.UUID;
 
 public record Clause(
@@ -7,7 +8,8 @@ public record Clause(
         String name,
         UUID uuid,
         Error error,
-        Expression expression
+        Expression expression,
+        Date createdAt
 ) {
     public record Error(String message, int code) { }
 }

@@ -16,4 +16,6 @@ public interface ClauseRepository {
      * Retrieves all clauses, including only the latest version of each clause.
      */
     List<ClauseEntity> readAll() throws ServiceException;
+
+    List<ClauseEntity> readHistory(String name);
 }

@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -32,35 +30,40 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public ClauseEntity create(ClauseInput clause) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
-            KeyHolder keyHolder = new GeneratedKeyHolder();
 
             ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
 
-            template.update(
-                    "INSERT INTO clause (uuid, name, expression_id, error_message) VALUES (:uuid, :name, :expression_id, :error_message)",
-                    new MapSqlParameterSource()
-                            .addValue("uuid", uuid.toString())
-                            .addValue("name", clause.name())
-                            .addValue("expression_id", createdExpression.id())
-                            .addValue("error_message", clause.errorMessage()),
-                    keyHolder,
-                    new String[]{"id"}
-            );
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message) " +
+                    "RETURNING id, created_time";
 
-            long clauseId = Optional.ofNullable(keyHolder.getKey())
-                    .orElseThrow(() -> new ServiceException("Failed to generate clause primary key"))
-                    .longValue();
+            MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("uuid", uuid.toString())
+                    .addValue("name", clause.name())
+                    .addValue("expression_id", createdExpression.id())
+                    .addValue("error_message", clause.errorMessage());
 
-            int errorCode = createOrGetErrorCode(clause.name());
 
-            return new ClauseEntity(clauseId, uuid, clause.name(), errorCode, clause.errorMessage(), createdExpression);
+            return template.queryForObject(sql, params, (rs, rowNum) -> {
+
+                int errorCode = createOrGetErrorCode(clause.name());
+
+                return new ClauseEntity(
+                        rs.getLong("id"),
+                        uuid,
+                        clause.name(),
+                        errorCode,
+                        clause.errorMessage(),
+                        createdExpression,
+                        rs.getTimestamp("created_time")
+                );
+            });
 
         } catch (Exception e) {
             logger.error("Failed to create clause", e);
             throw new ServiceException("Failed to create clause", e);
         }
     }
-
 
     private int createOrGetErrorCode(String clauseName) {
         var existingErrorCodes = template.queryForList(
@@ -97,7 +100,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message
+                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message, c.created_time
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -116,7 +119,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getString("name"),
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
-                                expression
+                                expression,
+                                rs.getTimestamp("created_time")
                         );
                     });
 
@@ -170,6 +174,31 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             logger.error("Failed to read all clauses", e);
             throw new ServiceException("Failed to read clauses", e);
         }
+    }
+
+    @Override
+    public List<ClauseEntity> readHistory(String name) {
+        try {
+            String sql = """
+                        SELECT uuid
+                        FROM clause
+                        WHERE name = :name
+                        ORDER BY created_time
+                    """;
+
+            List<UUID> uuids = template.queryForList(sql, Map.of("name", name), UUID.class);
+
+            return uuids.stream()
+                    .map(this::read)
+                    .flatMap(Optional::stream)
+                    .toList();
+
+        } catch (Exception e) {
+            var message = String.format("Failed to read the history of clause '%s'", name);
+            logger.error(message, e);
+            throw new ServiceException(message, e);
+        }
+
     }
 
 

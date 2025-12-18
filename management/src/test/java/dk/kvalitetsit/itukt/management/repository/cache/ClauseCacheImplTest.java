@@ -1,10 +1,10 @@
 package dk.kvalitetsit.itukt.management.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,7 +53,8 @@ class ClauseCacheImplTest {
                 new ExpressionEntity.StringConditionEntity(
                         Field.AGE,
                         "value"
-                )
+                ),
+                null
         );
 
         Mockito.when(concreteRepository.readAll()).thenReturn(List.of(expected));
@@ -72,8 +73,8 @@ class ClauseCacheImplTest {
 
     @Test
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
-        var existingClause1 = new ClauseEntity(null, null, "test1", 111, "message1",null);
-        var existingClause2 = new ClauseEntity(null, null, "test2", 222, "message2", null);
+        var existingClause1 = new ClauseEntity(null, null, "test1", 111, "message1", null, null);
+        var existingClause2 = new ClauseEntity(null, null, "test2", 222, "message2", null, null);
         Mockito.when(concreteRepository.readAll()).thenReturn(List.of(existingClause1, existingClause2));
         cache.load();
 

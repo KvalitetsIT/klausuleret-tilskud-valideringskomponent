@@ -12,6 +12,8 @@ import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity.String
 import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import org.openapitools.model.*;
 
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_TO;
@@ -35,7 +37,8 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_ENTITY
     );
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "CHOL", 10800, "message", EXPRESSION_1_ENTITY);
+    private static Date createdAt = new Date();
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "CHOL", 10800, "message", EXPRESSION_1_ENTITY, createdAt);
     private static final AgeConditionExpression EXPRESSION_6_MODEL = new AgeConditionExpression(
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()
@@ -73,7 +76,7 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_MODEL()
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL);
+    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, createdAt);
 
     private static final IndicationCondition EXPRESSION_2_DTO = new IndicationCondition()
             .type(ExpressionType.INDICATION)
@@ -83,7 +86,7 @@ public class MockFactory {
             .operator(BinaryOperator.OR)
             .left(EXPRESSION_2_DTO)
             .right(EXPRESSION_7_DTO);
-    public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, CLAUSE_1_MODEL.error().message(), CLAUSE_1_MODEL.uuid());
+    public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, CLAUSE_1_MODEL.error().message(), CLAUSE_1_MODEL.uuid(), createdAt.toInstant().atOffset(ZoneOffset.UTC));
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, CLAUSE_1_MODEL.error().message());
 
     public static String EXPRESSION_1_DSL = "(INDIKATION = C10BA03) eller (INDIKATION i C10BA02, C10BA05) og (AGE >= 13)";
@@ -92,7 +95,7 @@ public class MockFactory {
     // Note: This clause(CLAUSE_1_DSL) matches: clause_1_*
 
     public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput("message", "Klausul CHOL: " + EXPRESSION_1_DSL);
-    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput("message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid());
+    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput("message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid(), createdAt.toInstant().atOffset(ZoneOffset.UTC));
 
     private static dk.kvalitetsit.itukt.common.model.BinaryExpression EXPRESSION_7_MODEL() {
         return new dk.kvalitetsit.itukt.common.model.BinaryExpression(

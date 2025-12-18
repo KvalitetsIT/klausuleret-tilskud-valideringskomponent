@@ -33,6 +33,11 @@ public class ClauseRepositoryAdaptor {
         return this.entityMapper.map(clauseRepository.readAll());
     }
 
+
+    public List<Clause> readHistory(String name) throws ServiceException {
+        return this.entityMapper.map(clauseRepository.readHistory(name));
+    }
+
     public boolean nameExists(String name) throws ServiceException {
         return clauseRepository.nameExists(name);
     }

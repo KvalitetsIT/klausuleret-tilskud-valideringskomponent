@@ -4,6 +4,9 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.model.ClauseOutput> {
 
     private final Mapper<Expression, org.openapitools.model.Expression> expressionModelMapper;
@@ -18,7 +21,8 @@ public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.mod
                 entry.name(),
                 this.expressionModelMapper.map(entry.expression()),
                 entry.error().message(),
-                entry.uuid()
+                entry.uuid(),
+                entry.createdAt().toInstant().atOffset(ZoneOffset.UTC)
         );
     }
 }

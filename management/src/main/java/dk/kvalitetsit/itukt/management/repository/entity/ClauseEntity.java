@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.entity;
 
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 public record ClauseEntity(
@@ -10,6 +11,6 @@ public record ClauseEntity(
         int errorCode,
         String errorMessage,
         ExpressionEntity expression,
-        Date validFrom
+        Optional<Date> validFrom
 ) {
 }

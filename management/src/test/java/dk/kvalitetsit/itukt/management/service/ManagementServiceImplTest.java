@@ -1,11 +1,8 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -15,9 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.deser.CreatorProperty;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -76,8 +71,8 @@ class ManagementServiceImplTest {
     void readHistory_invokesRepositoryOnce() {
         String name = "blaah";
         var clauses = List.of(
-                new Clause(1L, name, null, new Clause.Error("message1", 10800), null, null),
-                new Clause(2L, name, null, new Clause.Error("message2", 10800), null, null)
+                new Clause(1L, name, null, new Clause.Error("message1", 10800), null, Optional.empty()),
+                new Clause(2L, name, null, new Clause.Error("message2", 10800), null, Optional.empty())
         );
         Mockito.when(dao.readHistory(name)).thenReturn(clauses);
         var result = service.readHistory(name);

@@ -60,7 +60,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         errorCode,
                         clause.errorMessage(),
                         createdExpression,
-                        null
+                        Optional.empty()
                 );
             });
 
@@ -125,7 +125,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
-                                rs.getTimestamp("valid_from")
+                                Optional.ofNullable(rs.getTimestamp("valid_from"))
                         );
                     });
 

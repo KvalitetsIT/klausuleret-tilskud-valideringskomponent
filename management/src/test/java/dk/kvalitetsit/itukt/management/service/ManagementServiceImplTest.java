@@ -55,7 +55,7 @@ class ManagementServiceImplTest {
     @Test
     void readByStatus_WithStatusActive_ReturnsActiveClauses() {
         var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.readAllActive()).thenReturn(List.of(model));
+        Mockito.when(dao.readLatestActive()).thenReturn(List.of(model));
 
         var result = service.readByStatus(Clause.Status.ACTIVE);
 

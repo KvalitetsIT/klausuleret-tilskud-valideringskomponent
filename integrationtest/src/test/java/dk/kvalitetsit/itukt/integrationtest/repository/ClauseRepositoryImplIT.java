@@ -158,7 +158,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createAndApproveTwoClauseWithSameName_ThenReadAllActive_ReturnsLatestApprovedClause() {
+    void createAndApproveTwoClauseWithSameName_ThenReadLatestActive_ReturnsLatestApprovedClause() {
         var clauseAInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
         var clauseBInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
 
@@ -166,7 +166,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var clauseB = repository.create(clauseBInput);
         repository.updateDraftToActive(clauseB.uuid());
         repository.updateDraftToActive(clauseA.uuid());
-        var clauses = repository.readAllActive();
+        var clauses = repository.readLatestActive();
 
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
         assertEquals(clauseA, clauses.getFirst(),

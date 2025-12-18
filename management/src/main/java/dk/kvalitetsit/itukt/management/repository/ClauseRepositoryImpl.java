@@ -140,7 +140,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<ClauseEntity> readAllActive() throws ServiceException {
+    public List<ClauseEntity> readLatestActive() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid

@@ -7,7 +7,7 @@ import dk.kvalitetsit.itukt.common.model.ValidationFailed;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCache;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 
 import java.util.List;
@@ -16,10 +16,10 @@ import java.util.Optional;
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
 
     private final ClauseService clauseCache;
-    private final DrugClauseCache drugClauseCache;
+    private final Cache<Long, DrugClause> drugClauseCache;
     private final SkippedValidationService skippedValidationService;
 
-    public ValidationServiceImpl(ClauseService clauseCache, DrugClauseCache drugClauseCache, SkippedValidationService skippedValidationService) {
+    public ValidationServiceImpl(ClauseService clauseCache, Cache<Long, DrugClause> drugClauseCache, SkippedValidationService skippedValidationService) {
         this.clauseCache = clauseCache;
         this.drugClauseCache = drugClauseCache;
         this.skippedValidationService = skippedValidationService;

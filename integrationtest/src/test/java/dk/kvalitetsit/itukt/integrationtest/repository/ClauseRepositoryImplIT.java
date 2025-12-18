@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
@@ -10,7 +11,6 @@ import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.repository.entity.Field;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -76,9 +76,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
                     Stream.concat(
                             ignoreFieldRecursive(binaryExp.left(), fieldToIgnore, path + "left."),
                             ignoreFieldRecursive(binaryExp.right(), fieldToIgnore, path + "right.")));
-            case ExpressionEntity.ExistingDrugMedicationConditionEntity __ -> Stream.of(path + fieldToIgnore);
-            case ExpressionEntity.NumberConditionEntity __ -> Stream.of(path + fieldToIgnore);
-            case ExpressionEntity.StringConditionEntity __ -> Stream.of(path + fieldToIgnore);
+            case ExpressionEntity.ExistingDrugMedicationConditionEntity ignored -> Stream.of(path + fieldToIgnore);
+            case ExpressionEntity.NumberConditionEntity ignored -> Stream.of(path + fieldToIgnore);
+            case ExpressionEntity.StringConditionEntity ignored -> Stream.of(path + fieldToIgnore);
         };
     }
 

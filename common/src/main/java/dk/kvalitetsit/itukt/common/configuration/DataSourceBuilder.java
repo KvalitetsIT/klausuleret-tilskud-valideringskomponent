@@ -13,7 +13,7 @@ public class DataSourceBuilder {
         hikariConfig.setJdbcUrl(config.url());
         hikariConfig.setUsername(config.username());
         hikariConfig.setPassword(config.password());
-        Optional.ofNullable(config.connection().maxAge()).map(Duration::toMillis).ifPresent(hikariConfig::setMaxLifetime);;
+        Optional.ofNullable(config.connection().maxAge()).map(Duration::toMillis).ifPresent(hikariConfig::setMaxLifetime);
         Optional.ofNullable(config.connection().testQuery()).ifPresent(hikariConfig::setConnectionTestQuery);
         Optional.ofNullable(config.connection().maxIdleTime()).map(Duration::toMillis).ifPresent(hikariConfig::setIdleTimeout);
 

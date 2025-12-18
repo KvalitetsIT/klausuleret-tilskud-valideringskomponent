@@ -1,16 +1,20 @@
 package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
+import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DepartmentCacheImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DrugClauseViewMapper;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCache;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCacheImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DepartmentEntityModelMapper;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import dk.kvalitetsit.itukt.validation.service.*;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepository;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryAdaptor;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.openapitools.model.ValidationRequest;
 import org.openapitools.model.ValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,19 +40,35 @@ public class ValidationBeanRegistration {
 
 
     @Bean
-    public DrugClauseViewRepository drugClauseRepository(@Qualifier("stamDataSource") DataSource dataSource) {
+    public Repository<DrugClauseView> drugClauseRepository(@Qualifier("stamDataSource") DataSource dataSource) {
         return new DrugClauseViewRepositoryImpl(dataSource);
     }
 
     @Bean
-    public DrugClauseViewRepositoryAdaptor drugClauseViewRepositoryAdaptor(DrugClauseViewRepository drugClauseViewRepository) {
+    public Repository<DrugClause> drugClauseViewRepositoryAdaptor(Repository<DrugClauseView> drugClauseViewRepository) {
         DrugClauseViewMapper mapper = new DrugClauseViewMapper();
         return new DrugClauseViewRepositoryAdaptor(mapper, drugClauseViewRepository);
     }
 
     @Bean
-    public DrugClauseCache drugClauseCache(DrugClauseViewRepositoryAdaptor stamDataRepository) {
+    public Cache<Long, DrugClause> drugClauseCache(Repository<DrugClause> stamDataRepository) {
         return new DrugClauseCacheImpl(configuration.stamdata().cache(), stamDataRepository);
+    }
+
+    @Bean
+    public Repository<DepartmentEntity> departmentRepository(@Qualifier("stamDataSource") DataSource dataSource) {
+        return new DepartmentRepository(dataSource);
+    }
+
+    @Bean
+    public DepartmentRepositoryAdaptor departmentRepositoryAdaptor(Repository<DepartmentEntity> departmentRepository) {
+        DepartmentEntityModelMapper mapper = new DepartmentEntityModelMapper();
+        return new DepartmentRepositoryAdaptor(mapper, departmentRepository);
+    }
+
+    @Bean
+    public Cache<Department.Identifier, Department> departmentCache(DepartmentRepositoryAdaptor adaptor) {
+        return new DepartmentCacheImpl(configuration.stamdata().cache(), adaptor);
     }
 
     @Bean
@@ -67,13 +87,13 @@ public class ValidationBeanRegistration {
     @Bean
     public ValidationService<ValidationRequest, ValidationResponse> validationService(
             @Autowired ClauseService clauseService,
-            @Autowired DrugClauseCache stamDataCache,
+            @Autowired Cache<Long, DrugClause> dsrugClauseCache,
             @Autowired SkippedValidationService skippedValidationService
     ) {
         return new ValidationServiceAdaptor(
                 new ValidationServiceImpl(
                         clauseService,
-                        stamDataCache,
+                        dsrugClauseCache,
                         skippedValidationService
                 )
         );

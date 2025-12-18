@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
+import static dk.kvalitetsit.itukt.common.model.ValidationError.Field;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BinaryExpressionTest {

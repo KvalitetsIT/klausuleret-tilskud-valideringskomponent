@@ -39,7 +39,7 @@ public class MockFactory {
             EXPRESSION_7_ENTITY
     );
     private static final Date validFrom = new Date();
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "CHOL", 10800, "message", EXPRESSION_1_ENTITY, Optional.of(validFrom));
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "name", 10800, "message", EXPRESSION_1_ENTITY, Optional.of(validFrom));
     private static final AgeConditionExpression EXPRESSION_6_MODEL = new AgeConditionExpression(
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()
@@ -95,8 +95,8 @@ public class MockFactory {
 
     // Note: This clause(CLAUSE_1_DSL) matches: clause_1_*
 
-    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput("message", "Klausul CHOL: " + EXPRESSION_1_DSL);
-    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput("message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid(), validFrom.toInstant().atOffset(ZoneOffset.UTC));
+    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput("name","message", EXPRESSION_1_DSL);
+    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput("name", "message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid(), validFrom.toInstant().atOffset(ZoneOffset.UTC));
 
     private static dk.kvalitetsit.itukt.common.model.BinaryExpression EXPRESSION_7_MODEL() {
         return new dk.kvalitetsit.itukt.common.model.BinaryExpression(

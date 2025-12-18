@@ -14,8 +14,9 @@ public class ClauseDtoDslMapper implements Mapper<ClauseOutput, DslOutput> {
     @Override
     public DslOutput map(ClauseOutput entry) {
         return new DslOutput(
+                entry.getName(),
                 entry.getError(),
-                "Klausul " + entry.getName() + ": " + this.expressionDslMapper.map(entry.getExpression()),
+                this.expressionDslMapper.map(entry.getExpression()),
                 entry.getUuid(),
                 entry.getValidFrom()
         );

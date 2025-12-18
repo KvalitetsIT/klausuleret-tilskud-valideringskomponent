@@ -433,7 +433,12 @@ components:
       required:
         - dsl
         - error
+        - name
       properties:
+        name:
+          type: string
+          description: "The name of the clause"
+          example: "CHOL"
         error:
           $ref: './common.yaml#/components/schemas/ErrorMessage'
         dsl:
@@ -463,5 +468,4 @@ components:
     Dsl:
       description: "A clause specified in a domain specific language (DSL)"
       type: string
-      #      pattern: "^\\s*(?:(Klausul|og|eller)|(>=|<=|=|i)|([A-Za-z][A-Za-z0-9]*)|([0-9]+)|([:,()])|(\\S))"
-      example: "Klausul CHOL: ALDER >= 13 og EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} og SPECIALE = psyk"
+      example: "ALDER >= 13 og EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} og SPECIALE = psyk"

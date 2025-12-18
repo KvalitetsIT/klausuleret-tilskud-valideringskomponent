@@ -69,7 +69,7 @@ public class ManagementServiceAdaptorTest {
 
     @Test
     void testCreateDsl() {
-        var dslInput = new DslInput("message", "test");
+        var dslInput = new DslInput("name", "message", "test");
         var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "message");
         var clause = Mockito.mock(Clause.class);
         var dslOutput = Mockito.mock(DslOutput.class);

@@ -39,7 +39,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status) " +
                     "VALUES (:uuid, :name, :expression_id, :error_message, :status) " +
-                    "RETURNING id, created_time";
+                    "RETURNING id";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue("uuid", uuid.toString())
@@ -60,7 +60,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         errorCode,
                         clause.errorMessage(),
                         createdExpression,
-                        rs.getTimestamp("created_time")
+                        null
                 );
             });
 
@@ -105,7 +105,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message, c.created_time
+                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message, c.valid_from
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -125,7 +125,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
-                                rs.getTimestamp("created_time")
+                                rs.getTimestamp("valid_from")
                         );
                     });
 
@@ -205,7 +205,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         SELECT uuid
                         FROM clause
                         WHERE name = :name
-                        ORDER BY created_time
+                        ORDER BY valid_from
                     """;
 
             List<UUID> uuids = template.queryForList(sql, Map.of("name", name), UUID.class);

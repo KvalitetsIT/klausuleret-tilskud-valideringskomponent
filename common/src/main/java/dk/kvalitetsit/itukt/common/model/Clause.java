@@ -9,7 +9,7 @@ public record Clause(
         UUID uuid,
         Error error,
         Expression expression,
-        Date createdAt
+        Date validFrom
 ) {
     public record Error(String message, int code) {
     }

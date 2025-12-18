@@ -116,7 +116,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("createdAt")
+                .ignoringFields("validFrom")
                 .withFailMessage("Expected the latest approved version of the clause to be returned")
                 .isEqualTo(clauseA);
     }
@@ -165,7 +165,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var readClause = repository.read(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
-        var expectedClause = new ClauseEntity(null, null, "CLAUSE", 10800, "message", existingDrugMedicationCondition, readClause.get().createdAt());
+        var expectedClause = new ClauseEntity(null, null, "CLAUSE", 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom());
         assertThat(readClause.get())
                 .usingRecursiveComparison()
                 .ignoringFields("id", "uuid", "errorCode", "expression.id")

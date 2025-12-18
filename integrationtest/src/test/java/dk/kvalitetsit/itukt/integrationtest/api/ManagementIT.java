@@ -40,6 +40,10 @@ class ManagementIT extends BaseTest {
                 api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error2").expression(expression)),
                 api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error3").expression(expression))
         );
+        created.forEach(clause ->
+                api.call20250801clausesIdStatusPut(
+                        clause.getUuid(),
+                        new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE)));
 
         List<DslOutput> clauses = api.call20250801clausesDslNameHistoryGet("blaaaaah");
 
@@ -49,18 +53,12 @@ class ManagementIT extends BaseTest {
             var x = created.get(i);
             var y = clauses.get(i);
             assertEquals(x.getError(), y.getError());
-            assertEquals(x.getCreatedAt(), y.getCreatedAt());
             if (i != 0) {
                 // Assert that the timestamp is greater than the previous
-                ClauseOutput prev_x = created.get(i - 1);
                 DslOutput prev_y = clauses.get(i - 1);
 
                 assertTrue(
-                        x.getCreatedAt().isAfter(prev_x.getCreatedAt()),
-                        "The timestamp is expected to be greater than the previous version"
-                );
-                assertTrue(
-                        y.getCreatedAt().isAfter(prev_y.getCreatedAt()),
+                        y.getValidFrom().isAfter(prev_y.getValidFrom()),
                         "The timestamp is expected to be greater than the previous version"
                 );
             }
@@ -90,7 +88,7 @@ class ManagementIT extends BaseTest {
         assertEquals(1, clauses.size());
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "createdAt")
+                .ignoringFields("uuid", "validFrom")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -104,7 +102,7 @@ class ManagementIT extends BaseTest {
 
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "createdAt")
+                .ignoringFields("uuid", "validFrom")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -122,7 +120,10 @@ class ManagementIT extends BaseTest {
 
         assertTrue(drafts.isEmpty());
         assertEquals(1, activeClauses.size());
-        assertEquals(updatedClause, activeClauses.getFirst());
+        assertThat(activeClauses.getFirst())
+                .usingRecursiveComparison()
+                .ignoringFields("validFrom")
+                .isEqualTo(updatedClause);
     }
 
     @Test
@@ -142,7 +143,7 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "createdAt")
+                .ignoringFields("uuid", "validFrom")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
@@ -223,7 +224,7 @@ class ManagementIT extends BaseTest {
 
         ClauseOutput createClauseResponse = api.call20250801clausesPost(clauseInput);
 
-        DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createClauseResponse.getUuid()).createdAt(createClauseResponse.getCreatedAt());
+        DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createClauseResponse.getUuid()).validFrom(createClauseResponse.getValidFrom());
 
         var getDslResponse = api.call20250801clausesDslIdGet(createClauseResponse.getUuid());
 
@@ -307,7 +308,7 @@ class ManagementIT extends BaseTest {
                                                         ))))))
                 .error(error)
                 .uuid(dslOutput.getUuid())
-                .createdAt(getClauseResponse.getCreatedAt());
+                .validFrom(getClauseResponse.getValidFrom());
 
         assertEquals(clauseOutput, getClauseResponse, "Expected the clause to match the dsl initially created");
 

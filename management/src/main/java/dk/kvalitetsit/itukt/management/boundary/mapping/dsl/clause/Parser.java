@@ -142,7 +142,6 @@ class Parser {
 
     /**
      * Parses a top-level "Klausul" expression}
-     * followed by a name and a colon, and then a logical expression.
      *
      * @return the parsed {@code Expression}
      */

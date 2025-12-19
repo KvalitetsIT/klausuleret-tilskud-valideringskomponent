@@ -32,7 +32,7 @@ class Lexer {
                     "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
                     "([a-zÆØÅæøå][a-z0-9_ÆØÅæøå]*)|" +          // identifiers
                     "([0-9]+)|" +                               // numbers
-                    "([:,()\\[\\]{}*])|" +                      // symbols
+                    "([,()\\[\\]{}*])|" +                      // symbols
                     "(\\S))",                                   // unknown
             Pattern.CASE_INSENSITIVE
     );

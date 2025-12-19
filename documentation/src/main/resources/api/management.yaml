@@ -468,4 +468,4 @@ components:
     Dsl:
       description: "A clause specified in a domain specific language (DSL)"
       type: string
-      example: "ALDER >= 13 og EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} og SPECIALE = psyk"
+      example: "ALDER >= 13 og EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} og LÆGESPECIALE = psyk"

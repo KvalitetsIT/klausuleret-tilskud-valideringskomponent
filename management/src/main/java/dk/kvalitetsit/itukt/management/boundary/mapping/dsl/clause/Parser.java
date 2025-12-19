@@ -141,16 +141,12 @@ class Parser {
     }
 
     /**
-     * Parses a top-level "Klausul" expression, which starts with the keyword {@code Klausul}
-     * followed by a name and a colon, and then a logical expression.
+     * Parses a top-level "Klausul" expression}
      *
      * @return the parsed {@code Expression}
      */
-    protected ParsedClause parseClause() {
-        expect("Klausul");
-        Token name = next();
-        expect(":");
-        return new ParsedClause(name.text(), parseOrExpression());
+    protected Expression parseExpression() {
+        return parseOrExpression();
     }
 
     /**

@@ -17,7 +17,8 @@ public class MockFactory {
 
     // Note: This clause(clause_1_dsl) matches: clause_1_*
     public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput()
-            .dsl("Klausul CHOL: (INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13) og ((LÆGESPECIALE = ortopædkirurg) eller (LÆGESPECIALE = tandlæge))")
+            .name("CHOL")
+            .dsl("(INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13) og ((LÆGESPECIALE = ortopædkirurg) eller (LÆGESPECIALE = tandlæge))")
             .error("message");
     private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Field.INDICATION, "C10BA03");
     private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Field.INDICATION, "C10BA02");

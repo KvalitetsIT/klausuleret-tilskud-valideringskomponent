@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * <p>
  * Example recognized tokens include:
  * <ul>
- *     <li>Keywords: {@code Klausul}, {@code og}, {@code eller}</li>
+ *     <li>Keywords: {@code og}, {@code eller}</li>
  *     <li>Operators: {@code >=}, {@code <=}, {@code =}, {@code i}</li>
  *     <li>Identifiers: sequences starting with a letter followed by letters or digits</li>
  *     <li>Numbers: numeric digits</li>
@@ -28,11 +28,11 @@ class Lexer {
      * Regular expression pattern for matching different kinds of tokens.
      */
     private static final Pattern TOKEN_PATTERNS = Pattern.compile(
-            "\\s*(?:(klausul|og|eller)|" +                // keywords
+            "\\s*(?:(og|eller)|" +                // keywords
                     "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
                     "([a-zÆØÅæøå][a-z0-9_ÆØÅæøå]*)|" +          // identifiers
                     "([0-9]+)|" +                               // numbers
-                    "([:,()\\[\\]{}*])|" +                      // symbols
+                    "([,()\\[\\]{}*])|" +                      // symbols
                     "(\\S))",                                   // unknown
             Pattern.CASE_INSENSITIVE
     );

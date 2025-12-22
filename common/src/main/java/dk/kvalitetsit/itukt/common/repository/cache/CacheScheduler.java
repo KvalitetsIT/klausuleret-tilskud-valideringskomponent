@@ -8,7 +8,7 @@ import org.springframework.scheduling.support.CronTrigger;
 import java.util.List;
 
 /**
- * The responsibility of this class is to schedule the load/reload of the caches that lies between the service and the repository layers
+ * The responsibility of this class is to schedule the loading/reloading of the {@link CacheLoader}'s that lies between the service and the repository layers.
  */
 public class CacheScheduler {
 

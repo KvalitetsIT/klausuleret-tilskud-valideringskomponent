@@ -9,7 +9,7 @@ class ValidationErrorTest {
 
     @Test
     void conditionErrorToErrorString_WithEqualsOperator_ReturnsCorrespondingErrorString() {
-        var conditionError = new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.EQUAL, "0");
+        var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.EQUAL, "0");
 
         String errorString = conditionError.toErrorString();
 
@@ -18,7 +18,7 @@ class ValidationErrorTest {
 
     @Test
     void conditionErrorToErrorString_WithGreaterThanOperator_ReturnsCorrespondingErrorString() {
-        var conditionError = new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.GREATER_THAN, "0");
+        var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.GREATER_THAN, "0");
 
         String errorString = conditionError.toErrorString();
 
@@ -27,7 +27,7 @@ class ValidationErrorTest {
 
     @Test
     void conditionErrorToErrorString_WithGreaterOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
-        var conditionError = new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.GREATER_THAN_OR_EQUAL_TO, "0");
+        var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.GREATER_THAN_OR_EQUAL_TO, "0");
 
         String errorString = conditionError.toErrorString();
 
@@ -36,7 +36,7 @@ class ValidationErrorTest {
 
     @Test
     void conditionErrorToErrorString_WithLessThanOperator_ReturnsCorrespondingErrorString() {
-        var conditionError = new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.LESS_THAN, "0");
+        var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.LESS_THAN, "0");
 
         String errorString = conditionError.toErrorString();
 
@@ -45,7 +45,7 @@ class ValidationErrorTest {
 
     @Test
     void conditionErrorToErrorString_WithLessOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
-        var conditionError = new ValidationError.ConditionError(ValidationError.Field.AGE, Operator.LESS_THAN_OR_EQUAL_TO, "0");
+        var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.LESS_THAN_OR_EQUAL_TO, "0");
 
         String errorString = conditionError.toErrorString();
 
@@ -54,7 +54,7 @@ class ValidationErrorTest {
 
     @Test
     void conditionErrorToErrorString_WithIndicationEqualsOperator_ReturnsCorrespondingErrorString() {
-        var conditionError = new ValidationError.ConditionError(ValidationError.Field.INDICATION, Operator.EQUAL, "indication");
+        var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.INDICATION, Operator.EQUAL, "indication");
 
         String errorString = conditionError.toErrorString();
 
@@ -94,6 +94,6 @@ class ValidationErrorTest {
 
         String errorString = conditionError.toErrorString();
 
-        assertEquals("Tidligere medicinsk behandling med følgende påkrævet: ATC = atc, Formkode = form, Administrationsrutekode = adm", errorString);
+        assertEquals("tidligere medicinsk behandling med følgende påkrævet: ATC = atc, Formkode = form, Administrationsrutekode = adm", errorString);
     }
 }

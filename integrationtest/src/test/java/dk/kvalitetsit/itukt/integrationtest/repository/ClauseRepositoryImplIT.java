@@ -3,7 +3,6 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;

@@ -17,7 +17,7 @@ class AgeConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.AGE, conditionError.field());
         assertEquals(Operator.EQUAL, conditionError.operator());
         assertEquals("5", conditionError.value());
     }
@@ -32,7 +32,7 @@ class AgeConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.AGE, conditionError.field());
         assertEquals(Operator.EQUAL, conditionError.operator());
         assertEquals("5", conditionError.value());
     }
@@ -58,7 +58,7 @@ class AgeConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.AGE, conditionError.field());
         assertEquals(Operator.GREATER_THAN_OR_EQUAL_TO, conditionError.operator());
         assertEquals("5", conditionError.value());
     }
@@ -117,7 +117,7 @@ class AgeConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.AGE, conditionError.field());
         assertEquals(Operator.LESS_THAN_OR_EQUAL_TO, conditionError.operator());
         assertEquals("5", conditionError.value());
     }
@@ -133,7 +133,7 @@ class AgeConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.AGE, conditionError.field());
         assertEquals(Operator.GREATER_THAN, conditionError.operator());
         assertEquals("5", conditionError.value());
     }
@@ -148,7 +148,7 @@ class AgeConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.AGE, conditionError.field());
         assertEquals(Operator.GREATER_THAN, conditionError.operator());
         assertEquals("5", conditionError.value());
     }
@@ -185,7 +185,7 @@ class AgeConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.AGE, conditionError.field());
         assertEquals(Operator.LESS_THAN, conditionError.operator());
         assertEquals("5", conditionError.value());
     }
@@ -200,7 +200,7 @@ class AgeConditionExpressionTest {
 
         assertTrue(validationError.isPresent());
         var conditionError = assertInstanceOf(ValidationError.ConditionError.class, validationError.get());
-        assertEquals(ValidationError.Field.AGE, conditionError.field());
+        assertEquals(ValidationError.ConditionError.Field.AGE, conditionError.field());
         assertEquals(Operator.LESS_THAN, conditionError.operator());
         assertEquals("5", conditionError.value());
     }

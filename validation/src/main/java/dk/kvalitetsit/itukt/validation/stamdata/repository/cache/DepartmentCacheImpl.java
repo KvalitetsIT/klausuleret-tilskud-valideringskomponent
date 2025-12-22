@@ -5,10 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,15 +28,16 @@ public class DepartmentCacheImpl implements Cache<Department.Identifier, Departm
         return new Department(x.shak(), x.sor(), specialities);
     }
 
-    private <T> Map<T, Department> toMap(List<Department> entry, Function<Department, T> identity) {
-        return entry.stream()
-                .filter(e -> identity.apply(e) != null)
+    private <T> Map<T, Department> toMap(List<Department> departments, Function<Department, Optional<T>> getId) {
+        return departments.stream()
+                .flatMap(dept -> getId.apply(dept).stream().map(id -> new AbstractMap.SimpleEntry<>(id, dept)))
                 .collect(Collectors.toMap(
-                        identity,
-                        Function.identity(),
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
                         DepartmentCacheImpl::resolveConflict
                 ));
     }
+
 
     public String getCron() {
         return configuration.cron();

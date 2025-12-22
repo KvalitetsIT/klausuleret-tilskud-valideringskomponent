@@ -31,5 +31,6 @@ public sealed interface Expression permits Expression.Condition, BinaryExpressio
             IndicationConditionExpression,
             AgeConditionExpression,
             ExistingDrugMedicationConditionExpression,
-            DoctorSpecialityConditionExpression {}
+            DoctorSpecialityConditionExpression,
+            DepartmentConditionExpression {}
 }

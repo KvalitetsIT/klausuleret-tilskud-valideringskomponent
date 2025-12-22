@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.common.model;
 
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -12,7 +13,18 @@ import java.util.Set;
  * @param shak         The shak code pointing to the department/organisation
  * @param specialities The distinct specialities assigned to the department/organisation
  */
-public record Department(Identifier.SHAK shak, Identifier.SOR sor, Set<Speciality> specialities) {
+public record Department(Optional<Identifier.SHAK> shak, Optional<Identifier.SOR> sor, Set<Speciality> specialities) {
+    public Department {
+        java.util.Objects.requireNonNull(shak);
+        java.util.Objects.requireNonNull(sor);
+        java.util.Objects.requireNonNull(specialities);
+    }
+
+    public Department withSpecialities(Set<Speciality> specialities) {
+        return new Department(this.shak, this.sor, specialities);
+    }
+
+
     public sealed interface Identifier permits Identifier.SHAK, Identifier.SOR {
 
         String code();

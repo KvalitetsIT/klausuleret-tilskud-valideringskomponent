@@ -13,10 +13,11 @@ import org.openapitools.model.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.*;
+import static java.util.Optional.of;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,8 +51,28 @@ class ValidationServiceAdaptorTest {
         validationServiceAdaptor.validate(request);
 
         var expectedExistingDrugMedication = new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existingDrugMedication.getAtcCode(), existingDrugMedication.getFormCode(), existingDrugMedication.getRouteOfAdministrationCode());
-        ValidationInput expectedValidationInput1 = new ValidationInput(request.getPersonIdentifier(), new ValidationInput.CreatedBy(creator1), of(new ValidationInput.ReportedBy(reporter1)), request.getSkipValidations(), request.getAge(), validate1.getNewDrugMedication().getDrugIdentifier(), validate1.getNewDrugMedication().getIndicationCode(), of(List.of(expectedExistingDrugMedication)));
-        ValidationInput expectedValidationInput2 = new ValidationInput(request.getPersonIdentifier(), new ValidationInput.CreatedBy(creator2), of(new ValidationInput.ReportedBy(reporter2)), request.getSkipValidations(), request.getAge(), validate2.getNewDrugMedication().getDrugIdentifier(), validate2.getNewDrugMedication().getIndicationCode(), of(List.of(expectedExistingDrugMedication)));
+
+        ValidationInput expectedValidationInput1 = new ValidationInput(
+                request.getPersonIdentifier(),
+                new ValidationInput.Actor(creator1, Optional.empty(), Optional.empty()),
+                Optional.of(new ValidationInput.Actor(reporter1, Optional.empty(), Optional.empty())),
+                request.getSkipValidations(),
+                request.getAge(),
+                validate1.getNewDrugMedication().getDrugIdentifier(),
+                validate1.getNewDrugMedication().getIndicationCode(),
+                of(List.of(expectedExistingDrugMedication)));
+
+        ValidationInput expectedValidationInput2 = new ValidationInput(
+                request.getPersonIdentifier(),
+                new ValidationInput.Actor(creator2, Optional.empty(), Optional.empty()),
+                Optional.of(new ValidationInput.Actor(reporter2, Optional.empty(), Optional.empty())),
+                request.getSkipValidations(),
+                request.getAge(),
+                validate2.getNewDrugMedication().getDrugIdentifier(),
+                validate2.getNewDrugMedication().getIndicationCode(),
+                Optional.of(List.of(expectedExistingDrugMedication))
+        );
+
         Mockito.verify(validationService).validate(Mockito.eq(expectedValidationInput1));
         Mockito.verify(validationService).validate(Mockito.eq(expectedValidationInput2));
     }

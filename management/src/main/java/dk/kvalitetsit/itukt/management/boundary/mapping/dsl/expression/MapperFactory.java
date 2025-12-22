@@ -24,4 +24,9 @@ public class MapperFactory {
     public ExpressionDslMapper<ExistingDrugMedicationCondition> getExistingDrugMedicationConditionExpressionDslMapper() {
         return new ExistingDrugMedicationExpressionDslMapperImpl();
     }
+
+    public ExpressionDslMapper<DepartmentCondition> getDepartmentConditionExpressionDslMapper() {
+        return new DepartmentConditionExpressionDslMapperImpl();
+    }
+
 }

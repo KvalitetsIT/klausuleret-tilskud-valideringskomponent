@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 
-
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.model.Expression;
@@ -21,7 +20,12 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
             case AgeConditionExpression n -> this.map(n);
             case ExistingDrugMedicationConditionExpression e -> this.map(e);
             case DoctorSpecialityConditionExpression a -> this.map(a);
+            case DepartmentConditionExpression departmentConditionExpression -> this.map(departmentConditionExpression);
         };
+    }
+
+    private DepartmentCondition map(DepartmentConditionExpression s) {
+        return new DepartmentCondition(s.requiredSpeciality(), ExpressionType.DEPARTMENT_SPECIALITY);
     }
 
     private IndicationCondition map(IndicationConditionExpression s) {

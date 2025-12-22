@@ -3,7 +3,6 @@ package dk.kvalitetsit.itukt.management.repository.mapping.entity;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import org.apache.commons.lang3.NotImplementedException;
 
 public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Expression> {
 
@@ -18,12 +17,12 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
     }
 
     private Expression.Condition map(ExpressionEntity.StringConditionEntity b) {
-        return switch(b.field()) {
+        return switch (b.field()) {
             case AGE -> throw new RuntimeException("Error mapping age entity");
             case INDICATION -> new IndicationConditionExpression(b.value());
             case DOCTOR_SPECIALITY -> new DoctorSpecialityConditionExpression(b.value());
             case EXISTING_DRUG_MEDICATION -> throw new RuntimeException("Error mapping existing medication entity");
-            case DEPARTMENT_SPECIALITY -> throw new NotImplementedException();
+            case DEPARTMENT_SPECIALITY -> new DepartmentConditionExpression(b.value());
         };
     }
 

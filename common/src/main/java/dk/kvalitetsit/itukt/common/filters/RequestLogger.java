@@ -11,6 +11,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 
+/**
+ * A simple request filter which is to log any incoming before passing the request
+ */
 public class RequestLogger extends OncePerRequestFilter {
 
     private final Logger logger = LoggerFactory.getLogger(RequestLogger.class);

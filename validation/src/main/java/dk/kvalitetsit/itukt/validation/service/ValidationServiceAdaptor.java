@@ -10,7 +10,7 @@ import java.util.Optional;
 import static dk.kvalitetsit.itukt.common.model.ValidationInput.*;
 
 /**
- * The {@code ValidationServiceAdaptor} class is responsible for adapting between the boundary layer and the service layer {@link ValidationServiceImpl}.
+ * The {@code ValidationServiceAdaptor} class is responsible for adapting between the boundary layer {@link dk.kvalitetsit.itukt.validation.boundary.ValidationController} and the service layer {@link ValidationServiceImpl}.
  * <p>
  * This class accommodates isolation in terms of testing as mocking mappers will be avoided
  */

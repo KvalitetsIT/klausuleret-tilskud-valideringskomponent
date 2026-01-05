@@ -1,4 +1,4 @@
-FROM bellsoft/liberica-runtime-container:jre-21-glibc
+FROM bellsoft/liberica-runtime-container:jre-25-glibc
 
 RUN apk update && apk upgrade && apk add --no-cache tzdata
 

@@ -7,22 +7,21 @@ import java.util.stream.Collectors;
 public record DepartmentSpecialityConditionExpression(String requiredSpeciality) implements Expression.Condition {
 
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
-
         var reportedBy = validationInput.reportedBy().flatMap(ValidationInput.Actor::department);
         var createdBy = validationInput.createdBy().department();
 
-        var e = createdBy.map(d -> validate(d.specialities(), requiredSpeciality));
+        var createdByFailure = createdBy.flatMap(d -> validate(d.specialities()));
+        var reportedByFailure = reportedBy.flatMap(d -> validate(d.specialities()));
 
-        var b = reportedBy.flatMap(d -> validate(d.specialities(), requiredSpeciality));
-
-        return e.isEmpty() || b.isEmpty() ? Optional.empty() : e.get();
-
+        return createdByFailure.isEmpty() || reportedByFailure.isEmpty() ? Optional.empty() : createdByFailure;
     }
 
-
-    private Optional<ValidationFailed> validate(Set<Department.Speciality> specialities, String requiredSpeciality) {
-        ValidationError.ConditionError error = new ValidationError.ConditionError(ValidationError.ConditionError.Field.DEPARTMENT_SPECIALITY, Operator.EQUAL, requiredSpeciality);
-        var s = specialities.stream().map(Department.Speciality::name).collect(Collectors.toSet());
-        return s.contains(requiredSpeciality) ? Optional.empty() : Optional.of(error);
+    private Optional<ValidationFailed> validate(Set<Department.Speciality> specialities) {
+        if (specialities.contains(new Department.Speciality(requiredSpeciality))) return Optional.empty();
+        return Optional.of(new ValidationError.ConditionError(
+                ValidationError.ConditionError.Field.DEPARTMENT_SPECIALITY,
+                Operator.EQUAL,
+                requiredSpeciality
+        ));
     }
 }

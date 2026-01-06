@@ -20,11 +20,11 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
             case AgeConditionExpression n -> this.map(n);
             case ExistingDrugMedicationConditionExpression e -> this.map(e);
             case DoctorSpecialityConditionExpression a -> this.map(a);
-            case DepartmentConditionExpression departmentConditionExpression -> this.map(departmentConditionExpression);
+            case DepartmentSpecialityConditionExpression departmentSpecialityConditionExpression -> this.map(departmentSpecialityConditionExpression);
         };
     }
 
-    private DepartmentCondition map(DepartmentConditionExpression s) {
+    private DepartmentCondition map(DepartmentSpecialityConditionExpression s) {
         return new DepartmentCondition(s.requiredSpeciality(), ExpressionType.DEPARTMENT_SPECIALITY);
     }
 

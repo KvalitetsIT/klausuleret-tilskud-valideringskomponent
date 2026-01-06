@@ -22,7 +22,7 @@ public class ExpressionEntityModelMapper implements Mapper<ExpressionEntity, Exp
             case INDICATION -> new IndicationConditionExpression(b.value());
             case DOCTOR_SPECIALITY -> new DoctorSpecialityConditionExpression(b.value());
             case EXISTING_DRUG_MEDICATION -> throw new RuntimeException("Error mapping existing medication entity");
-            case DEPARTMENT_SPECIALITY -> new DepartmentConditionExpression(b.value());
+            case DEPARTMENT_SPECIALITY -> new DepartmentSpecialityConditionExpression(b.value());
         };
     }
 

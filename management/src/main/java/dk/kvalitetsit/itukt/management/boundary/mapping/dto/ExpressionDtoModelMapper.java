@@ -23,8 +23,8 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
         };
     }
 
-    private DepartmentConditionExpression map(DepartmentCondition b) {
-        return new DepartmentConditionExpression(b.getSpeciality());
+    private DepartmentSpecialityConditionExpression map(DepartmentCondition b) {
+        return new DepartmentSpecialityConditionExpression(b.getSpeciality());
     }
 
     private IndicationConditionExpression map(IndicationCondition b) {

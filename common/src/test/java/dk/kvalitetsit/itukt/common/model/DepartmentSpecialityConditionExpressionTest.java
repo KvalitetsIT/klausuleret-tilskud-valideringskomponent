@@ -9,12 +9,12 @@ import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 
-class DepartmentConditionExpressionTest {
+class DepartmentSpecialityConditionExpressionTest {
 
 
     @Test
     public void validates_returnEmptyWhenSpecialityConditionIsMeet() {
-        DepartmentConditionExpression subject = new DepartmentConditionExpression("læge");
+        DepartmentSpecialityConditionExpression subject = new DepartmentSpecialityConditionExpression("læge");
         var input = mock(ValidationInput.class);
 
         var department = mock(Department.class);
@@ -34,7 +34,7 @@ class DepartmentConditionExpressionTest {
     public void validates_returnValidationErrorWhenSpecialityDoesNotExist() {
         String requiredSpeciality = "overlæge";
 
-        DepartmentConditionExpression subject = new DepartmentConditionExpression(requiredSpeciality);
+        DepartmentSpecialityConditionExpression subject = new DepartmentSpecialityConditionExpression(requiredSpeciality);
 
         var input = mock(ValidationInput.class);
         var creatorDepartment = mock(Department.class);
@@ -68,7 +68,7 @@ class DepartmentConditionExpressionTest {
     public void validates_returnSuccessWhenSpecialityEitherCreatorOrReportHasTheRequiredSpeciality() {
         String requiredSpeciality = "sygeplejerske";
 
-        DepartmentConditionExpression subject = new DepartmentConditionExpression(requiredSpeciality);
+        DepartmentSpecialityConditionExpression subject = new DepartmentSpecialityConditionExpression(requiredSpeciality);
 
         var input = mock(ValidationInput.class);
         var creatorDepartment = mock(Department.class);

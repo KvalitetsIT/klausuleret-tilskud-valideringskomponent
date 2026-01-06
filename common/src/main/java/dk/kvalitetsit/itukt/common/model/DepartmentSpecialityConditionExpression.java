@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public record DepartmentConditionExpression(String requiredSpeciality) implements Expression.Condition {
+public record DepartmentSpecialityConditionExpression(String requiredSpeciality) implements Expression.Condition {
 
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
 

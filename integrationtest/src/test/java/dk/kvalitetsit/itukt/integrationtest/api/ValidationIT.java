@@ -27,16 +27,6 @@ public class ValidationIT extends BaseTest {
     private static final long DRUG_ID = 28103139399L;
     private static ValidationApi validationApi;
 
-    private static Actor createActor() {
-        return new Actor()
-                .identifier("actor1")
-                .specialityCode("læge")
-                .departmentIdentifier(
-                        new DepartmentIdentifier().code("1000241000016008") // <- Points to a department in the DB with "infektionsmedicin" as speciality
-                                .type(DepartmentIdentifier.TypeEnum.SOR)
-                );
-    }
-
     private static Actor createActor(String speciality) {
         return new Actor()
                 .identifier("actor1")
@@ -55,7 +45,7 @@ public class ValidationIT extends BaseTest {
                 AND,
                 new ExpressionEntity.StringConditionEntity(Field.INDICATION, "313"));
 
-        // The value "læge" in the StringConditionEntity below has to match one of the specialties assigned to the SOR/SHAK specified in the request
+        // The value "infektionsmedicin" in the StringConditionEntity below has to match one of the specialties assigned to the SOR/SHAK specified in the request
         var departmentSpecialityRequirement = new ExpressionEntity.StringConditionEntity(Field.DEPARTMENT_SPECIALITY, "infektionsmedicin");
 
         var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "ATC123", "*", "*");
@@ -227,27 +217,16 @@ public class ValidationIT extends BaseTest {
                                 .createdBy(new Actor()
                                         .identifier("actor1")
                                         .specialityCode("some doctor or whatever")
+                                        .departmentIdentifier(new DepartmentIdentifier().code("Some invalid sor code").type(DepartmentIdentifier.TypeEnum.SOR))
                                 )
-                                .reportedBy(createActor())
                                 .createdDateTime(OffsetDateTime.now())
-                                .reportedBy(new Actor()
-                                        .identifier("actor2")
-                                        .specialityCode("some doctor or whatever")
-                                        .departmentIdentifier(
-                                                new DepartmentIdentifier()
-                                                        .type(DepartmentIdentifier.TypeEnum.SOR)
-                                                        .code("SOME INVALID SOR CODE")
-                                        )
-                                )
                         )
                 )
-                .existingDrugMedications(null)
-                .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
-
+                .existingDrugMedications(List.of(new ExistingDrugMedicationInput()));
 
         var failingResponse = validationApi.call20250801validatePost(request);
 
-        assertInstanceOf(ValidationSuccess.class, failingResponse, "Validation should fail since a sor code is expected to be valid");
+        assertInstanceOf(ValidationFailed.class, failingResponse, "Validation should fail since a sor code is expected to be valid");
     }
 
     private ValidationRequest createValidationRequest(String elementPath, int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality) {

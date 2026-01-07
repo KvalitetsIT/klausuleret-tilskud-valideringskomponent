@@ -1,13 +1,12 @@
 package dk.kvalitetsit.itukt.validation.service;
 
+import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import org.openapitools.model.*;
 
 import java.util.List;
 import java.util.Optional;
-
-import static dk.kvalitetsit.itukt.common.model.ValidationInput.*;
 
 /**
  * The {@code ValidationServiceAdaptor} class is responsible for adapting between the boundary layer and the service layer {@link ValidationServiceImpl}.
@@ -17,11 +16,14 @@ import static dk.kvalitetsit.itukt.common.model.ValidationInput.*;
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
     private final ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService;
+    private final Mapper<Actor, ValidationInput.Actor> actorMapper;
 
     public ValidationServiceAdaptor(
-            ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService
+            ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService,
+            Mapper<Actor, ValidationInput.Actor> actorMapper
     ) {
         this.validationService = validationService;
+        this.actorMapper = actorMapper;
     }
 
     @Override
@@ -66,19 +68,24 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
         var existingDrugMedication = Optional.ofNullable(validationRequest.getExistingDrugMedications().orElse(null))
                 .map(e -> e.stream()
                         .map(this::mapExistingDrugMedication)
-                        .toList());
-        Actor createdBy = validate.getNewDrugMedication().getCreatedBy();
-        Optional<Actor> reportedBy = validate.getNewDrugMedication().getReportedBy();
+                        .toList()
+                );
+
+        var createdBy = actorMapper.map(validate.getNewDrugMedication().getCreatedBy());
+        var reportedBy = validate.getNewDrugMedication().getReportedBy().map(actorMapper::map);
+
         return new ValidationInput(
                 validationRequest.getPersonIdentifier(),
-                new CreatedBy(createdBy.getIdentifier(), createdBy.getSpecialityCode()),
-                reportedBy.map(actor -> new ReportedBy(actor.getIdentifier(), actor.getSpecialityCode())),
+                createdBy,
+                reportedBy,
                 validationRequest.getSkipValidations(),
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),
                 validate.getNewDrugMedication().getIndicationCode(),
-                existingDrugMedication);
+                existingDrugMedication
+        );
     }
+
 
     private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedicationInput existing) {
         return new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existing.getAtcCode(), existing.getFormCode(), existing.getRouteOfAdministrationCode());

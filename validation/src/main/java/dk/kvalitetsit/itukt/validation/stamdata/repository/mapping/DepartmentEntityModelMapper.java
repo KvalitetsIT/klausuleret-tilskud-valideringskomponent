@@ -7,6 +7,7 @@ import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEnti
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 public class DepartmentEntityModelMapper implements Mapper<DepartmentEntity, Department> {
 
@@ -30,8 +31,8 @@ public class DepartmentEntityModelMapper implements Mapper<DepartmentEntity, Dep
         addIfValid(specialities, entry.PrioritizedEntitySpeciality8Name());
 
         return new Department(
-                new Department.Identifier.SHAK(entry.ShakId()),
-                new Department.Identifier.SOR(entry.sorId()),
+                Optional.ofNullable(entry.ShakId()).map(Department.Identifier.SHAK::new),
+                Optional.ofNullable(entry.sorId()).map(Department.Identifier.SOR::new),
                 new HashSet<>(specialities)
         );
     }

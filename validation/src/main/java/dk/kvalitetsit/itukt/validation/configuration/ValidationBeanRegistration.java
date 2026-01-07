@@ -3,17 +3,18 @@ package dk.kvalitetsit.itukt.validation.configuration;
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.service.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DepartmentCacheImpl;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DrugClauseViewMapper;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCacheImpl;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DepartmentEntityModelMapper;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
-import dk.kvalitetsit.itukt.validation.service.*;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DepartmentEntityModelMapper;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DrugClauseViewMapper;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.openapitools.model.ValidationRequest;
 import org.openapitools.model.ValidationResponse;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import java.util.Set;
 
 @Configuration
 public class ValidationBeanRegistration {
@@ -87,15 +89,18 @@ public class ValidationBeanRegistration {
     @Bean
     public ValidationService<ValidationRequest, ValidationResponse> validationService(
             @Autowired ClauseService clauseService,
-            @Autowired Cache<Long, DrugClause> dsrugClauseCache,
-            @Autowired SkippedValidationService skippedValidationService
+            @Autowired Cache<Long, DrugClause> drugClauseCache,
+            @Autowired SkippedValidationService skippedValidationService,
+            @Autowired Cache<Department.Identifier, Department> departmentCache
     ) {
         return new ValidationServiceAdaptor(
                 new ValidationServiceImpl(
                         clauseService,
-                        dsrugClauseCache,
-                        skippedValidationService
-                )
+                        drugClauseCache,
+                        skippedValidationService,
+                        departmentCache
+                ),
+                new ActorDtoModelMapper()
         );
     }
 

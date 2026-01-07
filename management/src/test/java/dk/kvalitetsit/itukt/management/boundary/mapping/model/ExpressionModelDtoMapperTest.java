@@ -28,7 +28,7 @@ class ExpressionModelDtoMapperTest {
     @Test
     void testMapWithExistingDrugMedicationConditions() {
         var expression = new dk.kvalitetsit.itukt.common.model.BinaryExpression(
-                new ExistingDrugMedicationConditionExpression( new ExistingDrugMedication("atc1", "form1", "adm1")),
+                new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("atc1", "form1", "adm1")),
                 dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND,
                 new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("atc2", "form2", "adm2"))
         );

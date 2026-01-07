@@ -13,7 +13,13 @@ public class ExpressionModelEntityMapper implements Mapper<Expression, Expressio
             case AgeConditionExpression n -> this.map(n);
             case ExistingDrugMedicationConditionExpression p -> this.map(p);
             case DoctorSpecialityConditionExpression a -> this.map(a);
+            case DepartmentSpecialityConditionExpression d -> this.map(d);
         };
+    }
+
+
+    private ExpressionEntity.StringConditionEntity map(DepartmentSpecialityConditionExpression b) {
+        return new ExpressionEntity.StringConditionEntity(null, Field.DEPARTMENT_SPECIALITY, b.requiredSpeciality());
     }
 
     private ExpressionEntity.StringConditionEntity map(IndicationConditionExpression b) {

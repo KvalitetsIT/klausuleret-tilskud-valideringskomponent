@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.validation.service;
 
-import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
@@ -18,18 +17,28 @@ import java.util.Set;
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
     private final ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService;
-    private final Mapper<Actor, ValidationInput.Actor> actorMapper = (actor) -> {
-        Optional<Department> department = actor.getDepartmentIdentifier().map(x -> switch (x.getType()) {
-            case SOR -> new Department(Optional.empty(), Optional.of(new Department.Identifier.SOR(x.getCode())), Set.of());
-            case SHAK -> new Department(Optional.of(new Department.Identifier.SHAK(x.getCode())), Optional.empty(), Set.of());
-        });
-        return new ValidationInput.Actor(actor.getIdentifier(), actor.getSpecialityCode(), department);
-    };
 
     public ValidationServiceAdaptor(
             ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService
     ) {
         this.validationService = validationService;
+    }
+
+    private static ValidationInput.Actor mapActor(Actor actor) {
+        Optional<Department> department = actor.getDepartmentIdentifier().map(x -> switch (x.getType()) {
+            case SOR -> new Department(
+                    Optional.empty(),
+                    Optional.of(new Department.Identifier.SOR(x.getCode())),
+                    Set.of()
+            );
+            case SHAK -> new Department(
+                    Optional.of(
+                            new Department.Identifier.SHAK(x.getCode())),
+                    Optional.empty(),
+                    Set.of()
+            );
+        });
+        return new ValidationInput.Actor(actor.getIdentifier(), actor.getSpecialityCode(), department);
     }
 
     @Override
@@ -77,8 +86,8 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                         .toList()
                 );
 
-        var createdBy = actorMapper.map(validate.getNewDrugMedication().getCreatedBy());
-        var reportedBy = validate.getNewDrugMedication().getReportedBy().map(actorMapper::map);
+        var createdBy = mapActor(validate.getNewDrugMedication().getCreatedBy());
+        var reportedBy = validate.getNewDrugMedication().getReportedBy().map(ValidationServiceAdaptor::mapActor);
 
         return new ValidationInput(
                 validationRequest.getPersonIdentifier(),

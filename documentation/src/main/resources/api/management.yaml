@@ -400,7 +400,7 @@ components:
           example: "AgeCondition"
 
     DepartmentCondition:
-      description: "A department condition consisting of a code and a type. This represents the "
+      description: "A department condition consisting of a code and a type. This represents that the department is expected to have a certain speciality"
       type: object
       required: [ speciality, type ]
       properties:
@@ -409,8 +409,8 @@ components:
           type: string
         type:
           type: string
-          description: "Identifies this object as a AgeCondition expression"
-          example: "AgeCondition"
+          description: "Identifies this object as a DepartmentCondition expression"
+          example: "DepartmentCondition"
 
 
     ExistingDrugMedicationCondition:

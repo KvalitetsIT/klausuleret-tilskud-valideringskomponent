@@ -15,7 +15,7 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
     private final Mapper<BinaryExpression, Dsl> binaryExpressionExpressionDslMapper;
     private final ExpressionDslMapper<ExistingDrugMedicationCondition> existingDrugMedicationConditionExpressionDslMapper;
     private final ExpressionDslMapper<DoctorSpecialityCondition> doctorSpecialityConditionExpressionDslMapper;
-    private ExpressionDslMapper<DepartmentCondition> departmentConditionExpressionDslMapper;
+    private final ExpressionDslMapper<DepartmentCondition> departmentConditionExpressionDslMapper;
 
     public ExpressionDtoDslMapper(MapperFactory factory) {
         existingDrugMedicationConditionExpressionDslMapper = factory.getExistingDrugMedicationConditionExpressionDslMapper();
@@ -23,6 +23,7 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
         ageConditionExpressionDslMapper = factory.getAgeConditionExpressionDslMapper();
         indicationConditionExpressionDslMapper = factory.getIndicationConditionExpressionDslMapper();
         doctorSpecialityConditionExpressionDslMapper = factory.getDoctorSpecialityConditionExpressionDslMapper();
+        departmentConditionExpressionDslMapper = factory.getDepartmentConditionExpressionDslMapper();
     }
 
     private static <T extends Expression> List<T> castList(List<?> list, Class<T> clazz) {

@@ -279,7 +279,7 @@ components:
 
 
     departmentIdentifier:
-      description: "Organisationens SOR eller SHAK kode"
+      description: "Afdelingens SOR eller SHAK kode"
       required:
         - code
         - type

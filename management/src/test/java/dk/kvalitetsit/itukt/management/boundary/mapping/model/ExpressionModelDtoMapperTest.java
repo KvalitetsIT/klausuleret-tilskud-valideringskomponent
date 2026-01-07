@@ -4,7 +4,6 @@ import dk.kvalitetsit.itukt.common.model.ExistingDrugMedication;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +21,6 @@ class ExpressionModelDtoMapperTest {
     private ExpressionModelDtoMapper mapper;
 
     @Test
-    @Disabled
     void map() {
         assertEquals(MockFactory.EXPRESSION_1_DTO, this.mapper.map(MockFactory.EXPRESSION_1_MODEL));
     }
@@ -30,7 +28,7 @@ class ExpressionModelDtoMapperTest {
     @Test
     void testMapWithExistingDrugMedicationConditions() {
         var expression = new dk.kvalitetsit.itukt.common.model.BinaryExpression(
-                new ExistingDrugMedicationConditionExpression( new ExistingDrugMedication("atc1", "form1", "adm1")),
+                new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("atc1", "form1", "adm1")),
                 dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND,
                 new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("atc2", "form2", "adm2"))
         );

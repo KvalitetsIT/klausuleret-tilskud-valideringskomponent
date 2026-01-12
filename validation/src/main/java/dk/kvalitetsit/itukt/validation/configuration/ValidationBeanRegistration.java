@@ -4,6 +4,8 @@ import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
+import dk.kvalitetsit.itukt.validation.mapping.ErrorMapper;
+import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.*;
@@ -98,7 +100,8 @@ public class ValidationBeanRegistration {
                         drugClauseCache,
                         skippedValidationService
                 ),
-                new ActorDtoModelMapper(departmentCache)
+                new ValidationRequestInputMapper(new ActorDtoModelMapper(departmentCache)),
+                new ErrorMapper()
         );
     }
 }

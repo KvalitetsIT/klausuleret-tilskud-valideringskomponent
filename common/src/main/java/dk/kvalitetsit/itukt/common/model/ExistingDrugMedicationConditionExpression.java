@@ -6,6 +6,16 @@ import java.util.Optional;
 import static dk.kvalitetsit.itukt.common.model.ValidationError.ExistingDrugMedicationError;
 import static dk.kvalitetsit.itukt.common.model.ValidationError.ExistingDrugMedicationRequired;
 
+
+/**
+ * An expression representing a condition that checks for the presence of a specific
+ * existing drug medication in a {@link ValidationInput}.
+ * <p>
+ * The condition is satisfied if there is at least one {@link ExistingDrugMedication}
+ * in the input that matches the required ATC code, form code, and route of administration code.
+ * Wildcards ("*") in any field will match any value.
+ *
+ */
 public record ExistingDrugMedicationConditionExpression(ExistingDrugMedication existingDrugMedication) implements Expression.Condition {
 
     @Override

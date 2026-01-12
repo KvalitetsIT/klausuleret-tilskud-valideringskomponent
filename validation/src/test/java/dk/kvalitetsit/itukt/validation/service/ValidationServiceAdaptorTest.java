@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
+import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,8 @@ class ValidationServiceAdaptorTest {
     private ValidationServiceAdaptor validationServiceAdaptor;
     @Mock
     private ValidationService<ValidationInput, List<ValidationError>> validationService;
+    @Mock
+    private ActorDtoModelMapper actorMapper;
 
     @Test
     void validate_WithRequestWithoutValidateElements_ReturnsSuccess() {
@@ -47,25 +50,33 @@ class ValidationServiceAdaptorTest {
         ExistingDrugMedicationInput existingDrugMedication = new ExistingDrugMedicationInput("atc", "form", "adm", 1L);
         ValidationRequest request = createValidationRequest(List.of(1), 10, List.of(existingDrugMedication), validate1, validate2);
         Mockito.when(validationService.validate(Mockito.any())).thenReturn(List.of());
+        var mappedCreatedBy1 = Mockito.mock(ValidationInput.Actor.class);
+        var mappedReportedBy2 = Mockito.mock(ValidationInput.Actor.class);
+        var mappedCreatedBy2 = Mockito.mock(ValidationInput.Actor.class);
+        var mappedReportedBy1 = Mockito.mock(ValidationInput.Actor.class);
+        Mockito.when(actorMapper.map(validate1.getNewDrugMedication().getCreatedBy())).thenReturn(mappedCreatedBy1);
+        Mockito.when(actorMapper.map(validate1.getNewDrugMedication().getReportedBy().get())).thenReturn(mappedReportedBy1);
+        Mockito.when(actorMapper.map(validate2.getNewDrugMedication().getCreatedBy())).thenReturn(mappedCreatedBy2);
+        Mockito.when(actorMapper.map(validate2.getNewDrugMedication().getReportedBy().get())).thenReturn(mappedReportedBy2);
 
         validationServiceAdaptor.validate(request);
 
         var expectedExistingDrugMedication = new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existingDrugMedication.getAtcCode(), existingDrugMedication.getFormCode(), existingDrugMedication.getRouteOfAdministrationCode());
 
-        ValidationInput expectedValidationInput1 = new ValidationInput(
+        var expectedValidationInput1 = new ValidationInput(
                 request.getPersonIdentifier(),
-                new ValidationInput.Actor(creator1, Optional.empty(), Optional.empty()),
-                Optional.of(new ValidationInput.Actor(reporter1, Optional.empty(), Optional.empty())),
+                mappedCreatedBy1,
+                Optional.of(mappedReportedBy1),
                 request.getSkipValidations(),
                 request.getAge(),
                 validate1.getNewDrugMedication().getDrugIdentifier(),
                 validate1.getNewDrugMedication().getIndicationCode(),
                 of(List.of(expectedExistingDrugMedication)));
 
-        ValidationInput expectedValidationInput2 = new ValidationInput(
+        var expectedValidationInput2 = new ValidationInput(
                 request.getPersonIdentifier(),
-                new ValidationInput.Actor(creator2, Optional.empty(), Optional.empty()),
-                Optional.of(new ValidationInput.Actor(reporter2, Optional.empty(), Optional.empty())),
+                mappedCreatedBy2,
+                Optional.of(mappedReportedBy2),
                 request.getSkipValidations(),
                 request.getAge(),
                 validate2.getNewDrugMedication().getDrugIdentifier(),

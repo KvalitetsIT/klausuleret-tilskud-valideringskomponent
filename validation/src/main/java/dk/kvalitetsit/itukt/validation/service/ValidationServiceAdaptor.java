@@ -82,7 +82,8 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
                 validationRequest.getAge(),
                 validate.getNewDrugMedication().getDrugIdentifier(),
                 validate.getNewDrugMedication().getIndicationCode(),
-                existingDrugMedication
+                existingDrugMedication,
+                validate.getElementPath()
         );
     }
 

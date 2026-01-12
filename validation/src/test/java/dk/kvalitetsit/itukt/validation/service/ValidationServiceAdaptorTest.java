@@ -71,7 +71,9 @@ class ValidationServiceAdaptorTest {
                 request.getAge(),
                 validate1.getNewDrugMedication().getDrugIdentifier(),
                 validate1.getNewDrugMedication().getIndicationCode(),
-                of(List.of(expectedExistingDrugMedication)));
+                of(List.of(expectedExistingDrugMedication)),
+                validate1.getElementPath()
+        );
 
         var expectedValidationInput2 = new ValidationInput(
                 request.getPersonIdentifier(),
@@ -81,7 +83,8 @@ class ValidationServiceAdaptorTest {
                 request.getAge(),
                 validate2.getNewDrugMedication().getDrugIdentifier(),
                 validate2.getNewDrugMedication().getIndicationCode(),
-                Optional.of(List.of(expectedExistingDrugMedication))
+                Optional.of(List.of(expectedExistingDrugMedication)),
+                validate2.getElementPath()
         );
 
         Mockito.verify(validationService).validate(Mockito.eq(expectedValidationInput1));
@@ -107,8 +110,10 @@ class ValidationServiceAdaptorTest {
         Validate validate2 = createValidate(2L, "1234", "path2", "creator2", "reporter2");
         Validate validate3 = createValidate(3L, "1234", "path3", "creator3", "reporter3");
         ValidationRequest request = createValidationRequest(List.of(1), 10, List.of(), validate1, validate2, validate3);
-        var validationError1 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError(new ValidationError.Clause("clause1", "text1", "message1"), "specific error", 1);
-        var validationError2 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError(new ValidationError.Clause("clause2", "text2", "message2"), "specific error", 2);
+        var validationError1 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError(
+                new ValidationError.Clause("clause1", "text1", "message1"), "specific error", 1, validate1.getElementPath());
+        var validationError2 = new dk.kvalitetsit.itukt.validation.service.model.ValidationError(
+                new ValidationError.Clause("clause2", "text2", "message2"), "specific error", 2, validate2.getElementPath());
         Mockito.when(validationService.validate(Mockito.argThat(input -> input != null && input.drugId() == 1L)))
                 .thenReturn(List.of(validationError1));
         Mockito.when(validationService.validate(Mockito.argThat(input -> input != null && input.drugId() == 2L)))

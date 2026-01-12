@@ -14,9 +14,8 @@ import java.util.Optional;
  * @param drugId The unique identifier of the drug being validated.
  * @param indicationCode A string code representing the medical reason or indication for which the drug is being used.
  * @param existingDrugMedication An optional list of existing drug medications the citizen is already taking.
+ * @param elementPath The path to the specific element in the data structure being validated.
  */
-
-
 public record ValidationInput(
         String personId,
         Actor createdBy,
@@ -25,7 +24,8 @@ public record ValidationInput(
         int citizenAge,
         long drugId,
         String indicationCode,
-        Optional<List<ExistingDrugMedication>> existingDrugMedication) {
+        Optional<List<ExistingDrugMedication>> existingDrugMedication,
+        String elementPath) {
     /**
      * Represents the actor who either created or reported the prescription
      * @param id Unique ID of the actor

@@ -17,11 +17,11 @@ public class ExpressionTests {
             inputAtcCode = "atcCode",
             inputFormCode = "formCode",
             inputRouteOfAdministrationCode = "routeOfAdministrationCode";
-    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.Actor("", Optional.of("speciale"), Optional.empty()), Optional.of(new ValidationInput.Actor("", Optional.of("reported by speciale"), Optional.empty())), List.of(), inputAge, 0, inputIndication, empty());
+    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.Actor("", Optional.of("speciale"), Optional.empty()), Optional.of(new ValidationInput.Actor("", Optional.of("reported by speciale"), Optional.empty())), List.of(), inputAge, 0, inputIndication, empty(), "path");
     final List<ExistingDrugMedication> existingMedications =
             List.of(new ExistingDrugMedication(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode));
     final ValidationInput validationInputWithHistory =
-            new ValidationInput("", new ValidationInput.Actor("speciale"), empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications));
+            new ValidationInput("", new ValidationInput.Actor("speciale"), empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications), "path");
 
     static void assertErrorMessage(String v, Optional<ValidationFailed> o) {
         assertEquals(Optional.of(v), o.map(failed -> assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed).toErrorString()));

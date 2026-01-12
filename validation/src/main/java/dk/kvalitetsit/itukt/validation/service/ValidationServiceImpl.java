@@ -46,7 +46,8 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                 case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(
                         new ValidationError.Clause(clause.name(), clauseText, clause.error().message()),
                         error.toErrorString(),
-                        clause.error().code()
+                        clause.error().code(),
+                        validationInput.elementPath()
                 );
             });
     }

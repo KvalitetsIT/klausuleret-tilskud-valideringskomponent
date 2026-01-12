@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.common.model;
 
 import java.util.Optional;
 
-import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
+import static dk.kvalitetsit.itukt.common.model.ValidationError.ConditionError;
 
 /**
  * An expression representing a condition on a citizen’s age.
@@ -13,17 +13,6 @@ import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
  */
 public record AgeConditionExpression(Operator operator, int value) implements Expression.Condition {
 
-    /**
-     * Validates the age condition against the provided {@link ValidationInput}.
-     * The input’s age is retrieved and compared against {@code value} using
-     * the specified {@code operator}. If the comparison succeeds, the method
-     * returns an empty {@code Optional}. Otherwise, it returns an {@code Optional}
-     * containing a {@link ConditionError} that identifies the age field, operator,
-     * and expected value.
-     *
-     * @param validationInput the input containing the citizen’s age to validate
-     * @return an empty {@code Optional} if the age condition is satisfied; otherwise an {@code Optional} containing the validation failure
-     */
     @Override
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
         var intValue = validationInput.citizenAge();

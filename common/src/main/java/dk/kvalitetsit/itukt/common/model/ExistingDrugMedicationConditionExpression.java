@@ -18,17 +18,6 @@ import static dk.kvalitetsit.itukt.common.model.ValidationError.ExistingDrugMedi
  */
 public record ExistingDrugMedicationConditionExpression(ExistingDrugMedication existingDrugMedication) implements Expression.Condition {
 
-    /**
-     * Validates the existing drug medication condition against the provided {@link ValidationInput}.
-     * <p>
-     * If the input contains a list of existing medications, the method checks if any medication
-     * matches the specified ATC code, form code, and route of administration code (allowing wildcards).
-     * If no matching medication is found, or if the list is missing, an appropriate validation failure
-     * is returned.
-     *
-     * @param validationInput the input containing the existing medications to validate
-     * @return an empty {@code Optional} if the condition is satisfied; otherwise, an {@code Optional} containing a validation failure
-     */
     @Override
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
         return validationInput.existingDrugMedication()

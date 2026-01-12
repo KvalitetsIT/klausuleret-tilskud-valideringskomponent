@@ -10,7 +10,7 @@ import java.util.UUID;
  * @param id         the numeric identifier of the clause which is given by the database
  * @param name       the human-readable name of the clause
  * @param uuid       An identifier for the clause which is uniquely assigned to every new version and hides the {@param id}
- * @param error      an error associated with the clause, containing a message and code
+ * @param error      an error associated with the clause
  * @param expression the logical expression that defines the condition(s) of the clause
  */
 public record Clause(
@@ -35,7 +35,7 @@ public record Clause(
      * Represents an error associated with a {@link Clause}.
      *
      * @param message a descriptive error message
-     * @param code    a numeric error code representing the type of error (10800-11000)
+     * @param code    a numeric error code representing the type of error
      */
     public record Error(String message, int code) {
     }

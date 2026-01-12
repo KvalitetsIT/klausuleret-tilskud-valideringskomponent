@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.common.repository.cache;
 
 /**
- * A simple facade which is exposed towards the {@link CacheScheduler}.
+ * A simple cache facade which is exposed towards the {@link CacheScheduler}.
  * The purpose of the interface is to abstract away additional concerns which is not supposed to be accessible by the {@link CacheScheduler}
  */
 public interface CacheLoader {

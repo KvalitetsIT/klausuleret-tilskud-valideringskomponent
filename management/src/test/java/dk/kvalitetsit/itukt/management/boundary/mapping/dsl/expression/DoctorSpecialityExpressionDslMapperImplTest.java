@@ -12,10 +12,10 @@ import org.openapitools.model.DoctorSpecialityCondition;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class SpecialityExpressionDslMapperImplTest {
+class DoctorSpecialityExpressionDslMapperImplTest {
 
     @InjectMocks
-    private SpecialityExpressionDslMapperImpl mapper;
+    private DoctorSpecialityExpressionDslMapperImpl mapper;
 
     @Test
     void merge_givenDslWithTwoSpecialityConditions_whenMap_thenMergeCorrectly() {

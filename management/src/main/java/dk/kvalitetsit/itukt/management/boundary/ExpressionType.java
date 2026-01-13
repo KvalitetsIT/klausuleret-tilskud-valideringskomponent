@@ -6,5 +6,5 @@ public class ExpressionType {
     public static final String BINARY = "BinaryExpression";
     public static final String EXISTING_DRUG_MEDICATION = "ExistingDrugMedicationCondition";
     public static final String DOCTOR_SPECIALITY = "DoctorSpecialityCondition";
-    public static final String DEPARTMENT_SPECIALITY = "DepartmentCondition";
+    public static final String DEPARTMENT_SPECIALITY = "DepartmentSpecialityCondition";
 }

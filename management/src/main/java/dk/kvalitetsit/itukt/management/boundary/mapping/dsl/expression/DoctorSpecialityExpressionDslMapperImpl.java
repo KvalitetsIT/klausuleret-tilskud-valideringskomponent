@@ -5,7 +5,7 @@ import org.openapitools.model.DoctorSpecialityCondition;
 
 import java.util.List;
 
-class SpecialityExpressionDslMapperImpl implements ExpressionDslMapper<DoctorSpecialityCondition> {
+class DoctorSpecialityExpressionDslMapperImpl implements ExpressionDslMapper<DoctorSpecialityCondition> {
 
     @Override
     public String merge(List<DoctorSpecialityCondition> expressions) {

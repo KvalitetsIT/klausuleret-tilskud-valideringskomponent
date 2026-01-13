@@ -65,7 +65,8 @@ class Parser {
         return switch (identifier) {
             case Identifier.AGE -> createAgeCondition(operator, Integer.parseInt(value));
             case Identifier.INDICATION -> createIndicationCondition(value);
-            case Identifier.DOCTOR_SPECIALITY -> createSpecialityCondition(value);
+            case Identifier.DOCTOR_SPECIALITY -> createDoctorSpecialityCondition(value);
+            case Identifier.DEPARTMENT_SPECIALITY -> createDepartmentSpecialityCondition(value);
             default -> throw new IllegalArgumentException("Unexpected value: " + field);
         };
     }
@@ -83,8 +84,12 @@ class Parser {
         return new IndicationCondition(value, ExpressionType.INDICATION);
     }
 
-    private static Expression createSpecialityCondition(String value) {
+    private static Expression createDoctorSpecialityCondition(String value) {
         return new DoctorSpecialityCondition(value, ExpressionType.DOCTOR_SPECIALITY);
+    }
+
+    private static Expression createDepartmentSpecialityCondition(String value) {
+        return new DepartmentSpecialityCondition(value, ExpressionType.DEPARTMENT_SPECIALITY);
     }
 
     private static Expression createAgeCondition(Operator operator, int value) {

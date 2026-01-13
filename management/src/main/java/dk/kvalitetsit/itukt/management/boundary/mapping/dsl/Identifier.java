@@ -7,7 +7,8 @@ public enum Identifier {
     ATC_CODE("ATC"),
     FORM_CODE("FORM"),
     ROUTE("ROUTE"),
-    DOCTOR_SPECIALITY("LÆGESPECIALE");
+    DOCTOR_SPECIALITY("LÆGESPECIALE"),
+    DEPARTMENT_SPECIALITY("AFDELINGSSPECIALE");
 
     private final String value;
 

@@ -23,19 +23,18 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 public class ValidationIT extends BaseTest {
 
     // Matches hardcoded value in cache
-    private static final String VALID_INDICATION = "313", INVALID_INDICATION = "390";
     private static final long DRUG_ID = 28103139399L;
-    private static ValidationApi validationApi;
+    private static final String CLAUSE_NAME = "KRINI";
+    private static final String CLAUSE_TEXT = "Kronisk Rhinitis";
+    private static final String CLAUSE_ERROR_MESSAGE = "message";
+    private static final String ELEMENT_PATH = "path";
 
-    private static Actor createActor(String speciality) {
-        return new Actor()
-                .identifier("actor1")
-                .specialityCode(speciality)
-                .departmentIdentifier(
-                        new DepartmentIdentifier().code("1000241000016008") // <- Points to a department in the DB with "infektionsmedicin" as speciality
-                                .type(DepartmentIdentifier.TypeEnum.SOR)
-                );
-    }
+    private static final int VALID_AGE = 51;
+    private static final String VALID_INDICATION = "313", INVALID_INDICATION = "390";
+    private static final String VALID_DEPARTMENT_ID = "1000241000016008"; // <- Points to a department in the DB with "infektionsmedicin" as speciality
+    private static final String VALID_DOCTOR_SPECIALITY = "ortopædkirurg";
+    private static final String VALID_ATC = "ATC123";
+    private static ValidationApi validationApi;
 
     @Override
     protected void load(ClauseRepository repository) {
@@ -43,22 +42,22 @@ public class ValidationIT extends BaseTest {
         var ageAndIndication = new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 50),
                 AND,
-                new ExpressionEntity.StringConditionEntity(Field.INDICATION, "313"));
+                new ExpressionEntity.StringConditionEntity(Field.INDICATION, VALID_INDICATION));
 
         // The value "infektionsmedicin" in the StringConditionEntity below has to match one of the specialties assigned to the SOR/SHAK specified in the request
         var departmentSpecialityRequirement = new ExpressionEntity.StringConditionEntity(Field.DEPARTMENT_SPECIALITY, "infektionsmedicin");
 
-        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, "ATC123", "*", "*");
+        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, VALID_ATC, "*", "*");
         var orExpression = new ExpressionEntity.BinaryExpressionEntity(
                 ageAndIndication,
                 BinaryExpression.Operator.OR,
                 existingDrugMedication
         );
 
-        var createdByExpression = new ExpressionEntity.StringConditionEntity(Field.DOCTOR_SPECIALITY, "ortopædkirurg");
+        var createdByExpression = new ExpressionEntity.StringConditionEntity(Field.DOCTOR_SPECIALITY, VALID_DOCTOR_SPECIALITY);
         ExpressionEntity.BinaryExpressionEntity specialityConditions = new ExpressionEntity.BinaryExpressionEntity(2L, createdByExpression, AND, departmentSpecialityRequirement);
         var expression = new ExpressionEntity.BinaryExpressionEntity(orExpression, AND, specialityConditions);
-        var clause = new ClauseInput("KRINI", expression, "message");
+        var clause = new ClauseInput(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE);
 
         UUID uuid = repository.create(clause).uuid();
         repository.updateDraftToActive(uuid);
@@ -71,10 +70,7 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithoutExistingDrugMedicationWithInputThatMatchesClauseAndValidatesAgeAndIndication_ReturnsSuccess() {
-        // Matches hardcoded value in cache
-        String elementPath = "path";
-        int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(elementPath, age, VALID_INDICATION, null, "ortopædkirurg");
+        var request = createValidationRequest(VALID_AGE, VALID_INDICATION, null, VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_ID);
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -83,9 +79,8 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithoutExistingDrugMedicationWhenItIsRequired_ReturnsValidationNotPossible() {
-        String elementPath = "path";
         int age = 20;  // Hardcoded clause in cache requires age > 50 or existing drug medication
-        var request = createValidationRequest(elementPath, age, VALID_INDICATION, null, "ortopædkirurg");
+        var request = createValidationRequest(age, VALID_INDICATION, null, VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_ID);
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -100,10 +95,10 @@ public class ValidationIT extends BaseTest {
         int age = 1;  // Hardcoded clause in cache requires age > 50
         var existingDrugMedication = new ExistingDrugMedicationInput()
                 .drugIdentifier(0L)
-                .atcCode("ATC123") // Matches hardcoded clause
+                .atcCode(VALID_ATC)
                 .formCode("anything") // Hardcoded clause has wildcard for form
                 .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
-        var request = createValidationRequest("path", age, VALID_INDICATION, List.of(existingDrugMedication), "ortopædkirurg");
+        var request = createValidationRequest(age, VALID_INDICATION, List.of(existingDrugMedication), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_ID);
 
         var response = validationApi.call20250801validatePost(request);
 
@@ -112,78 +107,37 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsValidation_ReturnsValidationError() {
-        String elementPath = "path";
         int age = 50;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(elementPath, age, VALID_INDICATION, List.of(), "ortopædkirurg");
+        var request = createValidationRequest(age, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_ID);
         var response = validationApi.call20250801validatePost(request);
-        var failedResponse = assertInstanceOf(ValidationFailed.class, response);
-        assertEquals(1, failedResponse.getValidationErrors().size());
-        var validationError = failedResponse.getValidationErrors().getFirst();
-        ValidationError expectedValidationError = new ValidationError()
-                .elementPath(elementPath)
-                .message("alder skal være større end 50 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *")
-                .code(10800)
-                .clause(new Clause()
-                        .code("KRINI") // Hardcoded clause code in stamdata cache
-                        .text("Kronisk Rhinitis")
-                        .message("message"));
-        assertEquals(expectedValidationError, validationError);
+        assertValidationError(response, "alder skal være større end 50 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *");
     }
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
-        String elementPath = "path";
-        int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(elementPath, age, INVALID_INDICATION, List.of(), "ortopædkirurg");
+        var request = createValidationRequest(VALID_AGE, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_ID);
         var response = validationApi.call20250801validatePost(request);
-        var failedResponse = assertInstanceOf(ValidationFailed.class, response);
-        assertEquals(1, failedResponse.getValidationErrors().size());
-        var validationError = failedResponse.getValidationErrors().getFirst();
-        ValidationError expectedValidationError = new ValidationError()
-                .elementPath(elementPath)
-                .message("indikation skal være 313 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *")
-                .code(10800)
-                .clause(new Clause()
-                        .code("KRINI") // Hardcoded clause code in stamdata cache
-                        .text("Kronisk Rhinitis")
-                        .message("message"));
-        assertEquals(expectedValidationError, validationError);
+        assertValidationError(response, "indikation skal være 313 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *");
     }
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndFailsDoctorSpecialityValidation_ReturnsValidationError() {
-        String elementPath = "path";
-        int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest(elementPath, age, VALID_INDICATION, List.of(), "invalid speciale");
+        var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), "invalid speciale", VALID_DEPARTMENT_ID);
         var response = validationApi.call20250801validatePost(request);
-        var failedResponse = assertInstanceOf(ValidationFailed.class, response);
-        assertEquals(1, failedResponse.getValidationErrors().size());
-        var validationError = failedResponse.getValidationErrors().getFirst();
-        ValidationError expectedValidationError = new ValidationError()
-                .elementPath(elementPath)
-                .message("lægespeciale skal være ortopædkirurg")
-                .code(10800)
-                .clause(new Clause()
-                        .code("KRINI") // Hardcoded clause code in stamdata cache
-                        .text("Kronisk Rhinitis")
-                        .message("message"));
-        assertEquals(expectedValidationError, validationError);
+        assertValidationError(response, "lægespeciale skal være " + VALID_DOCTOR_SPECIALITY);
     }
 
     @Test
     void call20250801validatePost_WithInputThatMatchesClauseAndValidatesReportedByValidation_ReturnsSuccess() {
-        int age = 51;  // Hardcoded clause in cache requires age > 50
-        var request = createValidationRequest("path", age, VALID_INDICATION, List.of(), "invalid speciale", "ortopædkirurg");
+        var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), "invalid speciale", VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_ID);
         var response = validationApi.call20250801validatePost(request);
         assertInstanceOf(ValidationSuccess.class, response);
-        ;
     }
 
     @Test
     void call20250801validatePost_WithInputThatFailsValidationButErrorCodeSkipped_ReturnsSuccess() {
-        String elementPath = "path";
         int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
-        var request = createValidationRequest(elementPath, age, INVALID_INDICATION, List.of(), "ortopædkirurg")
+        var request = createValidationRequest(age, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_ID)
                 .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
 
         var successfulResponse = validationApi.call20250801validatePost(request);
@@ -193,9 +147,8 @@ public class ValidationIT extends BaseTest {
 
     @Test
     void call20250801validatePost_WithoutRequiredExistingDrugMedicationButErrorCodeSkipped_ReturnsSuccess() {
-        String elementPath = "path";
         int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
-        var request = createValidationRequest(elementPath, age, VALID_INDICATION, null, "ortopædkirurg")
+        var request = createValidationRequest(age, VALID_INDICATION, null, VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_ID)
                 .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
 
         var successfulResponse = validationApi.call20250801validatePost(request);
@@ -204,37 +157,34 @@ public class ValidationIT extends BaseTest {
     }
 
     @Test
-    void call20250801validatePost_withAInvalidSORCODE_ReturnFailedValidation() {
-        var request = new ValidationRequest()
-                .age(20) // Hardcoded clauses in cache requires age > 50 or existing drug medication
-                .personIdentifier("1234567890")
-                .addValidateItem(new Validate()
-                        .action(Validate.ActionEnum.CREATE_DRUG_MEDICATION)
-                        .elementPath("path")
-                        .newDrugMedication(new NewDrugMedication()
-                                .drugIdentifier(DRUG_ID)
-                                .indicationCode(VALID_INDICATION)
-                                .createdBy(new Actor()
-                                        .identifier("actor1")
-                                        .specialityCode("some doctor or whatever")
-                                        .departmentIdentifier(new DepartmentIdentifier().code("Some invalid sor code").type(DepartmentIdentifier.TypeEnum.SOR))
-                                )
-                                .createdDateTime(OffsetDateTime.now())
-                        )
-                )
-                .existingDrugMedications(List.of(new ExistingDrugMedicationInput()));
-
-        var failingResponse = validationApi.call20250801validatePost(request);
-
-        assertInstanceOf(ValidationFailed.class, failingResponse, "Validation should fail since a sor code is expected to be valid");
+    void call20250801validatePost_WithInputThatMatchesClauseAndFailsDepartmentSpecialityValidation_ReturnsValidationError() {
+        String invalidDepartmentId = "222231000016004"; // Points to a department in the DB with "radiologi" as speciality. "infektionsmedicin" is required.
+        var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, invalidDepartmentId);
+        var response = validationApi.call20250801validatePost(request);
+        assertValidationError(response, "afdelingens speciale skal være infektionsmedicin");
     }
 
-    private ValidationRequest createValidationRequest(String elementPath, int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality) {
-        return createValidationRequest(elementPath, age, indication, existingDrugMedication, doctorSpeciality, "");
+    private static void assertValidationError(ValidationResponse response, String expectedErrorMessage) {
+        var failedResponse = assertInstanceOf(ValidationFailed.class, response);
+        assertEquals(1, failedResponse.getValidationErrors().size());
+        var validationError = failedResponse.getValidationErrors().getFirst();
+        ValidationError expectedValidationError = new ValidationError()
+                .elementPath(ELEMENT_PATH)
+                .message(expectedErrorMessage)
+                .code(10800)
+                .clause(new Clause()
+                        .code(CLAUSE_NAME)
+                        .text(CLAUSE_TEXT)
+                        .message(CLAUSE_ERROR_MESSAGE));
+        assertEquals(expectedValidationError, validationError);
     }
 
-    private ValidationRequest createValidationRequest(String elementPath, int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality, String reportedByDoctorSpeciality) {
-        Validate validate = createValidateElement(elementPath, indication, doctorSpeciality, reportedByDoctorSpeciality);
+    private ValidationRequest createValidationRequest(int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality, String departmentSorId) {
+        return createValidationRequest(age, indication, existingDrugMedication, doctorSpeciality, "", departmentSorId);
+    }
+
+    private ValidationRequest createValidationRequest(int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
+        Validate validate = createValidateElement(indication, doctorSpeciality, reportedByDoctorSpeciality, departmentSorId);
         return new ValidationRequest()
                 .age(age)
                 .personIdentifier("1234567890")
@@ -242,20 +192,30 @@ public class ValidationIT extends BaseTest {
                 .existingDrugMedications(existingDrugMedication);
     }
 
-    private Validate createValidateElement(String path, String indication, String doctorSpeciality, String reportedByDoctorSpeciality) {
-        NewDrugMedication newDrugMedication = createNewDrugMedication(indication, doctorSpeciality, reportedByDoctorSpeciality);
+    private Validate createValidateElement(String indication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
+        NewDrugMedication newDrugMedication = createNewDrugMedication(indication, doctorSpeciality, reportedByDoctorSpeciality, departmentSorId);
         return new Validate()
                 .action(Validate.ActionEnum.CREATE_DRUG_MEDICATION)
-                .elementPath(path)
+                .elementPath(ELEMENT_PATH)
                 .newDrugMedication(newDrugMedication);
     }
 
-    private NewDrugMedication createNewDrugMedication(String indication, String doctorSpeciality, String reportedByDoctorSpeciality) {
+    private NewDrugMedication createNewDrugMedication(String indication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
         return new NewDrugMedication()
                 .drugIdentifier(DRUG_ID)
                 .indicationCode(indication)
-                .createdBy(createActor(doctorSpeciality))
-                .reportedBy(createActor(reportedByDoctorSpeciality))
+                .createdBy(createActor(doctorSpeciality, departmentSorId))
+                .reportedBy(createActor(reportedByDoctorSpeciality, departmentSorId))
                 .createdDateTime(OffsetDateTime.now());
+    }
+
+    private static Actor createActor(String speciality, String departmentSorId) {
+        return new Actor()
+                .identifier("actor1")
+                .specialityCode(speciality)
+                .departmentIdentifier(
+                        new DepartmentIdentifier().code(departmentSorId)
+                                .type(DepartmentIdentifier.TypeEnum.SOR)
+                );
     }
 }

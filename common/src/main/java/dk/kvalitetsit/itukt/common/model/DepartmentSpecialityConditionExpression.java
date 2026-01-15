@@ -17,7 +17,7 @@ public record DepartmentSpecialityConditionExpression(String requiredSpeciality)
         var createdByFailure = validate(reportedBySpecialities);
         var reportedByFailure = validate(createdBySpecialities);
 
-        return createdByFailure.isEmpty() || reportedByFailure.isEmpty() ? Optional.empty() : createdByFailure;
+        return reportedByFailure.isEmpty() ? Optional.empty() : createdByFailure;
     }
 
     private Optional<ValidationFailed> validate(Set<Department.Speciality> specialities) {

@@ -19,6 +19,6 @@ public record IndicationConditionExpression(String requiredValue) implements Exp
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
         return requiredValue.equals(validationInput.indicationCode())
                 ? Optional.empty()
-                : Optional.of(new ConditionError(ValidationError.Field.INDICATION, Operator.EQUAL, requiredValue));
+                : Optional.of(new ConditionError(ConditionError.Field.INDICATION, Operator.EQUAL, requiredValue));
     }
 }

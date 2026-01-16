@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DepartmentEnt
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,8 +33,8 @@ class DepartmentEntityModelMapperTest {
         ));
 
         Department expected = new Department(
-                new Department.Identifier.SHAK("3800Z21"),
-                new Department.Identifier.SOR("641701000016008"),
+                Optional.of(new Department.Identifier.SHAK("3800Z21")),
+                        Optional.of(new Department.Identifier.SOR("641701000016008")),
                 Set.of(
                         new Department.Speciality("intern medicin"),
                         new Department.Speciality("kardiologi"),

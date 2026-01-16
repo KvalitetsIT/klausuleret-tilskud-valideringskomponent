@@ -5,8 +5,6 @@ import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedication;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import org.openapitools.model.*;
-import dk.kvalitetsit.itukt.common.model.*;
-import org.openapitools.model.AgeCondition;
 import org.openapitools.model.BinaryExpression;
 
 public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.Expression, Expression> {
@@ -21,7 +19,12 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
             case AgeCondition n -> this.map(n);
             case ExistingDrugMedicationCondition e -> this.map(e);
             case DoctorSpecialityCondition a -> this.map(a);
+            case DepartmentSpecialityCondition e -> this.map(e);
         };
+    }
+
+    private DepartmentSpecialityConditionExpression map(DepartmentSpecialityCondition b) {
+        return new DepartmentSpecialityConditionExpression(b.getSpeciality());
     }
 
     private IndicationConditionExpression map(IndicationCondition b) {

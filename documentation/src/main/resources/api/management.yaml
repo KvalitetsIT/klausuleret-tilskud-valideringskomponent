@@ -309,6 +309,7 @@ components:
         - $ref: '#/components/schemas/AgeCondition'
         - $ref: '#/components/schemas/ExistingDrugMedicationCondition'
         - $ref: '#/components/schemas/BinaryExpression'
+        - $ref: '#/components/schemas/DepartmentSpecialityCondition'
         - $ref: '#/components/schemas/DoctorSpecialityCondition'
       discriminator:
         propertyName: type
@@ -317,6 +318,7 @@ components:
           AgeCondition: '#/components/schemas/AgeCondition'
           ExistingDrugMedicationCondition: '#/components/schemas/ExistingDrugMedicationCondition'
           BinaryExpression: '#/components/schemas/BinaryExpression'
+          DepartmentSpecialityCondition: '#/components/schemas/DepartmentSpecialityCondition'
           DoctorSpecialityCondition: '#/components/schemas/DoctorSpecialityCondition'
 
     Operator:
@@ -396,6 +398,20 @@ components:
           type: string
           description: "Identifies this object as a AgeCondition expression"
           example: "AgeCondition"
+
+    DepartmentSpecialityCondition:
+      description: "A department condition consisting of a code and a type. This represents that the department is expected to have a certain speciality"
+      type: object
+      required: [ speciality, type ]
+      properties:
+        speciality:
+          description: "The speciality, that the field is compared against"
+          type: string
+        type:
+          type: string
+          description: "Identifies this object as a DepartmentSpecialityCondition expression"
+          example: "DepartmentSpecialityCondition"
+
 
     ExistingDrugMedicationCondition:
       description: "A condition for existing drug medication"

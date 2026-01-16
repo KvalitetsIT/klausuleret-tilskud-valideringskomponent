@@ -17,14 +17,14 @@ public record AgeConditionExpression(Operator operator, int value) implements Ex
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
         var intValue = validationInput.citizenAge();
         var success = switch (operator) {
-                    case EQUAL -> intValue == this.value;
-                    case GREATER_THAN_OR_EQUAL_TO -> intValue >= this.value;
-                    case LESS_THAN_OR_EQUAL_TO -> intValue <= this.value;
-                    case GREATER_THAN -> intValue > this.value;
-                    case LESS_THAN -> intValue < this.value;
-                };
+            case EQUAL -> intValue == this.value;
+            case GREATER_THAN_OR_EQUAL_TO -> intValue >= this.value;
+            case LESS_THAN_OR_EQUAL_TO -> intValue <= this.value;
+            case GREATER_THAN -> intValue > this.value;
+            case LESS_THAN -> intValue < this.value;
+        };
         return success
                 ? Optional.empty()
-                : Optional.of(new ConditionError(ValidationError.Field.AGE, operator, String.valueOf(value)));
+                : Optional.of(new ConditionError(ConditionError.Field.AGE, operator, String.valueOf(value)));
     }
 }

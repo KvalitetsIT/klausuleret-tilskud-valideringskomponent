@@ -10,7 +10,7 @@ public class MapperFactory {
     }
 
     public ExpressionDslMapper<DoctorSpecialityCondition> getDoctorSpecialityConditionExpressionDslMapper() {
-        return new SpecialityExpressionDslMapperImpl();
+        return new DoctorSpecialityExpressionDslMapperImpl();
     }
 
     public ExpressionDslMapper<AgeCondition> getAgeConditionExpressionDslMapper() {
@@ -24,4 +24,9 @@ public class MapperFactory {
     public ExpressionDslMapper<ExistingDrugMedicationCondition> getExistingDrugMedicationConditionExpressionDslMapper() {
         return new ExistingDrugMedicationExpressionDslMapperImpl();
     }
+
+    public ExpressionDslMapper<DepartmentSpecialityCondition> getDepartmentSpecialityExpressionDslMapper() {
+        return new DepartmentSpecialityExpressionDslMapperImpl();
+    }
+
 }

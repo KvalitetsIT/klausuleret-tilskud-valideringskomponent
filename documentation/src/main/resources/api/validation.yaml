@@ -163,26 +163,8 @@ components:
           description: "Lægens speciale jf. autorisationsregistret"
           type: string
           example: "PSYK"
-        organisationIdentifier:
-          $ref: "#/components/schemas/organisationIdentifier"
-
-    organisationIdentifier:
-      required:
-        - code
-        - type
-      description: "Organisationens SOR eller SHAK kode"
-      properties:
-        code:
-          description: "Den konkrete kode om det måtte være SOR eller SHAK"
-          type: string
-          example: "950731000016005"
-        type:
-          description: "Typen af identifier"
-          type: string
-          example: "SOR"
-          enum:
-            - SOR
-            - SHAK
+        departmentIdentifier:
+          $ref: "#/components/schemas/departmentIdentifier"
 
     ExistingDrugMedicationInput:
       description: "Udvalgte data for lægemiddelordinationer i FMK, inklusiv tidligere versioner"
@@ -294,3 +276,22 @@ components:
       description: "Fejlkode for fejlet validering"
       type: integer
       example: 10908
+
+
+    departmentIdentifier:
+      description: "Afdelingens SOR eller SHAK kode"
+      required:
+        - code
+        - type
+      properties:
+        code:
+          description: "Den konkrete kode om det måtte være SOR eller SHAK"
+          type: string
+          example: "950731000016005"
+        type:
+          description: "Typen af identifier"
+          type: string
+          example: "SOR"
+          enum:
+            - SOR
+            - SHAK

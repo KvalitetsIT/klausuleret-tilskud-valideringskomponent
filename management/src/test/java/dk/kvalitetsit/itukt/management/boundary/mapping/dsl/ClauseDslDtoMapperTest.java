@@ -200,6 +200,16 @@ class ClauseDslDtoMapperTest {
     }
 
     @Test
+    void givenDslWithDepartmentSpecialityCondition_whenMap_thenItIsParsedCorrectly() {
+        DslInput subject = new DslInput("CLAUSE", "blaah", "AFDELINGSSPECIALE = test");
+
+        var clause = mapper.map(subject);
+
+        final ClauseInput expected = new ClauseInput("CLAUSE", new DepartmentSpecialityCondition("TEST", ExpressionType.DEPARTMENT_SPECIALITY), "blaah");
+        Assertions.assertEquals(expected, clause, "Unexpected mapping of: " + subject);
+    }
+
+    @Test
     void givenDslWithSpecialityCondition_whenMap_thenItIsParsedCorrectly() {
         final ClauseInput expected = new ClauseInput("CLAUSE", new DoctorSpecialityCondition("LÆGE", ExpressionType.DOCTOR_SPECIALITY),
                 "blaah");

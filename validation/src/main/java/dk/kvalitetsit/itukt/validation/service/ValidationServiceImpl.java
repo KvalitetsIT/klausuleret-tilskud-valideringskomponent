@@ -43,8 +43,12 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
             return clause.expression().validates(validationInput).map(validationFailed -> switch (validationFailed) {
                 case ValidationFailed.ExistingDrugMedicationRequired ignored ->
                         throw new ExistingDrugMedicationRequiredException();
-                case dk.kvalitetsit.itukt.common.model.ValidationError error ->
-                        new ValidationError(new ValidationError.Clause(clause.name(), clauseText, clause.error().message()), error.toErrorString(), clause.error().code());
+                case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(
+                        new ValidationError.Clause(clause.name(), clauseText, clause.error().message()),
+                        error.toErrorString(),
+                        clause.error().code(),
+                        validationInput.elementPath()
+                );
             });
     }
 

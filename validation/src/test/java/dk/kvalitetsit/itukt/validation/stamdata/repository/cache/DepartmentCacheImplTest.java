@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,8 +27,8 @@ class DepartmentCacheImplTest {
     @Test
     void get_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
         Department data = new Department(
-                null,
-                new Department.Identifier.SOR("very long sor code"),
+                Optional.empty(),
+                Optional.of(new Department.Identifier.SOR("very long sor code")),
                 Set.of(new Department.Speciality("long clause text"))
         );
 
@@ -41,16 +42,17 @@ class DepartmentCacheImplTest {
 
     @Test
     void get_WhenDrugIdIsInCache_ReturnsStamDataName() {
+        Department.Identifier.SOR sor = new Department.Identifier.SOR("very long sor code");
         Department data = new Department(
-                null,
-                new Department.Identifier.SOR("very long sor code"),
+                Optional.empty(),
+                Optional.of(sor),
                 Set.of(new Department.Speciality("long clause text"))
         );
 
         Mockito.when(mock.fetchAll()).thenReturn(List.of(data));
         cache.load();
 
-        var result = cache.get(data.sor());
+        var result = cache.get(sor);
 
         assertTrue(result.isPresent());
         assertEquals(data, result.get());
@@ -59,7 +61,7 @@ class DepartmentCacheImplTest {
     @Test
     void get_WhenDrugIdIsInCache_ReturnsStamdataAndNoMoreInteractions() {
         var sor = new Department.Identifier.SOR("very long sor code");
-        Department data = new Department(null, sor, Set.of(new Department.Speciality("long clause text")));
+        Department data = new Department(Optional.empty(), Optional.of(sor), Set.of(new Department.Speciality("long clause text")));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(data));
         cache.load();
 
@@ -78,8 +80,8 @@ class DepartmentCacheImplTest {
     void get_assertCorrectlyMergedSpecialitiesWhenMatchingSorCode() {
         var sor = new Department.Identifier.SOR("very long sor code");
 
-        Department a = new Department(null, sor, Set.of(new Department.Speciality("speciality A")));
-        Department b = new Department(null, sor, Set.of(new Department.Speciality("speciality B")));
+        Department a = new Department(Optional.empty(), Optional.of(sor), Set.of(new Department.Speciality("speciality A")));
+        Department b = new Department(Optional.empty(), Optional.of(sor), Set.of(new Department.Speciality("speciality B")));
 
         Mockito.when(mock.fetchAll()).thenReturn(List.of(a, b));
         cache.load();
@@ -89,7 +91,7 @@ class DepartmentCacheImplTest {
 
         assertTrue(result.isPresent(), "Expected a result since the cache has been previously reloaded");
 
-        Department expected = new Department(null, sor, Set.of(
+        Department expected = new Department(Optional.empty(), Optional.of(sor), Set.of(
                 new Department.Speciality("speciality A"),
                 new Department.Speciality("speciality B")));
 

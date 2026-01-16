@@ -7,21 +7,21 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ExpressionTests {
     final static int inputAge = 40;
     final static String inputIndication = "input-indication";
-    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.CreatedBy("", "speciale"), Optional.of(new ValidationInput.ReportedBy("", "reported by speciale")), List.of(), inputAge, 0, inputIndication, empty());
-
     final static String
             inputAtcCode = "atcCode",
             inputFormCode = "formCode",
             inputRouteOfAdministrationCode = "routeOfAdministrationCode";
+    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.Actor("", Optional.of("speciale"), Optional.empty()), Optional.of(new ValidationInput.Actor("", Optional.of("reported by speciale"), Optional.empty())), List.of(), inputAge, 0, inputIndication, empty(), "path");
     final List<ExistingDrugMedication> existingMedications =
             List.of(new ExistingDrugMedication(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode));
     final ValidationInput validationInputWithHistory =
-            new ValidationInput("", new ValidationInput.CreatedBy("speciale"), empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications));
+            new ValidationInput("", new ValidationInput.Actor("speciale"), empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications), "path");
 
     static void assertErrorMessage(String v, Optional<ValidationFailed> o) {
         assertEquals(Optional.of(v), o.map(failed -> assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed).toErrorString()));
@@ -325,7 +325,7 @@ public class ExpressionTests {
         var result = exp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "Tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
+                "tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
                         ", Formkode = " + formCode +
                         ", Administrationsrutekode = " + route,
                 result
@@ -342,7 +342,7 @@ public class ExpressionTests {
         var result = exp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "Tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
+                "tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
                         ", Formkode = " + formCode +
                         ", Administrationsrutekode = " + route,
                 result
@@ -359,7 +359,7 @@ public class ExpressionTests {
         var result = exp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "Tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
+                "tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
                         ", Formkode = " + formCode +
                         ", Administrationsrutekode = " + route,
                 result
@@ -381,7 +381,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
                         " eller indikation skal være input-indication-no-match)",
                 result
@@ -403,7 +403,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
                         " eller indikation skal være input-indication-no-match)",
                 result
@@ -425,7 +425,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 og (Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
                         " eller indikation skal være input-indication-no-match)",
                 result
@@ -447,7 +447,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
                 result
         );
@@ -468,7 +468,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
                 result
         );
@@ -489,7 +489,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 eller Tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
                 result
         );

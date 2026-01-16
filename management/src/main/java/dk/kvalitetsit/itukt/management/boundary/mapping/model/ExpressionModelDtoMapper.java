@@ -24,8 +24,8 @@ public class ExpressionModelDtoMapper implements Mapper<Expression, org.openapit
         };
     }
 
-    private DepartmentCondition map(DepartmentSpecialityConditionExpression s) {
-        return new DepartmentCondition(s.requiredSpeciality(), ExpressionType.DEPARTMENT_SPECIALITY);
+    private DepartmentSpecialityCondition map(DepartmentSpecialityConditionExpression s) {
+        return new DepartmentSpecialityCondition(s.requiredSpeciality(), ExpressionType.DEPARTMENT_SPECIALITY);
     }
 
     private IndicationCondition map(IndicationConditionExpression s) {

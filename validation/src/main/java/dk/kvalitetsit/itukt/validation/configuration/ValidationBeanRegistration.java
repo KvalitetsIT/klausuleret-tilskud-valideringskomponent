@@ -4,6 +4,8 @@ import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
+import dk.kvalitetsit.itukt.validation.mapping.ErrorMapper;
+import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.*;
@@ -24,7 +26,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
-import java.util.Set;
 
 @Configuration
 public class ValidationBeanRegistration {
@@ -97,11 +98,10 @@ public class ValidationBeanRegistration {
                 new ValidationServiceImpl(
                         clauseService,
                         drugClauseCache,
-                        skippedValidationService,
-                        departmentCache
+                        skippedValidationService
                 ),
-                new ActorDtoModelMapper()
+                new ValidationRequestInputMapper(new ActorDtoModelMapper(departmentCache)),
+                new ErrorMapper()
         );
     }
-
 }

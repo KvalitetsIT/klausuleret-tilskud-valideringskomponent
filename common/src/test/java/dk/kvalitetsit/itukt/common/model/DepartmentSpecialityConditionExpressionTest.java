@@ -1,12 +1,12 @@
 package dk.kvalitetsit.itukt.common.model;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 class DepartmentSpecialityConditionExpressionTest {
@@ -26,7 +26,7 @@ class DepartmentSpecialityConditionExpressionTest {
         Mockito.when(creator.department()).thenReturn(Optional.of(department));
 
         Mockito.when(department.specialities()).thenReturn(Set.of(speciality));
-        Assertions.assertEquals(Optional.empty(), subject.validates(input));
+        assertEquals(Optional.empty(), subject.validates(input));
 
     }
 
@@ -58,8 +58,28 @@ class DepartmentSpecialityConditionExpressionTest {
                 requiredSpeciality
         ));
 
-        Assertions.assertEquals(expected, subject.validates(input));
+        assertEquals(expected, subject.validates(input));
 
+    }
+
+    @Test
+    public void validates_WithNoDepartmentInValidationInput_ReturnsValidationError() {
+        var requiredSpeciality = "overlæge";
+        var subject = new DepartmentSpecialityConditionExpression(requiredSpeciality);
+        var input = mock(ValidationInput.class);
+        var creator = mock(ValidationInput.Actor.class);
+        Mockito.when(input.createdBy()).thenReturn(creator);
+        Mockito.when(input.reportedBy()).thenReturn(Optional.empty());
+        Mockito.when(creator.department()).thenReturn(Optional.empty());
+
+        var result = subject.validates(input);
+
+        var expected = Optional.of(new ValidationError.ConditionError(
+                ValidationError.ConditionError.Field.DEPARTMENT_SPECIALITY,
+                Operator.EQUAL,
+                requiredSpeciality
+        ));
+        assertEquals(expected, result);
     }
 
 
@@ -87,13 +107,13 @@ class DepartmentSpecialityConditionExpressionTest {
 
         var expected = Optional.empty();
 
-        Assertions.assertEquals(expected, subject.validates(input));
+        assertEquals(expected, subject.validates(input));
 
 
         Mockito.when(creatorDepartment.specialities()).thenReturn(Set.of(new Department.Speciality("sygeplejerske")));
         Mockito.when(reporterDepartment.specialities()).thenReturn(Set.of(new Department.Speciality("læge")));
 
-        Assertions.assertEquals(expected, subject.validates(input));
+        assertEquals(expected, subject.validates(input));
 
     }
 

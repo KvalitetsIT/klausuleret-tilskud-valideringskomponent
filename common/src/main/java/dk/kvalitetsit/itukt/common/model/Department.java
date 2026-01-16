@@ -20,6 +20,14 @@ public record Department(Optional<Identifier.SHAK> shak, Optional<Identifier.SOR
         java.util.Objects.requireNonNull(specialities);
     }
 
+    public Department(Identifier id, Set<Speciality> specialities) {
+        this(
+                id instanceof Identifier.SHAK shakId ? Optional.of(shakId) : Optional.empty(),
+                id instanceof Identifier.SOR sorId ? Optional.of(sorId) : Optional.empty(),
+                specialities
+        );
+    }
+
     public Department withSpecialities(Set<Speciality> specialities) {
         return new Department(this.shak, this.sor, specialities);
     }

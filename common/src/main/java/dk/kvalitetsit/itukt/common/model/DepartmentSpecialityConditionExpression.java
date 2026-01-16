@@ -2,18 +2,22 @@ package dk.kvalitetsit.itukt.common.model;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public record DepartmentSpecialityConditionExpression(String requiredSpeciality) implements Expression.Condition {
 
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
-        var reportedBy = validationInput.reportedBy().flatMap(ValidationInput.Actor::department);
-        var createdBy = validationInput.createdBy().department();
+        var reportedBySpecialities = validationInput.reportedBy()
+                .flatMap(ValidationInput.Actor::department)
+                .map(Department::specialities)
+                .orElse(Set.of());
+        var createdBySpecialities = validationInput.createdBy().department()
+                .map(Department::specialities)
+                .orElse(Set.of());
 
-        var createdByFailure = createdBy.flatMap(d -> validate(d.specialities()));
-        var reportedByFailure = reportedBy.flatMap(d -> validate(d.specialities()));
+        var createdByFailure = validate(reportedBySpecialities);
+        var reportedByFailure = validate(createdBySpecialities);
 
-        return createdByFailure.isEmpty() || reportedByFailure.isEmpty() ? Optional.empty() : createdByFailure;
+        return reportedByFailure.isEmpty() ? Optional.empty() : createdByFailure;
     }
 
     private Optional<ValidationFailed> validate(Set<Department.Speciality> specialities) {

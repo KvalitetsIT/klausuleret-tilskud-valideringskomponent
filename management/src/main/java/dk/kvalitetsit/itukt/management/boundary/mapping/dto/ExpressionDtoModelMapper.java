@@ -19,11 +19,11 @@ public class ExpressionDtoModelMapper implements Mapper<org.openapitools.model.E
             case AgeCondition n -> this.map(n);
             case ExistingDrugMedicationCondition e -> this.map(e);
             case DoctorSpecialityCondition a -> this.map(a);
-            case DepartmentCondition e -> this.map(e);
+            case DepartmentSpecialityCondition e -> this.map(e);
         };
     }
 
-    private DepartmentSpecialityConditionExpression map(DepartmentCondition b) {
+    private DepartmentSpecialityConditionExpression map(DepartmentSpecialityCondition b) {
         return new DepartmentSpecialityConditionExpression(b.getSpeciality());
     }
 

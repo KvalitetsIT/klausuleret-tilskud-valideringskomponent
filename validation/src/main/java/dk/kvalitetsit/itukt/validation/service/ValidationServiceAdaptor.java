@@ -6,7 +6,6 @@ import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import org.openapitools.model.*;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The {@code ValidationServiceAdaptor} class is responsible for adapting between the boundary layer {@link dk.kvalitetsit.itukt.validation.boundary.ValidationController} and the service layer {@link ValidationServiceImpl}.
@@ -16,14 +15,17 @@ import java.util.Optional;
 public class ValidationServiceAdaptor implements ValidationService<ValidationRequest, ValidationResponse> {
 
     private final ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService;
-    private final Mapper<Actor, ValidationInput.Actor> actorMapper;
+    private final Mapper<ValidationRequest, List<ValidationInput>> validationRequestInputMapper;
+    private final Mapper<dk.kvalitetsit.itukt.validation.service.model.ValidationError, ValidationError> errorMapper;
 
     public ValidationServiceAdaptor(
             ValidationService<ValidationInput, List<dk.kvalitetsit.itukt.validation.service.model.ValidationError>> validationService,
-            Mapper<Actor, ValidationInput.Actor> actorMapper
+            Mapper<ValidationRequest, List<ValidationInput>> validationRequestInputMapper,
+            Mapper<dk.kvalitetsit.itukt.validation.service.model.ValidationError, ValidationError> errorMapper
     ) {
         this.validationService = validationService;
-        this.actorMapper = actorMapper;
+        this.validationRequestInputMapper = validationRequestInputMapper;
+        this.errorMapper = errorMapper;
     }
 
     @Override
@@ -36,58 +38,21 @@ public class ValidationServiceAdaptor implements ValidationService<ValidationReq
     }
 
     private ValidationResponse validateAll(ValidationRequest request) {
-        var validationErrors = request.getValidate().stream()
-                .flatMap(validate -> validate(request, validate).stream())
+        List<ValidationInput> validationInputs = this.validationRequestInputMapper.map(request);
+
+        var validationErrors = validationInputs.stream()
+                .flatMap(input -> validate(input).stream())
                 .toList();
+
         return validationErrors.isEmpty() ?
                 new ValidationSuccess() :
                 new ValidationFailed().validationErrors(validationErrors);
     }
 
-    private List<ValidationError> validate(ValidationRequest request, Validate validate) {
-        var validationInput = mapToValidationInput(request, validate);
-        return validationService.validate(validationInput)
+    private List<ValidationError> validate(ValidationInput input) {
+        return validationService.validate(input)
                 .stream()
-                .map(error -> mapValidationError(validate, error))
+                .map(errorMapper::map)
                 .toList();
-    }
-
-    private ValidationError mapValidationError(Validate validateInput, dk.kvalitetsit.itukt.validation.service.model.ValidationError modelValidationError) {
-        return new ValidationError()
-                .elementPath(validateInput.getElementPath())
-                .code(modelValidationError.code())
-                .message(modelValidationError.message())
-                .clause(new Clause()
-                        .message(modelValidationError.clause().message())
-                        .code(modelValidationError.clause().code())
-                        .text(modelValidationError.clause().text())
-                );
-    }
-
-    private ValidationInput mapToValidationInput(ValidationRequest validationRequest, Validate validate) {
-        var existingDrugMedication = Optional.ofNullable(validationRequest.getExistingDrugMedications().orElse(null))
-                .map(e -> e.stream()
-                        .map(this::mapExistingDrugMedication)
-                        .toList()
-                );
-
-        var createdBy = actorMapper.map(validate.getNewDrugMedication().getCreatedBy());
-        var reportedBy = validate.getNewDrugMedication().getReportedBy().map(actorMapper::map);
-
-        return new ValidationInput(
-                validationRequest.getPersonIdentifier(),
-                createdBy,
-                reportedBy,
-                validationRequest.getSkipValidations(),
-                validationRequest.getAge(),
-                validate.getNewDrugMedication().getDrugIdentifier(),
-                validate.getNewDrugMedication().getIndicationCode(),
-                existingDrugMedication
-        );
-    }
-
-
-    private dk.kvalitetsit.itukt.common.model.ExistingDrugMedication mapExistingDrugMedication(ExistingDrugMedicationInput existing) {
-        return new dk.kvalitetsit.itukt.common.model.ExistingDrugMedication(existing.getAtcCode(), existing.getFormCode(), existing.getRouteOfAdministrationCode());
     }
 }

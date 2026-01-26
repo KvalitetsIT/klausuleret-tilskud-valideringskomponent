@@ -17,7 +17,7 @@ public record IndicationConditionExpression(String requiredValue) implements Exp
 
     @Override
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
-        return requiredValue.equals(validationInput.indicationCode())
+        return requiredValue.equalsIgnoreCase(validationInput.indicationCode())
                 ? Optional.empty()
                 : Optional.of(new ConditionError(ConditionError.Field.INDICATION, Operator.EQUAL, requiredValue));
     }

@@ -17,14 +17,13 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
-import dk.kvalitetsit.itukt.management.service.ClauseServiceImpl;
-import dk.kvalitetsit.itukt.management.service.ManagementService;
-import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
-import dk.kvalitetsit.itukt.management.service.ManagementServiceImpl;
+import dk.kvalitetsit.itukt.management.service.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.sql.DataSource;
 
@@ -35,6 +34,12 @@ public class ManagementBeanRegistration {
 
     public ManagementBeanRegistration(ManagementConfiguration configuration) {
         this.configuration = configuration;
+    }
+
+    @Bean
+    @RequestScope
+    public UserContextService userContextService(HttpServletRequest request) {
+        return new UserContextService(request);
     }
 
     @Bean

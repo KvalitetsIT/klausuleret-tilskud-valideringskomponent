@@ -34,6 +34,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public ClauseEntity create(ClauseInput clause) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
+            var status = Clause.Status.DRAFT;
 
             ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
 
@@ -46,7 +47,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .addValue("name", clause.name())
                     .addValue("expression_id", createdExpression.id())
                     .addValue("error_message", clause.errorMessage())
-                    .addValue("status", Clause.Status.DRAFT.name());
+                    .addValue("status", status.name());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
@@ -57,6 +58,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         rs.getLong("id"),
                         uuid,
                         clause.name(),
+                        status,
                         errorCode,
                         clause.errorMessage(),
                         createdExpression,
@@ -105,7 +107,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message, c.valid_from
+                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.valid_from
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -122,6 +124,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getLong("id"),
                                 uuid,
                                 rs.getString("name"),
+                                Clause.Status.valueOf(rs.getString("status")),
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,

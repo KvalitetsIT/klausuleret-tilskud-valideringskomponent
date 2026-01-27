@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
@@ -115,9 +116,10 @@ public class ClauseRepositoryImplIT extends BaseTest {
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("validFrom")
+                .ignoringFields("validFrom", "status")
                 .withFailMessage("Expected the latest approved version of the clause to be returned")
                 .isEqualTo(clauseA);
+        assertEquals(Clause.Status.ACTIVE, clauses.getFirst().status());
     }
 
     @Test
@@ -164,7 +166,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var readClause = repository.read(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
-        var expectedClause = new ClauseEntity(null, null, "CLAUSE", 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom());
+        var expectedClause = new ClauseEntity(null, null, "CLAUSE", Clause.Status.DRAFT, 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom());
         assertThat(readClause.get())
                 .usingRecursiveComparison()
                 .ignoringFields("id", "uuid", "errorCode", "expression.id")

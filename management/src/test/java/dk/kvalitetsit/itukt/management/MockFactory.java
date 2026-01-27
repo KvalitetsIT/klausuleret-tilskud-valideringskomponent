@@ -39,7 +39,7 @@ public class MockFactory {
             EXPRESSION_7_ENTITY
     );
     private static final Date validFrom = new Date();
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "name", 10800, "message", EXPRESSION_1_ENTITY, Optional.of(validFrom));
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "name", Clause.Status.ACTIVE, 10800, "message", EXPRESSION_1_ENTITY, Optional.of(validFrom));
     private static final AgeConditionExpression EXPRESSION_6_MODEL = new AgeConditionExpression(
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()

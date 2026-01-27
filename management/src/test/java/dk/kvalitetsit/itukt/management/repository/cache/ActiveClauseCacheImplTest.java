@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -48,6 +49,7 @@ class ActiveClauseCacheImplTest {
                 1L,
                 UUID.randomUUID(),
                 "CLAUSE",
+                Clause.Status.ACTIVE,
                 1,
                 "Message",
                 new ExpressionEntity.StringConditionEntity(
@@ -73,8 +75,8 @@ class ActiveClauseCacheImplTest {
 
     @Test
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
-        var existingClause1 = new ClauseEntity(null, null, "test1", 111, "message1", null, Optional.empty());
-        var existingClause2 = new ClauseEntity(null, null, "test2", 222, "message2", null, Optional.empty());
+        var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, Optional.empty());
+        var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, Optional.empty());
         Mockito.when(concreteRepository.readLatestVersions()).thenReturn(List.of(existingClause1, existingClause2));
         cache.load();
 

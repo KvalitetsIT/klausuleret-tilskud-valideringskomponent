@@ -45,5 +45,8 @@ public record Department(Optional<Identifier.SHAK> shak, Optional<Identifier.SOR
     }
 
     public record Speciality(String name) {
+        public Speciality(String name) {
+            this.name = name.toUpperCase();
+        }
     }
 }

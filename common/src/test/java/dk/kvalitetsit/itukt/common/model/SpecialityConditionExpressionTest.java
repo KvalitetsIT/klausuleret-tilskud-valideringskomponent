@@ -26,7 +26,7 @@ class DoctorSpecialityConditionExpressionTest {
     }
 
     @Test
-    void matches_WhenValueIsDifferentThanRequired_ReturnsFalse() {
+    void validates_WhenValueIsDifferentThanRequired_ReturnsValidationError() {
         var condition = new DoctorSpecialityConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         ValidationInput.Actor createdBy = new ValidationInput.Actor("", Optional.of("different value"), Optional.empty());
@@ -42,10 +42,22 @@ class DoctorSpecialityConditionExpressionTest {
     }
 
     @Test
-    void matches_WhenValueIsEqualToRequired_ReturnsTrue() {
+    void validates_WhenValueIsEqualToRequired_ReturnsNoErrors() {
         var condition = new DoctorSpecialityConditionExpression("testValue");
         ValidationInput validationInput = Mockito.mock(ValidationInput.class);
         ValidationInput.Actor createdBy = new ValidationInput.Actor("", Optional.of("testValue"), Optional.empty());
+        Mockito.when(validationInput.createdBy()).thenReturn(createdBy);
+
+        boolean validates = condition.validates(validationInput).isEmpty();
+
+        assertTrue(validates);
+    }
+
+    @Test
+    void validates_WhenValueIsEqualToRequiredButDifferentCase_ReturnsNoErrors() {
+        var condition = new DoctorSpecialityConditionExpression("test");
+        ValidationInput validationInput = Mockito.mock(ValidationInput.class);
+        ValidationInput.Actor createdBy = new ValidationInput.Actor("", Optional.of("TeSt"), Optional.empty());
         Mockito.when(validationInput.createdBy()).thenReturn(createdBy);
 
         boolean validates = condition.validates(validationInput).isEmpty();

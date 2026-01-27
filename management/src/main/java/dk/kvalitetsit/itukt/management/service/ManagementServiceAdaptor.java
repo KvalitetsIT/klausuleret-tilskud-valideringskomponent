@@ -14,14 +14,14 @@ import java.util.UUID;
 public class ManagementServiceAdaptor {
 
     private final ManagementService clauseService;
-    private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
+    private final Mapper<Clause, ClauseOutput> clauseDtoMapper;
     private final Mapper<DslInput, org.openapitools.model.ClauseInput> dslClauseMapper;
     private final Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
     private final Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
-            Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
+            Mapper<Clause, ClauseOutput> modelDtoMapper,
             Mapper<DslInput, org.openapitools.model.ClauseInput> dslClauseMapper,
             Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper,
             Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper
@@ -79,6 +79,7 @@ public class ManagementServiceAdaptor {
         return switch (status) {
             case DRAFT -> Clause.Status.DRAFT;
             case ACTIVE -> Clause.Status.ACTIVE;
+            case INACTIVE -> Clause.Status.INACTIVE;
         };
     }
 }

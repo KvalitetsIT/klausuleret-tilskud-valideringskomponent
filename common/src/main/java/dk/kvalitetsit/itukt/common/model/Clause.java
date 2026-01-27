@@ -28,7 +28,8 @@ public record Clause(
      */
     public enum Status {
         DRAFT,
-        ACTIVE
+        ACTIVE,
+        INACTIVE
     }
 
     /**

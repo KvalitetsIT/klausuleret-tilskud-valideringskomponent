@@ -57,9 +57,9 @@ class ActiveClauseCacheImplTest {
                 Optional.empty()
         );
 
-        Mockito.when(concreteRepository.readLatestActive()).thenReturn(List.of(expected));
+        Mockito.when(concreteRepository.readLatestVersions()).thenReturn(List.of(expected));
         cache.load();
-        Mockito.verify(concreteRepository, Mockito.times(1)).readLatestActive();
+        Mockito.verify(concreteRepository, Mockito.times(1)).readLatestVersions();
 
         assertEquals(Optional.of(expected), cache.get("CLAUSE"));
     }
@@ -75,7 +75,7 @@ class ActiveClauseCacheImplTest {
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
         var existingClause1 = new ClauseEntity(null, null, "test1", 111, "message1", null, Optional.empty());
         var existingClause2 = new ClauseEntity(null, null, "test2", 222, "message2", null, Optional.empty());
-        Mockito.when(concreteRepository.readLatestActive()).thenReturn(List.of(existingClause1, existingClause2));
+        Mockito.when(concreteRepository.readLatestVersions()).thenReturn(List.of(existingClause1, existingClause2));
         cache.load();
 
         var result = cache.getByErrorCode(existingClause2.errorCode());

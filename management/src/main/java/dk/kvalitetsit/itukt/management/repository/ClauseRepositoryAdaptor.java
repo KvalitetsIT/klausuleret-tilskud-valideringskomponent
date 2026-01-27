@@ -30,10 +30,10 @@ public class ClauseRepositoryAdaptor {
     }
 
     /**
-     * Retrieves active clauses, including only the latest version of each clause.
+     * Retrieves the latest version of each clause. Excluding drafts.
      */
-    public List<Clause> readLatestActive() throws ServiceException {
-        return this.entityMapper.map(clauseRepository.readLatestActive());
+    public List<Clause> readLatestVersions() throws ServiceException {
+        return this.entityMapper.map(clauseRepository.readLatestVersions());
     }
 
     public List<Clause> readAllDrafts() throws ServiceException {

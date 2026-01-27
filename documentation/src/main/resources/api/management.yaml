@@ -346,6 +346,7 @@ components:
       enum:
         - "DRAFT"
         - "ACTIVE"
+        - "INACTIVE"
 
     ClauseStatusInput:
       description: Status input for clause transition

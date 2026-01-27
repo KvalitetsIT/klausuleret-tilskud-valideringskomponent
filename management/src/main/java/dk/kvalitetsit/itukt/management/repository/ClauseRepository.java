@@ -13,9 +13,9 @@ public interface ClauseRepository {
     ClauseEntity create(ClauseInput clause) throws ServiceException;
     Optional<ClauseEntity> read(UUID uuid) throws ServiceException;
     /**
-     * Retrieves active clauses, including only the latest version of each clause.
+     * Retrieves the latest version of each clause. Excluding drafts.
      */
-    List<ClauseEntity> readLatestActive() throws ServiceException;
+    List<ClauseEntity> readLatestVersions() throws ServiceException;
     List<ClauseEntity> readAllDrafts() throws ServiceException;
 
     List<ClauseEntity> readHistory(String name);

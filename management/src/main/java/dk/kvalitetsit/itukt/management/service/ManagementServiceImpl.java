@@ -32,7 +32,8 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public List<Clause> readByStatus(Clause.Status status) throws ServiceException {
         return switch (status) {
-            case ACTIVE -> repository.readLatestActive();
+            case ACTIVE -> repository.readLatestVersions();
+            case INACTIVE -> repository.readLatestVersions();
             case DRAFT -> repository.readAllDrafts();
         };
     }

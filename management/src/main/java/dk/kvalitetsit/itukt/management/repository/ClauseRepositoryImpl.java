@@ -140,7 +140,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<ClauseEntity> readLatestActive() throws ServiceException {
+    public List<ClauseEntity> readLatestVersions() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid
@@ -148,7 +148,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         JOIN (
                             SELECT name, MAX(valid_from) AS max_valid_from
                             FROM clause
-                            WHERE status = :status AND valid_from IS NOT NULL
+                            WHERE valid_from IS NOT NULL
                             GROUP BY name
                         ) latest
                           ON c.name = latest.name
@@ -157,7 +157,6 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     """;
 
             List<UUID> uuids = template.query(sql,
-                    Map.of("status", Clause.Status.ACTIVE.name()),
                     (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
             );
 
@@ -167,8 +166,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            logger.error("Failed to read all clauses", e);
-            throw new ServiceException("Failed to read active clauses", e);
+            logger.error("Failed to read latest clauses", e);
+            throw new ServiceException("Failed to read latest clauses", e);
         }
     }
 
@@ -193,7 +192,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            logger.error("Failed to read all clauses", e);
+            logger.error("Failed to read draft clauses", e);
             throw new ServiceException("Failed to read draft clauses", e);
         }
     }

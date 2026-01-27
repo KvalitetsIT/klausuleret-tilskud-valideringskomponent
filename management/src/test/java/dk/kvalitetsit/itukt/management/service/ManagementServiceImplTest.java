@@ -71,8 +71,8 @@ class ManagementServiceImplTest {
     void readHistory_invokesRepositoryOnce() {
         String name = "blaah";
         var clauses = List.of(
-                new Clause(1L, name, null, new Clause.Error("message1", 10800), null, Optional.empty()),
-                new Clause(2L, name, null, new Clause.Error("message2", 10800), null, Optional.empty())
+                new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("message1", 10800), null, Optional.empty()),
+                new Clause(2L, name, Clause.Status.INACTIVE, null, new Clause.Error("message2", 10800), null, Optional.empty())
         );
         Mockito.when(dao.readHistory(name)).thenReturn(clauses);
         var result = service.readHistory(name);

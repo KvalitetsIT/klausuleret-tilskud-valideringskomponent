@@ -43,12 +43,11 @@ class ActiveClauseCacheImplTest {
     }
 
     @Test
-    void givenAClauseFromRepository_whenLoad_thenReturnReturnSameClause() {
-
-        var expected = new ClauseEntity(
+    void givenAnActiveAndInactiveClauseFromRepository_whenLoad_thenReturnActiveClause() {
+        var activeClause = new ClauseEntity(
                 1L,
                 UUID.randomUUID(),
-                "CLAUSE",
+                "CLAUSE1",
                 Clause.Status.ACTIVE,
                 1,
                 "Message",
@@ -58,12 +57,26 @@ class ActiveClauseCacheImplTest {
                 ),
                 Optional.empty()
         );
+        var inactiveClause = new ClauseEntity(
+                2L,
+                UUID.randomUUID(),
+                "CLAUSE2",
+                Clause.Status.INACTIVE,
+                2,
+                "Message",
+                new ExpressionEntity.StringConditionEntity(
+                        Field.AGE,
+                        "value"
+                ),
+                Optional.empty()
+        );
+        Mockito.when(concreteRepository.readLatestVersions()).thenReturn(List.of(activeClause, inactiveClause));
 
-        Mockito.when(concreteRepository.readLatestVersions()).thenReturn(List.of(expected));
         cache.load();
-        Mockito.verify(concreteRepository, Mockito.times(1)).readLatestVersions();
 
-        assertEquals(Optional.of(expected), cache.get("CLAUSE"));
+        Mockito.verify(concreteRepository, Mockito.times(1)).readLatestVersions();
+        assertEquals(Optional.of(activeClause), cache.get(activeClause.name()));
+        assertEquals(Optional.empty(), cache.get(inactiveClause.name()));
     }
 
     @Test

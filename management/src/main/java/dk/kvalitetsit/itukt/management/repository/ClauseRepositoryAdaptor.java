@@ -45,7 +45,7 @@ public class ClauseRepositoryAdaptor {
         return this.entityMapper.map(clauseRepository.readHistory(name));
     }
 
-    public void updateDraftToActive(UUID uuid) throws ServiceException {
-        clauseRepository.updateDraftToActive(uuid);
+    public void updateDraftStatus(UUID uuid, Clause.Status status) throws ServiceException {
+        clauseRepository.updateDraftStatus(uuid, status);
     }
 }

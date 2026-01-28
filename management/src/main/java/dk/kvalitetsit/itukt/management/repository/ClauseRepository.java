@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
@@ -21,8 +22,10 @@ public interface ClauseRepository {
     List<ClauseEntity> readHistory(String name);
 
     /**
-     * Updates the clause with the given ID from DRAFT status to ACTIVE status.
+     * Updates the status of the draft clause with the given UUID.
+     * @param uuid   The UUID of the clause to update.
+     * @param status The new status to set.
      * @throws NotFoundException if the clause cannot be found or if it is not in DRAFT status.
      */
-    void updateDraftToActive(UUID uuid) throws NotFoundException;
+    void updateDraftStatus(UUID uuid, Clause.Status status) throws NotFoundException;
 }

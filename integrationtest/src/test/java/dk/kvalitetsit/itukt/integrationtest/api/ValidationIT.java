@@ -60,7 +60,7 @@ public class ValidationIT extends BaseTest {
         var clause = new ClauseInput(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE);
 
         UUID uuid = repository.create(clause).uuid();
-        repository.updateDraftToActive(uuid);
+        repository.updateDraftStatus(uuid, dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE);
     }
 
     @BeforeEach

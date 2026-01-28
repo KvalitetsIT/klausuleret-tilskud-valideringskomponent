@@ -96,12 +96,12 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void updateDraftToActive() {
+    void updateDraftStatus() {
         UUID uuid = UUID.randomUUID();
 
-        adaptor.updateDraftToActive(uuid);
+        adaptor.updateDraftStatus(uuid, Clause.Status.ACTIVE);
 
-        Mockito.verify(concreteRepository).updateDraftToActive(uuid);
+        Mockito.verify(concreteRepository).updateDraftStatus(uuid, Clause.Status.ACTIVE);
     }
 }
 

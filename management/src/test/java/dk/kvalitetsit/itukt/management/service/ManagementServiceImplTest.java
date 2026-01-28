@@ -48,13 +48,29 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void readByStatus_WithStatusActive_ReturnsActiveClauses() {
-        var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.readLatestVersions()).thenReturn(List.of(model));
+    void readByStatus_WithStatusActive_ReturnsLatestActiveClauses() {
+        var activeClause = mock(Clause.class);
+        Mockito.when(activeClause.status()).thenReturn(Clause.Status.ACTIVE);
+        var inactiveClause = mock(Clause.class);
+        Mockito.when(inactiveClause.status()).thenReturn(Clause.Status.INACTIVE);
+        Mockito.when(dao.readLatestVersions()).thenReturn(List.of(activeClause, inactiveClause));
 
         var result = service.readByStatus(Clause.Status.ACTIVE);
 
-        assertEquals(List.of(model), result);
+        assertEquals(List.of(activeClause), result);
+    }
+
+    @Test
+    void readByStatus_WithStatusInactive_ReturnsLatestInactiveClauses() {
+        var activeClause = mock(Clause.class);
+        Mockito.when(activeClause.status()).thenReturn(Clause.Status.ACTIVE);
+        var inactiveClause = mock(Clause.class);
+        Mockito.when(inactiveClause.status()).thenReturn(Clause.Status.INACTIVE);
+        Mockito.when(dao.readLatestVersions()).thenReturn(List.of(activeClause, inactiveClause));
+
+        var result = service.readByStatus(Clause.Status.INACTIVE);
+
+        assertEquals(List.of(inactiveClause), result);
     }
 
     @Test

@@ -42,7 +42,7 @@ public class ActiveClauseCacheImpl implements ActiveClauseCache, CacheLoader {
     @Override
     public void load() {
         var activeClauses = clauseRepository.readLatestVersions().stream()
-                .filter(clause -> clause.status().equals(Clause.Status.ACTIVE)).toList();
+                .filter(clause -> clause.status() == Clause.Status.ACTIVE).toList();
         nameToClauseMap = activeClauses.stream().collect(Collectors.toMap(ClauseEntity::name, Function.identity()));
         errorCodeToClauseMap = activeClauses.stream().collect(Collectors.toMap(ClauseEntity::errorCode, Function.identity()));
     }

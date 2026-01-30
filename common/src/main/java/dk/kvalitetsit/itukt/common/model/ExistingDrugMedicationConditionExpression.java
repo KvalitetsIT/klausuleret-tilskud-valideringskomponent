@@ -38,6 +38,6 @@ public record ExistingDrugMedicationConditionExpression(ExistingDrugMedication e
     }
 
     private boolean valueMatchesCondition(String value, String condition) {
-        return condition.equals(value) || condition.equals("*");
+        return condition.equalsIgnoreCase(value) || condition.equals("*");
     }
 }

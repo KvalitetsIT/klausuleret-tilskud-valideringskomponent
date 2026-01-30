@@ -7,10 +7,26 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 class DepartmentSpecialityConditionExpressionTest {
 
+    @Test
+    public void validates_WhenValueIsEqualToRequiredButDifferentCase_ReturnsNoErrors() {
+        var subject = new DepartmentSpecialityConditionExpression("læge");
+        var input = mock(ValidationInput.class);
+        var creator = mock(ValidationInput.Actor.class);
+        var department = mock(Department.class);
+        var inputSpeciality = new Department.Speciality("LæGe");
+        Mockito.when(input.createdBy()).thenReturn(creator);
+        Mockito.when(creator.department()).thenReturn(Optional.of(department));
+        Mockito.when(department.specialities()).thenReturn(Set.of(inputSpeciality));
+
+        var validationErrors = subject.validates(input);
+
+        assertTrue(validationErrors.isEmpty());
+    }
 
     @Test
     public void validates_returnEmptyWhenSpecialityConditionIsMeet() {

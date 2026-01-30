@@ -32,7 +32,7 @@ class ManagementServiceImplTest {
     void create_CreatesClause() {
         var clauseForCreation = mock(ClauseInput.class);
         var clause = mock(Clause.class);
-        Mockito.when(dao.create(clauseForCreation)).thenReturn(clause);
+        Mockito.when(dao.createDraft(clauseForCreation)).thenReturn(clause);
 
         var result = service.create(clauseForCreation);
 

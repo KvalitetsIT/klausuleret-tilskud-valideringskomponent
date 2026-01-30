@@ -6,7 +6,6 @@ import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,12 +30,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity create(ClauseInput clause) throws ServiceException {
+    public ClauseEntity createDraft(String name, ExpressionEntity expression, String errorMessage) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
             var status = Clause.Status.DRAFT;
 
-            ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
+            ExpressionEntity createdExpression = expressionRepository.create(expression);
 
             String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status) " +
                     "VALUES (:uuid, :name, :expression_id, :error_message, :status) " +
@@ -44,23 +43,23 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue("uuid", uuid.toString())
-                    .addValue("name", clause.name())
+                    .addValue("name", name)
                     .addValue("expression_id", createdExpression.id())
-                    .addValue("error_message", clause.errorMessage())
+                    .addValue("error_message", errorMessage)
                     .addValue("status", status.name());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
 
-                int errorCode = createOrGetErrorCode(clause.name());
+                int errorCode = createOrGetErrorCode(name);
 
                 return new ClauseEntity(
                         rs.getLong("id"),
                         uuid,
-                        clause.name(),
+                        name,
                         status,
                         errorCode,
-                        clause.errorMessage(),
+                        errorMessage,
                         createdExpression,
                         Optional.empty()
                 );

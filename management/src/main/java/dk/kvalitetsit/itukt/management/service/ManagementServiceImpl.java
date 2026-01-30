@@ -21,7 +21,7 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause create(ClauseInput clause) throws ServiceException {
-        return repository.create(clause);
+        return repository.createDraft(clause);
     }
 
     @Override

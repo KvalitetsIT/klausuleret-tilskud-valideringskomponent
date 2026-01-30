@@ -4,14 +4,14 @@ import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ClauseRepository {
-    ClauseEntity create(ClauseInput clause) throws ServiceException;
+    ClauseEntity createDraft(String name, ExpressionEntity expression, String errorMessage) throws ServiceException;
     Optional<ClauseEntity> read(UUID uuid) throws ServiceException;
     /**
      * Retrieves the latest version of each clause. Excluding drafts.

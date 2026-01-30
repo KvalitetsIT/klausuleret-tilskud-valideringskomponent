@@ -13,13 +13,11 @@ import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -36,38 +34,41 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void testReadAllDrafts() {
-        var clause1 = new ClauseInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message");
-        var clause2 = new ClauseInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message");
+    void createAndReadDraft() {
+        var clauseName = "clause";
+        var expression = MockFactory.EXPRESSION_1_ENTITY;
+        String errorMessage = "message";
 
-        var clauses = List.of(clause1, clause2);
+        var createdClause = repository.createDraft(clauseName, expression, errorMessage);
+        var readClause = repository.read(createdClause.uuid());
 
-        var written = clauses.stream().map(repository::create).toList();
-        var read = this.repository.readAllDrafts();
-        assertEquals(clauses.size(), read.size());
-        for (int i = 0; i < written.size(); i++) {
-
-            var clauseForCreation = clauses.get(i);
-
-            var writtenClause = written.get(i);
-            var readClause = read.get(i);
-
-            assertNotNull(writtenClause.id(), "An id is expected to be assigned by the database when writing a clause");
-            assertNotNull(writtenClause.uuid(), "A uuid is expected to be assigned by the database when writing a clause");
-            assertNotNull(writtenClause.errorCode(), "An error code is expected to be assigned by the database when writing a clause");
-            assertEquals(clauseForCreation.name(), writtenClause.name(), "The input name is expected to be used in the written clause");
-            var idPathsToIgnore = ignoreFieldRecursive(writtenClause.expression(), "id");
-            assertThat(writtenClause.expression())
-                    .usingRecursiveComparison()
-                    .ignoringFields(idPathsToIgnore.toArray(new String[0]))
-                    .withFailMessage("The input expression is expected to be used in the written clause")
-                    .isEqualTo(clauseForCreation.expression());
-            assertEquals(writtenClause, readClause, "The clause read from the database is expected to match the one written beforehand");
-        }
+        assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
+        assertEquals(createdClause, readClause.get(), "The clause read is expected to match the clause created");
+        assertNotNull(createdClause.id(), "An id is expected to be assigned by the database when writing a clause");
+        assertNotNull(createdClause.uuid(), "A uuid is expected to be assigned by the database when writing a clause");
+        assertEquals(clauseName, createdClause.name(), "The input name is expected to be used in the written clause");
+        assertEquals(errorMessage, createdClause.errorMessage(), "The input error message is expected to be used in the written clause");
+        var idPathsToIgnore = ignoreFieldRecursive(createdClause.expression(), "id");
+        assertThat(createdClause.expression())
+                .usingRecursiveComparison()
+                .ignoringFields(idPathsToIgnore)
+                .withFailMessage("The input expression is expected to be used in the written clause")
+                .isEqualTo(expression);
     }
 
-    List<String> ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore) {
-        return ignoreFieldRecursive(expression, fieldToIgnore, "").toList();
+    @Test
+    void createAndReadAllDrafts() {
+        var createdClause1 = repository.createDraft("clause1", MockFactory.EXPRESSION_1_ENTITY, "message1");
+        var createdClause2 = repository.createDraft("clause2", MockFactory.EXPRESSION_1_ENTITY, "message2");
+        var readClauses = repository.readAllDrafts();
+
+        assertEquals(2, readClauses.size());
+        assertTrue(readClauses.contains(createdClause1));
+        assertTrue(readClauses.contains(createdClause2));
+    }
+
+    String[] ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore) {
+        return ignoreFieldRecursive(expression, fieldToIgnore, "").toArray(String[]::new);
     }
 
     Stream<String> ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore, String path) {
@@ -90,11 +91,10 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void createTwoClauseWithSameName_ThenReadAllDrafts_ReturnsBothClauses() {
-        var clauseAInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
-        var clauseBInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
 
-        var clauseA = repository.create(clauseAInput);
-        var clauseB = repository.create(clauseBInput);
+        var clauseA = repository.createDraft("clause", expression, "errorA");
+        var clauseB = repository.createDraft("clause", expression, "errorB");
         var clauses = repository.readAllDrafts();
 
         assertEquals(2, clauses.size(), "Expected both clauses to be returned");
@@ -104,11 +104,10 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void createAndApproveTwoClauseWithSameName_ThenReadLatestVersions_ReturnsLatestApprovedClause() {
-        var clauseAInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorA");
-        var clauseBInput = new ClauseInput("blaah", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "errorB");
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
 
-        var clauseA = repository.create(clauseAInput);
-        var clauseB = repository.create(clauseBInput);
+        var clauseA = repository.createDraft("blaah", expression, "errorA");
+        var clauseB = repository.createDraft("blaah", expression, "errorB");
         repository.updateDraftStatus(clauseB.uuid(), Clause.Status.ACTIVE);
         repository.updateDraftStatus(clauseA.uuid(), Clause.Status.INACTIVE);
         var clauses = repository.readLatestVersions();
@@ -124,8 +123,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void givenADeepClause_whenCreateAndRead_thenAssertEqual() {
-
-        var deepClause = new ClauseInput("ClauseName", new ExpressionEntity.BinaryExpressionEntity(
+        var expression = new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.BinaryExpressionEntity(
                         new ExpressionEntity.BinaryExpressionEntity(
                                 new ExpressionEntity.StringConditionEntity(Field.AGE, "whatEver"),
@@ -141,15 +139,16 @@ public class ClauseRepositoryImplIT extends BaseTest {
                         BinaryExpression.Operator.AND,
                         new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 20)
                 )
-        ), "message");
+        );
 
-        var created = repository.create(deepClause);
+        var created = repository.createDraft("ClauseName", expression, "message");
 
+        var fieldsToIgnore = ignoreFieldRecursive(expression, "id");
         assertThat(created.expression())
                 .usingRecursiveComparison()
-                .ignoringFields("id", "left.id", "right.id", "right.left.id", "right.right.id", "right.left.left.id", "right.left.right.id", "left.left.id", "left.left.left.id", "left.right.id", "left.left.right.id")
+                .ignoringFields(fieldsToIgnore)
                 .withFailMessage("Expected the expression returned to be equal to the one given as argument")
-                .isEqualTo(deepClause.expression());
+                .isEqualTo(expression);
 
         var read = repository.read(created.uuid());
 
@@ -160,9 +159,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void testCreateAndReadExistingDrugMedicationCondition() {
         var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
-        var clauseForCreation = new ClauseInput("CLAUSE", existingDrugMedicationCondition, "message");
 
-        UUID clauseUuid = repository.create(clauseForCreation).uuid();
+        UUID clauseUuid = repository.createDraft("CLAUSE", existingDrugMedicationCondition, "message").uuid();
         var readClause = repository.read(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
@@ -181,7 +179,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         int numberOfCreates = 10;
 
         for (int i = 0; i < numberOfCreates; i++)
-            repository.create(new ClauseInput("UPDATED_CLAUSE", ageCondition, "message-" + 1));
+            repository.createDraft("UPDATED_CLAUSE", ageCondition, "message-" + 1);
 
         var versions = repository.readHistory("UPDATED_CLAUSE");
 
@@ -201,8 +199,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void updateDraftStatus_WhenUuidMatchesClause_SucceedsOnlyWhenInDraft() {
-        var clauseInput = new ClauseInput("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
-        var clause = repository.create(clauseInput);
+        var clause = repository.createDraft("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
 
         assertDoesNotThrow(() -> repository.updateDraftStatus(clause.uuid(), Clause.Status.ACTIVE));
         var e = assertThrows(
@@ -213,12 +210,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void create_WhenAllErrorCodesHasBeenUsed_ThrowsException() {
+    void createDraft_WhenAllErrorCodesHasBeenUsed_ThrowsException() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
         jdbcTemplate.execute("INSERT INTO error_code (error_code, clause_name) VALUES (10999, 'clause_with_last_error_code')");
-        var clause = new ClauseInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message");
 
-        var e = assertThrows(ServiceException.class, () -> repository.create(clause));
+        var e = assertThrows(ServiceException.class, () -> repository.createDraft("clause", MockFactory.EXPRESSION_1_ENTITY, "message"));
 
         Assertions.assertEquals("Failed to create clause", e.getMessage());
     }

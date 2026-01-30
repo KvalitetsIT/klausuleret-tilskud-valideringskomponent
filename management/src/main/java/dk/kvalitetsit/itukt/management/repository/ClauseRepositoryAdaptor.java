@@ -20,8 +20,8 @@ public class ClauseRepositoryAdaptor {
         this.entityMapper = entityMapper;
     }
 
-    public Clause create(ClauseInput clause) throws ServiceException {
-        var createdClause = clauseRepository.create(clause);
+    public Clause createDraft(ClauseInput clause) throws ServiceException {
+        var createdClause = clauseRepository.createDraft(clause.name(), clause.expression(), clause.errorMessage());
         return entityMapper.map(createdClause);
     }
 

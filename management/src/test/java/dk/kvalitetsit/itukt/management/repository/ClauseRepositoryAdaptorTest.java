@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,18 +41,19 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testCreate() {
+    void testCreateDraft() {
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clauseForCreation = Mockito.mock(ClauseInput.class);
-        Mockito.when(concreteRepository.create(clauseForCreation)).thenReturn(clauseEntity);
+        var clauseForCreation = new ClauseInput("test", Mockito.mock(ExpressionEntity.StringConditionEntity.class), "test error");
+        Mockito.when(concreteRepository.createDraft(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage()))
+                .thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 
-        var result = adaptor.create(clauseForCreation);
+        var result = adaptor.createDraft(clauseForCreation);
 
         assertEquals(outputClause, result);
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).create(clauseForCreation);
+        Mockito.verify(concreteRepository, Mockito.times(1)).createDraft(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage());
     }
 
     @Test

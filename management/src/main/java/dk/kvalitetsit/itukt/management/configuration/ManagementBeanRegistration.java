@@ -78,7 +78,7 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository, Mapper<ClauseEntity, Clause> mapper) {
-        return new ClauseRepositoryAdaptor(clauseRepository, mapper);
+        return new ClauseRepositoryAdaptor(clauseRepository, mapper, new ExpressionModelEntityMapper());
     }
 
     @Bean
@@ -120,7 +120,7 @@ public class ManagementBeanRegistration {
                 ),
                 new ClauseDslDtoMapper(dslParser),
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),
-                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper(), new ExpressionModelEntityMapper())
+                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper())
         );
     }
 

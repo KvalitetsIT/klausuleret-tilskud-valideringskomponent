@@ -1,10 +1,12 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,11 +34,15 @@ public class ClauseRepositoryAdaptorTest {
     @Mock
     private ClauseEntityModelMapper clauseEntityModelMapper;
 
+    @Mock
+    private ExpressionModelEntityMapper expressionMapper;
+
     @BeforeEach
     void setUp() {
         adaptor = new ClauseRepositoryAdaptor(
                 concreteRepository,
-                clauseEntityModelMapper
+                clauseEntityModelMapper,
+                expressionMapper
         );
     }
 
@@ -44,8 +50,11 @@ public class ClauseRepositoryAdaptorTest {
     void testCreateDraft() {
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clauseForCreation = new ClauseInput("test", Mockito.mock(ExpressionEntity.StringConditionEntity.class), "test error");
-        Mockito.when(concreteRepository.createDraft(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage()))
+        var expression = Mockito.mock(BinaryExpression.class);
+        var clauseForCreation = new ClauseInput("test", expression, "test error");
+        var expressionEntity = Mockito.mock(ExpressionEntity.StringConditionEntity.class);
+        Mockito.when(expressionMapper.map(expression)).thenReturn(expressionEntity);
+        Mockito.when(concreteRepository.createDraft(clauseForCreation.name(), expressionEntity, clauseForCreation.errorMessage()))
                 .thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 
@@ -53,7 +62,7 @@ public class ClauseRepositoryAdaptorTest {
 
         assertEquals(outputClause, result);
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).createDraft(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage());
+        Mockito.verify(concreteRepository, Mockito.times(1)).createDraft(clauseForCreation.name(), expressionEntity, clauseForCreation.errorMessage());
     }
 
     @Test

@@ -225,7 +225,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public void updateDraftStatus(UUID uuid, Clause.Status status) throws NotFoundException {
+    public void updateDraftToActive(UUID uuid) throws NotFoundException {
         String sql = """
                 UPDATE clause
                 SET status = :new_status, valid_from = NOW(3)
@@ -236,7 +236,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                 sql,
                 Map.of("uuid", uuid.toString(),
                         "current_status", Clause.Status.DRAFT.name(),
-                        "new_status", status.name()));
+                        "new_status", Clause.Status.ACTIVE.name()));
 
         if (rowsAffected == 0) {
             throw new NotFoundException("No clause found with uuid %s in DRAFT status".formatted(uuid));

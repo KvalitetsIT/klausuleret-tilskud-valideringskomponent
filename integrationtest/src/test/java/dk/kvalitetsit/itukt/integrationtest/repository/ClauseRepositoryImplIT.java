@@ -108,8 +108,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         var clauseA = repository.createDraft("blaah", expression, "errorA");
         var clauseB = repository.createDraft("blaah", expression, "errorB");
-        repository.updateDraftStatus(clauseB.uuid(), Clause.Status.ACTIVE);
-        repository.updateDraftStatus(clauseA.uuid(), Clause.Status.INACTIVE);
+        repository.updateDraftToActive(clauseB.uuid());
+        repository.updateDraftToActive(clauseA.uuid());
         var clauses = repository.readLatestVersions();
 
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
@@ -118,7 +118,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 .ignoringFields("validFrom", "status")
                 .withFailMessage("Expected the latest approved version of the clause to be returned")
                 .isEqualTo(clauseA);
-        assertEquals(Clause.Status.INACTIVE, clauses.getFirst().status());
+        assertEquals(Clause.Status.ACTIVE, clauses.getFirst().status());
     }
 
     @Test
@@ -187,24 +187,24 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void updateDraftStatus_WhenNoClauseWithUuidExist_ThrowsException() {
+    void updateDraftToActive_WhenNoClauseWithUuidExist_ThrowsException() {
         UUID nonExistingUuid = UUID.randomUUID();
 
         var e = assertThrows(
                 NotFoundException.class,
-                () -> repository.updateDraftStatus(nonExistingUuid, Clause.Status.ACTIVE));
+                () -> repository.updateDraftToActive(nonExistingUuid));
 
         assertEquals("No clause found with uuid %s in DRAFT status".formatted(nonExistingUuid), e.getDetailedError());
     }
 
     @Test
-    void updateDraftStatus_WhenUuidMatchesClause_SucceedsOnlyWhenInDraft() {
+    void updateDraftToActive_WhenUuidMatchesClause_SucceedsOnlyWhenInDraft() {
         var clause = repository.createDraft("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error");
 
-        assertDoesNotThrow(() -> repository.updateDraftStatus(clause.uuid(), Clause.Status.ACTIVE));
+        assertDoesNotThrow(() -> repository.updateDraftToActive(clause.uuid()));
         var e = assertThrows(
                 NotFoundException.class,
-                () -> repository.updateDraftStatus(clause.uuid(), Clause.Status.ACTIVE));
+                () -> repository.updateDraftToActive(clause.uuid()));
 
         assertEquals("No clause found with uuid %s in DRAFT status".formatted(clause.uuid()), e.getDetailedError());
     }

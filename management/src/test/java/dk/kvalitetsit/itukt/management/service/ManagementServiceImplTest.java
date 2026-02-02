@@ -102,7 +102,7 @@ class ManagementServiceImplTest {
 
         service.approve(uuid);
 
-        Mockito.verify(dao, Mockito.times(1)).updateDraftStatus(uuid, Clause.Status.ACTIVE);
+        Mockito.verify(dao, Mockito.times(1)).updateDraftToActive(uuid);
     }
 
     @Test

@@ -52,6 +52,6 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public void approve(UUID clauseUuid) throws ServiceException {
-        repository.updateDraftStatus(clauseUuid, Clause.Status.ACTIVE);
+        repository.updateDraftToActive(clauseUuid);
     }
 }

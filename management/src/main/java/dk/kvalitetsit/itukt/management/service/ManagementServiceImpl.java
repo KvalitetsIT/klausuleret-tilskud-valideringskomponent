@@ -1,12 +1,14 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,5 +55,15 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public void approve(UUID clauseUuid) throws ServiceException {
         repository.updateDraftToActive(clauseUuid);
+    }
+
+    @Override
+    public void inactivate(UUID clauseUuid) throws ServiceException {
+        var clause = repository.read(clauseUuid)
+                .orElseThrow(() -> new NotFoundException(String.format("Clause with uuid '%s' was not found", clauseUuid)));
+        if (clause.status() != Clause.Status.ACTIVE) {
+            throw new BadRequestException("Only ACTIVE clauses can be inactivated");
+        }
+        repository.create(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
     }
 }

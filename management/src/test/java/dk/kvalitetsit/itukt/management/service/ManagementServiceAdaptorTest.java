@@ -133,6 +133,15 @@ public class ManagementServiceAdaptorTest {
 
         Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid);
     }
+
+    @Test
+    void updateStatus_WithStatusInactive_InactivatesClause() {
+        var uuid = UUID.randomUUID();
+
+        adaptor.updateStatus(uuid, new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE));
+
+        Mockito.verify(managementServiceImpl, Mockito.times(1)).inactivate(uuid);
+    }
 }
 
 

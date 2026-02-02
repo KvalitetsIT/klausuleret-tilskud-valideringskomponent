@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
@@ -14,10 +15,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dk.kvalitetsit.itukt.management.MockFactory.EXPRESSION_1_MODEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -114,5 +117,42 @@ class ManagementServiceImplTest {
         var e = assertThrows(NotFoundException.class, () ->  service.readHistory(name));
         verify(dao, times(1)).readHistory(name);
         assertEquals(e.getDetailedError(), String.format("clause with name '%s' was not found", name));
+    }
+
+    @Test
+    void inactivate_WhenClauseDoesNotExist_ThrowsException() {
+        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> service.inactivate(UUID.randomUUID()));
+    }
+
+    @Test
+    void inactivate_WhenClauseIsInDraft_ThrowsException() {
+        UUID clauseUuid = UUID.randomUUID();
+        var clause = mock(Clause.class);
+        Mockito.when(clause.status()).thenReturn(Clause.Status.DRAFT);
+        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.of(clause));
+
+        assertThrows(BadRequestException.class, () -> service.inactivate(clauseUuid));
+    }
+
+    @Test
+    void inactivate_WhenClauseIsAlreadyInactive_ThrowsException() {
+        UUID clauseUuid = UUID.randomUUID();
+        var clause = mock(Clause.class);
+        Mockito.when(clause.status()).thenReturn(Clause.Status.INACTIVE);
+        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.of(clause));
+
+        assertThrows(BadRequestException.class, () -> service.inactivate(clauseUuid));
+    }
+
+    @Test
+    void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() {
+        var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
+        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.of(clause));
+
+        service.inactivate(clause.uuid());
+
+        Mockito.verify(dao).create(Mockito.eq(clause.name()), Mockito.eq(clause.expression()), Mockito.eq(clause.error().message()), Mockito.eq(Clause.Status.INACTIVE), Mockito.any(Date.class));
     }
 }

@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.service;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
@@ -29,10 +30,11 @@ class ManagementServiceImplTest {
     private ClauseRepositoryAdaptor dao;
 
     @Test
-    void create_CreatesClause() {
-        var clauseForCreation = mock(ClauseInput.class);
+    void create_CreatesDraftClause() {
+        var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         var clause = mock(Clause.class);
-        Mockito.when(dao.createDraft(clauseForCreation)).thenReturn(clause);
+        Mockito.when(dao.create(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, null))
+                .thenReturn(clause);
 
         var result = service.create(clauseForCreation);
 

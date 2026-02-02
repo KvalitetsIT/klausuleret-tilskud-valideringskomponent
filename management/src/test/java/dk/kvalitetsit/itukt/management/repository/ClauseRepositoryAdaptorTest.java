@@ -7,7 +7,6 @@ import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
-import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,22 +47,25 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testCreateDraft() {
+    void testCreate() {
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var expression = Mockito.mock(BinaryExpression.class);
-        var clauseForCreation = new ClauseInput("test", expression, "test error");
+        String name = "test";
+        String errorMessage = "test error";
+        var status = Clause.Status.DRAFT;
+        var validFrom = new Date();
         var expressionEntity = Mockito.mock(ExpressionEntity.StringConditionEntity.class);
         Mockito.when(expressionMapper.map(expression)).thenReturn(expressionEntity);
-        Mockito.when(concreteRepository.createDraft(clauseForCreation.name(), expressionEntity, clauseForCreation.errorMessage()))
+        Mockito.when(concreteRepository.create(name, expressionEntity, errorMessage, status, validFrom))
                 .thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 
-        var result = adaptor.createDraft(clauseForCreation);
+        var result = adaptor.create(name, expression, errorMessage, status, validFrom);
 
         assertEquals(outputClause, result);
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).createDraft(clauseForCreation.name(), expressionEntity, clauseForCreation.errorMessage());
+        Mockito.verify(concreteRepository, Mockito.times(1)).create(name, expressionEntity, errorMessage, status, validFrom);
     }
 
     @Test

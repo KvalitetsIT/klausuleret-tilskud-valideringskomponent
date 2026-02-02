@@ -57,7 +57,7 @@ public class ValidationIT extends BaseTest {
         ExpressionEntity.BinaryExpressionEntity specialityConditions = new ExpressionEntity.BinaryExpressionEntity(2L, createdByExpression, AND, departmentSpecialityRequirement);
         var expression = new ExpressionEntity.BinaryExpressionEntity(orExpression, AND, specialityConditions);
 
-        UUID uuid = repository.createDraft(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE).uuid();
+        UUID uuid = repository.create(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE, dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, null).uuid();
         repository.updateDraftToActive(uuid);
     }
 

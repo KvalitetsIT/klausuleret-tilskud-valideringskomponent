@@ -13,10 +13,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class ClauseRepositoryImpl implements ClauseRepository {
 
@@ -30,15 +27,14 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity createDraft(String name, ExpressionEntity expression, String errorMessage) throws ServiceException {
+    public ClauseEntity create(String name, ExpressionEntity expression, String errorMessage, Clause.Status status, Date validFrom) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
-            var status = Clause.Status.DRAFT;
 
             ExpressionEntity createdExpression = expressionRepository.create(expression);
 
-            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status) " +
-                    "VALUES (:uuid, :name, :expression_id, :error_message, :status) " +
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from) " +
                     "RETURNING id";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
@@ -46,7 +42,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .addValue("name", name)
                     .addValue("expression_id", createdExpression.id())
                     .addValue("error_message", errorMessage)
-                    .addValue("status", status.name());
+                    .addValue("status", status.name())
+                    .addValue("valid_from", validFrom);
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
@@ -61,7 +58,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         errorCode,
                         errorMessage,
                         createdExpression,
-                        Optional.empty()
+                        Optional.ofNullable(validFrom)
                 );
             });
 

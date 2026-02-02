@@ -126,21 +126,21 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void updateStatus_WithStatusActive_ApprovesClause() {
+    void updateStatus_WithUuidAndStatusActive_ApprovesClause() {
         var uuid = UUID.randomUUID();
 
-        adaptor.updateStatus(uuid, new ClauseStatusInput(ClauseStatusInput.StatusEnum.ACTIVE));
+        adaptor.updateStatus(uuid, new DraftClauseStatusInput(DraftClauseStatusInput.StatusEnum.ACTIVE));
 
         Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid);
     }
 
     @Test
-    void updateStatus_WithStatusInactive_InactivatesClause() {
-        var uuid = UUID.randomUUID();
+    void updateStatus_WithNameAndStatusInactive_InactivatesClause() {
+        String name = "test";
 
-        adaptor.updateStatus(uuid, new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE));
+        adaptor.updateStatus(name, new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE));
 
-        Mockito.verify(managementServiceImpl, Mockito.times(1)).inactivate(uuid);
+        Mockito.verify(managementServiceImpl, Mockito.times(1)).inactivate(name);
     }
 }
 

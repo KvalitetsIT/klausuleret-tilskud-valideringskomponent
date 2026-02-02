@@ -43,7 +43,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var status = Clause.Status.DRAFT;
 
         var createdClause = repository.create(clauseName, expression, errorMessage, status, null);
-        var readClause = repository.read(createdClause.uuid());
+        var readClause = repository.readLatestVersion(createdClause.uuid());
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
         assertEquals(createdClause, readClause.get(), "The clause read is expected to match the clause created");
@@ -70,7 +70,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var validFrom = new Date();
 
         var createdClause = repository.create(clauseName, expression, errorMessage, status, validFrom);
-        var readClause = repository.read(createdClause.uuid());
+        var readClause = repository.readLatestVersion(createdClause.uuid());
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
         assertEquals(createdClause, readClause.get(), "The clause read is expected to match the clause created");
@@ -153,6 +153,33 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
+    void createTwoActiveClausesWithSameName_ThenReadLatestVersion_ReturnsLatestValidClause() {
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+
+        var clauseA = repository.create("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
+        var clauseB = repository.create("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
+        var clause = repository.readLatestVersion("blaah");
+
+        assertTrue(clause.isPresent());
+        assertThat(clause.get())
+                .usingRecursiveComparison()
+                .ignoringFields("validFrom", "status")
+                .withFailMessage("Expected the latest valid version of the clause to be returned")
+                .isEqualTo(clauseB);
+        assertEquals(Clause.Status.ACTIVE, clause.get().status());
+    }
+
+    @Test
+    void createClauseWithoutValidFrom_ThenReadLatestVersion_ReturnsNothing() {
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+
+        repository.create("blaah", expression, "error", Clause.Status.DRAFT, null);
+        var latestClause = repository.readLatestVersion("blaah");
+
+        assertTrue(latestClause.isEmpty());
+    }
+
+    @Test
     void givenADeepClause_whenCreateAndRead_thenAssertEqual() {
         var expression = new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.BinaryExpressionEntity(
@@ -181,7 +208,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 .withFailMessage("Expected the expression returned to be equal to the one given as argument")
                 .isEqualTo(expression);
 
-        var read = repository.read(created.uuid());
+        var read = repository.readLatestVersion(created.uuid());
 
         assertTrue(read.isPresent(), "Expected to read the clause previously created");
         assertEquals(created, read.get(), "Expected the same clause as previously created");
@@ -192,7 +219,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
 
         UUID clauseUuid = repository.create("CLAUSE", existingDrugMedicationCondition, "message", Clause.Status.DRAFT, null).uuid();
-        var readClause = repository.read(clauseUuid);
+        var readClause = repository.readLatestVersion(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
         var expectedClause = new ClauseEntity(null, null, "CLAUSE", Clause.Status.DRAFT, 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom());

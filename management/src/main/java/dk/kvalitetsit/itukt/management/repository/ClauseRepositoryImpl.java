@@ -100,7 +100,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
+    public Optional<ClauseEntity> readLatestVersion(UUID uuid) throws ServiceException {
         try {
             String sql = """
                         SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.valid_from
@@ -139,6 +139,32 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
+    public Optional<ClauseEntity> readLatestVersion(String name) throws ServiceException {
+        try {
+            String sql = """
+                        SELECT c.uuid
+                        FROM clause c
+                        WHERE valid_from IS NOT NULL AND name = :name
+                        ORDER BY c.valid_from DESC
+                        LIMIT 1
+                    """;
+
+            UUID latestClauseUuid = template.queryForObject(
+                    sql,
+                    Map.of("name", name),
+                    UUID.class);
+
+            return readLatestVersion(latestClauseUuid);
+
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (Exception e) {
+            logger.error("Failed to read latest clause", e);
+            throw new ServiceException("Failed to read latest clause", e);
+        }
+    }
+
+    @Override
     public List<ClauseEntity> readLatestVersions() throws ServiceException {
         try {
             String sql = """
@@ -160,7 +186,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             );
 
             return uuids.stream()
-                    .map(this::read)
+                    .map(this::readLatestVersion)
                     .flatMap(Optional::stream)
                     .toList();
 
@@ -186,7 +212,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             );
 
             return uuids.stream()
-                    .map(this::read)
+                    .map(this::readLatestVersion)
                     .flatMap(Optional::stream)
                     .toList();
 
@@ -209,7 +235,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             List<UUID> uuids = template.queryForList(sql, Map.of("name", name), UUID.class);
 
             return uuids.stream()
-                    .map(this::read)
+                    .map(this::readLatestVersion)
                     .flatMap(Optional::stream)
                     .toList();
 

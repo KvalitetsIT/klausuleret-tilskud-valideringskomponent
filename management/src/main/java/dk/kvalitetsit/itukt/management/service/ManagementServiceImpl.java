@@ -58,12 +58,9 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public void inactivate(UUID clauseUuid) throws ServiceException {
-        var clause = repository.read(clauseUuid)
-                .orElseThrow(() -> new NotFoundException(String.format("Clause with uuid '%s' was not found", clauseUuid)));
-        if (clause.status() != Clause.Status.ACTIVE) {
-            throw new BadRequestException("Only ACTIVE clauses can be inactivated");
-        }
+    public void inactivate(String name) throws ServiceException {
+        var clause = repository.readLatestVersion(name).filter(c -> c.status() == Clause.Status.ACTIVE)
+                .orElseThrow(() -> new BadRequestException("Only ACTIVE clauses can be inactivated"));
         repository.create(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
     }
 }

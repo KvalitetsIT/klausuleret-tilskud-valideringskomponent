@@ -69,9 +69,15 @@ public class ManagementServiceAdaptor {
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
     }
 
-    public void updateStatus(UUID clauseUuid, ClauseStatusInput status) throws ServiceException {
+    public void updateStatus(UUID clauseUuid, DraftClauseStatusInput status) throws ServiceException {
         switch (status.getStatus()) {
-            case ClauseStatusInput.StatusEnum.ACTIVE -> clauseService.approve(clauseUuid);
+            case ACTIVE -> clauseService.approve(clauseUuid);
+        }
+    }
+
+    public void updateStatus(String clauseName, ClauseStatusInput status) throws ServiceException {
+        switch (status.getStatus()) {
+            case INACTIVE -> clauseService.inactivate(clauseName);
         }
     }
 

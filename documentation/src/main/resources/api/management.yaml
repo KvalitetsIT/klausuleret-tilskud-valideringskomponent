@@ -171,9 +171,9 @@ paths:
     put:
       tags:
         - management
-      summary: "Update status of clause"
+      summary: "Update status of draft clause"
       description:  >-
-        Update status of clause. Allowed transitions are:
+        Update status of draft clause. Allowed transitions are:
         <ul>
           <li>DRAFT -> ACTIVE</li>
         </ul>
@@ -184,12 +184,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClauseStatusInput'
+              $ref: '#/components/schemas/DraftClauseStatusInput'
       responses:
         '200':
           description: Ok
         '404':
           $ref: '#/components/responses/404'
+
+  /2025/08/01/clauses/{name}/status:
+    put:
+      tags:
+        - management
+      summary: "Update status of clause"
+      description:  >-
+        Update status of clause. Allowed transitions are:
+        <ul>
+          <li>ACTIVE -> INACTIVE</li>
+        </ul>
+      parameters:
+        - $ref: '#/components/parameters/name'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClauseStatusInput'
+      responses:
+        '200':
+          description: Ok
+        '400':
+          $ref: '#/components/responses/400'
 
 components:
   responses:
@@ -348,6 +372,17 @@ components:
         - "ACTIVE"
         - "INACTIVE"
 
+    DraftClauseStatusInput:
+      description: Status input for draft clause transition
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - "ACTIVE"
+
     ClauseStatusInput:
       description: Status input for clause transition
       type: object
@@ -357,7 +392,7 @@ components:
         status:
           type: string
           enum:
-            - "ACTIVE"
+            - "INACTIVE"
 
     IndicationCondition:
       description: "A basic condition consisting of a field and a string value. This represents the most atomic form of an expression"

@@ -121,29 +121,18 @@ class ManagementServiceImplTest {
 
     @Test
     void inactivate_WhenClauseDoesNotExist_ThrowsException() {
-        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(dao.readLatestVersion(Mockito.any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> service.inactivate(UUID.randomUUID()));
-    }
-
-    @Test
-    void inactivate_WhenClauseIsInDraft_ThrowsException() {
-        UUID clauseUuid = UUID.randomUUID();
-        var clause = mock(Clause.class);
-        Mockito.when(clause.status()).thenReturn(Clause.Status.DRAFT);
-        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.of(clause));
-
-        assertThrows(BadRequestException.class, () -> service.inactivate(clauseUuid));
+        assertThrows(BadRequestException.class, () -> service.inactivate("test"));
     }
 
     @Test
     void inactivate_WhenClauseIsAlreadyInactive_ThrowsException() {
-        UUID clauseUuid = UUID.randomUUID();
         var clause = mock(Clause.class);
         Mockito.when(clause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readLatestVersion(Mockito.any())).thenReturn(Optional.of(clause));
 
-        assertThrows(BadRequestException.class, () -> service.inactivate(clauseUuid));
+        assertThrows(BadRequestException.class, () -> service.inactivate("test"));
     }
 
     @Test
@@ -151,7 +140,7 @@ class ManagementServiceImplTest {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
         Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.of(clause));
 
-        service.inactivate(clause.uuid());
+        service.inactivate(clause.name());
 
         Mockito.verify(dao).create(Mockito.eq(clause.name()), Mockito.eq(clause.expression()), Mockito.eq(clause.error().message()), Mockito.eq(Clause.Status.INACTIVE), Mockito.any(Date.class));
     }

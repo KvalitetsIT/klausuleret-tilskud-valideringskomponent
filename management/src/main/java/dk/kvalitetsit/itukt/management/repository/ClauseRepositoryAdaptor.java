@@ -30,7 +30,7 @@ public class ClauseRepositoryAdaptor {
     }
 
     public Optional<Clause> read(UUID id) throws ServiceException {
-        return clauseRepository.read(id).map(entityMapper::map);
+        return clauseRepository.readLatestVersion(id).map(entityMapper::map);
     }
 
     /**
@@ -38,6 +38,13 @@ public class ClauseRepositoryAdaptor {
      */
     public List<Clause> readLatestVersions() throws ServiceException {
         return this.entityMapper.map(clauseRepository.readLatestVersions());
+    }
+
+    /**
+     * Retrieves the latest version of a clause. Excluding drafts.
+     */
+    public Optional<Clause> readLatestVersion(String name) throws ServiceException {
+        return clauseRepository.readLatestVersion(name).map(entityMapper::map);
     }
 
     public List<Clause> readAllDrafts() throws ServiceException {

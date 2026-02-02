@@ -13,7 +13,11 @@ import java.util.UUID;
 
 public interface ClauseRepository {
     ClauseEntity create(String name, ExpressionEntity expression, String errorMessage, Clause.Status status, Date validFrom) throws ServiceException;
-    Optional<ClauseEntity> read(UUID uuid) throws ServiceException;
+    Optional<ClauseEntity> readLatestVersion(UUID uuid) throws ServiceException;
+    /**
+     * Retrieves the latest version of a clause. Excluding drafts.
+     */
+    Optional<ClauseEntity> readLatestVersion(String name) throws ServiceException;
     /**
      * Retrieves the latest version of each clause. Excluding drafts.
      */

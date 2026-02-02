@@ -73,7 +73,7 @@ public class ClauseRepositoryAdaptorTest {
         var uuid = UUID.randomUUID();
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
-        Mockito.when(concreteRepository.read(uuid)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(concreteRepository.readLatestVersion(uuid)).thenReturn(Optional.of(clauseEntity));
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
 
         var result = adaptor.read(uuid);
@@ -93,6 +93,19 @@ public class ClauseRepositoryAdaptorTest {
 
         var result = adaptor.readLatestVersions();
         assertEquals(List.of(clause), result);
+    }
+
+    @Test
+    void testReadLatestVersion() {
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        String name = "test";
+        Mockito.when(concreteRepository.readLatestVersion(name)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
+        var result = adaptor.readLatestVersion(name);
+
+        assertEquals(Optional.of(clause), result);
     }
 
     @Test

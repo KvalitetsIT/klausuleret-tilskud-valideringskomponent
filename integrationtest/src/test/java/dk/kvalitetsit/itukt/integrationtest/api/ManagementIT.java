@@ -43,7 +43,7 @@ class ManagementIT extends BaseTest {
         created.forEach(clause ->
                 api.call20250801clausesIdStatusPut(
                         clause.getUuid(),
-                        new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE)));
+                        new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE)));
 
         List<DslOutput> clauses = api.call20250801clausesDslNameHistoryGet("blaaaaah");
 
@@ -112,9 +112,9 @@ class ManagementIT extends BaseTest {
         var postInput2 = postInput1.error("updated error");
 
         var clause = api.call20250801clausesPost(postInput1);
-        api.call20250801clausesIdStatusPut(clause.getUuid(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
         var updatedClause = api.call20250801clausesPost(postInput2);
-        api.call20250801clausesIdStatusPut(updatedClause.getUuid(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesIdStatusPut(updatedClause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
         var drafts = api.call20250801clausesGet(ClauseStatus.DRAFT);
         var activeClauses = api.call20250801clausesGet(ClauseStatus.ACTIVE);
 
@@ -124,6 +124,20 @@ class ManagementIT extends BaseTest {
                 .usingRecursiveComparison()
                 .ignoringFields("validFrom")
                 .isEqualTo(updatedClause);
+    }
+
+    @Test
+    void testPutInactiveStatus() {
+        var clause = api.call20250801clausesPost(CLAUSE_1_INPUT);
+        api.call20250801clausesIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
+        var inactiveClauses = api.call20250801clausesGet(ClauseStatus.INACTIVE);
+
+        assertEquals(1, inactiveClauses.size());
+        assertThat(inactiveClauses.getFirst())
+                .usingRecursiveComparison()
+                .ignoringFields("uuid", "validFrom")
+                .isEqualTo(clause);
     }
 
     @Test

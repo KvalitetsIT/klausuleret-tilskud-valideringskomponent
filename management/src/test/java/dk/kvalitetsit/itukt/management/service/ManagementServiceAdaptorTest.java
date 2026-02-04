@@ -137,10 +137,17 @@ public class ManagementServiceAdaptorTest {
     @Test
     void updateStatus_WithNameAndStatusInactive_InactivatesClause() {
         String name = "test";
+        var inactiveClause = Mockito.mock(Clause.class);
+        var clauseOutput = Mockito.mock(ClauseOutput.class);
+        var dslOutput = Mockito.mock(DslOutput.class);
+        Mockito.when(managementServiceImpl.inactivate(name)).thenReturn(inactiveClause);
+        Mockito.when(clauseModelDtoMapper.map(inactiveClause)).thenReturn(clauseOutput);
+        Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
 
-        adaptor.updateStatus(name, new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE));
 
-        Mockito.verify(managementServiceImpl, Mockito.times(1)).inactivate(name);
+        var response = adaptor.updateStatus(name, new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE));
+
+        assertEquals(dslOutput, response);
     }
 }
 

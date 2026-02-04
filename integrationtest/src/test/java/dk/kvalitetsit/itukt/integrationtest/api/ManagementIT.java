@@ -12,8 +12,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
-import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_INPUT;
-import static dk.kvalitetsit.itukt.integrationtest.MockFactory.CLAUSE_1_OUTPUT;
+import static dk.kvalitetsit.itukt.integrationtest.MockFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,7 +79,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testPostAndGetClauseDsl() {
-        var dsl = MockFactory.CLAUSE_1_DSL_INPUT;
+        var dsl = CLAUSE_1_DSL_INPUT;
 
         api.call20250801clausesDslPost(dsl);
         var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
@@ -128,16 +127,17 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testPutInactiveStatus() {
-        var clause = api.call20250801clausesPost(CLAUSE_1_INPUT);
+        var clause = api.call20250801clausesDslPost(CLAUSE_1_DSL_INPUT);
         api.call20250801clausesIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
-        api.call20250801clausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
-        var inactiveClauses = api.call20250801clausesGet(ClauseStatus.INACTIVE);
+        var inactiveClause = api.call20250801clausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
+        var inactiveClauses = api.call20250801clausesDslGet(ClauseStatus.INACTIVE);
 
-        assertEquals(1, inactiveClauses.size());
-        assertThat(inactiveClauses.getFirst())
+        assertThat(inactiveClause)
                 .usingRecursiveComparison()
                 .ignoringFields("uuid", "validFrom")
                 .isEqualTo(clause);
+        assertEquals(1, inactiveClauses.size());
+        assertEquals(inactiveClause, inactiveClauses.getFirst());
     }
 
     @Test

@@ -58,9 +58,9 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public void inactivate(String name) throws ServiceException {
+    public Clause inactivate(String name) throws ServiceException {
         var clause = repository.readLatestVersion(name).filter(c -> c.status() == Clause.Status.ACTIVE)
                 .orElseThrow(() -> new BadRequestException("Only ACTIVE clauses can be inactivated"));
-        repository.create(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
+        return repository.create(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
     }
 }

@@ -80,9 +80,9 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<Void> call20250801clausesNameStatusPut(String name, ClauseStatusInput clauseStatusInput) {
-        service.updateStatus(name, clauseStatusInput);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<DslOutput> call20250801clausesNameStatusPut(String name, ClauseStatusInput clauseStatusInput) {
+        var clause = service.updateStatus(name, clauseStatusInput);
+        return ResponseEntity.ok(clause);
     }
 
     @Override

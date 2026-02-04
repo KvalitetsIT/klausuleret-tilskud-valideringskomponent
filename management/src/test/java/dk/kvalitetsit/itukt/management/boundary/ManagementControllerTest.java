@@ -124,11 +124,11 @@ class ManagementControllerTest {
     }
 
     @Test
-    void call20250801clausesIdStatusPut_UpdatesClauseStatus() {
+    void call20250801clausesDraftsIdStatusPut_UpdatesClauseStatus() {
         UUID uuid = UUID.randomUUID();
         var status = new DraftClauseStatusInput(DraftClauseStatusInput.StatusEnum.ACTIVE);
 
-        managementController.call20250801clausesIdStatusPut(uuid, status);
+        managementController.call20250801clausesDraftsIdStatusPut(uuid, status);
 
         Mockito.verify(clauseService, times(1)).updateStatus(uuid, status);
     }

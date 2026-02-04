@@ -40,7 +40,7 @@ class ManagementIT extends BaseTest {
                 api.call20250801clausesPost(new ClauseInput().name("blaaaaah").error("error3").expression(expression))
         );
         created.forEach(clause ->
-                api.call20250801clausesIdStatusPut(
+                api.call20250801clausesDraftsIdStatusPut(
                         clause.getUuid(),
                         new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE)));
 
@@ -111,9 +111,9 @@ class ManagementIT extends BaseTest {
         var postInput2 = postInput1.error("updated error");
 
         var clause = api.call20250801clausesPost(postInput1);
-        api.call20250801clausesIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
         var updatedClause = api.call20250801clausesPost(postInput2);
-        api.call20250801clausesIdStatusPut(updatedClause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesDraftsIdStatusPut(updatedClause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
         var drafts = api.call20250801clausesGet(ClauseStatus.DRAFT);
         var activeClauses = api.call20250801clausesGet(ClauseStatus.ACTIVE);
 
@@ -128,7 +128,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testPutInactiveStatus() {
         var clause = api.call20250801clausesDslPost(CLAUSE_1_DSL_INPUT);
-        api.call20250801clausesIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
         var inactiveClause = api.call20250801clausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
         var inactiveClauses = api.call20250801clausesDslGet(ClauseStatus.INACTIVE);
 

@@ -167,7 +167,7 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /2025/08/01/clauses/{id}/status:
+  /2025/08/01/clauses/drafts/{id}/status:
     put:
       tags:
         - management

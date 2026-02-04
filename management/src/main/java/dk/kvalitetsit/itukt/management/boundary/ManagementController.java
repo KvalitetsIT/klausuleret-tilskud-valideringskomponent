@@ -74,7 +74,7 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<Void> call20250801clausesIdStatusPut(UUID id, DraftClauseStatusInput clauseStatusInput) {
+    public ResponseEntity<Void> call20250801clausesDraftsIdStatusPut(UUID id, DraftClauseStatusInput clauseStatusInput) {
         service.updateStatus(id, clauseStatusInput);
         return ResponseEntity.ok().build();
     }

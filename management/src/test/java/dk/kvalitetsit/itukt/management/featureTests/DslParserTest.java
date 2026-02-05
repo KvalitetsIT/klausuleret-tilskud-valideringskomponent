@@ -6,10 +6,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.Expres
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenParserFactory;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.ConditionTokenParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.MultiValueTokenParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.AgeConditionBuilder;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.ConditionBuilder;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.DoctorSpecialityConditionBuilder;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.IndicationConditionBuilder;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.Expression;
@@ -27,7 +24,8 @@ class DslParserTest {
         List<ConditionBuilder> conditionBuilders = List.of(
                 new AgeConditionBuilder(),
                 new IndicationConditionBuilder(),
-                new DoctorSpecialityConditionBuilder()
+                new DoctorSpecialityConditionBuilder(),
+                new DepartmentSpecialityConditionBuilder()
         );
         var tokenParserFactory = new TokenParserFactory(conditionTokenParser, conditionBuilders);
         var expressionParser = new ExpressionTokenParser(tokenParserFactory);
@@ -36,7 +34,7 @@ class DslParserTest {
 
     @Test
     void sampleTest() {
-        Expression expression = parser.parse("indikation = A og alder = 7 eller LÆGESPECIALE = hest");
+        Expression expression = parser.parse("indikation = A og alder = 7 eller LÆGESPECIALE = hest eller AFDELINGSSPECIALE i [1, 2]");
     }
 
 }

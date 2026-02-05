@@ -108,7 +108,7 @@ class Parser {
      */
     private Token peek(int offset) {
         if (pos + offset < tokens.size()) return tokens.get(pos + offset);
-        return new Token(TokenType.EOF, "");
+        throw new RuntimeException("Unexpected end of input");
     }
 
     /**
@@ -201,7 +201,7 @@ class Parser {
         if (pos + 1 < tokens.size()) {
             Token t1 = tokens.get(pos);     // Expected: IDENTIFIER
             Token t2 = tokens.get(pos + 1); // Expected: OPERATOR
-            return t1.type() == TokenType.IDENTIFIER &&
+            return t1.type() == TokenType.VALUE &&
                     t2.type() == TokenType.OPERATOR;
         }
         return false;

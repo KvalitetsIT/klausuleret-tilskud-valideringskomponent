@@ -22,17 +22,16 @@ import java.util.regex.Pattern;
  *     <li>Symbols: {@code :}, {@code ,}, {@code (}, {@code )}</li>
  * </ul>
  */
-class Lexer {
+public class Lexer {
 
     /**
      * Regular expression pattern for matching different kinds of tokens.
      */
     private static final Pattern TOKEN_PATTERNS = Pattern.compile(
-            "\\s*(?:(og|eller)|" +                // keywords
+            "\\s*(?:(og|eller)|" +                              // keywords
                     "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
-                    "([a-zÆØÅæøå][a-z0-9_ÆØÅæøå]*)|" +          // identifiers
-                    "([0-9]+)|" +                               // numbers
-                    "([,()\\[\\]{}*])|" +                      // symbols
+                    "([a-z0-9_æøå]+)|" +                        // values
+                    "([,()\\[\\]{}*])|" +                       // symbols
                     "(\\S))",                                   // unknown
             Pattern.CASE_INSENSITIVE
     );
@@ -66,15 +65,12 @@ class Lexer {
             else if (matcher.group(2) != null)
                 tokens.add(new Token(TokenType.OPERATOR, matcher.group(2)));
             else if (matcher.group(3) != null)
-                tokens.add(new Token(TokenType.IDENTIFIER, matcher.group(3)));
+                tokens.add(new Token(TokenType.VALUE, matcher.group(3)));
             else if (matcher.group(4) != null)
-                tokens.add(new Token(TokenType.NUMBER, matcher.group(4)));
-            else if (matcher.group(5) != null)
-                tokens.add(new Token(TokenType.SYMBOL, matcher.group(5)));
+                tokens.add(new Token(TokenType.SYMBOL, matcher.group(4)));
             else
-                throw new RuntimeException("Unknown token: " + matcher.group(6));
+                throw new RuntimeException("Unknown token: " + matcher.group(5));
         }
-        tokens.add(new Token(TokenType.EOF, ""));
     }
 
     /**

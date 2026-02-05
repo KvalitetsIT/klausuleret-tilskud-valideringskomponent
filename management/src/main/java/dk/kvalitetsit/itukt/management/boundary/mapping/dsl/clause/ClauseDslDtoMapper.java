@@ -10,7 +10,7 @@ public class ClauseDslDtoMapper implements Mapper<DslInput, ClauseInput> {
     @Override
     public ClauseInput map(DslInput dsl) {
 
-        var tokens = new Lexer(dsl.getDsl()).getTokens();
+        var tokens = new Lexer().getTokens(dsl.getDsl());
         var parser = new Parser(tokens);
 
         var expression = parser.parseExpression();

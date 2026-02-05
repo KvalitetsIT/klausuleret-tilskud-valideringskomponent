@@ -36,29 +36,15 @@ public class Lexer {
             Pattern.CASE_INSENSITIVE
     );
 
-
-    private final Matcher matcher;
-    private final List<Token> tokens = new ArrayList<>();
-
-    /**
-     * Constructs a {@code Lexer} for the given input string.
-     * It immediately tokenizes the input upon creation.
-     *
-     * @param input the string to be tokenized
-     */
-    public Lexer(String input) {
-        matcher = TOKEN_PATTERNS.matcher(input);
-        tokenize();
-    }
-
-
     /**
      * Performs the tokenization by matching the input string against
      * the predefined token patterns and classifying each match accordingly.
      * <p>
      * If an unrecognized token is encountered, it throws a {@code RuntimeException}.
      */
-    private void tokenize() {
+    private List<Token> tokenize(String input) {
+        Matcher matcher = TOKEN_PATTERNS.matcher(input);
+        ArrayList<Token> tokens = new ArrayList<>();
         while (matcher.find()) {
             if (matcher.group(1) != null)
                 tokens.add(new Token(TokenType.KEYWORD, matcher.group(1)));
@@ -71,6 +57,7 @@ public class Lexer {
             else
                 throw new RuntimeException("Unknown token: " + matcher.group(5));
         }
+        return tokens;
     }
 
     /**
@@ -78,7 +65,8 @@ public class Lexer {
      *
      * @return a list of {@code Token} objects
      */
-    public List<Token> getTokens() {
+    public List<Token> getTokens(String input) {
+        List<Token> tokens = tokenize(input);
         return tokens.stream().map(x -> new Token(x.type(), x.text().toUpperCase())).toList();
     }
 }

@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.featureTests;
 
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.Lexer;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.DslParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.ExpressionTokenParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenParserFactory;
@@ -24,7 +25,7 @@ class DslParserTest {
         List<ConditionBuilder> conditionBuilders = List.of(new AgeConditionBuilder());
         var tokenParserFactory = new TokenParserFactory(conditionTokenParser, conditionBuilders);
         var expressionParser = new ExpressionTokenParser(tokenParserFactory);
-        parser = new DslParser(expressionParser);
+        parser = new DslParser(expressionParser, new Lexer());
     }
 
     @Test

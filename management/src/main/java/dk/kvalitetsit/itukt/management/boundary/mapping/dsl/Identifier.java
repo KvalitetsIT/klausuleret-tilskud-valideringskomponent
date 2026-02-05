@@ -1,5 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.DslParserException;
+
 public enum Identifier {
     EXISTING_DRUG_MEDICATION("EKSISTERENDE_LÆGEMIDDEL"),
     INDICATION("INDIKATION"),
@@ -22,7 +24,7 @@ public enum Identifier {
                 return id;
             }
         }
-        throw new IllegalArgumentException("No enum constant with value: " + s);
+        throw new DslParserException("Unknown identifier: " + s);
     }
 
     @Override

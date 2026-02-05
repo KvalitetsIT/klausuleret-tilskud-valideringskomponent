@@ -8,6 +8,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condit
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.MultiValueTokenParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.AgeConditionBuilder;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.ConditionBuilder;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.IndicationConditionBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.Expression;
@@ -22,7 +23,7 @@ class DslParserTest {
     @BeforeAll
     static void setUp() {
         var conditionTokenParser = new ConditionTokenParser(new MultiValueTokenParser());
-        List<ConditionBuilder> conditionBuilders = List.of(new AgeConditionBuilder());
+        List<ConditionBuilder> conditionBuilders = List.of(new AgeConditionBuilder(), new IndicationConditionBuilder());
         var tokenParserFactory = new TokenParserFactory(conditionTokenParser, conditionBuilders);
         var expressionParser = new ExpressionTokenParser(tokenParserFactory);
         parser = new DslParser(expressionParser, new Lexer());
@@ -30,7 +31,7 @@ class DslParserTest {
 
     @Test
     void sampleTest() {
-        Expression expression = parser.parse("(alder < 3 eller alder < 1) og alder = 7");
+        Expression expression = parser.parse("indikation = A og alder = 7");
     }
 
 }

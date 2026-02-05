@@ -4,11 +4,11 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.TokenType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.DslParserException;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenCollection;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenParser;
 import org.openapitools.model.Operator;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,23 +23,24 @@ public class ConditionTokenParser implements TokenParser<Condition> {
     }
 
     @Override
-    public Condition parse(TokenCollection tokens) {
-        TokenIterator iterator = tokens.iterator();
-        Identifier identifier = Identifier.from(iterator.nextWithType(TokenType.VALUE).text());
-        Token operator = iterator.nextWithType(TokenType.OPERATOR);
+    public Condition parse(TokenIterator tokens) {
+        Identifier identifier = Identifier.from(tokens.nextWithType(TokenType.VALUE).text());
+        Token operator = tokens.nextWithType(TokenType.OPERATOR);
 
-        var valueTokens = tokens.tokensAfter(operator);
-        return multiValueParser.tryParse(valueTokens)
-                .map(values -> createMultiValueCondition(identifier, operator, values))
-                .orElseGet(() -> createSingleValueCondition(identifier, operator, valueTokens));
-
+        if (multiValueParser.canParse(tokens)) {
+            List<String> values = multiValueParser.parse(tokens);
+            return createMultiValueCondition(identifier, operator, values);
+        } else {
+            String value = tokens.nextWithType(TokenType.VALUE).text();
+            return new Condition.SingleValueCondition(identifier, Operator.fromValue(operator.text()), value);
+        }
     }
 
-    private static Condition createSingleValueCondition(Identifier identifier, Token operator, TokenCollection valueTokens) {
-        var valuesIterator = valueTokens.iterator();
-        String value = valuesIterator.nextWithType(TokenType.VALUE).text();
-        valuesIterator.expectNoMoreTokens();
-        return new Condition.SingleValueCondition(identifier, Operator.fromValue(operator.text()), value);
+    @Override
+    public boolean canParse(TokenIterator tokens) {
+        return tokens.nextHasType(TokenType.VALUE) &&
+                Arrays.stream(Identifier.values())
+                        .anyMatch(id -> id.toString().equalsIgnoreCase(tokens.peek().text()));
     }
 
     private static Condition createMultiValueCondition(Identifier identifier, Token operator, List<String> values) {

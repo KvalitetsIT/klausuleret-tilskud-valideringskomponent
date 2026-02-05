@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.TokenType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenCollection;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenParser;
 
@@ -13,16 +12,19 @@ import java.util.List;
  */
 public class MultiValueTokenParser implements TokenParser<List<String>> {
     @Override
-    public List<String> parse(TokenCollection tokens) {
-        TokenIterator iterator = tokens.iterator();
-        iterator.nextWithText("[");
+    public List<String> parse(TokenIterator tokens) {
+        tokens.nextWithText("[");
         List<String> values = new ArrayList<>();
 
         do {
-            String value = iterator.nextWithType(TokenType.VALUE).text();
+            String value = tokens.nextWithType(TokenType.VALUE).text();
             values.add(value);
-        } while (iterator.nextWithText("]", ",").text().equals(","));
-        iterator.expectNoMoreTokens();
+        } while (tokens.nextWithText("]", ",").text().equals(","));
         return values;
+    }
+
+    @Override
+    public boolean canParse(TokenIterator tokens) {
+        return tokens.nextHasText("[");
     }
 }

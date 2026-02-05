@@ -3,14 +3,14 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.TokenType;
 
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class TokenIterator {
-    private final Iterator<Token> tokens;
+    private final LinkedList<Token> tokens;
 
     public TokenIterator(List<Token> tokens) {
-        this.tokens = tokens.iterator();
+        this.tokens = new LinkedList<>(tokens);
     }
 
     /**
@@ -18,7 +18,7 @@ public class TokenIterator {
      */
     public Token nextWithType(TokenType expectedType) {
         validateHasNext();
-        var token = tokens.next();
+        var token = tokens.pop();
         if (token.type() != expectedType) {
             throw new DslParserException("Unexpected token type: " + token.type() + ", expected: " + expectedType);
         }
@@ -30,24 +30,37 @@ public class TokenIterator {
      */
     public Token nextWithText(String ... expectedText) {
         validateHasNext();
-        var token = tokens.next();
+        var token = tokens.pop();
         if (!List.of(expectedText).contains(token.text())) {
             throw new DslParserException("Unexpected value: " + token.text() + ", expected one of: " + expectedText);
         }
         return token;
     }
 
+    public boolean nextHasText(String expectedText) {
+        return !tokens.isEmpty() && tokens.peek().text().equals(expectedText);
+    }
+
+    public boolean nextHasType(TokenType expectedType) {
+        return !tokens.isEmpty() && tokens.peek().type() == expectedType;
+    }
+
+    public Token peek() {
+        validateHasNext();
+        return tokens.peek();
+    }
+
     /**
      * Expects that there are no more tokens, otherwise throws an exception.
      */
     public void expectNoMoreTokens() {
-        if (tokens.hasNext()) {
-            throw new DslParserException("Expected no more tokens, but found: " + tokens.next().text());
+        if (!tokens.isEmpty()) {
+            throw new DslParserException("Expected no more tokens, but found: " + tokens.peek().text());
         }
     }
 
     private void validateHasNext() {
-        if (!tokens.hasNext()) {
+        if (tokens.isEmpty()) {
             throw new DslParserException("Unexpected end of tokens");
         }
     }

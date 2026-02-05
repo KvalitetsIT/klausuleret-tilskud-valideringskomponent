@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.TokenType;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,14 +32,14 @@ public class TokenIterator {
     public Token nextWithText(String ... expectedText) {
         validateHasNext();
         var token = tokens.pop();
-        if (!List.of(expectedText).contains(token.text())) {
-            throw new DslParserException("Unexpected value: " + token.text() + ", expected one of: " + expectedText);
+        if (Arrays.stream(expectedText).noneMatch(expected -> expected.equalsIgnoreCase(token.text()))) {
+            throw new DslParserException("Unexpected value: " + token.text() + ", expected one of: " + String.join(", ", expectedText));
         }
         return token;
     }
 
     public boolean nextHasText(String expectedText) {
-        return !tokens.isEmpty() && tokens.peek().text().equals(expectedText);
+        return !tokens.isEmpty() && tokens.peek().text().equalsIgnoreCase(expectedText);
     }
 
     public boolean nextHasType(TokenType expectedType) {

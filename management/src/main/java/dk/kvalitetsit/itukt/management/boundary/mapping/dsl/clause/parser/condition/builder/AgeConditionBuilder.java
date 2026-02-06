@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condi
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.Condition;
 import org.openapitools.model.AgeCondition;
 import org.openapitools.model.Operator;
 
@@ -12,7 +13,7 @@ public class AgeConditionBuilder implements ConditionBuilder {
     }
 
     @Override
-    public AgeCondition build(Operator operator, String value) {
-        return new AgeCondition(operator, Integer.parseInt(value), ExpressionType.AGE);
+    public AgeCondition build(Operator operator, Condition.Value value) {
+        return new AgeCondition(operator, Integer.parseInt(value.asSimple().value()), ExpressionType.AGE);
     }
 }

@@ -21,6 +21,11 @@ public class ConditionExpressionTokenParser implements TokenParser<Expression> {
     }
 
     @Override
+    public boolean canParse(TokenIterator tokens) {
+        return conditionTokenParser.canParse(tokens);
+    }
+
+    @Override
     public Expression parse(TokenIterator tokens) {
         Condition condition = conditionTokenParser.parse(tokens);
         var conditionBuilder = conditionBuilders.stream()
@@ -28,11 +33,6 @@ public class ConditionExpressionTokenParser implements TokenParser<Expression> {
                 .findFirst()
                 .orElseThrow(() -> new DslParserException("Unsupported identifier: " + condition.identifier()));
         return buildExpression(condition, conditionBuilder);
-    }
-
-    @Override
-    public boolean canParse(TokenIterator tokens) {
-        return conditionTokenParser.canParse(tokens);
     }
 
     private Expression buildExpression(Condition condition, ConditionBuilder conditionBuilder) {

@@ -10,12 +10,12 @@ public class ExpressionTokenParser implements TokenParser<Expression> {
     }
 
     @Override
-    public Expression parse(TokenIterator tokens) {
-        return binaryExpressionTokenParser.parse(tokens);
+    public boolean canParse(TokenIterator tokens) {
+        return binaryExpressionTokenParser.canParse(tokens);
     }
 
     @Override
-    public boolean canParse(TokenIterator tokens) {
-        return binaryExpressionTokenParser.canParse(tokens);
+    public Expression parse(TokenIterator tokens) {
+        return binaryExpressionTokenParser.parse(tokens);
     }
 }

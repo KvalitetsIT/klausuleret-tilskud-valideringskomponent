@@ -10,15 +10,15 @@ public class ParenthesizedExpressionTokenParser implements TokenParser<Expressio
     }
 
     @Override
+    public boolean canParse(TokenIterator tokens) {
+        return tokens.nextHasText("(");
+    }
+
+    @Override
     public Expression parse(TokenIterator tokens) {
         tokens.nextWithText("(");
         var expression = expressionTokenParser.parse(tokens);
         tokens.nextWithText(")");
         return expression;
-    }
-
-    @Override
-    public boolean canParse(TokenIterator tokens) {
-        return tokens.nextHasText("(");
     }
 }

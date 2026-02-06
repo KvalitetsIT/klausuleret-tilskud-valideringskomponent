@@ -17,13 +17,13 @@ public class BinaryExpressionTokenParser implements TokenParser<Expression> {
     }
 
     @Override
-    public Expression parse(TokenIterator tokens) {
-        return parseOr(tokens);
+    public boolean canParse(TokenIterator tokens) {
+        return parenthesizedParser.canParse(tokens) || conditionParser.canParse(tokens);
     }
 
     @Override
-    public boolean canParse(TokenIterator tokens) {
-        return parenthesizedParser.canParse(tokens) || conditionParser.canParse(tokens);
+    public Expression parse(TokenIterator tokens) {
+        return parseOr(tokens);
     }
 
     private Expression parseOr(TokenIterator tokens) {

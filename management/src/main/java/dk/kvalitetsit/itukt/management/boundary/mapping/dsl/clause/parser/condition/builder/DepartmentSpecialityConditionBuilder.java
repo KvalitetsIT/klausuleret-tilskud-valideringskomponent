@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condi
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.Condition;
 import org.openapitools.model.DepartmentSpecialityCondition;
 import org.openapitools.model.Operator;
 
@@ -13,10 +14,10 @@ public class DepartmentSpecialityConditionBuilder implements ConditionBuilder {
     }
 
     @Override
-    public DepartmentSpecialityCondition build(Operator operator, String value) {
+    public DepartmentSpecialityCondition build(Operator operator, Condition.Value value) {
         if (operator != Operator.EQUAL) {
             throw new DslParserException("Unsupported operator for department speciality condition: " + operator);
         }
-        return new DepartmentSpecialityCondition(value, ExpressionType.DEPARTMENT_SPECIALITY);
+        return new DepartmentSpecialityCondition(value.asSimple().value(), ExpressionType.DEPARTMENT_SPECIALITY);
     }
 }

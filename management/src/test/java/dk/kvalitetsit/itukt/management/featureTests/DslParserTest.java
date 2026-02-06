@@ -1,13 +1,13 @@
 package dk.kvalitetsit.itukt.management.featureTests;
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.Lexer;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.DslParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.ExpressionTokenParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.TokenParserFactory;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.ConditionTokenParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.MultiValueTokenParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.StructuredValueTokenParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.builder.*;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Lexer;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.DslParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.ExpressionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.TokenParserFactory;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.ConditionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.MultiValueTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.StructuredValueTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.builder.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.Expression;

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Parses a multi-value token list. E.g. [value1, value2, value3]
+ * Parses a list of values from tokens. E.g. [value1, value2, value3]
  */
 public class MultiValueTokenParser implements TokenParser<List<Condition.Value>> {
     private final StructuredValueTokenParser structuredValueTokenParser;
@@ -25,8 +25,7 @@ public class MultiValueTokenParser implements TokenParser<List<Condition.Value>>
     @Override
     public List<Condition.Value> parse(TokenIterator tokens) {
         tokens.nextWithText("[");
-        List<Condition.Value> values = new ArrayList<>();
-
+        var values = new ArrayList<Condition.Value>();
         do {
             var value = structuredValueTokenParser.canParse(tokens) ?
                     structuredValueTokenParser.parse(tokens) :

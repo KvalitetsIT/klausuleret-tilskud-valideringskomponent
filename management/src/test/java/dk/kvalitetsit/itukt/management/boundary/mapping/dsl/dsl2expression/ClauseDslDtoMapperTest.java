@@ -1,10 +1,17 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.DslParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.ExpressionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.TokenParserFactory;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.ConditionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.MultiValueTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.StructuredValueTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.builder.*;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.*;
 
@@ -14,10 +21,24 @@ import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class ClauseDslDtoMapperTest {
+    private static ClauseDslDtoMapper mapper;
 
-
-    @InjectMocks
-    private ClauseDslDtoMapper mapper;
+    @BeforeAll
+    static void beforeAll() {
+        var structuredValueTokenParser = new StructuredValueTokenParser();
+        var conditionTokenParser = new ConditionTokenParser(new MultiValueTokenParser(structuredValueTokenParser), structuredValueTokenParser);
+        List<ConditionBuilder> conditionBuilders = List.of(
+                new AgeConditionBuilder(),
+                new IndicationConditionBuilder(),
+                new DoctorSpecialityConditionBuilder(),
+                new DepartmentSpecialityConditionBuilder(),
+                new ExistingDrugMedicationConditionBuilder()
+        );
+        var tokenParserFactory = new TokenParserFactory(conditionTokenParser, conditionBuilders);
+        var expressionParser = new ExpressionTokenParser(tokenParserFactory);
+        var parser = new DslParser(expressionParser, new Lexer());
+        mapper = new ClauseDslDtoMapper(parser);
+    }
 
     @Test
     void givenTwoValidDslWithAndWithoutParenthesis_whenMap_thenAssertAndHasHigherPrecedence() {
@@ -351,7 +372,7 @@ class ClauseDslDtoMapperTest {
                 "blaah"
         );
 
-        final DslInput subject = new DslInput("CLAUSE", "blaah", "indiKaTion = C10BA03 OG ALDER >= 13 ELLER aLder = 10)");
+        final DslInput subject = new DslInput("CLAUSE", "blaah", "indiKaTion = C10BA03 OG ALDER >= 13 ELLER aLder = 10");
         Assertions.assertEquals(expected, mapper.map(subject), "Unexpected mapping of: " + subject);
     }
 

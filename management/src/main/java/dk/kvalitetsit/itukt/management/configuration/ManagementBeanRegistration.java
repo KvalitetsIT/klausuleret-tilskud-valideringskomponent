@@ -5,6 +5,14 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDtoDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.ClauseDslDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Lexer;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.DslParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.ExpressionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.TokenParserFactory;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.ConditionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.MultiValueTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.StructuredValueTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition.builder.*;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl.ExpressionDtoDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl.MapperFactory;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
@@ -26,6 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.annotation.RequestScope;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Configuration
 public class ManagementBeanRegistration {
@@ -83,13 +92,33 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ManagementServiceAdaptor managementServiceAdaptor(@Autowired ManagementService managementService, @Autowired MapperFactory mapperFactory) {
+    public DslParser dslParser() {
+        List<ConditionBuilder> conditionBuilders = List.of(
+                new AgeConditionBuilder(),
+                new IndicationConditionBuilder(),
+                new DoctorSpecialityConditionBuilder(),
+                new DepartmentSpecialityConditionBuilder(),
+                new ExistingDrugMedicationConditionBuilder()
+        );
+        var structuredValueTokenParser = new StructuredValueTokenParser();
+        var multiValueTokenParser = new MultiValueTokenParser(structuredValueTokenParser);
+        var conditionTokenParser = new ConditionTokenParser(multiValueTokenParser, structuredValueTokenParser);
+        var tokenParserFactory = new TokenParserFactory(conditionTokenParser, conditionBuilders);
+        var expressionTokenParser = new ExpressionTokenParser(tokenParserFactory);
+        return new DslParser(expressionTokenParser, new Lexer());
+    }
+
+    @Bean
+    public ManagementServiceAdaptor managementServiceAdaptor(
+            @Autowired ManagementService managementService,
+            @Autowired MapperFactory mapperFactory,
+            @Autowired DslParser dslParser) {
         return new ManagementServiceAdaptor(
                 managementService,
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(
                         new ExpressionModelDtoMapper()
                 ),
-                new ClauseDslDtoMapper(),
+                new ClauseDslDtoMapper(dslParser),
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),
                 new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper(), new ExpressionModelEntityMapper())
         );

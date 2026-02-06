@@ -6,6 +6,9 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parse
 
 import java.util.HashMap;
 
+/**
+ * Parses a structured value from tokens. E.g. {a = value1, b = value2}
+ */
 public class StructuredValueTokenParser implements TokenParser<Condition.Value.Structured> {
     @Override
     public boolean canParse(TokenIterator tokens) {

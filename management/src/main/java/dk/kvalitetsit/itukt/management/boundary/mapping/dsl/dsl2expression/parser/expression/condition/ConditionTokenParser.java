@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Parses a condition, consisting of an identifier, an operator, and one or more values.
+ * Parses a condition from tokens, consisting of an identifier, an operator, and one or more values.
  * E.g. "alder > 30" or "indikation i [A, B, C]"
  */
 public class ConditionTokenParser implements TokenParser<Condition> {

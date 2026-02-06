@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 
 public enum Identifier {
     EXISTING_DRUG_MEDICATION("EKSISTERENDE_LÆGEMIDDEL"),

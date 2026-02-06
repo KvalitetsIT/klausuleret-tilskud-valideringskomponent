@@ -1,7 +1,7 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.DslParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParser;
 import org.openapitools.model.ClauseInput;
 import org.openapitools.model.DslInput;
 

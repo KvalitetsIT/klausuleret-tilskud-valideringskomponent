@@ -1,8 +1,8 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.condition;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition;
 
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.TokenIterator;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.TokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.TokenParser;
 
 import java.util.HashMap;
 

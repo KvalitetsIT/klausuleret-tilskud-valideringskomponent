@@ -1,7 +1,4 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser;
-
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
 import java.util.Arrays;
 import java.util.LinkedList;

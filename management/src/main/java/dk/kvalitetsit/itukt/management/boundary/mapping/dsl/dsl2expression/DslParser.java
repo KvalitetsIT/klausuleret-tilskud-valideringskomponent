@@ -1,8 +1,6 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Lexer;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.parser.expression.ExpressionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.ExpressionTokenParser;
 import org.openapitools.model.Expression;
 
 import java.util.List;

@@ -1,7 +1,7 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression;
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.ConditionTokenParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.ConditionBuilder;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.ConditionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.builder.ConditionBuilder;
 
 import java.util.List;
 

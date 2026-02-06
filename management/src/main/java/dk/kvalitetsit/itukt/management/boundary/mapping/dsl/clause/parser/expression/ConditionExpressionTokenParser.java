@@ -1,9 +1,11 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression;
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.Condition;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.ConditionTokenParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition.builder.ConditionBuilder;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenIterator;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.Condition;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.ConditionTokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition.builder.ConditionBuilder;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.BinaryOperator;
 import org.openapitools.model.Expression;

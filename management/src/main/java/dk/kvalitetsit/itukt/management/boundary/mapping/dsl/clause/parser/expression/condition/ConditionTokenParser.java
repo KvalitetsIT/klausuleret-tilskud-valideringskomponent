@@ -1,11 +1,11 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.TokenType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenIterator;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenParser;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.TokenParser;
 import org.openapitools.model.Operator;
 
 import java.util.Arrays;

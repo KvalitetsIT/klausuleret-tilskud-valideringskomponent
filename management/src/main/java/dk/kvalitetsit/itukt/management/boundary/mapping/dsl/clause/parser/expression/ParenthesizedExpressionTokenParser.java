@@ -1,5 +1,6 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression;
 
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenIterator;
 import org.openapitools.model.Expression;
 
 public class ParenthesizedExpressionTokenParser implements TokenParser<Expression> {

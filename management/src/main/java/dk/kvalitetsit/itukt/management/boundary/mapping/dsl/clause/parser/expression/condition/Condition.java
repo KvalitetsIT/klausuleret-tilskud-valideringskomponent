@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.condition;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.condition;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.DslParserException;

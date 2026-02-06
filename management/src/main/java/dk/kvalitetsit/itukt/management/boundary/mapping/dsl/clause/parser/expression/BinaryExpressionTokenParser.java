@@ -1,6 +1,7 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser;
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression;
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.TokenIterator;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.BinaryOperator;
 import org.openapitools.model.Expression;

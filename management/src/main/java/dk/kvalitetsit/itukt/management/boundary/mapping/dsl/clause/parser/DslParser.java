@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.Lexer;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.Token;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.parser.expression.ExpressionTokenParser;
 import org.openapitools.model.Expression;
 
 import java.util.List;

@@ -43,11 +43,6 @@ public class TokenIterator {
         return !tokens.isEmpty() && tokens.peek().type() == expectedType;
     }
 
-    public Token peek() {
-        validateHasNext();
-        return tokens.peek();
-    }
-
     /**
      * Expects that there are no more tokens, otherwise throws an exception.
      */

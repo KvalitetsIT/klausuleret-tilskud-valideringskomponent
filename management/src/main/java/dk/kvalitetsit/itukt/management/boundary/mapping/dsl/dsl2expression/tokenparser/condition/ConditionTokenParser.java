@@ -28,7 +28,7 @@ public class ConditionTokenParser implements TokenParser<Condition> {
     public boolean canParse(TokenIterator tokens) {
         return tokens.nextHasType(TokenType.VALUE) &&
                 Arrays.stream(Identifier.values())
-                        .anyMatch(id -> id.toString().equalsIgnoreCase(tokens.peek().text()));
+                        .anyMatch(id -> tokens.nextHasText(id.toString()));
     }
 
     @Override

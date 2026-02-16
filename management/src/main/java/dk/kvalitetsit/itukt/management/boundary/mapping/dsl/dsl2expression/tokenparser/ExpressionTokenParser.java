@@ -3,6 +3,10 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import org.openapitools.model.Expression;
 
+/**
+ * The overall token parser.
+ * Simply forwards to BinaryExpressionTokenParser which handles any expression
+ */
 public class ExpressionTokenParser implements TokenParser<Expression> {
     private final BinaryExpressionTokenParser binaryExpressionTokenParser;
 

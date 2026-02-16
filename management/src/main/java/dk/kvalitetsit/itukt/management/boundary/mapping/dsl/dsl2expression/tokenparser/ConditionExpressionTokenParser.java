@@ -13,6 +13,10 @@ import org.openapitools.model.Operator;
 
 import java.util.List;
 
+/**
+ * Token parser that handles condition expressions, consisting of an identifier, an operator, and one or more values.
+ * E.g. "alder > 30" or "indikation i [A, B, C]"
+ */
 public class ConditionExpressionTokenParser implements TokenParser<Expression> {
     private final ConditionTokenParser conditionTokenParser;
     private final List<ConditionBuilder> conditionBuilders;

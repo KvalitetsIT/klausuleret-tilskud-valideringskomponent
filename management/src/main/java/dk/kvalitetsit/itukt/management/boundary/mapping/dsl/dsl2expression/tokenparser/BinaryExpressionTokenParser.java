@@ -6,6 +6,10 @@ import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.BinaryOperator;
 import org.openapitools.model.Expression;
 
+/**
+ * Token parser that handles binary expressions with any number of operands.
+ * Also supports expressions without binary operators, such as simple conditions.
+ */
 public class BinaryExpressionTokenParser implements TokenParser<Expression> {
     private static final String OR_KEYWORD = "eller";
     private static final String AND_KEYWORD = "og";

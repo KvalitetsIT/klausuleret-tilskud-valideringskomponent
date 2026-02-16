@@ -3,6 +3,9 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import org.openapitools.model.Expression;
 
+/**
+ * Token parser that handles expressions surrounded by parentheses
+ */
 public class ParenthesizedExpressionTokenParser implements TokenParser<Expression> {
     private final ExpressionTokenParser expressionTokenParser;
 

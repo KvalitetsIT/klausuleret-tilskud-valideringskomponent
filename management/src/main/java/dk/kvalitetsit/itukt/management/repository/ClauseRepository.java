@@ -11,15 +11,15 @@ import java.util.UUID;
 
 public interface ClauseRepository {
     ClauseEntity create(ClauseEntityInput clauseInput) throws ServiceException;
-    Optional<ClauseEntity> readLatestVersion(UUID uuid) throws ServiceException;
+    Optional<ClauseEntity> read(UUID uuid) throws ServiceException;
     /**
-     * Retrieves the latest version of a clause. Excluding drafts.
+     * Retrieves the current version of a clause. Excluding drafts.
      */
-    Optional<ClauseEntity> readLatestVersion(String name) throws ServiceException;
+    Optional<ClauseEntity> readCurrentVersion(String name) throws ServiceException;
     /**
-     * Retrieves the latest version of each clause. Excluding drafts.
+     * Retrieves the current version of each clause. Excluding drafts.
      */
-    List<ClauseEntity> readLatestVersions() throws ServiceException;
+    List<ClauseEntity> readCurrentVersions() throws ServiceException;
     List<ClauseEntity> readAllDrafts() throws ServiceException;
 
     List<ClauseEntity> readHistory(String name);

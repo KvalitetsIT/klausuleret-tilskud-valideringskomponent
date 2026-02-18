@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ClauseRepositoryImpl implements ClauseRepository {
 
@@ -27,11 +31,11 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity create(String name, ExpressionEntity expression, String errorMessage, Clause.Status status, Date validFrom) throws ServiceException {
+    public ClauseEntity create(ClauseEntityInput clauseInput) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
 
-            ExpressionEntity createdExpression = expressionRepository.create(expression);
+            ExpressionEntity createdExpression = expressionRepository.create(clauseInput.expression());
 
             String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from) " +
                     "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from) " +
@@ -39,26 +43,26 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue("uuid", uuid.toString())
-                    .addValue("name", name)
+                    .addValue("name", clauseInput.name())
                     .addValue("expression_id", createdExpression.id())
-                    .addValue("error_message", errorMessage)
-                    .addValue("status", status.name())
-                    .addValue("valid_from", validFrom);
+                    .addValue("error_message", clauseInput.errorMessage())
+                    .addValue("status", clauseInput.status().name())
+                    .addValue("valid_from", clauseInput.validFrom());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
 
-                int errorCode = createOrGetErrorCode(name);
+                int errorCode = createOrGetErrorCode(clauseInput.name());
 
                 return new ClauseEntity(
                         rs.getLong("id"),
                         uuid,
-                        name,
-                        status,
+                        clauseInput.name(),
+                        clauseInput.status(),
                         errorCode,
-                        errorMessage,
+                        clauseInput.errorMessage(),
                         createdExpression,
-                        Optional.ofNullable(validFrom)
+                        Optional.ofNullable(clauseInput.validFrom())
                 );
             });
 

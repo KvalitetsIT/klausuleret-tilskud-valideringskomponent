@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
 import java.util.Date;
@@ -23,7 +24,8 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause create(ClauseInput clause) throws ServiceException {
-        return repository.create(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null);
+        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null);
+        return repository.create(clauseFullInput);
     }
 
     @Override
@@ -61,6 +63,7 @@ public class ManagementServiceImpl implements ManagementService {
     public Clause inactivate(String name) throws ServiceException {
         var clause = repository.readLatestVersion(name).filter(c -> c.status() == Clause.Status.ACTIVE)
                 .orElseThrow(() -> new BadRequestException("Only ACTIVE clauses can be inactivated"));
-        return repository.create(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
+        return repository.create(clauseInput);
     }
 }

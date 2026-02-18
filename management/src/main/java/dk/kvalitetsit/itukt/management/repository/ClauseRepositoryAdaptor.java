@@ -5,9 +5,10 @@ import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
+import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,8 +25,10 @@ public class ClauseRepositoryAdaptor {
         this.expressionMapper = expressionMapper;
     }
 
-    public Clause create(String name, Expression expression, String errorMessage, Clause.Status status, Date validFrom) throws ServiceException {
-        var createdClause = clauseRepository.create(name, expressionMapper.map(expression), errorMessage, status, validFrom);
+    public Clause create(ClauseFullInput clauseInput) throws ServiceException {
+        var expressionEntity = expressionMapper.map(clauseInput.expression());
+        var clauseEntityInput = new ClauseEntityInput(clauseInput.name(), expressionEntity, clauseInput.errorMessage(), clauseInput.status(), clauseInput.validFrom());
+        var createdClause = clauseRepository.create(clauseEntityInput);
         return entityMapper.map(createdClause);
     }
 

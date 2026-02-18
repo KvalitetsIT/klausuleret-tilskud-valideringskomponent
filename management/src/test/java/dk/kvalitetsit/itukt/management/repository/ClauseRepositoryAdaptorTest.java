@@ -4,9 +4,11 @@ package dk.kvalitetsit.itukt.management.repository;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
+import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,21 +53,19 @@ public class ClauseRepositoryAdaptorTest {
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var expression = Mockito.mock(BinaryExpression.class);
-        String name = "test";
-        String errorMessage = "test error";
-        var status = Clause.Status.DRAFT;
-        var validFrom = new Date();
+        var clauseInput = new ClauseFullInput("test", expression, "test error", Clause.Status.DRAFT, new Date());
         var expressionEntity = Mockito.mock(ExpressionEntity.StringConditionEntity.class);
         Mockito.when(expressionMapper.map(expression)).thenReturn(expressionEntity);
-        Mockito.when(concreteRepository.create(name, expressionEntity, errorMessage, status, validFrom))
+        var expectedClauseEntityInput = new ClauseEntityInput(clauseInput.name(), expressionEntity, clauseInput.errorMessage(), clauseInput.status(), clauseInput.validFrom());
+        Mockito.when(concreteRepository.create(expectedClauseEntityInput))
                 .thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 
-        var result = adaptor.create(name, expression, errorMessage, status, validFrom);
+        var result = adaptor.create(clauseInput);
 
         assertEquals(outputClause, result);
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).create(name, expressionEntity, errorMessage, status, validFrom);
+        Mockito.verify(concreteRepository, Mockito.times(1)).create(expectedClauseEntityInput);
     }
 
     @Test

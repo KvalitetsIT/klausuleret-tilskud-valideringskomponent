@@ -7,6 +7,7 @@ import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,8 +36,9 @@ class ManagementServiceImplTest {
     @Test
     void create_CreatesDraftClause() {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, null);
         var clause = mock(Clause.class);
-        Mockito.when(dao.create(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, null))
+        Mockito.when(dao.create(expectedClauseFullInput))
                 .thenReturn(clause);
 
         var result = service.create(clauseForCreation);
@@ -114,7 +116,7 @@ class ManagementServiceImplTest {
     void readHistory_assertThrowsNotFoundIfEmpty() {
         String name = "blaah";
         Mockito.when(dao.readHistory(name)).thenReturn(List.of());
-        var e = assertThrows(NotFoundException.class, () ->  service.readHistory(name));
+        var e = assertThrows(NotFoundException.class, () -> service.readHistory(name));
         verify(dao, times(1)).readHistory(name);
         assertEquals(e.getDetailedError(), String.format("clause with name '%s' was not found", name));
     }
@@ -139,12 +141,18 @@ class ManagementServiceImplTest {
     void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
         Mockito.when(dao.readLatestVersion(Mockito.any())).thenReturn(Optional.of(clause));
-        var inactiveClause = mock(Clause.class);
-        Mockito.when(dao.create(Mockito.eq(clause.name()), Mockito.eq(clause.expression()), Mockito.eq(clause.error().message()), Mockito.eq(Clause.Status.INACTIVE), Mockito.any(Date.class)))
-                .thenReturn(inactiveClause);
+        var inactiveClause = Mockito.mock(Clause.class);
+        Mockito.when(dao.create(Mockito.any())).thenReturn(inactiveClause);
 
         var clauseResponse = service.inactivate(clause.name());
 
         assertEquals(inactiveClause, clauseResponse);
+        Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
+            assertEquals(clause.name(), input.name());
+            assertEquals(clause.expression(), input.expression());
+            assertEquals(clause.error().message(), input.errorMessage());
+            assertEquals(Clause.Status.INACTIVE, input.status());
+            return true;
+        }));
     }
 }

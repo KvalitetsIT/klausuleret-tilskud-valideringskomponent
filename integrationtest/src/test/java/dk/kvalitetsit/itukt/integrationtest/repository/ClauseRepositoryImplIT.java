@@ -12,6 +12,7 @@ import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,12 +38,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void createAndReadDraft() {
-        var clauseName = "clause";
-        var expression = MockFactory.EXPRESSION_1_ENTITY;
-        String errorMessage = "message";
-        var status = Clause.Status.DRAFT;
+        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
 
-        var createdClause = repository.create(clauseName, expression, errorMessage, status, null);
+        var createdClause = repository.create(clauseInput);
         var readClause = repository.readLatestVersion(createdClause.uuid());
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
@@ -50,49 +48,48 @@ public class ClauseRepositoryImplIT extends BaseTest {
         assertNotNull(createdClause.id(), "An id is expected to be assigned by the database when writing a clause");
         assertNotNull(createdClause.uuid(), "A uuid is expected to be assigned by the database when writing a clause");
         assertTrue(createdClause.validFrom().isEmpty(), "validFrom is expected to be empty when not included in the input");
-        assertEquals(clauseName, createdClause.name(), "The input name is expected to be used in the written clause");
-        assertEquals(errorMessage, createdClause.errorMessage(), "The input error message is expected to be used in the written clause");
-        assertEquals(status, createdClause.status(), "The input status is expected to be used in the written clause");
+        assertEquals(clauseInput.name(), createdClause.name(), "The input name is expected to be used in the written clause");
+        assertEquals(clauseInput.errorMessage(), createdClause.errorMessage(), "The input error message is expected to be used in the written clause");
+        assertEquals(clauseInput.status(), createdClause.status(), "The input status is expected to be used in the written clause");
         var idPathsToIgnore = ignoreFieldRecursive(createdClause.expression(), "id");
         assertThat(createdClause.expression())
                 .usingRecursiveComparison()
                 .ignoringFields(idPathsToIgnore)
                 .withFailMessage("The input expression is expected to be used in the written clause")
-                .isEqualTo(expression);
+                .isEqualTo(clauseInput.expression());
     }
 
     @Test
     void createAndReadInactiveClause() {
-        var clauseName = "clause";
-        var expression = MockFactory.EXPRESSION_1_ENTITY;
-        String errorMessage = "message";
-        var status = Clause.Status.INACTIVE;
-        var validFrom = new Date();
+        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.INACTIVE, new Date());
 
-        var createdClause = repository.create(clauseName, expression, errorMessage, status, validFrom);
+        var createdClause = repository.create(clauseInput);
         var readClause = repository.readLatestVersion(createdClause.uuid());
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
         assertEquals(createdClause, readClause.get(), "The clause read is expected to match the clause created");
         assertNotNull(createdClause.id(), "An id is expected to be assigned by the database when writing a clause");
         assertNotNull(createdClause.uuid(), "A uuid is expected to be assigned by the database when writing a clause");
-        assertEquals(clauseName, createdClause.name(), "The input name is expected to be used in the written clause");
-        assertEquals(errorMessage, createdClause.errorMessage(), "The input error message is expected to be used in the written clause");
-        assertEquals(status, createdClause.status(), "The input status is expected to be used in the written clause");
+        assertEquals(clauseInput.name(), createdClause.name(), "The input name is expected to be used in the written clause");
+        assertEquals(clauseInput.errorMessage(), createdClause.errorMessage(), "The input error message is expected to be used in the written clause");
+        assertEquals(clauseInput.status(), createdClause.status(), "The input status is expected to be used in the written clause");
         assertTrue(createdClause.validFrom().isPresent(), "validFrom is expected to be set when included in the input");
-        assertEquals(validFrom, createdClause.validFrom().get(), "The input validFrom is expected to be used in the written clause");
+        assertEquals(clauseInput.validFrom(), createdClause.validFrom().get(), "The input validFrom is expected to be used in the written clause");
         var idPathsToIgnore = ignoreFieldRecursive(createdClause.expression(), "id");
         assertThat(createdClause.expression())
                 .usingRecursiveComparison()
                 .ignoringFields(idPathsToIgnore)
                 .withFailMessage("The input expression is expected to be used in the written clause")
-                .isEqualTo(expression);
+                .isEqualTo(clauseInput.expression());
     }
 
     @Test
     void createAndReadAllDrafts() {
-        var createdClause1 = repository.create("clause1", MockFactory.EXPRESSION_1_ENTITY, "message1", Clause.Status.DRAFT, null);
-        var createdClause2 = repository.create("clause2", MockFactory.EXPRESSION_1_ENTITY, "message2", Clause.Status.DRAFT, null);
+        var clauseInput1 = new ClauseEntityInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message1", Clause.Status.DRAFT, null);
+        var clauseInput2 = new ClauseEntityInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message2", Clause.Status.DRAFT, null);
+
+        var createdClause1 = repository.create(clauseInput1);
+        var createdClause2 = repository.create(clauseInput2);
         var readClauses = repository.readAllDrafts();
 
         assertEquals(2, readClauses.size());
@@ -125,9 +122,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void createTwoDraftClausesWithSameName_ThenReadAllDrafts_ReturnsBothClauses() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        var clauseInput1 = new ClauseEntityInput("clause", expression, "errorA", Clause.Status.DRAFT, null);
+        var clauseInput2 = new ClauseEntityInput("clause", expression, "errorB", Clause.Status.DRAFT, null);
 
-        var clauseA = repository.create("clause", expression, "errorA", Clause.Status.DRAFT, null);
-        var clauseB = repository.create("clause", expression, "errorB", Clause.Status.DRAFT, null);
+        var clauseA = repository.create(clauseInput1);
+        var clauseB = repository.create(clauseInput2);
         var clauses = repository.readAllDrafts();
 
         assertEquals(2, clauses.size(), "Expected both clauses to be returned");
@@ -138,9 +137,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void createTwoActiveClausesWithSameName_ThenReadLatestVersions_ReturnsLatestValidClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
+        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
 
-        var clauseA = repository.create("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
-        var clauseB = repository.create("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
+        var clauseA = repository.create(clauseInput1);
+        var clauseB = repository.create(clauseInput2);
         var clauses = repository.readLatestVersions();
 
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
@@ -155,9 +156,11 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void createTwoActiveClausesWithSameName_ThenReadLatestVersion_ReturnsLatestValidClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
+        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
 
-        var clauseA = repository.create("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
-        var clauseB = repository.create("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
+        var clauseA = repository.create(clauseInput1);
+        var clauseB = repository.create(clauseInput2);
         var clause = repository.readLatestVersion("blaah");
 
         assertTrue(clause.isPresent());
@@ -172,8 +175,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void createClauseWithoutValidFrom_ThenReadLatestVersion_ReturnsNothing() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        ClauseEntityInput clauseInput = new ClauseEntityInput("blaah", expression, "error", Clause.Status.DRAFT, null);
 
-        repository.create("blaah", expression, "error", Clause.Status.DRAFT, null);
+        repository.create(clauseInput);
         var latestClause = repository.readLatestVersion("blaah");
 
         assertTrue(latestClause.isEmpty());
@@ -198,8 +202,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
                         new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 20)
                 )
         );
+        var clauseInput = new ClauseEntityInput("ClauseName", expression, "message", Clause.Status.DRAFT, null);
 
-        var created = repository.create("ClauseName", expression, "message", Clause.Status.DRAFT, null);
+        var created = repository.create(clauseInput);
 
         var fieldsToIgnore = ignoreFieldRecursive(expression, "id");
         assertThat(created.expression())
@@ -217,8 +222,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void testCreateAndReadExistingDrugMedicationCondition() {
         var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
+        var clauseInput = new ClauseEntityInput("CLAUSE", existingDrugMedicationCondition, "message", Clause.Status.DRAFT, null);
 
-        UUID clauseUuid = repository.create("CLAUSE", existingDrugMedicationCondition, "message", Clause.Status.DRAFT, null).uuid();
+        UUID clauseUuid = repository.create(clauseInput).uuid();
         var readClause = repository.readLatestVersion(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
@@ -236,8 +242,10 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         int numberOfCreates = 10;
 
-        for (int i = 0; i < numberOfCreates; i++)
-            repository.create("UPDATED_CLAUSE", ageCondition, "message-" + 1, Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(i)));
+        for (int i = 0; i < numberOfCreates; i++) {
+            var clauseInput = new ClauseEntityInput("UPDATED_CLAUSE", ageCondition, "message-" + 1, Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(i)));
+            repository.create(clauseInput);
+        }
 
         var versions = repository.readHistory("UPDATED_CLAUSE");
 
@@ -257,7 +265,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void updateDraftToActive_WhenUuidMatchesClause_SucceedsOnlyWhenInDraft() {
-        var clause = repository.create("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error", Clause.Status.DRAFT, null);
+        var clauseInput = new ClauseEntityInput("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error", Clause.Status.DRAFT, null);
+
+        var clause = repository.create(clauseInput);
 
         assertDoesNotThrow(() -> repository.updateDraftToActive(clause.uuid()));
         var e = assertThrows(
@@ -271,8 +281,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
     void create_WhenAllErrorCodesHasBeenUsed_ThrowsException() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
         jdbcTemplate.execute("INSERT INTO error_code (error_code, clause_name) VALUES (10999, 'clause_with_last_error_code')");
+        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
 
-        var e = assertThrows(ServiceException.class, () -> repository.create("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null));
+        var e = assertThrows(ServiceException.class, () -> repository.create(clauseInput));
 
         Assertions.assertEquals("Failed to create clause", e.getMessage());
     }

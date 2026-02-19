@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser;
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
@@ -12,6 +13,10 @@ import org.openapitools.model.Expression;
 import org.openapitools.model.Operator;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Token parser that handles condition expressions, consisting of an identifier, an operator, and one or more values.
@@ -19,11 +24,12 @@ import java.util.List;
  */
 public class ConditionExpressionTokenParser implements TokenParser<Expression> {
     private final ConditionTokenParser conditionTokenParser;
-    private final List<ConditionBuilder> conditionBuilders;
+    private final Map<Identifier, ConditionBuilder> conditionBuilders;
 
     public ConditionExpressionTokenParser(ConditionTokenParser conditionTokenParser, List<ConditionBuilder> conditionBuilders) {
         this.conditionTokenParser = conditionTokenParser;
-        this.conditionBuilders = conditionBuilders;
+        this.conditionBuilders = conditionBuilders.stream()
+                .collect(Collectors.toMap(ConditionBuilder::identifier, Function.identity()));
     }
 
     @Override
@@ -34,9 +40,7 @@ public class ConditionExpressionTokenParser implements TokenParser<Expression> {
     @Override
     public Expression parse(TokenIterator tokens) {
         Condition condition = conditionTokenParser.parse(tokens);
-        var conditionBuilder = conditionBuilders.stream()
-                .filter(builder -> builder.identifier().equals(condition.identifier()))
-                .findFirst()
+        var conditionBuilder = Optional.ofNullable(conditionBuilders.get(condition.identifier()))
                 .orElseThrow(() -> new DslParserException("Unsupported identifier: " + condition.identifier()));
         return buildExpression(condition, conditionBuilder);
     }

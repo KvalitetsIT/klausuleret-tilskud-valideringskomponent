@@ -6,6 +6,12 @@ services:
     extends:
       file: docker-compose.app.yaml
       service: validation-component
+    environment:
+      - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - 8080:8080
+      - 8081:8081
+      - 5005:5005
     depends_on:
       itukt-db:
         condition: service_healthy

@@ -13,10 +13,5 @@ services:
       - ITUKT_VALIDATION_STAMDATA_STAMDATADB_PASSWORD=
       - ITUKT_VALIDATION_STAMDATA_CACHE_CRON=0 0 0 * * *
       - ITUKT_MANAGEMENT_CLAUSE_CACHE_CRON=0 0 0 * * *
-      - JVM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-    ports:
-      - 8080:8080
-      - 8081:8081
-      - 5005:5005
     extra_hosts:
       - "host.docker.internal:host-gateway"

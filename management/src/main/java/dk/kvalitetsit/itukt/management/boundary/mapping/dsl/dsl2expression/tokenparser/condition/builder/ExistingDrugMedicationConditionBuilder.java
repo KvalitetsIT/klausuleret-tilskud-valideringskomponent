@@ -7,8 +7,8 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.token
 import org.openapitools.model.ExistingDrugMedicationCondition;
 import org.openapitools.model.Operator;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder {
     @Override
@@ -22,7 +22,7 @@ public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder 
             throw new DslParserException("Unsupported operator for existing drug medication condition: " + operator);
         }
         Map<String, String> values = value.asStructured().values();
-        Set<String> validValueKeys = Set.of(Identifier.ATC_CODE.toString(), Identifier.FORM_CODE.toString(), Identifier.ROUTE.toString());
+        List<String> validValueKeys = List.of(Identifier.ATC_CODE.toString(), Identifier.FORM_CODE.toString(), Identifier.ROUTE.toString());
         if (!validValueKeys.containsAll(values.keySet())) {
             throw new DslParserException("Existing drug medication condition must only contain values for: " + String.join(", ", validValueKeys));
         }

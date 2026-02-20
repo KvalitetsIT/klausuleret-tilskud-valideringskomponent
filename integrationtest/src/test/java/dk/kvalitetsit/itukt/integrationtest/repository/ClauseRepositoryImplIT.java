@@ -135,14 +135,14 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createTwoActiveClausesWithSameName_ThenReadCurrentVersions_ReturnsLatestValidClause() {
+    void createTwoActiveClausesWithSameName_ThenReadCurrentClauses_ReturnsLatestValidClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
         var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
 
         var clauseA = repository.create(clauseInput1);
         var clauseB = repository.create(clauseInput2);
-        var clauses = repository.readCurrentVersions();
+        var clauses = repository.readCurrentClauses();
 
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
         assertThat(clauses.getFirst())
@@ -154,14 +154,14 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createTwoActiveClausesWithSameName_ThenReadCurrentVersion_ReturnsLatestValidClause() {
+    void createTwoActiveClausesWithSameName_ThenReadCurrentClause_ReturnsLatestValidClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
         var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
 
         var clauseA = repository.create(clauseInput1);
         var clauseB = repository.create(clauseInput2);
-        var clause = repository.readCurrentVersion("blaah");
+        var clause = repository.readCurrentClause("blaah");
 
         assertTrue(clause.isPresent());
         assertThat(clause.get())
@@ -173,12 +173,12 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createClauseWithoutValidFrom_ThenReadCurrentVersion_ReturnsNothing() {
+    void createClauseWithoutValidFrom_ThenReadCurrentClause_ReturnsNothing() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         ClauseEntityInput clauseInput = new ClauseEntityInput("blaah", expression, "error", Clause.Status.DRAFT, null);
 
         repository.create(clauseInput);
-        var latestClause = repository.readCurrentVersion("blaah");
+        var latestClause = repository.readCurrentClause("blaah");
 
         assertTrue(latestClause.isEmpty());
     }

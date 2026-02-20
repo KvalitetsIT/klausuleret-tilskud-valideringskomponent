@@ -15,11 +15,11 @@ public interface ClauseRepository {
     /**
      * Retrieves the current version of a clause. Excluding drafts.
      */
-    Optional<ClauseEntity> readCurrentVersion(String name) throws ServiceException;
+    Optional<ClauseEntity> readCurrentClause(String name) throws ServiceException;
     /**
      * Retrieves the current version of each clause. Excluding drafts.
      */
-    List<ClauseEntity> readCurrentVersions() throws ServiceException;
+    List<ClauseEntity> readCurrentClauses() throws ServiceException;
     List<ClauseEntity> readAllDrafts() throws ServiceException;
 
     List<ClauseEntity> readHistory(String name);

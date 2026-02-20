@@ -82,28 +82,28 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testReadCurrentVersions() {
+    void testReadCurrentClauses() {
 
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
 
-        Mockito.when(concreteRepository.readCurrentVersions()).thenReturn(List.of(clauseEntity));
+        Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(clauseEntity));
 
         Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
 
-        var result = adaptor.readCurrentVersions();
+        var result = adaptor.readCurrentClauses();
         assertEquals(List.of(clause), result);
     }
 
     @Test
-    void testReadCurrentVersion() {
+    void testReadCurrentClause() {
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
         String name = "test";
-        Mockito.when(concreteRepository.readCurrentVersion(name)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(concreteRepository.readCurrentClause(name)).thenReturn(Optional.of(clauseEntity));
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
 
-        var result = adaptor.readCurrentVersion(name);
+        var result = adaptor.readCurrentClause(name);
 
         assertEquals(Optional.of(clause), result);
     }

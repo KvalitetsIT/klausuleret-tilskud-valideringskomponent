@@ -60,7 +60,7 @@ class ManagementServiceImplTest {
         Mockito.when(activeClause.status()).thenReturn(Clause.Status.ACTIVE);
         var inactiveClause = mock(Clause.class);
         Mockito.when(inactiveClause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentVersions()).thenReturn(List.of(activeClause, inactiveClause));
+        Mockito.when(dao.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
         var result = service.readByStatus(Clause.Status.ACTIVE);
 
@@ -73,7 +73,7 @@ class ManagementServiceImplTest {
         Mockito.when(activeClause.status()).thenReturn(Clause.Status.ACTIVE);
         var inactiveClause = mock(Clause.class);
         Mockito.when(inactiveClause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentVersions()).thenReturn(List.of(activeClause, inactiveClause));
+        Mockito.when(dao.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
         var result = service.readByStatus(Clause.Status.INACTIVE);
 
@@ -123,7 +123,7 @@ class ManagementServiceImplTest {
 
     @Test
     void inactivate_WhenClauseDoesNotExist_ThrowsException() {
-        Mockito.when(dao.readCurrentVersion(Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.empty());
 
         assertThrows(BadRequestException.class, () -> service.inactivate("test"));
     }
@@ -132,7 +132,7 @@ class ManagementServiceImplTest {
     void inactivate_WhenClauseIsAlreadyInactive_ThrowsException() {
         var clause = mock(Clause.class);
         Mockito.when(clause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentVersion(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         assertThrows(BadRequestException.class, () -> service.inactivate("test"));
     }
@@ -140,7 +140,7 @@ class ManagementServiceImplTest {
     @Test
     void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
-        Mockito.when(dao.readCurrentVersion(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
         var inactiveClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(inactiveClause);
 

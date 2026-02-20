@@ -39,15 +39,15 @@ public class ClauseRepositoryAdaptor {
     /**
      * Retrieves the current version of each clause. Excluding drafts.
      */
-    public List<Clause> readCurrentVersions() throws ServiceException {
-        return this.entityMapper.map(clauseRepository.readCurrentVersions());
+    public List<Clause> readCurrentClauses() throws ServiceException {
+        return this.entityMapper.map(clauseRepository.readCurrentClauses());
     }
 
     /**
      * Retrieves the current version of a clause. Excluding drafts.
      */
-    public Optional<Clause> readCurrentVersion(String name) throws ServiceException {
-        return clauseRepository.readCurrentVersion(name).map(entityMapper::map);
+    public Optional<Clause> readCurrentClause(String name) throws ServiceException {
+        return clauseRepository.readCurrentClause(name).map(entityMapper::map);
     }
 
     public List<Clause> readAllDrafts() throws ServiceException {

@@ -42,7 +42,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     private List<Clause> getLatestClauseVersions(Clause.Status status) {
-        return repository.readCurrentVersions().stream()
+        return repository.readCurrentClauses().stream()
                 .filter(clause -> clause.status() == status).toList();
     }
 
@@ -61,7 +61,7 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause inactivate(String name) throws ServiceException {
-        var clause = repository.readCurrentVersion(name).filter(c -> c.status() == Clause.Status.ACTIVE)
+        var clause = repository.readCurrentClause(name).filter(c -> c.status() == Clause.Status.ACTIVE)
                 .orElseThrow(() -> new BadRequestException("Only ACTIVE clauses can be inactivated"));
         var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
         return repository.create(clauseInput);

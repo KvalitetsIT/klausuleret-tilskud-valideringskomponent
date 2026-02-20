@@ -143,7 +143,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public Optional<ClauseEntity> readCurrentVersion(String name) throws ServiceException {
+    public Optional<ClauseEntity> readCurrentClause(String name) throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid
@@ -169,7 +169,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<ClauseEntity> readCurrentVersions() throws ServiceException {
+    public List<ClauseEntity> readCurrentClauses() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid

@@ -1,8 +1,9 @@
 package dk.kvalitetsit.itukt.management.boundary;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
 import org.openapitools.model.*;
@@ -46,10 +47,18 @@ public class ManagementController implements ManagementApi {
 
     @Override
     public ResponseEntity<DslOutput> call20250801clausesDslPost(DslInput dslInput) {
-        var created = this.service.createDSL(dslInput);
+        DslOutput created = createDSL(dslInput);
         UUID uuid = created.getUuid();
         URI location = getLocation(c -> c.call20250801clausesDslIdGet(uuid), uuid);
         return ResponseEntity.created(location).body(created);
+    }
+
+    private DslOutput createDSL(DslInput dslInput) {
+        try {
+            return this.service.createDSL(dslInput);
+        } catch (DslParserException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override

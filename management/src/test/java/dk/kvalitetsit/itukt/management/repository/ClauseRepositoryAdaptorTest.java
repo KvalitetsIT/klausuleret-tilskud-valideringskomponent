@@ -1,13 +1,11 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
-import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
-import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
-import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseInputModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,14 +34,14 @@ public class ClauseRepositoryAdaptorTest {
     private ClauseEntityModelMapper clauseEntityModelMapper;
 
     @Mock
-    private ExpressionModelEntityMapper expressionMapper;
+    private ClauseInputModelEntityMapper clauseInputMapper;
 
     @BeforeEach
     void setUp() {
         adaptor = new ClauseRepositoryAdaptor(
                 concreteRepository,
                 clauseEntityModelMapper,
-                expressionMapper
+                clauseInputMapper
         );
     }
 
@@ -52,11 +49,9 @@ public class ClauseRepositoryAdaptorTest {
     void testCreate() {
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var expression = Mockito.mock(BinaryExpression.class);
-        var clauseInput = new ClauseFullInput("test", expression, "test error", Clause.Status.DRAFT, new Date());
-        var expressionEntity = Mockito.mock(ExpressionEntity.StringConditionEntity.class);
-        Mockito.when(expressionMapper.map(expression)).thenReturn(expressionEntity);
-        var expectedClauseEntityInput = new ClauseEntityInput(clauseInput.name(), expressionEntity, clauseInput.errorMessage(), clauseInput.status(), clauseInput.validFrom());
+        var clauseInput = Mockito.mock(ClauseFullInput.class);
+        var expectedClauseEntityInput = Mockito.mock(ClauseEntityInput.class);
+        Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(expectedClauseEntityInput);
         Mockito.when(concreteRepository.create(expectedClauseEntityInput))
                 .thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);

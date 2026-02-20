@@ -24,6 +24,7 @@ import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCacheImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntityModelMapper;
+import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseInputModelEntityMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,8 +78,9 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository, Mapper<ClauseEntity, Clause> mapper) {
-        return new ClauseRepositoryAdaptor(clauseRepository, mapper, new ExpressionModelEntityMapper());
+    public ClauseRepositoryAdaptor clauseRepositoryAdaptor(@Autowired ClauseRepository clauseRepository, Mapper<ClauseEntity, Clause> clauseMapper) {
+        var clauseInputMapper = new ClauseInputModelEntityMapper(new ExpressionModelEntityMapper());
+        return new ClauseRepositoryAdaptor(clauseRepository, clauseMapper, clauseInputMapper);
     }
 
     @Bean

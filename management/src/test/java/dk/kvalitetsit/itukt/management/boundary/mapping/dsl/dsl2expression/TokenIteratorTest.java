@@ -10,14 +10,14 @@ class TokenIteratorTest {
 
     @Test
     void nextWithType_WhenInitiatedWithoutTokens_ThrowsException() {
-        var tokenIterator = new TokenIterator(List.of());
+        var tokenIterator = TokenIterator.fromTokens(List.of());
 
         assertThrows(DslParserException.class, () -> tokenIterator.nextWithType(TokenType.VALUE));
     }
 
     @Test
     void nextWithType_WhenFirstTokenHasDifferentType_ThrowsException() {
-        var tokenIterator = new TokenIterator(List.of(
+        var tokenIterator = TokenIterator.fromTokens(List.of(
                 new Token(TokenType.KEYWORD, "test"),
                 new Token(TokenType.VALUE, "test")
         ));
@@ -30,7 +30,7 @@ class TokenIteratorTest {
         var token1 = new Token(TokenType.KEYWORD, "test1");
         var token2 = new Token(TokenType.OPERATOR, "test2");
         var token3 = new Token(TokenType.KEYWORD, "test3");
-        var tokenIterator = new TokenIterator(List.of(token1, token2, token3));
+        var tokenIterator = TokenIterator.fromTokens(List.of(token1, token2, token3));
 
         var token1Result = tokenIterator.nextWithType(TokenType.KEYWORD);
         var token2Result = tokenIterator.nextWithType(TokenType.OPERATOR);
@@ -43,14 +43,14 @@ class TokenIteratorTest {
 
     @Test
     void nextWithText_WhenInitiatedWithoutTokens_ThrowsException() {
-        var tokenIterator = new TokenIterator(List.of());
+        var tokenIterator = TokenIterator.fromTokens(List.of());
 
         assertThrows(DslParserException.class, () -> tokenIterator.nextWithText("test"));
     }
 
     @Test
     void nextWithText_WhenFirstTokenHasDifferentText_ThrowsException() {
-        var tokenIterator = new TokenIterator(List.of(
+        var tokenIterator = TokenIterator.fromTokens(List.of(
                 new Token(TokenType.KEYWORD, "jens"),
                 new Token(TokenType.KEYWORD, "test")
         ));
@@ -63,7 +63,7 @@ class TokenIteratorTest {
         var token1 = new Token(TokenType.KEYWORD, "test1");
         var token2 = new Token(TokenType.OPERATOR, "TEST2");
         var token3 = new Token(TokenType.SYMBOL, "tEsT3!");
-        var tokenIterator = new TokenIterator(List.of(token1, token2, token3));
+        var tokenIterator = TokenIterator.fromTokens(List.of(token1, token2, token3));
 
         var token1Result = tokenIterator.nextWithText("TEST1");
         var token2Result = tokenIterator.nextWithText("test2");
@@ -76,7 +76,7 @@ class TokenIteratorTest {
 
     @Test
     void nextHasText_WhenInitiatedWithoutTokens_ReturnsFalse() {
-        var tokenIterator = new TokenIterator(List.of());
+        var tokenIterator = TokenIterator.fromTokens(List.of());
 
         boolean hasText = tokenIterator.nextHasText("test");
 
@@ -85,7 +85,7 @@ class TokenIteratorTest {
 
     @Test
     void nextHasText_WhenFirstTokenHasDifferentText_ReturnsFalse() {
-        var tokenIterator = new TokenIterator(List.of(
+        var tokenIterator = TokenIterator.fromTokens(List.of(
                 new Token(TokenType.KEYWORD, "jens"),
                 new Token(TokenType.KEYWORD, "test")
         ));
@@ -97,7 +97,7 @@ class TokenIteratorTest {
 
     @Test
     void nextHasText_WhenFirstTokenHaveExpectedTextButDifferentCasing_ReturnsTrue() {
-        var tokenIterator = new TokenIterator(List.of(new Token(TokenType.KEYWORD, "test1")));
+        var tokenIterator = TokenIterator.fromTokens(List.of(new Token(TokenType.KEYWORD, "test1")));
 
         var hasText = tokenIterator.nextHasText("TEST1");
 
@@ -106,7 +106,7 @@ class TokenIteratorTest {
 
     @Test
     void nextHasType_WhenInitiatedWithoutTokens_ReturnsFalse() {
-        var tokenIterator = new TokenIterator(List.of());
+        var tokenIterator = TokenIterator.fromTokens(List.of());
 
         boolean hasType = tokenIterator.nextHasType(TokenType.VALUE);
 
@@ -115,7 +115,7 @@ class TokenIteratorTest {
 
     @Test
     void nextHasType_WhenFirstTokenHasDifferentType_ReturnsFalse() {
-        var tokenIterator = new TokenIterator(List.of(
+        var tokenIterator = TokenIterator.fromTokens(List.of(
                 new Token(TokenType.KEYWORD, "jens"),
                 new Token(TokenType.VALUE, "test")
         ));
@@ -127,7 +127,7 @@ class TokenIteratorTest {
 
     @Test
     void nextHasType_WhenFirstTokenHaveExpectedType_ReturnsTrue() {
-        var tokenIterator = new TokenIterator(List.of(new Token(TokenType.VALUE, "test1")));
+        var tokenIterator = TokenIterator.fromTokens(List.of(new Token(TokenType.VALUE, "test1")));
 
         var hasType = tokenIterator.nextHasType(TokenType.VALUE);
 
@@ -136,14 +136,14 @@ class TokenIteratorTest {
 
     @Test
     void expectNoMoreTokens_WhenInitiatedWithoutTokens_DoesNotThrow() {
-        var tokenIterator = new TokenIterator(List.of());
+        var tokenIterator = TokenIterator.fromTokens(List.of());
 
         assertDoesNotThrow(tokenIterator::expectNoMoreTokens);
     }
 
     @Test
     void expectNoMoreTokens_WithOneTokenAfterNextIsCalled_DoesNotThrow() {
-        var tokenIterator = new TokenIterator(List.of(new Token(TokenType.VALUE, "test")));
+        var tokenIterator = TokenIterator.fromTokens(List.of(new Token(TokenType.VALUE, "test")));
         tokenIterator.nextWithType(TokenType.VALUE);
 
         assertDoesNotThrow(tokenIterator::expectNoMoreTokens);
@@ -151,7 +151,7 @@ class TokenIteratorTest {
 
     @Test
     void expectNoMoreTokens_WithTwoTokenAfterNextIsCalledOnce_ThrowsException() {
-        var tokenIterator = new TokenIterator(List.of(
+        var tokenIterator = TokenIterator.fromTokens(List.of(
                 new Token(TokenType.VALUE, "test1"),
                 new Token(TokenType.VALUE, "test2")
         ));

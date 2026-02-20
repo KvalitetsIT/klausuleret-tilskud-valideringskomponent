@@ -55,18 +55,14 @@ public class Lexer {
             else if (matcher.group(4) != null)
                 tokens.add(new Token(TokenType.SYMBOL, matcher.group(4)));
             else
-                throw new RuntimeException("Unknown token: " + matcher.group(5));
+                throw new DslParserException("Unknown token: " + matcher.group(5));
         }
         return tokens;
     }
 
-    /**
-     * Returns the list of tokens generated from the input string.
-     *
-     * @return a list of {@code Token} objects
-     */
-    public List<Token> getTokens(String input) {
-        List<Token> tokens = tokenize(input);
-        return tokens.stream().map(x -> new Token(x.type(), x.text().toUpperCase())).toList();
+    public TokenIterator getTokens(String input) {
+        List<Token> tokens = tokenize(input).stream()
+                .map(x -> new Token(x.type(), x.text().toUpperCase())).toList();
+        return TokenIterator.fromTokens(tokens);
     }
 }

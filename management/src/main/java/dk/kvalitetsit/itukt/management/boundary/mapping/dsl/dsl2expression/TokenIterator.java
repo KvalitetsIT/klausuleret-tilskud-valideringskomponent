@@ -7,7 +7,11 @@ import java.util.List;
 public class TokenIterator {
     private final LinkedList<Token> tokens;
 
-    public TokenIterator(List<Token> tokens) {
+    public static TokenIterator fromTokens(List<Token> tokens) {
+        return new TokenIterator(tokens);
+    }
+
+    private TokenIterator(List<Token> tokens) {
         this.tokens = new LinkedList<>(tokens);
     }
 

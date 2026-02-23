@@ -1,0 +1,28 @@
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser;
+
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
+import org.openapitools.model.Expression;
+
+/**
+ * Token parser that handles expressions surrounded by parentheses
+ */
+public class ParenthesizedExpressionTokenParser implements TokenParser<Expression> {
+    private final ExpressionTokenParser expressionTokenParser;
+
+    public ParenthesizedExpressionTokenParser(ExpressionTokenParser expressionTokenParser) {
+        this.expressionTokenParser = expressionTokenParser;
+    }
+
+    @Override
+    public boolean canParse(TokenIterator tokens) {
+        return tokens.nextHasText("(");
+    }
+
+    @Override
+    public Expression parse(TokenIterator tokens) {
+        tokens.nextWithText("(");
+        var expression = expressionTokenParser.parse(tokens);
+        tokens.nextWithText(")");
+        return expression;
+    }
+}

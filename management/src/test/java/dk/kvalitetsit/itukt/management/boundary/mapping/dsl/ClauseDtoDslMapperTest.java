@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.management.MockFactory;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.clause.ClauseDtoDslMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

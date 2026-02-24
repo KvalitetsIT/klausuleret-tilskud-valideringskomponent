@@ -3,19 +3,23 @@ package dk.kvalitetsit.itukt.management.repository;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ClauseRepository {
-    ClauseEntity create(ClauseInput clause) throws ServiceException;
+    ClauseEntity create(ClauseEntityInput clauseInput) throws ServiceException;
     Optional<ClauseEntity> read(UUID uuid) throws ServiceException;
     /**
-     * Retrieves active clauses, including only the latest version of each clause.
+     * Retrieves the current version of a clause. Excluding drafts.
      */
-    List<ClauseEntity> readLatestActive() throws ServiceException;
+    Optional<ClauseEntity> readCurrentClause(String name) throws ServiceException;
+    /**
+     * Retrieves the current version of each clause. Excluding drafts.
+     */
+    List<ClauseEntity> readCurrentClauses() throws ServiceException;
     List<ClauseEntity> readAllDrafts() throws ServiceException;
 
     List<ClauseEntity> readHistory(String name);

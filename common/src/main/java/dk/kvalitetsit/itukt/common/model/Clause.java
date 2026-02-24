@@ -16,6 +16,7 @@ import java.util.UUID;
 public record Clause(
         Long id,
         String name,
+        Status status,
         UUID uuid,
         Error error,
         Expression expression,
@@ -28,7 +29,8 @@ public record Clause(
      */
     public enum Status {
         DRAFT,
-        ACTIVE
+        ACTIVE,
+        INACTIVE
     }
 
     /**

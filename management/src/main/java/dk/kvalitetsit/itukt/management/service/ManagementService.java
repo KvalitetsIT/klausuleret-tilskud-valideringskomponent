@@ -19,4 +19,6 @@ public interface ManagementService {
     List<Clause> readHistory(String name) throws ServiceException;
 
     void approve(UUID clauseUuid) throws ServiceException;
+
+    Clause inactivate(String name) throws ServiceException;
 }

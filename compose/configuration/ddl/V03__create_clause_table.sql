@@ -4,7 +4,7 @@ CREATE TABLE clause (
     name VARCHAR(255) NOT NULL,
     expression_id INT NOT NULL UNIQUE,
     error_message VARCHAR(255) NOT NULL,
-    status ENUM('DRAFT','ACTIVE') NOT NULL,
+    status ENUM('DRAFT','ACTIVE', 'INACTIVE') NOT NULL,
     valid_from DATETIME(3),
     UNIQUE INDEX unique_clause_version (name, valid_from),
     FOREIGN KEY (expression_id) REFERENCES expression(id) ON DELETE CASCADE

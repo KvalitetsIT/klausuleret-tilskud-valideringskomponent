@@ -126,12 +126,28 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void updateStatus_WithStatusActive_ApprovesClause() {
+    void updateStatus_WithUuidAndStatusActive_ApprovesClause() {
         var uuid = UUID.randomUUID();
 
-        adaptor.updateStatus(uuid, new ClauseStatusInput(ClauseStatusInput.StatusEnum.ACTIVE));
+        adaptor.updateStatus(uuid, new DraftClauseStatusInput(DraftClauseStatusInput.StatusEnum.ACTIVE));
 
         Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid);
+    }
+
+    @Test
+    void updateStatus_WithNameAndStatusInactive_InactivatesClause() {
+        String name = "test";
+        var inactiveClause = Mockito.mock(Clause.class);
+        var clauseOutput = Mockito.mock(ClauseOutput.class);
+        var dslOutput = Mockito.mock(DslOutput.class);
+        Mockito.when(managementServiceImpl.inactivate(name)).thenReturn(inactiveClause);
+        Mockito.when(clauseModelDtoMapper.map(inactiveClause)).thenReturn(clauseOutput);
+        Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
+
+
+        var response = adaptor.updateStatus(name, new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE));
+
+        assertEquals(dslOutput, response);
     }
 }
 

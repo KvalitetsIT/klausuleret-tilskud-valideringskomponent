@@ -3,8 +3,10 @@ package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
-import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseInputModelEntityMapper;
+import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,11 +33,15 @@ public class ClauseRepositoryAdaptorTest {
     @Mock
     private ClauseEntityModelMapper clauseEntityModelMapper;
 
+    @Mock
+    private ClauseInputModelEntityMapper clauseInputMapper;
+
     @BeforeEach
     void setUp() {
         adaptor = new ClauseRepositoryAdaptor(
                 concreteRepository,
-                clauseEntityModelMapper
+                clauseEntityModelMapper,
+                clauseInputMapper
         );
     }
 
@@ -43,15 +49,18 @@ public class ClauseRepositoryAdaptorTest {
     void testCreate() {
         var outputClause = Mockito.mock(Clause.class);
         var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clauseForCreation = Mockito.mock(ClauseInput.class);
-        Mockito.when(concreteRepository.create(clauseForCreation)).thenReturn(clauseEntity);
+        var clauseInput = Mockito.mock(ClauseFullInput.class);
+        var expectedClauseEntityInput = Mockito.mock(ClauseEntityInput.class);
+        Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(expectedClauseEntityInput);
+        Mockito.when(concreteRepository.create(expectedClauseEntityInput))
+                .thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(outputClause);
 
-        var result = adaptor.create(clauseForCreation);
+        var result = adaptor.create(clauseInput);
 
         assertEquals(outputClause, result);
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).create(clauseForCreation);
+        Mockito.verify(concreteRepository, Mockito.times(1)).create(expectedClauseEntityInput);
     }
 
     @Test
@@ -68,17 +77,30 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testReadLatestActive() {
+    void testReadCurrentClauses() {
 
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
 
-        Mockito.when(concreteRepository.readLatestActive()).thenReturn(List.of(clauseEntity));
+        Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(clauseEntity));
 
         Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
 
-        var result = adaptor.readLatestActive();
+        var result = adaptor.readCurrentClauses();
         assertEquals(List.of(clause), result);
+    }
+
+    @Test
+    void testReadCurrentClause() {
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        String name = "test";
+        Mockito.when(concreteRepository.readCurrentClause(name)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
+        var result = adaptor.readCurrentClause(name);
+
+        assertEquals(Optional.of(clause), result);
     }
 
     @Test

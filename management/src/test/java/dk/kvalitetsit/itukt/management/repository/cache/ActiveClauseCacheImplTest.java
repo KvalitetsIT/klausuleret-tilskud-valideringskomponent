@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -42,12 +43,12 @@ class ActiveClauseCacheImplTest {
     }
 
     @Test
-    void givenAClauseFromRepository_whenLoad_thenReturnReturnSameClause() {
-
-        var expected = new ClauseEntity(
+    void givenAnActiveAndInactiveClauseFromRepository_whenLoad_thenReturnActiveClause() {
+        var activeClause = new ClauseEntity(
                 1L,
                 UUID.randomUUID(),
-                "CLAUSE",
+                "CLAUSE1",
+                Clause.Status.ACTIVE,
                 1,
                 "Message",
                 new ExpressionEntity.StringConditionEntity(
@@ -56,12 +57,26 @@ class ActiveClauseCacheImplTest {
                 ),
                 Optional.empty()
         );
+        var inactiveClause = new ClauseEntity(
+                2L,
+                UUID.randomUUID(),
+                "CLAUSE2",
+                Clause.Status.INACTIVE,
+                2,
+                "Message",
+                new ExpressionEntity.StringConditionEntity(
+                        Field.AGE,
+                        "value"
+                ),
+                Optional.empty()
+        );
+        Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
-        Mockito.when(concreteRepository.readLatestActive()).thenReturn(List.of(expected));
         cache.load();
-        Mockito.verify(concreteRepository, Mockito.times(1)).readLatestActive();
 
-        assertEquals(Optional.of(expected), cache.get("CLAUSE"));
+        Mockito.verify(concreteRepository, Mockito.times(1)).readCurrentClauses();
+        assertEquals(Optional.of(activeClause), cache.get(activeClause.name()));
+        assertEquals(Optional.empty(), cache.get(inactiveClause.name()));
     }
 
     @Test
@@ -73,9 +88,9 @@ class ActiveClauseCacheImplTest {
 
     @Test
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
-        var existingClause1 = new ClauseEntity(null, null, "test1", 111, "message1", null, Optional.empty());
-        var existingClause2 = new ClauseEntity(null, null, "test2", 222, "message2", null, Optional.empty());
-        Mockito.when(concreteRepository.readLatestActive()).thenReturn(List.of(existingClause1, existingClause2));
+        var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, Optional.empty());
+        var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, Optional.empty());
+        Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(existingClause1, existingClause2));
         cache.load();
 
         var result = cache.getByErrorCode(existingClause2.errorCode());

@@ -5,8 +5,8 @@ import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,36 +31,38 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity create(ClauseInput clause) throws ServiceException {
+    public ClauseEntity create(ClauseEntityInput clauseInput) throws ServiceException {
         try {
             UUID uuid = UUID.randomUUID();
 
-            ExpressionEntity createdExpression = expressionRepository.create(clause.expression());
+            ExpressionEntity createdExpression = expressionRepository.create(clauseInput.expression());
 
-            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status) " +
-                    "VALUES (:uuid, :name, :expression_id, :error_message, :status) " +
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from) " +
                     "RETURNING id";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue("uuid", uuid.toString())
-                    .addValue("name", clause.name())
+                    .addValue("name", clauseInput.name())
                     .addValue("expression_id", createdExpression.id())
-                    .addValue("error_message", clause.errorMessage())
-                    .addValue("status", Clause.Status.DRAFT.name());
+                    .addValue("error_message", clauseInput.errorMessage())
+                    .addValue("status", clauseInput.status().name())
+                    .addValue("valid_from", clauseInput.validFrom());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
 
-                int errorCode = createOrGetErrorCode(clause.name());
+                int errorCode = createOrGetErrorCode(clauseInput.name());
 
                 return new ClauseEntity(
                         rs.getLong("id"),
                         uuid,
-                        clause.name(),
+                        clauseInput.name(),
+                        clauseInput.status(),
                         errorCode,
-                        clause.errorMessage(),
+                        clauseInput.errorMessage(),
                         createdExpression,
-                        Optional.empty()
+                        Optional.ofNullable(clauseInput.validFrom())
                 );
             });
 
@@ -105,7 +107,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.expression_id, error_code.error_code, c.error_message, c.valid_from
+                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.valid_from
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -122,6 +124,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getLong("id"),
                                 uuid,
                                 rs.getString("name"),
+                                Clause.Status.valueOf(rs.getString("status")),
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
@@ -140,7 +143,33 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<ClauseEntity> readLatestActive() throws ServiceException {
+    public Optional<ClauseEntity> readCurrentClause(String name) throws ServiceException {
+        try {
+            String sql = """
+                        SELECT c.uuid
+                        FROM clause c
+                        WHERE valid_from IS NOT NULL AND name = :name
+                        ORDER BY c.valid_from DESC
+                        LIMIT 1
+                    """;
+
+            UUID latestClauseUuid = template.queryForObject(
+                    sql,
+                    Map.of("name", name),
+                    UUID.class);
+
+            return read(latestClauseUuid);
+
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (Exception e) {
+            logger.error("Failed to read latest clause", e);
+            throw new ServiceException("Failed to read latest clause", e);
+        }
+    }
+
+    @Override
+    public List<ClauseEntity> readCurrentClauses() throws ServiceException {
         try {
             String sql = """
                         SELECT c.uuid
@@ -148,7 +177,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         JOIN (
                             SELECT name, MAX(valid_from) AS max_valid_from
                             FROM clause
-                            WHERE status = :status AND valid_from IS NOT NULL
+                            WHERE valid_from IS NOT NULL
                             GROUP BY name
                         ) latest
                           ON c.name = latest.name
@@ -157,7 +186,6 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     """;
 
             List<UUID> uuids = template.query(sql,
-                    Map.of("status", Clause.Status.ACTIVE.name()),
                     (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
             );
 
@@ -167,8 +195,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            logger.error("Failed to read all clauses", e);
-            throw new ServiceException("Failed to read active clauses", e);
+            logger.error("Failed to read latest clauses", e);
+            throw new ServiceException("Failed to read latest clauses", e);
         }
     }
 
@@ -193,7 +221,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            logger.error("Failed to read all clauses", e);
+            logger.error("Failed to read draft clauses", e);
             throw new ServiceException("Failed to read draft clauses", e);
         }
     }

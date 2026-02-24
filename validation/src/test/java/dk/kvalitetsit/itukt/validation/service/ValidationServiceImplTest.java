@@ -61,7 +61,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", new ValidationInput.Actor("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty(), "");
         var drugClause = new DrugClause(new DrugClause.Drug(1234L), Set.of(new DrugClause.Clause("0000", null)));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, null, expression, Optional.empty());
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), Clause.Status.ACTIVE, null, null, expression, Optional.empty());
 
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
@@ -78,7 +78,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", new ValidationInput.Actor("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty(), "");
         var drugClause = new DrugClause(new DrugClause.Drug(null), Set.of(new DrugClause.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, new Clause.Error("message", 10800), expression, Optional.empty());
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), Clause.Status.ACTIVE, null, new Clause.Error("message", 10800), expression, Optional.empty());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(someError);
@@ -118,9 +118,9 @@ class ValidationServiceImplTest {
         Mockito.when(failingExpression.validates(validationInput)).thenReturn(someError);
 
 
-        var clause_1 = new Clause(1L, clauses.get(0).code(), null, new Clause.Error(null, 10800), failingExpression, Optional.empty());
-        var clause_2 = new Clause(2L, clauses.get(1).code(), null, new Clause.Error(null, 10800), succeedingExpression, Optional.empty());
-        var clause_3 = new Clause(2L, clauses.get(2).code(), null, new Clause.Error(null, 10800), failingExpression, Optional.empty());
+        var clause_1 = new Clause(1L, clauses.get(0).code(), Clause.Status.ACTIVE, null, new Clause.Error(null, 10800), failingExpression, Optional.empty());
+        var clause_2 = new Clause(2L, clauses.get(1).code(), Clause.Status.ACTIVE, null, new Clause.Error(null, 10800), succeedingExpression, Optional.empty());
+        var clause_3 = new Clause(2L, clauses.get(2).code(), Clause.Status.ACTIVE, null, new Clause.Error(null, 10800), failingExpression, Optional.empty());
 
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
 
@@ -171,7 +171,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty(), "");
         var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression, Optional.empty());
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), Clause.Status.ACTIVE, null, new Clause.Error("", 10800), expression, Optional.empty());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator.id(), validationInput.personId(), clause.id())).thenReturn(true);
@@ -188,7 +188,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty(), "");
         var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression, Optional.empty());
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), Clause.Status.ACTIVE, null, new Clause.Error("", 10800), expression, Optional.empty());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator.id(), validationInput.personId(), clause.id())).thenReturn(false);
@@ -206,7 +206,7 @@ class ValidationServiceImplTest {
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty(), "");
         var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("0000", "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
-        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), null, new Clause.Error("", 10800), expression, Optional.empty());
+        var clause = new Clause(1L, drugClause.clauses().iterator().next().code(), Clause.Status.ACTIVE, null, new Clause.Error("", 10800), expression, Optional.empty());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(skippedValidationService.shouldSkipValidation(creator.id(), validationInput.personId(), clause.id())).thenReturn(false);

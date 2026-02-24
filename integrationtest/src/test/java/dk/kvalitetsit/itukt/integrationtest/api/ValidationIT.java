@@ -5,8 +5,8 @@ import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
@@ -57,9 +57,9 @@ public class ValidationIT extends BaseTest {
         var createdByExpression = new ExpressionEntity.StringConditionEntity(Field.DOCTOR_SPECIALITY, VALID_DOCTOR_SPECIALITY);
         ExpressionEntity.BinaryExpressionEntity specialityConditions = new ExpressionEntity.BinaryExpressionEntity(2L, createdByExpression, AND, departmentSpecialityRequirement);
         var expression = new ExpressionEntity.BinaryExpressionEntity(orExpression, AND, specialityConditions);
-        var clause = new ClauseInput(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE);
+        var clauseInput = new ClauseEntityInput(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE, dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, null);
 
-        UUID uuid = repository.create(clause).uuid();
+        UUID uuid = repository.create(clauseInput).uuid();
         repository.updateDraftToActive(uuid);
     }
 

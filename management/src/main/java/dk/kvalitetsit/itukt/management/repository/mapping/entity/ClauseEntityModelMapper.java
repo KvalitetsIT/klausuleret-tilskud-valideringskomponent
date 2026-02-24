@@ -13,6 +13,14 @@ public class ClauseEntityModelMapper implements Mapper<ClauseEntity, Clause> {
 
     @Override
     public Clause map(ClauseEntity entry) {
-        return new Clause(entry.id(), entry.name(), entry.uuid(), new Clause.Error(entry.errorMessage(), entry.errorCode()), expressionEntityModelMapper.map(entry.expression()), entry.validFrom());
+        return new Clause(
+                entry.id(),
+                entry.name(),
+                entry.status(),
+                entry.uuid(),
+                new Clause.Error(entry.errorMessage(), entry.errorCode()),
+                expressionEntityModelMapper.map(entry.expression()),
+                entry.validFrom()
+        );
     }
 }

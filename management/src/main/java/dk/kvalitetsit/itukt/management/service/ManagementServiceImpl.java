@@ -1,12 +1,15 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +24,8 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause create(ClauseInput clause) throws ServiceException {
-        return repository.create(clause);
+        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null);
+        return repository.create(clauseFullInput);
     }
 
     @Override
@@ -32,9 +36,14 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public List<Clause> readByStatus(Clause.Status status) throws ServiceException {
         return switch (status) {
-            case ACTIVE -> repository.readLatestActive();
+            case ACTIVE, INACTIVE -> getLatestClauseVersions(status);
             case DRAFT -> repository.readAllDrafts();
         };
+    }
+
+    private List<Clause> getLatestClauseVersions(Clause.Status status) {
+        return repository.readCurrentClauses().stream()
+                .filter(clause -> clause.status() == status).toList();
     }
 
     @Override
@@ -48,5 +57,13 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public void approve(UUID clauseUuid) throws ServiceException {
         repository.updateDraftToActive(clauseUuid);
+    }
+
+    @Override
+    public Clause inactivate(String name) throws ServiceException {
+        var clause = repository.readCurrentClause(name).filter(c -> c.status() == Clause.Status.ACTIVE)
+                .orElseThrow(() -> new BadRequestException("Only ACTIVE clauses can be inactivated"));
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
+        return repository.create(clauseInput);
     }
 }

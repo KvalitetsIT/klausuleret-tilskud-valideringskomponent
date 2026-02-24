@@ -14,14 +14,14 @@ import java.util.UUID;
 public class ManagementServiceAdaptor {
 
     private final ManagementService clauseService;
-    private final Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> clauseDtoMapper;
+    private final Mapper<Clause, ClauseOutput> clauseDtoMapper;
     private final Mapper<DslInput, org.openapitools.model.ClauseInput> dslClauseMapper;
     private final Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
     private final Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
-            Mapper<dk.kvalitetsit.itukt.common.model.Clause, ClauseOutput> modelDtoMapper,
+            Mapper<Clause, ClauseOutput> modelDtoMapper,
             Mapper<DslInput, org.openapitools.model.ClauseInput> dslClauseMapper,
             Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper,
             Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper
@@ -69,16 +69,24 @@ public class ManagementServiceAdaptor {
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
     }
 
-    public void updateStatus(UUID clauseUuid, ClauseStatusInput status) throws ServiceException {
+    public void updateStatus(UUID clauseUuid, DraftClauseStatusInput status) throws ServiceException {
         switch (status.getStatus()) {
-            case ClauseStatusInput.StatusEnum.ACTIVE -> clauseService.approve(clauseUuid);
+            case ACTIVE -> clauseService.approve(clauseUuid);
         }
+    }
+
+    public DslOutput updateStatus(String clauseName, ClauseStatusInput status) throws ServiceException {
+        var clause = switch (status.getStatus()) {
+            case INACTIVE -> clauseService.inactivate(clauseName);
+        };
+        return clauseDtoDslMapper.map(clauseDtoMapper.map(clause));
     }
 
     private Clause.Status mapStatus(ClauseStatus status) {
         return switch (status) {
             case DRAFT -> Clause.Status.DRAFT;
             case ACTIVE -> Clause.Status.ACTIVE;
+            case INACTIVE -> Clause.Status.INACTIVE;
         };
     }
 }

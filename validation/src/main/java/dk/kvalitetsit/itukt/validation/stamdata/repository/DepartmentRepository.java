@@ -41,7 +41,7 @@ public class DepartmentRepository implements Repository<DepartmentEntity> {
                                ORDER BY t.FromDate DESC, t.ValidFrom DESC
                              ) AS rn
                       FROM SorEntity t
-                      WHERE t.ToDate IS NULL OR t.ToDate > NOW() AND t.ValidTo > NOW()
+                      WHERE (t.ToDate IS NULL OR t.ToDate > NOW()) AND t.ValidTo > NOW()
                     ) se
                     WHERE se.rn = 1 AND (
                             se.PrioritizedEntitySpeciality1Name IS NOT NULL OR

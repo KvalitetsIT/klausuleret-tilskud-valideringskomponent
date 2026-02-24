@@ -78,6 +78,7 @@ public class ManagementServiceAdaptor {
     public DslOutput updateStatus(String clauseName, ClauseStatusInput status) throws ServiceException {
         var clause = switch (status.getStatus()) {
             case INACTIVE -> clauseService.inactivate(clauseName);
+            case ACTIVE -> clauseService.activate(clauseName);
         };
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clause));
     }

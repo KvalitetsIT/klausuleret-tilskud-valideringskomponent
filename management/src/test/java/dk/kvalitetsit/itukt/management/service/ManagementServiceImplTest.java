@@ -155,4 +155,39 @@ class ManagementServiceImplTest {
             return true;
         }));
     }
+
+    @Test
+    void activate_WhenClauseDoesNotExist_ThrowsException() {
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.empty());
+
+        assertThrows(BadRequestException.class, () -> service.activate("test"));
+    }
+
+    @Test
+    void activate_WhenClauseIsAlreadyActive_ThrowsException() {
+        var clause = mock(Clause.class);
+        Mockito.when(clause.status()).thenReturn(Clause.Status.ACTIVE);
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+
+        assertThrows(BadRequestException.class, () -> service.activate("test"));
+    }
+
+    @Test
+    void activate_WhenClauseIsInactive_CreatesNewClauseAndSetsActive() {
+        var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        var activeClause = Mockito.mock(Clause.class);
+        Mockito.when(dao.create(Mockito.any())).thenReturn(activeClause);
+
+        var clauseResponse = service.activate(clause.name());
+
+        assertEquals(activeClause, clauseResponse);
+        Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
+            assertEquals(clause.name(), input.name());
+            assertEquals(clause.expression(), input.expression());
+            assertEquals(clause.error().message(), input.errorMessage());
+            assertEquals(Clause.Status.ACTIVE, input.status());
+            return true;
+        }));
+    }
 }

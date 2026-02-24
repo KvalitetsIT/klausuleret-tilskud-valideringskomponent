@@ -149,6 +149,22 @@ public class ManagementServiceAdaptorTest {
 
         assertEquals(dslOutput, response);
     }
+
+    @Test
+    void updateStatus_WithNameAndStatusActive_ActivatesClause() {
+        String name = "test";
+        var clause = Mockito.mock(Clause.class);
+        var clauseOutput = Mockito.mock(ClauseOutput.class);
+        var dslOutput = Mockito.mock(DslOutput.class);
+        Mockito.when(managementServiceImpl.activate(name)).thenReturn(clause);
+        Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
+        Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
+
+
+        var response = adaptor.updateStatus(name, new ClauseStatusInput(ClauseStatusInput.StatusEnum.ACTIVE));
+
+        assertEquals(dslOutput, response);
+    }
 }
 
 

@@ -253,6 +253,17 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
+    void readHistory_WhenOnlyDraftClauseExists_ReturnsEmptyList() {
+        var ageCondition = new ExpressionEntity.NumberConditionEntity(null, Field.AGE, Operator.EQUAL, 10);
+        var clauseInput = new ClauseEntityInput("test", ageCondition, "test", Clause.Status.DRAFT, null);
+        repository.create(clauseInput);
+
+        var history = repository.readHistory(clauseInput.name());
+
+        assertTrue(history.isEmpty(), "Expected no clauses to be returned since only a draft version of the clause exists");
+    }
+
+    @Test
     void updateDraftToActive_WhenNoClauseWithUuidExist_ThrowsException() {
         UUID nonExistingUuid = UUID.randomUUID();
 

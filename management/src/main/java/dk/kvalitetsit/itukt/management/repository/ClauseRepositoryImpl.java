@@ -232,7 +232,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             String sql = """
                         SELECT uuid
                         FROM clause
-                        WHERE name = :name
+                        WHERE name = :name AND valid_from IS NOT NULL
                         ORDER BY valid_from
                     """;
 

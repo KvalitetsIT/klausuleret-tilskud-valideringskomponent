@@ -237,19 +237,22 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void readHistory_assertVersionAreReturnedAfterUpdates() {
+    void readHistory_WithBothActiveInactiveAndDrafts_ReturnsOnlyActiveAndInactive() {
         var ageCondition = new ExpressionEntity.NumberConditionEntity(null, Field.AGE, Operator.EQUAL, 10);
+        String clauseName = "test";
 
-        int numberOfCreates = 10;
+        var activeClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.ACTIVE, Date.from(Instant.now()));
+        var inactiveClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.INACTIVE, Date.from(Instant.now().plusSeconds(1)));
+        var draftClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.DRAFT, null);
+        var activeClause = repository.create(activeClauseInput);
+        var inactiveClause = repository.create(inactiveClauseInput);
+        var draftClause = repository.create(draftClauseInput);
 
-        for (int i = 0; i < numberOfCreates; i++) {
-            var clauseInput = new ClauseEntityInput("UPDATED_CLAUSE", ageCondition, "message-" + 1, Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(i)));
-            repository.create(clauseInput);
-        }
+        var history = repository.readHistory(clauseName);
 
-        var versions = repository.readHistory("UPDATED_CLAUSE");
-
-        assertEquals(numberOfCreates, versions.size(), "Expected the same number of versions of the clause as it was updated");
+        assertEquals(2, history.size(), "Expected only the active and inactive versions of the clause to be returned");
+        assertTrue(history.contains(activeClause));
+        assertTrue(history.contains(inactiveClause));
     }
 
     @Test

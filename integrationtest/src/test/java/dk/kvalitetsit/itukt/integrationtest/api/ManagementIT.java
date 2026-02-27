@@ -126,11 +126,13 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void testPutInactiveStatus() {
+    void testInactivateAndActivate() {
         var clause = api.call20250801clausesDslPost(CLAUSE_1_DSL_INPUT);
         api.call20250801clausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
         var inactiveClause = api.call20250801clausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
         var inactiveClauses = api.call20250801clausesDslGet(ClauseStatus.INACTIVE);
+        var activeClause = api.call20250801clausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
+        var activeClauses = api.call20250801clausesDslGet(ClauseStatus.ACTIVE);
 
         assertThat(inactiveClause)
                 .usingRecursiveComparison()
@@ -138,6 +140,13 @@ class ManagementIT extends BaseTest {
                 .isEqualTo(clause);
         assertEquals(1, inactiveClauses.size());
         assertEquals(inactiveClause, inactiveClauses.getFirst());
+
+        assertThat(activeClause)
+                .usingRecursiveComparison()
+                .ignoringFields("uuid", "validFrom")
+                .isEqualTo(clause);
+        assertEquals(1, activeClauses.size());
+        assertEquals(activeClause, activeClauses.getFirst());
     }
 
     @Test

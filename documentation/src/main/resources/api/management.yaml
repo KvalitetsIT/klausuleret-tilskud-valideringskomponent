@@ -200,6 +200,7 @@ paths:
         Update status of clause. Allowed transitions are:
         <ul>
           <li>ACTIVE -> INACTIVE</li>
+          <li>INACTIVE -> ACTIVE</li>
         </ul>
       parameters:
         - $ref: '#/components/parameters/name'
@@ -397,6 +398,7 @@ components:
           type: string
           enum:
             - "INACTIVE"
+            - "ACTIVE"
 
     IndicationCondition:
       description: "A basic condition consisting of a field and a string value. This represents the most atomic form of an expression"

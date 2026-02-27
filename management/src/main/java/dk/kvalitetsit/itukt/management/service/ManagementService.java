@@ -21,4 +21,6 @@ public interface ManagementService {
     void approve(UUID clauseUuid) throws ServiceException;
 
     Clause inactivate(String name) throws ServiceException;
+
+    Clause activate(String name) throws ServiceException;
 }

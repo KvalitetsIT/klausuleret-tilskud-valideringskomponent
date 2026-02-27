@@ -66,4 +66,12 @@ public class ManagementServiceImpl implements ManagementService {
         var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
         return repository.create(clauseInput);
     }
+
+    @Override
+    public Clause activate(String name) throws ServiceException {
+        var clause = repository.readCurrentClause(name).filter(c -> c.status() == Clause.Status.INACTIVE)
+                .orElseThrow(() -> new BadRequestException("Only INACTIVE clauses can be activated"));
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, new Date());
+        return repository.create(clauseInput);
+    }
 }

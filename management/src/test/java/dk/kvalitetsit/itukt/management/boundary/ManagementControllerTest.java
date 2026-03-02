@@ -126,11 +126,11 @@ class ManagementControllerTest {
     @Test
     void call20250801clausesDraftsIdStatusPut_UpdatesClauseStatus() {
         UUID uuid = UUID.randomUUID();
-        var status = new DraftClauseStatusInput(DraftClauseStatusInput.StatusEnum.ACTIVE);
+        var status = new DraftClauseStatusInput(false, DraftClauseStatusInput.StatusEnum.ACTIVE);
 
         managementController.call20250801clausesDraftsIdStatusPut(uuid, status);
 
-        Mockito.verify(clauseService, times(1)).updateStatus(uuid, status);
+        Mockito.verify(clauseService, times(1)).approveClause(uuid, false);
     }
 
     @Test
@@ -138,7 +138,7 @@ class ManagementControllerTest {
         String name = "test";
         var status = new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE);
         var dslOutput = Mockito.mock(DslOutput.class);
-        Mockito.when(clauseService.updateStatus(name, status)).thenReturn(dslOutput);
+        Mockito.when(clauseService.inactivateClause(name)).thenReturn(dslOutput);
 
         var response = managementController.call20250801clausesNameStatusPut(name, status);
 

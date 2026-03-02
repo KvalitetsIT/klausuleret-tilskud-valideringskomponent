@@ -260,22 +260,52 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public void updateDraftToActive(UUID uuid) throws NotFoundException {
-        String sql = """
-                UPDATE clause
-                SET status = :new_status, valid_from = NOW(3)
-                WHERE uuid = :uuid AND status = :current_status
-                """;
+    public ClauseEntity updateDraftToActive(UUID uuid) throws NotFoundException {
+
+        String updateSql = """
+        UPDATE clause
+        SET status = :new_status, valid_from = NOW(3)
+        WHERE uuid = :uuid AND status = :current_status
+        """;
 
         int rowsAffected = template.update(
-                sql,
-                Map.of("uuid", uuid.toString(),
+                updateSql,
+                Map.of(
+                        "uuid", uuid.toString(),
                         "current_status", Clause.Status.DRAFT.name(),
-                        "new_status", Clause.Status.ACTIVE.name()));
+                        "new_status", Clause.Status.ACTIVE.name()
+                )
+        );
 
         if (rowsAffected == 0) {
             throw new NotFoundException("No clause found with uuid %s in DRAFT status".formatted(uuid));
         }
+
+        // Fetch the updated row
+        String selectSql = "SELECT * FROM clause WHERE uuid = :uuid";
+
+        return template.queryForObject(
+                selectSql,
+                Map.of("uuid", uuid.toString()),
+                (rs, rowNum) -> {
+                    long expressionId = rs.getLong("expression_id");
+                    var expression = expressionRepository.read(expressionId).orElseThrow();
+
+                    String clauseName = rs.getString("name");
+                    int errorCode = createOrGetErrorCode(clauseName);
+
+                    return new ClauseEntity(
+                            rs.getLong("id"),
+                            uuid,
+                            clauseName,
+                            Clause.Status.valueOf(rs.getString("status")),
+                            errorCode,
+                            rs.getString("error_message"),
+                            expression,
+                            Optional.ofNullable(rs.getTimestamp("valid_from"))
+                    );
+                }
+        );
     }
 
 

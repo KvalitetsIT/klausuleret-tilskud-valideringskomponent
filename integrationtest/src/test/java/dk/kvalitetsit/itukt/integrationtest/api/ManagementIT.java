@@ -1,9 +1,15 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
+import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
@@ -20,8 +26,15 @@ class ManagementIT extends BaseTest {
 
     private static ManagementApi api;
 
+    private static ClauseRepository clauseRepository;
+    private static SkippedValidationRepository skippedValidationRepository;
+
+
     @BeforeEach
     void setup() {
+        clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
+        skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
+
         api = new ManagementApi(client);
     }
 
@@ -42,7 +55,7 @@ class ManagementIT extends BaseTest {
         created.forEach(clause ->
                 api.call20250801clausesDraftsIdStatusPut(
                         clause.getUuid(),
-                        new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE)));
+                        new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidation(false)));
 
         List<DslOutput> clauses = api.call20250801clausesDslNameHistoryGet("blaaaaah");
 
@@ -79,9 +92,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testPostAndGetClauseDsl() {
-        var dsl = CLAUSE_1_DSL_INPUT;
-
-        api.call20250801clausesDslPost(dsl);
+        api.call20250801clausesDslPost(CLAUSE_1_DSL_INPUT);
         var clauses = api.call20250801clausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
@@ -111,9 +122,9 @@ class ManagementIT extends BaseTest {
         var postInput2 = postInput1.error("updated error");
 
         var clause = api.call20250801clausesPost(postInput1);
-        api.call20250801clausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidation(false));
         var updatedClause = api.call20250801clausesPost(postInput2);
-        api.call20250801clausesDraftsIdStatusPut(updatedClause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesDraftsIdStatusPut(updatedClause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidation(false));
         var drafts = api.call20250801clausesGet(ClauseStatus.DRAFT);
         var activeClauses = api.call20250801clausesGet(ClauseStatus.ACTIVE);
 
@@ -128,7 +139,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testInactivateAndActivate() {
         var clause = api.call20250801clausesDslPost(CLAUSE_1_DSL_INPUT);
-        api.call20250801clausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE));
+        api.call20250801clausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidation(false));
         var inactiveClause = api.call20250801clausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
         var inactiveClauses = api.call20250801clausesDslGet(ClauseStatus.INACTIVE);
         var activeClause = api.call20250801clausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
@@ -334,6 +345,39 @@ class ManagementIT extends BaseTest {
                 .validFrom(getClauseResponse.getValidFrom());
 
         assertEquals(clauseOutput, getClauseResponse, "Expected the clause to match the dsl initially created");
+
+    }
+
+    @Test
+    void testApproveAndResetSkippedValidationOfExistingClause() {
+
+        var clauseCreated1 = api.call20250801clausesPost(CLAUSE_1_INPUT);
+        var draftRead1 = clauseRepository.read(clauseCreated1.getUuid()).orElseThrow();
+        Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead1.status());
+        api.call20250801clausesDraftsIdStatusPut(clauseCreated1.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidation(false));
+        var activeClause1 = clauseRepository.read(draftRead1.uuid()).orElseThrow();
+        Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, activeClause1.status());
+        SkippedValidationEntity skippedValidation1 = new SkippedValidationEntity(activeClause1.id(), "blaah", "blaaaaah");
+        skippedValidationRepository.create(List.of(skippedValidation1));
+        Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation1));
+
+        var clauseCreated2 = api.call20250801clausesPost(CLAUSE_1_INPUT);
+        var draftRead2 = clauseRepository.read(clauseCreated2.getUuid()).orElseThrow();
+        Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead2.status());
+        api.call20250801clausesDraftsIdStatusPut(clauseCreated2.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidation(false));
+        var activeClause2 = clauseRepository.read(draftRead2.uuid()).orElseThrow();
+        Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, activeClause2.status());
+        SkippedValidationEntity skippedValidation2 = new SkippedValidationEntity(activeClause2.id(), skippedValidation1.actorId(), skippedValidation1.personId());
+        Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation2));
+
+        var clauseCreated3 = api.call20250801clausesPost(CLAUSE_1_INPUT);
+        var draftRead3 = clauseRepository.read(clauseCreated3.getUuid()).orElseThrow();
+        Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead3.status());
+        api.call20250801clausesDraftsIdStatusPut(clauseCreated3.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidation(true));
+        var activeClause3 = clauseRepository.read(draftRead3.uuid()).orElseThrow();
+        Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, activeClause3.status());
+        SkippedValidationEntity skippedValidation3 = new SkippedValidationEntity(activeClause3.id(), skippedValidation1.actorId(), skippedValidation1.personId());
+        Assertions.assertFalse(skippedValidationRepository.exists(skippedValidation3));
 
     }
 

@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.validation.repository.entity;
+package dk.kvalitetsit.itukt.common.repository.entity;
 
 /**
  * @param clauseId the primary key associated with the clause
@@ -8,5 +8,6 @@ package dk.kvalitetsit.itukt.validation.repository.entity;
 public record SkippedValidationEntity(
         Long clauseId,
         String actorId,
-        String personId) {
+        String personId
+) {
 }

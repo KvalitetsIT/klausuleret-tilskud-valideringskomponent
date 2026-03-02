@@ -28,5 +28,5 @@ public interface ClauseRepository {
      * Updates the clause with the given ID from DRAFT status to ACTIVE status.
      * @throws NotFoundException if the clause cannot be found or if it is not in DRAFT status.
      */
-    void updateDraftToActive(UUID uuid) throws NotFoundException;
+    ClauseEntity updateDraftToActive(UUID uuid) throws NotFoundException;
 }

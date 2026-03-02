@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_MODEL;
 import static dk.kvalitetsit.itukt.management.MockFactory.EXPRESSION_1_MODEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,6 +34,8 @@ class ManagementServiceImplTest {
     private ManagementServiceImpl service;
     @Mock
     private ClauseRepositoryAdaptor dao;
+    @Mock
+    private SkippedValidationRepository skippedValidationRepository;
 
     @Test
     void create_CreatesDraftClause() {
@@ -105,11 +109,25 @@ class ManagementServiceImplTest {
 
     @Test
     void approve_UpdatesClauseStatusFromDraftToActive() {
-        var uuid = UUID.randomUUID();
+        var active = Mockito.mock(Clause.class);
+        var draft = Mockito.mock(Clause.class);
 
-        service.approve(uuid);
+        Mockito.when(active.id()).thenReturn(1L);
+        Mockito.when(draft.name()).thenReturn("blaaah");
+        Mockito.when(draft.status()).thenReturn(Clause.Status.DRAFT);
 
-        Mockito.verify(dao, Mockito.times(1)).updateDraftToActive(uuid);
+        Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(draft.id()).thenReturn(2L);
+
+        Mockito.when(active.status()).thenReturn(Clause.Status.ACTIVE);
+
+        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
+        Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.of(active));
+
+        service.approve(draft.uuid(), false);
+
+        Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(active.id(), draft.id());
+        Mockito.verify(dao, Mockito.times(1)).updateDraftToActive(draft.uuid());
     }
 
     @Test

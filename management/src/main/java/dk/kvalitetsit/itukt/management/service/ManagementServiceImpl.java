@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -17,9 +18,11 @@ import java.util.UUID;
 public class ManagementServiceImpl implements ManagementService {
 
     private final ClauseRepositoryAdaptor repository;
+    private final SkippedValidationRepository skippedValidationRepository;
 
-    public ManagementServiceImpl(ClauseRepositoryAdaptor repository) {
+    public ManagementServiceImpl(ClauseRepositoryAdaptor repository, SkippedValidationRepository skippedValidationRepository) {
         this.repository = repository;
+        this.skippedValidationRepository = skippedValidationRepository;
     }
 
     @Override
@@ -55,8 +58,19 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public void approve(UUID clauseUuid) throws ServiceException {
-        repository.updateDraftToActive(clauseUuid);
+    public Clause approve(UUID clauseUuid, boolean resetSkipValidation) throws ServiceException {
+        Clause draft = repository.read(clauseUuid)
+                .filter(x -> x.status() == Clause.Status.DRAFT)
+                .orElseThrow(() -> new IllegalArgumentException("The clause associated with the given clause is not a draft"));
+
+        Optional<Clause> currentClause = repository
+                .readCurrentClause(draft.name())
+                .filter(x -> x.status() != Clause.Status.DRAFT);
+
+        if (!resetSkipValidation && currentClause.isPresent()) {
+            skippedValidationRepository.copySkippedValidation(currentClause.get().id(), draft.id());
+        }
+        return repository.updateDraftToActive(draft.uuid());
     }
 
     @Override

@@ -386,9 +386,9 @@ components:
       type: object
       required:
         - status
-        - reset-skipped-validation
+        - resetSkippedValidations
       properties:
-        reset-skipped-validation:
+        resetSkippedValidations:
           type: boolean
           description: determines if skipped validations should be reset or not. If true clinicians previous decisions are deprecated.
         status:

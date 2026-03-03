@@ -76,7 +76,7 @@ public class ManagementController implements ManagementApi {
     @Override
     public ResponseEntity<DslOutput> call20250801clausesDraftsIdStatusPut(UUID id, DraftClauseStatusInput clauseStatusInput) {
         var clause = switch (clauseStatusInput.getStatus()) {
-            case ACTIVE -> service.approveClause(id, clauseStatusInput.getResetSkippedValidation());
+            case ACTIVE -> service.approveClause(id, clauseStatusInput.getResetSkippedValidations());
         };
         return ResponseEntity.ok(clause);
     }

@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
@@ -9,6 +10,8 @@ import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import org.openapitools.model.DetailedError;
+import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -58,16 +61,13 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause approve(UUID clauseUuid, boolean resetSkipValidation) throws ServiceException {
+    public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ServiceException {
         Clause draft = repository.read(clauseUuid)
-                .filter(x -> x.status() == Clause.Status.DRAFT)
-                .orElseThrow(() -> new IllegalArgumentException("The clause associated with the given clause is not a draft"));
+                .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
 
-        Optional<Clause> currentClause = repository
-                .readCurrentClause(draft.name())
-                .filter(x -> x.status() != Clause.Status.DRAFT);
+        Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
 
-        if (!resetSkipValidation && currentClause.isPresent()) {
+        if (!resetSkippedValidations && currentClause.isPresent()) {
             skippedValidationRepository.copySkippedValidation(currentClause.get().id(), draft.id());
         }
         return repository.updateDraftToActive(draft.uuid());

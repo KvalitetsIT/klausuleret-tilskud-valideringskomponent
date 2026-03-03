@@ -126,7 +126,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void updateStatus_WithUuid_ApprovesClause() {
+    void approveClause_WithUuid_ApprovesClause() {
         var uuid = UUID.randomUUID();
         adaptor.approveClause(uuid, false);
         Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid, false);

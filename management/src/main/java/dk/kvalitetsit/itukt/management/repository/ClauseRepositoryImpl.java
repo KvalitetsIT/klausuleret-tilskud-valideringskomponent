@@ -22,6 +22,8 @@ import java.util.UUID;
 public class ClauseRepositoryImpl implements ClauseRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(ClauseRepositoryImpl.class);
+    private static final int MIN_ERROR_CODE = 10800;
+    private static final int MAX_ERROR_CODE = 10999;
     private final NamedParameterJdbcTemplate template;
     private final ExpressionRepository expressionRepository;
 
@@ -84,14 +86,20 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
     private synchronized int createErrorCode(String clauseName) {
         Integer max = template.getJdbcTemplate().queryForObject(
-                "SELECT COALESCE(MAX(error_code), 10799) FROM error_code",
+                "SELECT MAX(error_code) FROM error_code",
                 Integer.class
         );
 
-        int next = max + 1;
+        if (max != null && max < MIN_ERROR_CODE) {
+            throw new IllegalStateException("An error code was found in the database that is below the allowed range (%d-%d exhausted). Found: %d"
+                    .formatted(MIN_ERROR_CODE, MAX_ERROR_CODE, max));
+        }
 
-        if (next > 10999) {
-            throw new IllegalStateException("Exceeded the maximum number of allocated error codes (10800–10999 exhausted)");
+        int next = Optional.ofNullable(max).map(m -> m + 1).orElse(MIN_ERROR_CODE);
+
+        if (next > MAX_ERROR_CODE) {
+            throw new IllegalStateException("Exceeded the maximum number of allocated error codes (%d–%d exhausted)"
+                    .formatted(MIN_ERROR_CODE, MAX_ERROR_CODE));
         }
 
         template.update(

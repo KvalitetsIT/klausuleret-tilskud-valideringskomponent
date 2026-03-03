@@ -301,4 +301,15 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         Assertions.assertEquals("Failed to create clause", e.getMessage());
     }
+
+    @Test
+    void create_WhenDbContainsErrorCodeBelowAllowedRange_ThrowsException() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
+        jdbcTemplate.execute("INSERT INTO error_code (error_code, clause_name) VALUES (10799, 'clause_with_invalid_error_code')");
+        var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
+
+        var e = assertThrows(ServiceException.class, () -> repository.create(clause));
+
+        Assertions.assertEquals("Failed to create clause", e.getMessage());
+    }
 }

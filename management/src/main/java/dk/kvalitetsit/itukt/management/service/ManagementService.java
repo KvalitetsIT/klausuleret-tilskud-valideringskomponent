@@ -4,6 +4,7 @@ package dk.kvalitetsit.itukt.management.service;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import org.openapitools.model.DraftClauseStatusInput;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ public interface ManagementService {
 
     List<Clause> readHistory(String name) throws ServiceException;
 
-    void approve(UUID clauseUuid) throws ServiceException;
+    Clause approve(UUID clauseUuid, boolean skipValidation) throws ServiceException;
 
     Clause inactivate(String name) throws ServiceException;
 

@@ -41,7 +41,7 @@ public class ManagementServiceAdaptor {
 
     public DslOutput createDSL(DslInput dsl) throws ServiceException {
         var clauseInput = this.dslClauseMapper.map(dsl);
-        return clauseDtoDslMapper.map(this.create(clauseInput));
+        return  clauseDtoDslMapper.map(this.create(clauseInput));
     }
 
     public Optional<ClauseOutput> read(UUID id) throws ServiceException {
@@ -69,18 +69,19 @@ public class ManagementServiceAdaptor {
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
     }
 
-    public void updateStatus(UUID clauseUuid, DraftClauseStatusInput status) throws ServiceException {
-        switch (status.getStatus()) {
-            case ACTIVE -> clauseService.approve(clauseUuid);
-        }
+    public DslOutput approveClause(UUID clauseUuid, boolean resetSkippedValidation) throws ServiceException {
+        return mapResponse(clauseService.approve(clauseUuid, resetSkippedValidation));
     }
 
-    public DslOutput updateStatus(String clauseName, ClauseStatusInput status) throws ServiceException {
-        var clause = switch (status.getStatus()) {
-            case INACTIVE -> clauseService.inactivate(clauseName);
-            case ACTIVE -> clauseService.activate(clauseName);
-        };
-        return clauseDtoDslMapper.map(clauseDtoMapper.map(clause));
+
+    public DslOutput inactivateClause(String clauseName) throws ServiceException {
+        var clause = clauseService.inactivate(clauseName);
+        return mapResponse(clause);
+    }
+
+    public DslOutput activateClause(String clauseName) throws ServiceException {
+        var clause = clauseService.activate(clauseName);
+        return mapResponse(clause);
     }
 
     private Clause.Status mapStatus(ClauseStatus status) {
@@ -90,4 +91,9 @@ public class ManagementServiceAdaptor {
             case INACTIVE -> Clause.Status.INACTIVE;
         };
     }
+
+    private DslOutput mapResponse(Clause clause) {
+        return clauseDtoDslMapper.map(clauseDtoMapper.map(clause));
+    }
+
 }

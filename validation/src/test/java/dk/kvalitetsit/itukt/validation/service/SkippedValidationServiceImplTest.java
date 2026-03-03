@@ -2,8 +2,8 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
-import dk.kvalitetsit.itukt.validation.repository.entity.SkippedValidationEntity;
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
+import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

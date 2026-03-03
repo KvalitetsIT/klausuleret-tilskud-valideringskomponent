@@ -1,13 +1,17 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import org.openapitools.model.DetailedError;
+import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -17,9 +21,11 @@ import java.util.UUID;
 public class ManagementServiceImpl implements ManagementService {
 
     private final ClauseRepositoryAdaptor repository;
+    private final SkippedValidationRepository skippedValidationRepository;
 
-    public ManagementServiceImpl(ClauseRepositoryAdaptor repository) {
+    public ManagementServiceImpl(ClauseRepositoryAdaptor repository, SkippedValidationRepository skippedValidationRepository) {
         this.repository = repository;
+        this.skippedValidationRepository = skippedValidationRepository;
     }
 
     @Override
@@ -55,8 +61,16 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public void approve(UUID clauseUuid) throws ServiceException {
-        repository.updateDraftToActive(clauseUuid);
+    public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ServiceException {
+        Clause draft = repository.read(clauseUuid)
+                .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
+
+        Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
+
+        if (!resetSkippedValidations && currentClause.isPresent()) {
+            skippedValidationRepository.copySkippedValidation(currentClause.get().id(), draft.id());
+        }
+        return repository.updateDraftToActive(draft.uuid());
     }
 
     @Override

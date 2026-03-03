@@ -74,14 +74,19 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<Void> call20250801clausesDraftsIdStatusPut(UUID id, DraftClauseStatusInput clauseStatusInput) {
-        service.updateStatus(id, clauseStatusInput);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<DslOutput> call20250801clausesDraftsIdStatusPut(UUID id, DraftClauseStatusInput clauseStatusInput) {
+        var clause = switch (clauseStatusInput.getStatus()) {
+            case ACTIVE -> service.approveClause(id, clauseStatusInput.getResetSkippedValidations());
+        };
+        return ResponseEntity.ok(clause);
     }
 
     @Override
     public ResponseEntity<DslOutput> call20250801clausesNameStatusPut(String name, ClauseStatusInput clauseStatusInput) {
-        var clause = service.updateStatus(name, clauseStatusInput);
+        var clause = switch (clauseStatusInput.getStatus()) {
+            case INACTIVE -> service.inactivateClause(name);
+            case ACTIVE -> service.activateClause(name);
+        };
         return ResponseEntity.ok(clause);
     }
 

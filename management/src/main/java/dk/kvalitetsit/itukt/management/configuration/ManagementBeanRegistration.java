@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.configuration;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDtoDslMapper;
@@ -84,8 +85,8 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository) {
-        return new ManagementServiceImpl(clauseRepository);
+    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository, @Autowired SkippedValidationRepository skippedValidationRepository) {
+        return new ManagementServiceImpl(clauseRepository, skippedValidationRepository);
     }
 
     @Bean

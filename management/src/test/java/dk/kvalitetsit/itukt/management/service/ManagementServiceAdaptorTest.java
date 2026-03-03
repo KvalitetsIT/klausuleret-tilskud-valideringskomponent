@@ -96,7 +96,7 @@ public class ManagementServiceAdaptorTest {
 
         var result = adaptor.read(uuid);
 
-        assertEquals(clauseOutput, result.get());
+        assertEquals(clauseOutput, result.orElseThrow());
     }
 
     @Test
@@ -126,16 +126,14 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void updateStatus_WithUuidAndStatusActive_ApprovesClause() {
+    void approveClause_WithUuid_ApprovesClause() {
         var uuid = UUID.randomUUID();
-
-        adaptor.updateStatus(uuid, new DraftClauseStatusInput(DraftClauseStatusInput.StatusEnum.ACTIVE));
-
-        Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid);
+        adaptor.approveClause(uuid, false);
+        Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid, false);
     }
 
     @Test
-    void updateStatus_WithNameAndStatusInactive_InactivatesClause() {
+    void inactivateClause_WithName_InactivatesClause() {
         String name = "test";
         var inactiveClause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
@@ -144,14 +142,13 @@ public class ManagementServiceAdaptorTest {
         Mockito.when(clauseModelDtoMapper.map(inactiveClause)).thenReturn(clauseOutput);
         Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
 
-
-        var response = adaptor.updateStatus(name, new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE));
+        var response = adaptor.inactivateClause(name);
 
         assertEquals(dslOutput, response);
     }
 
     @Test
-    void updateStatus_WithNameAndStatusActive_ActivatesClause() {
+    void activateClause_WithName_ActivatesClause() {
         String name = "test";
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
@@ -160,8 +157,7 @@ public class ManagementServiceAdaptorTest {
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
         Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
 
-
-        var response = adaptor.updateStatus(name, new ClauseStatusInput(ClauseStatusInput.StatusEnum.ACTIVE));
+        var response = adaptor.activateClause(name);
 
         assertEquals(dslOutput, response);
     }

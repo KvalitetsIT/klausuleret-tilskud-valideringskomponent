@@ -8,9 +8,10 @@ import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
-import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepository;
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
-import dk.kvalitetsit.itukt.validation.repository.entity.SkippedValidationEntity;
+import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -64,4 +65,26 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
         skippedValidationRepository.create(List.of(skippedValidation));
         assertDoesNotThrow(() -> skippedValidationRepository.create(List.of(skippedValidation)), "Creating the same skipped validation twice should not fail");
     }
+
+    @Test
+    void copySkippedValidation_givenASkippedValidation_whenCopySkippedValidation_thenEnsureItExist() {
+        var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, null);
+
+        var clause1 = clauseRepository.create(clauseInput);
+        var clause2 = clauseRepository.create(clauseInput);
+
+        var skippedValidation = new SkippedValidationEntity(clause1.id(), "actor", "person");
+        skippedValidationRepository.create(List.of(skippedValidation));
+
+
+        assertDoesNotThrow(() -> skippedValidationRepository.copySkippedValidation(clause1.id(), clause2.id()));
+
+        var skippedValidation1 = new SkippedValidationEntity(clause1.id(), "actor", "person");
+        var skippedValidation2 = new SkippedValidationEntity(clause2.id(), "actor", "person");
+
+        Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation1));
+        Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation2));
+    }
+
 }

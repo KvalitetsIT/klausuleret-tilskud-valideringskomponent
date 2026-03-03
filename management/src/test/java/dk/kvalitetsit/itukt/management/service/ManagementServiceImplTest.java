@@ -10,6 +10,7 @@ import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_MODEL;
 import static dk.kvalitetsit.itukt.management.MockFactory.EXPRESSION_1_MODEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -184,6 +184,32 @@ class ManagementServiceImplTest {
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         assertThrows(BadRequestException.class, () -> service.inactivate("test"));
+    }
+
+    @Test
+    void inactivate_givenAnActiveClause_whenInactivate_thenEnsureResetSkippedValidationIsInvoked() {
+        var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+
+        Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), clause.validFrom());
+        Mockito.when(dao.create(any())).thenReturn(created);
+
+        service.inactivate("test");
+
+        Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(clause.id(), created.id());
+    }
+
+    @Test
+    void inactivate_givenAnInactiveClause_whenActivate_thenEnsureResetSkippedValidationIsInvoked() {
+        var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+
+        Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), clause.validFrom());
+        Mockito.when(dao.create(any())).thenReturn(created);
+
+        service.activate("test");
+
+        Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(clause.id(), created.id());
     }
 
     @Test

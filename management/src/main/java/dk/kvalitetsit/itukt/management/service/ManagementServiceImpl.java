@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
@@ -10,8 +9,6 @@ import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
-import org.openapitools.model.DetailedError;
-import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -75,17 +72,22 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause inactivate(String name) throws ServiceException {
-        var clause = repository.readCurrentClause(name).filter(c -> c.status() == Clause.Status.ACTIVE)
-                .orElseThrow(() -> new BadRequestException("Only ACTIVE clauses can be inactivated"));
-        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, new Date());
-        return repository.create(clauseInput);
+        return getClause(name, Clause.Status.ACTIVE, "Only ACTIVE clauses can be inactivated", Clause.Status.INACTIVE);
     }
 
     @Override
     public Clause activate(String name) throws ServiceException {
-        var clause = repository.readCurrentClause(name).filter(c -> c.status() == Clause.Status.INACTIVE)
-                .orElseThrow(() -> new BadRequestException("Only INACTIVE clauses can be activated"));
-        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, new Date());
-        return repository.create(clauseInput);
+        return getClause(name, Clause.Status.INACTIVE, "Only INACTIVE clauses can be activated", Clause.Status.ACTIVE);
+    }
+
+    private Clause getClause(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) {
+        var clause = repository.readCurrentClause(name)
+                .filter(c -> c.status() == currentStatus)
+                .orElseThrow(() -> new BadRequestException(errorMessage));
+
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, new Date());
+        Clause created = repository.create(clauseInput);
+        skippedValidationRepository.copySkippedValidation(clause.id(), created.id());
+        return created;
     }
 }

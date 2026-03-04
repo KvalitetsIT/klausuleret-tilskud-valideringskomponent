@@ -25,7 +25,7 @@ servers:
           - "8080"
         default: "8080"
 paths:
-  /2025/08/01/clauses/dsl:
+  /management/2025/08/01/clauses/dsl:
     post:
       tags:
         - management
@@ -63,7 +63,7 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /2025/08/01/clauses/dsl/{id}:
+  /management/2025/08/01/clauses/dsl/{id}:
     get:
       tags:
         - management
@@ -84,7 +84,7 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /2025/08/01/clauses/dsl/{name}/history:
+  /management/2025/08/01/clauses/dsl/{name}/history:
     get:
       tags:
         - management
@@ -103,7 +103,7 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /2025/08/01/clauses:
+  /management/2025/08/01/clauses:
     post:
       tags:
         - management
@@ -146,7 +146,7 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /2025/08/01/clauses/{id}:
+  /management/2025/08/01/clauses/{id}:
     get:
       tags:
         - management
@@ -167,7 +167,7 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /2025/08/01/clauses/drafts/{id}/status:
+  /management/2025/08/01/clauses/drafts/{id}/status:
     put:
       tags:
         - management
@@ -195,7 +195,7 @@ paths:
         '404':
           $ref: '#/components/responses/404'
 
-  /2025/08/01/clauses/{name}/status:
+  /management/2025/08/01/clauses/{name}/status:
     put:
       tags:
         - management

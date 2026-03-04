@@ -49,98 +49,98 @@ class ManagementControllerTest {
     }
 
     @Test
-    void call20250801clausesPost_CreatesClause() {
+    void management20250801ClausesPost_CreatesClause() {
         Mockito.when(clauseService.create(Mockito.any(ClauseInput.class))).thenReturn(CLAUSE_1_OUTPUT);
 
-        managementController.call20250801clausesPost(CLAUSE_1_INPUT);
+        managementController.management20250801ClausesPost(CLAUSE_1_INPUT);
 
         Mockito.verify(clauseService, times(1)).create(CLAUSE_1_INPUT);
     }
 
     @Test
-    void call20250801clausesDslPost_WhenDslParserExceptionIsThrown_ThrowsBadRequestException() {
+    void management20250801ClausesDslPost_WhenDslParserExceptionIsThrown_ThrowsBadRequestException() {
         Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenThrow(new DslParserException("test"));
 
-        var e = assertThrows(BadRequestException.class, () -> managementController.call20250801clausesDslPost(CLAUSE_1_DSL_INPUT));
+        var e = assertThrows(BadRequestException.class, () -> managementController.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT));
         assertEquals("test", e.getDetailedError());
     }
 
     @Test
-    void call20250801clausesDslPost_CreatesClause() {
+    void management20250801ClausesDslPost_CreatesClause() {
         Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(CLAUSE_1_DSL_OUTPUT);
 
         DslInput dslInput = CLAUSE_1_DSL_INPUT;
-        managementController.call20250801clausesDslPost(dslInput);
+        managementController.management20250801ClausesDslPost(dslInput);
 
         Mockito.verify(clauseService, times(1)).createDSL(dslInput);
     }
 
     @Test
-    void call20250801clausesIdGet_WhenClauseExists_ReturnsClause() {
+    void management20250801ClausesIdGet_WhenClauseExists_ReturnsClause() {
         UUID uuid = UUID.randomUUID();
         Mockito.when(clauseService.read(uuid)).thenReturn(Optional.of(CLAUSE_1_OUTPUT));
 
-        var clauseResponse = managementController.call20250801clausesIdGet(uuid);
+        var clauseResponse = managementController.management20250801ClausesIdGet(uuid);
 
         assertEquals(CLAUSE_1_OUTPUT, clauseResponse.getBody());
     }
 
     @Test
-    void call20250801clausesIdGet_WhenClauseDoesNotExist_ThrowsException() {
+    void management20250801ClausesIdGet_WhenClauseDoesNotExist_ThrowsException() {
         UUID uuid = UUID.randomUUID();
         Mockito.when(clauseService.read(uuid)).thenReturn(Optional.empty());
 
-        var e = assertThrows(NotFoundException.class, () -> managementController.call20250801clausesIdGet(uuid));
+        var e = assertThrows(NotFoundException.class, () -> managementController.management20250801ClausesIdGet(uuid));
         assertEquals("Clause was not found", e.getDetailedError());
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
     @Test
-    void call20250801clauseDslIdGet_WhenClauseDoesNotExist_ThrowsException() {
+    void management20250801ClauseDslIdGet_WhenClauseDoesNotExist_ThrowsException() {
         UUID uuid = UUID.randomUUID();
         Mockito.when(clauseService.readDsl(uuid)).thenReturn(Optional.empty());
 
-        var e = assertThrows(NotFoundException.class, () -> managementController.call20250801clausesDslIdGet(uuid));
+        var e = assertThrows(NotFoundException.class, () -> managementController.management20250801ClausesDslIdGet(uuid));
         assertEquals("Clause was not found", e.getDetailedError());
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
     @Test
-    void call20250801clausesGet_ReturnsClausesFromService() {
+    void management20250801ClausesGet_ReturnsClausesFromService() {
         Mockito.when(clauseService.readByStatus(ClauseStatus.DRAFT)).thenReturn(List.of(CLAUSE_1_OUTPUT));
 
-        var clausesResponse = managementController.call20250801clausesGet(ClauseStatus.DRAFT);
+        var clausesResponse = managementController.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(List.of(CLAUSE_1_OUTPUT), clausesResponse.getBody());
     }
 
     @Test
-    void call20250801clausesDslGet_ReturnsClausesFromService() {
+    void management20250801ClausesDslGet_ReturnsClausesFromService() {
         Mockito.when(clauseService.readDslByStatus(ClauseStatus.ACTIVE)).thenReturn(List.of(CLAUSE_1_DSL_OUTPUT));
 
-        var clausesResponse = managementController.call20250801clausesDslGet(ClauseStatus.ACTIVE);
+        var clausesResponse = managementController.management20250801ClausesDslGet(ClauseStatus.ACTIVE);
 
         assertEquals(List.of(CLAUSE_1_DSL_OUTPUT), clausesResponse.getBody());
     }
 
     @Test
-    void call20250801clausesDraftsIdStatusPut_UpdatesClauseStatus() {
+    void management20250801ClausesDraftsIdStatusPut_UpdatesClauseStatus() {
         UUID uuid = UUID.randomUUID();
         var status = new DraftClauseStatusInput(false, DraftClauseStatusInput.StatusEnum.ACTIVE);
 
-        managementController.call20250801clausesDraftsIdStatusPut(uuid, status);
+        managementController.management20250801ClausesDraftsIdStatusPut(uuid, status);
 
         Mockito.verify(clauseService, times(1)).approveClause(uuid, false);
     }
 
     @Test
-    void call20250801clausesNameStatusPut_GivenAnInactiveStatus_UpdatesClauseStatus() {
+    void management20250801ClausesNameStatusPut_GivenAnInactiveStatus_UpdatesClauseStatus() {
         String name = "test";
         var status = new ClauseStatusInput(ClauseStatusInput.StatusEnum.INACTIVE);
         var dslOutput = Mockito.mock(DslOutput.class);
         Mockito.when(clauseService.inactivateClause(name)).thenReturn(dslOutput);
 
-        var response = managementController.call20250801clausesNameStatusPut(name, status);
+        var response = managementController.management20250801ClausesNameStatusPut(name, status);
 
         assertEquals(dslOutput, response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -155,7 +155,7 @@ class ManagementControllerTest {
         var dslOutput = Mockito.mock(DslOutput.class);
         Mockito.when(clauseService.activateClause(name)).thenReturn(dslOutput);
 
-        var response = managementController.call20250801clausesNameStatusPut(name, status);
+        var response = managementController.management20250801ClausesNameStatusPut(name, status);
 
         assertEquals(dslOutput, response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());

@@ -7,7 +7,6 @@ Den følgende tabel indeholder miljø-variable og dertilhørende beskrivelser.
 | LOG_LEVEL                                                   | Logniveau for applikations-log. Standardværdi er INFO.                                                                            | Nej      |
 | LOG_LEVEL_FRAMEWORK                                         | Logniveau for framework. Standardværdi er INFO.                                                                                   | Nej      |
 | CORRELATION_ID                                              | HTTP-header, der angiver hvilken correlation id der skal bruges. Bruges til at korrelere logbeskeder. Standard er "x-request-id". | Nej      |
-| ITUKT_COMMON_ALLOWEDORIGINS                                 | En liste af URL’er/origins som skal tillades af CORS.                                                                             | Nej      |
 | ITUKT_COMMON_ITUKTDB_URL                                    | JDBC-forbindelses-URL til itukt-databasen                                                                                         | Ja       |
 | ITUKT_COMMON_ITUKTDB_USERNAME                               | JDBC-brugernavn                                                                                                                   | Ja       |
 | ITUKT_COMMON_ITUKTDB_PASSWORD                               | JDBC-adgangskode                                                                                                                  | Ja       |

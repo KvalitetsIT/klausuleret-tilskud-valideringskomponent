@@ -25,7 +25,7 @@ servers:
           - "8080"
         default: "8080"
 paths:
-  /2025/08/01/validate:
+  /validation/2025/08/01/validate:
     post:
       tags:
         - validation

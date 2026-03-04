@@ -109,20 +109,20 @@ public class ValidationIT extends BaseTest {
     }
 
     @Test
-    void call20250801validatePost_WithoutExistingDrugMedicationWithInputThatMatchesClauseAndValidatesAgeAndIndication_ReturnsSuccess() {
+    void validation20250801ValidatePost_WithoutExistingDrugMedicationWithInputThatMatchesClauseAndValidatesAgeAndIndication_ReturnsSuccess() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, null, VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
 
-        var response = validationApi.call20250801validatePost(request);
+        var response = validationApi.validation20250801ValidatePost(request);
 
         assertInstanceOf(ValidationSuccess.class, response);
     }
 
     @Test
-    void call20250801validatePost_WithoutExistingDrugMedicationWhenItIsRequired_ReturnsValidationNotPossible() {
+    void validation20250801ValidatePost_WithoutExistingDrugMedicationWhenItIsRequired_ReturnsValidationNotPossible() {
         int age = 20;  // Hardcoded clause in cache requires age > 50 or existing drug medication
         var request = createValidationRequest(age, VALID_INDICATION, null, VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
 
-        var response = validationApi.call20250801validatePost(request);
+        var response = validationApi.validation20250801ValidatePost(request);
 
         var validationNotPossible = assertInstanceOf(ValidationNotPossible.class, response,
                 "Validation should not be possible when existing drug medication is required but not provided");
@@ -131,7 +131,7 @@ public class ValidationIT extends BaseTest {
     }
 
     @Test
-    void call20250801validatePost_WithInputThatMatchesClauseAndValidatesExistingDrugMedication_ReturnsSuccess() {
+    void validation20250801ValidatePost_WithInputThatMatchesClauseAndValidatesExistingDrugMedication_ReturnsSuccess() {
         int age = 1;  // Hardcoded clause in cache requires age > 50
         var existingDrugMedication = new ExistingDrugMedicationInput()
                 .drugIdentifier(0L)
@@ -140,66 +140,66 @@ public class ValidationIT extends BaseTest {
                 .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
         var request = createValidationRequest(age, VALID_INDICATION, List.of(existingDrugMedication), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
 
-        var response = validationApi.call20250801validatePost(request);
+        var response = validationApi.validation20250801ValidatePost(request);
 
         assertInstanceOf(ValidationSuccess.class, response);
     }
 
     @Test
-    void call20250801validatePost_WithInputThatMatchesClauseAndFailsValidation_ReturnsValidationError() {
+    void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsValidation_ReturnsValidationError() {
         int age = 50;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(age, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
-        var response = validationApi.call20250801validatePost(request);
+        var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response, "alder skal være større end 50 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *");
     }
 
     @Test
-    void call20250801validatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
+    void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
-        var response = validationApi.call20250801validatePost(request);
+        var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response, "indikation skal være 313 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *");
     }
 
     @Test
-    void call20250801validatePost_WithInputThatMatchesClauseAndFailsDoctorSpecialityValidation_ReturnsValidationError() {
+    void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsDoctorSpecialityValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), "invalid speciale", VALID_DEPARTMENT_SOR);
-        var response = validationApi.call20250801validatePost(request);
+        var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response, "lægespeciale skal være " + VALID_DOCTOR_SPECIALITY);
     }
 
     @Test
-    void call20250801validatePost_WithInputThatMatchesClauseAndValidatesReportedByValidation_ReturnsSuccess() {
+    void validation20250801ValidatePost_WithInputThatMatchesClauseAndValidatesReportedByValidation_ReturnsSuccess() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), "invalid speciale", VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
-        var response = validationApi.call20250801validatePost(request);
+        var response = validationApi.validation20250801ValidatePost(request);
         assertInstanceOf(ValidationSuccess.class, response);
     }
 
     @Test
-    void call20250801validatePost_WithInputThatFailsValidationButErrorCodeSkipped_ReturnsSuccess() {
+    void validation20250801ValidatePost_WithInputThatFailsValidationButErrorCodeSkipped_ReturnsSuccess() {
         int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
         var request = createValidationRequest(age, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR)
                 .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
 
-        var successfulResponse = validationApi.call20250801validatePost(request);
+        var successfulResponse = validationApi.validation20250801ValidatePost(request);
 
         assertInstanceOf(ValidationSuccess.class, successfulResponse, "Validation should succeed when error code is skipped");
     }
 
     @Test
-    void call20250801validatePost_WithoutRequiredExistingDrugMedicationButErrorCodeSkipped_ReturnsSuccess() {
+    void validation20250801ValidatePost_WithoutRequiredExistingDrugMedicationButErrorCodeSkipped_ReturnsSuccess() {
         int age = 20;  // Hardcoded clauses in cache requires age > 50 or existing drug medication
         var request = createValidationRequest(age, VALID_INDICATION, null, VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR)
                 .addSkipValidationsItem(10800); // Hardcoded error code in clause cache
 
-        var successfulResponse = validationApi.call20250801validatePost(request);
+        var successfulResponse = validationApi.validation20250801ValidatePost(request);
 
         assertInstanceOf(ValidationSuccess.class, successfulResponse, "Validation should succeed when error code is skipped");
     }
 
     @Test
-    void call20250801validatePost_WithInputThatMatchesClauseAndFailsDepartmentSpecialityValidation_ReturnsValidationError() {
+    void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsDepartmentSpecialityValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, INVALID_DEPARTMENT_SOR);
-        var response = validationApi.call20250801validatePost(request);
+        var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response, "afdelingens speciale skal være " + VALID_DEPARTMENT_SPECIALITY);
     }
 

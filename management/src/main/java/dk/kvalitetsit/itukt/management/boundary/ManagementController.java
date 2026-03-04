@@ -29,27 +29,27 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<DslOutput>> call20250801clausesDslGet(ClauseStatus status) {
+    public ResponseEntity<List<DslOutput>> management20250801ClausesDslGet(ClauseStatus status) {
         return ResponseEntity.ok(service.readDslByStatus(status));
     }
 
     @Override
-    public ResponseEntity<DslOutput> call20250801clausesDslIdGet(UUID id) {
+    public ResponseEntity<DslOutput> management20250801ClausesDslIdGet(UUID id) {
         return service.readDsl(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new NotFoundException("Clause was not found"));
     }
 
     @Override
-    public ResponseEntity<List<DslOutput>> call20250801clausesDslNameHistoryGet(String name) {
+    public ResponseEntity<List<DslOutput>> management20250801ClausesDslNameHistoryGet(String name) {
         return ResponseEntity.ok(service.readHistoryDsl(name));
     }
 
     @Override
-    public ResponseEntity<DslOutput> call20250801clausesDslPost(DslInput dslInput) {
+    public ResponseEntity<DslOutput> management20250801ClausesDslPost(DslInput dslInput) {
         DslOutput created = createDSL(dslInput);
         UUID uuid = created.getUuid();
-        URI location = getLocation(c -> c.call20250801clausesDslIdGet(uuid), uuid);
+        URI location = getLocation(c -> c.management20250801ClausesDslIdGet(uuid), uuid);
         return ResponseEntity.created(location).body(created);
     }
 
@@ -62,19 +62,19 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<ClauseOutput>> call20250801clausesGet(ClauseStatus status) {
+    public ResponseEntity<List<ClauseOutput>> management20250801ClausesGet(ClauseStatus status) {
         return ResponseEntity.ok(service.readByStatus(status));
     }
 
     @Override
-    public ResponseEntity<ClauseOutput> call20250801clausesIdGet(UUID id) {
+    public ResponseEntity<ClauseOutput> management20250801ClausesIdGet(UUID id) {
         return service.read(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new NotFoundException("Clause was not found"));
     }
 
     @Override
-    public ResponseEntity<DslOutput> call20250801clausesDraftsIdStatusPut(UUID id, DraftClauseStatusInput clauseStatusInput) {
+    public ResponseEntity<DslOutput> management20250801ClausesDraftsIdStatusPut(UUID id, DraftClauseStatusInput clauseStatusInput) {
         var clause = switch (clauseStatusInput.getStatus()) {
             case ACTIVE -> service.approveClause(id, clauseStatusInput.getResetSkippedValidations());
         };
@@ -82,7 +82,7 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<DslOutput> call20250801clausesNameStatusPut(String name, ClauseStatusInput clauseStatusInput) {
+    public ResponseEntity<DslOutput> management20250801ClausesNameStatusPut(String name, ClauseStatusInput clauseStatusInput) {
         var clause = switch (clauseStatusInput.getStatus()) {
             case INACTIVE -> service.inactivateClause(name);
             case ACTIVE -> service.activateClause(name);
@@ -91,10 +91,10 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<ClauseOutput> call20250801clausesPost(ClauseInput clause) {
+    public ResponseEntity<ClauseOutput> management20250801ClausesPost(ClauseInput clause) {
         var created = service.create(clause);
         UUID uuid = created.getUuid();
-        URI location = getLocation(c -> c.call20250801clausesIdGet(uuid), uuid);
+        URI location = getLocation(c -> c.management20250801ClausesIdGet(uuid), uuid);
         return ResponseEntity.created(location).body(created);
     }
 

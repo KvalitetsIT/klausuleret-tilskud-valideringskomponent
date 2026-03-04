@@ -161,32 +161,35 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
         assertTrue(drugClauses.isEmpty());
     }
 
-    @Test
+   @Test
     void fetchAll_WithMultiplePakning_ReturnsUniqueEntries() {
         var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
         var pakning1 = new Pakning(laegemiddel.DrugId(), "TEST1", 1L);
         var pakning2 = new Pakning(laegemiddel.DrugId(), "TEST2", 2L);
         var pakning3 = new Pakning(laegemiddel.DrugId(), "TEST2", 3L);
-        var klausulering1 = new DrugClauseView.Klausulering(pakning1.klausuleringsKode(), "test1");
-        var klausulering2 = new DrugClauseView.Klausulering(pakning2.klausuleringsKode(), "test2");
+
+        var expected1 = new DrugClauseView(laegemiddel, new DrugClauseView.Klausulering(pakning1.klausuleringsKode(), "test1"));
+        var expected2 = new DrugClauseView(laegemiddel, new DrugClauseView.Klausulering(pakning2.klausuleringsKode(), "test2"));
+
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
+
         pakningRepository.insert(pakning1, inThePast, inTheFuture);
         pakningRepository.insert(pakning2, inThePast, inTheFuture);
         pakningRepository.insert(pakning3, inThePast, inTheFuture);
-        klausuleringRepository.insert(klausulering1, inThePast, inTheFuture);
-        klausuleringRepository.insert(klausulering2, inThePast, inTheFuture);
+
+        klausuleringRepository.insert(expected1.klausulering(), inThePast, inTheFuture);
+        klausuleringRepository.insert(expected2.klausulering(), inThePast, inTheFuture);
 
         var drugClauses = repository.fetchAll();
 
         assertEquals(2, drugClauses.size());
-        var clauseMap = drugClauses.stream()
-                .collect(Collectors.toMap(clause -> clause.klausulering().Kode(), Function.identity()));
-        assertTrue(clauseMap.containsKey(klausulering1.Kode()));
-        assertTrue(clauseMap.containsKey(klausulering2.Kode()));
-        assertEquals(laegemiddel, clauseMap.get(klausulering1.Kode()).laegemiddel());
-        assertEquals(klausulering1, clauseMap.get(klausulering1.Kode()).klausulering());
-        assertEquals(laegemiddel, clauseMap.get(klausulering2.Kode()).laegemiddel());
-        assertEquals(klausulering2, clauseMap.get(klausulering2.Kode()).klausulering());
+        var clauseMap = drugClauses.stream().collect(Collectors.toMap(clause -> clause.klausulering().Kode(), Function.identity()));
+
+        assertTrue(clauseMap.containsKey(expected1.klausulering().Kode()));
+        assertTrue(clauseMap.containsKey(expected2.klausulering().Kode()));
+
+        assertEquals(expected1, clauseMap.get(expected1.klausulering().Kode()));
+        assertEquals(expected2, clauseMap.get(expected2.klausulering().Kode()));
     }
 
     @Override

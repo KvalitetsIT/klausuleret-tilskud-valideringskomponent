@@ -34,16 +34,10 @@ public class DepartmentRepository implements Repository<DepartmentEntity> {
                     	se.PrioritizedEntitySpeciality6Name,
                     	se.PrioritizedEntitySpeciality7Name,
                     	se.PrioritizedEntitySpeciality8Name
-                    FROM (
-                      SELECT t.*,
-                             ROW_NUMBER() OVER (
-                               PARTITION BY t.SorId
-                               ORDER BY t.FromDate DESC, t.ValidFrom DESC
-                             ) AS rn
-                      FROM SorEntity t
-                      WHERE (t.ToDate IS NULL OR t.ToDate > NOW()) AND t.ValidTo > NOW()
-                    ) se
-                    WHERE se.rn = 1 AND (
+                    FROM SorEntity se
+                    WHERE (se.ToDate IS NULL OR se.ToDate > NOW()) AND se.ValidTo > NOW()
+                        AND (se.FromDate IS NULL OR se.FromDate < NOW()) AND se.ValidFrom < NOW()
+                        AND (
                             se.PrioritizedEntitySpeciality1Name IS NOT NULL OR
                             se.PrioritizedEntitySpeciality2Name IS NOT NULL OR
                             se.PrioritizedEntitySpeciality3Name IS NOT NULL OR
@@ -53,9 +47,7 @@ public class DepartmentRepository implements Repository<DepartmentEntity> {
                             se.PrioritizedEntitySpeciality7Name IS NOT NULL OR
                             se.PrioritizedEntitySpeciality8Name IS NOT NULL
                     );
-    """;
-
-
+                    """;
 
             return template.query(sql, rowMapper);
 

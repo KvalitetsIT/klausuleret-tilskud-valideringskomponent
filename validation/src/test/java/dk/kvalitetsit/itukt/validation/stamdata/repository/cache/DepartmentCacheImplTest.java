@@ -102,4 +102,12 @@ class DepartmentCacheImplTest {
         assertEquals(result, result2, "Expected the data to be the same as previously returned by the first invocation");
     }
 
+    @Test
+    void load_WithNeitherSorOrShak_DoesNotFail() {
+        Department department = new Department(Optional.empty(), Optional.empty(), Set.of());
+
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(department));
+
+        assertDoesNotThrow(() -> cache.load());
+    }
 }

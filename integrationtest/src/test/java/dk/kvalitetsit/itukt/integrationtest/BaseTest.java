@@ -3,7 +3,10 @@ package dk.kvalitetsit.itukt.integrationtest;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.TimeZone;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class BaseTest {
@@ -33,6 +37,8 @@ public abstract class BaseTest {
 
     @BeforeAll
     void beforeAll() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Copenhagen")); // Same as timezone used in docker containers
+
         dbEnvironment.start();
         appDatabase = getDatabase("itukt-db", "itukt_db", "rootroot");
         stamDatabase = getDatabase("stamdata-db", "sdm_krs_a", "");

@@ -28,7 +28,7 @@ public class DrugClauseViewRepositoryImpl implements Repository<DrugClauseView> 
     public List<DrugClauseView> fetchAll() throws ServiceException {
         try {
             String sql = """
-                    SELECT d.DrugId, k.Kode, k.Tekst
+                    SELECT DISTINCT d.DrugId, k.Kode, k.Tekst
                     FROM Laegemiddel d
                     JOIN Pakning p on p.DrugID = d.DrugID
                     JOIN Klausulering k ON k.kode = p.klausuleringskode

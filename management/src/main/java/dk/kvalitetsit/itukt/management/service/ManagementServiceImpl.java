@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
@@ -10,8 +9,6 @@ import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
-import org.openapitools.model.DetailedError;
-import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -87,5 +84,10 @@ public class ManagementServiceImpl implements ManagementService {
                 .orElseThrow(() -> new BadRequestException("Only INACTIVE clauses can be activated"));
         var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, new Date());
         return repository.create(clauseInput);
+    }
+
+    @Override
+    public Clause delete(UUID id) throws ServiceException {
+        return repository.delete(id);
     }
 }

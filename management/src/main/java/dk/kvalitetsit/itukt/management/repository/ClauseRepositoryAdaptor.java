@@ -59,4 +59,8 @@ public class ClauseRepositoryAdaptor {
     public Clause updateDraftToActive(UUID uuid) throws ServiceException {
         return this.entityMapper.map(clauseRepository.updateDraftToActive(uuid));
     }
+
+    public Clause delete(UUID id) throws ServiceException {
+        return this.entityMapper.map(clauseRepository.delete(id));
+    }
 }

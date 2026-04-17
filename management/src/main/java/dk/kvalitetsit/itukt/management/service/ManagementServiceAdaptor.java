@@ -96,4 +96,7 @@ public class ManagementServiceAdaptor {
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clause));
     }
 
+    public ClauseOutput delete(UUID id) {
+        return clauseDtoMapper.map(clauseService.delete(id));
+    }
 }

@@ -166,6 +166,27 @@ paths:
                 type: string
         '400':
           $ref: '#/components/responses/400'
+    delete:
+      tags:
+        - management
+      summary: "Deletes the clause associated with the specified id"
+      description: "Deletes the clause associated with the specified id"
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClauseOutput'
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+
+
 
   /2025/08/01/clauses/drafts/{id}/status:
     put:

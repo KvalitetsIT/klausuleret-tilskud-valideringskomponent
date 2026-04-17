@@ -12,6 +12,7 @@ import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImp
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -379,6 +380,14 @@ class ManagementIT extends BaseTest {
         SkippedValidationEntity skippedValidation3 = new SkippedValidationEntity(activeClause3.id(), skippedValidation1.actorId(), skippedValidation1.personId());
         Assertions.assertFalse(skippedValidationRepository.exists(skippedValidation3), "The entry is not expected to exist since the 'resetSKippedValidations' flag was set to true and therefore the entries are not supposed to be copied from the original clause");
 
+    }
+
+    @Test
+    void testDeleteClause(){
+        var clauseCreated = api.call20250801clausesPost(CLAUSE_1_INPUT);
+        var clauseDeleted = api.call20250801clausesIdDelete(clauseCreated.getUuid());
+
+        assertEquals(clauseCreated, clauseDeleted, "Expected the created clause to be deleted");
     }
 
 }

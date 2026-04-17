@@ -90,4 +90,9 @@ public class ManagementServiceImpl implements ManagementService {
         skippedValidationRepository.copySkippedValidation(clause.id(), created.id());
         return created;
     }
+
+    @Override
+    public Clause delete(UUID id) throws ServiceException {
+        return repository.delete(id);
+    }
 }

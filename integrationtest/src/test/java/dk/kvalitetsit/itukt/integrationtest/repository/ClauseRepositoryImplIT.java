@@ -312,4 +312,23 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         Assertions.assertEquals("Failed to create clause", e.getMessage());
     }
+
+    @Test
+    void delete_givenStatusNotDraft_ThrowsException() {
+        for (var status : Clause.Status.values()) {
+            if (status != Clause.Status.DRAFT) {
+                var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", status, null);
+                var created = repository.create(clause);
+                var e = assertThrows(ServiceException.class, () -> repository.delete(created.uuid()));
+                Assertions.assertEquals("Expected status=DRAFT, was %s".formatted(status.name()), e.getMessage());
+            }
+        }
+    }
+
+    @Test
+    void delete_givenStatusDraft_SuccessfullyDeletesClause() {
+        var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
+        var created = repository.create(clause);
+        assertDoesNotThrow(() -> repository.delete(created.uuid()));
+    }
 }

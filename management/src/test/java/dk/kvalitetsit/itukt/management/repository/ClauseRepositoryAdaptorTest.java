@@ -1,12 +1,16 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseInputModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class ClauseRepositoryAdaptorTest {
@@ -124,6 +129,35 @@ public class ClauseRepositoryAdaptorTest {
         adaptor.updateDraftToActive(uuid);
 
         Mockito.verify(concreteRepository).updateDraftToActive(uuid);
+    }
+
+    @Test
+    void delete_whenSuccess_thenReturnDeletedClause() {
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var expected = Mockito.mock(Clause.class);
+
+        UUID uuid = UUID.randomUUID();
+
+        Mockito.when(concreteRepository.delete(uuid)).thenReturn(clauseEntity);
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(expected);
+
+        var actual = adaptor.delete(uuid);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void delete_whenThrows_thenThrow() {
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(concreteRepository.delete(uuid)).thenThrow(NotFoundException.class);
+        Assertions.assertThrows(NotFoundException.class, () -> adaptor.delete(uuid));
+    }
+
+    @Test
+    void delete_givenStatusNotDraft_ThrowsException() {
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(concreteRepository.delete(uuid)).thenThrow(ServiceException.class);
+        Assertions.assertThrows(ServiceException.class, () -> adaptor.delete(uuid));
     }
 }
 

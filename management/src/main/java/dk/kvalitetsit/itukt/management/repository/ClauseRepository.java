@@ -29,4 +29,12 @@ public interface ClauseRepository {
      * @throws NotFoundException if the clause cannot be found or if it is not in DRAFT status.
      */
     ClauseEntity updateDraftToActive(UUID uuid) throws NotFoundException;
+
+    /**
+     * @param id the id associated with the clause which is to be deleted
+     * @return The deleted clause
+     * @throws NotFoundException if the provided id does not match any known clauses
+     * @throws ServiceException if the deletion of the clause failed due to any other reason
+     */
+    ClauseEntity delete(UUID id) throws NotFoundException, ServiceException;
 }

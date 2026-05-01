@@ -21,7 +21,7 @@ public class ValidationController implements ValidationApi {
     }
 
     @Override
-    public ResponseEntity<ValidationResponse> call20250801validatePost(ValidationRequest validationRequest) {
+    public ResponseEntity<ValidationResponse> validation20250801ValidatePost(ValidationRequest validationRequest) {
         var response = service.validate(validationRequest);
         return ResponseEntity.ok(response);
     }

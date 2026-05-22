@@ -12,7 +12,6 @@ import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImp
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -393,8 +392,8 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testDeleteClause(){
-        var clauseCreated = api.call20250801clausesPost(CLAUSE_1_INPUT);
-        var clauseDeleted = api.call20250801clausesIdDelete(clauseCreated.getUuid());
+        var clauseCreated = api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        var clauseDeleted = api.management20250801ClausesIdDelete(clauseCreated.getUuid());
         var noClause = clauseRepository.read(clauseCreated.getUuid());
 
         assertEquals(clauseCreated, clauseDeleted, "Expected the created clause to be deleted");

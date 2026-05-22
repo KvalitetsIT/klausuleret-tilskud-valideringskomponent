@@ -395,8 +395,10 @@ class ManagementIT extends BaseTest {
     void testDeleteClause(){
         var clauseCreated = api.call20250801clausesPost(CLAUSE_1_INPUT);
         var clauseDeleted = api.call20250801clausesIdDelete(clauseCreated.getUuid());
+        var noClause = clauseRepository.read(clauseCreated.getUuid());
 
         assertEquals(clauseCreated, clauseDeleted, "Expected the created clause to be deleted");
+        assertTrue(noClause.isEmpty(), "Expected the created clause to be deleted");
     }
 
 }

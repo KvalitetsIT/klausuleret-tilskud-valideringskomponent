@@ -4,7 +4,6 @@ package dk.kvalitetsit.itukt.management.repository;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.management.MockFactory;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
@@ -156,8 +155,11 @@ public class ClauseRepositoryAdaptorTest {
     @Test
     void delete_givenStatusNotDraft_ThrowsException() {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(concreteRepository.delete(uuid)).thenThrow(ServiceException.class);
-        Assertions.assertThrows(ServiceException.class, () -> adaptor.delete(uuid));
+        var expectedException = new ServiceException("test");
+        Mockito.when(concreteRepository.delete(uuid)).thenThrow(expectedException);
+
+        var e = assertThrows(ServiceException.class, () -> adaptor.delete(uuid));
+        assertEquals(expectedException, e);
     }
 }
 

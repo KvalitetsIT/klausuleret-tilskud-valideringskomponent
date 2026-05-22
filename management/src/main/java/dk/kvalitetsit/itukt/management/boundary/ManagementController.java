@@ -68,7 +68,7 @@ public class ManagementController implements ManagementApi {
 
     @Override
     public ResponseEntity<ClauseOutput> management20250801ClausesIdDelete(UUID id) {
-        return ResponseEntity.ok(service.delete(id));
+        return ResponseEntity.ok(service.deleteDraft(id));
     }
 
     @Override

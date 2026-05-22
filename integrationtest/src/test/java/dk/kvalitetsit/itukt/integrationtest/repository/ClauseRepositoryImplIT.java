@@ -314,21 +314,21 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void delete_givenStatusNotDraft_ThrowsException() {
+    void deleteDraft_givenStatusNotDraft_ThrowsException() {
         for (var status : Clause.Status.values()) {
             if (status != Clause.Status.DRAFT) {
                 var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", status, null);
                 var created = repository.create(clause);
-                var e = assertThrows(ServiceException.class, () -> repository.delete(created.uuid()));
+                var e = assertThrows(ServiceException.class, () -> repository.deleteDraft(created.uuid()));
                 Assertions.assertEquals("Expected status=DRAFT, was %s".formatted(status.name()), e.getMessage());
             }
         }
     }
 
     @Test
-    void delete_givenStatusDraft_SuccessfullyDeletesClause() {
+    void deleteDraft_givenStatusDraft_SuccessfullyDeletesClause() {
         var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
         var created = repository.create(clause);
-        assertDoesNotThrow(() -> repository.delete(created.uuid()));
+        assertDoesNotThrow(() -> repository.deleteDraft(created.uuid()));
     }
 }

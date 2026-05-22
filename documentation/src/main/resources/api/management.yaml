@@ -169,8 +169,8 @@ paths:
     delete:
       tags:
         - management
-      summary: "Deletes the clause associated with the specified id"
-      description: "Deletes the clause associated with the specified id"
+      summary: "Deletes the clause draft associated with the specified id"
+      description: "Deletes the clause draft associated with the specified id"
       parameters:
         - $ref: '#/components/parameters/id'
       responses:

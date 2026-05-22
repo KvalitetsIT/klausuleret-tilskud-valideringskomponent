@@ -165,7 +165,7 @@ class ManagementControllerTest {
     void management20250801ClausesIdDelete() {
         UUID uuid = UUID.randomUUID();
         var clauseOutput = Mockito.mock(ClauseOutput.class);
-        Mockito.when(clauseService.delete(uuid)).thenReturn(clauseOutput);
+        Mockito.when(clauseService.deleteDraft(uuid)).thenReturn(clauseOutput);
         var response = managementController.management20250801ClausesIdDelete(uuid);
         assertEquals(clauseOutput, response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -174,7 +174,7 @@ class ManagementControllerTest {
     @Test
     void management20250801ClausesIdDelete_whenError() {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(clauseService.delete(uuid)).thenThrow(ServiceException.class);
+        Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(ServiceException.class);
         assertThrows(ServiceException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
     }
 }

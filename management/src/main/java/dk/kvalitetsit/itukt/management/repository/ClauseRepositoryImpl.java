@@ -285,7 +285,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity delete(UUID id) throws NotFoundException, ServiceException {
+    public ClauseEntity deleteDraft(UUID id) throws NotFoundException, ServiceException {
 
         return read(id).map((c) -> {
             if (c.status() != Clause.Status.DRAFT)

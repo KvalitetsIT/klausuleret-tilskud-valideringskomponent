@@ -131,34 +131,34 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void delete_whenSuccess_thenReturnDeletedClause() {
+    void deleteDraft_whenSuccess_thenReturnDeletedClause() {
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var expected = Mockito.mock(Clause.class);
 
         UUID uuid = UUID.randomUUID();
 
-        Mockito.when(concreteRepository.delete(uuid)).thenReturn(clauseEntity);
+        Mockito.when(concreteRepository.deleteDraft(uuid)).thenReturn(clauseEntity);
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(expected);
 
-        var actual = adaptor.delete(uuid);
+        var actual = adaptor.deleteDraft(uuid);
 
         assertEquals(expected, actual);
     }
 
     @Test
-    void delete_whenThrows_thenThrow() {
+    void deleteDraft_whenThrowsNotFoundException_thenThrow() {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(concreteRepository.delete(uuid)).thenThrow(NotFoundException.class);
-        Assertions.assertThrows(NotFoundException.class, () -> adaptor.delete(uuid));
+        Mockito.when(concreteRepository.deleteDraft(uuid)).thenThrow(NotFoundException.class);
+        Assertions.assertThrows(NotFoundException.class, () -> adaptor.deleteDraft(uuid));
     }
 
     @Test
-    void delete_givenStatusNotDraft_ThrowsException() {
+    void deleteDraft_whenThrowsServiceException_ThrowsException() {
         UUID uuid = UUID.randomUUID();
         var expectedException = new ServiceException("test");
-        Mockito.when(concreteRepository.delete(uuid)).thenThrow(expectedException);
+        Mockito.when(concreteRepository.deleteDraft(uuid)).thenThrow(expectedException);
 
-        var e = assertThrows(ServiceException.class, () -> adaptor.delete(uuid));
+        var e = assertThrows(ServiceException.class, () -> adaptor.deleteDraft(uuid));
         assertEquals(expectedException, e);
     }
 }

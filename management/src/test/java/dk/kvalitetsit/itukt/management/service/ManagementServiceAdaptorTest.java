@@ -163,14 +163,14 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void delete() {
+    void deleteDraft() {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         UUID uuid = UUID.randomUUID();
-        Mockito.when(managementServiceImpl.delete(uuid)).thenReturn(clause);
+        Mockito.when(managementServiceImpl.deleteDraft(uuid)).thenReturn(clause);
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
-        var response = adaptor.delete(uuid);
-        Mockito.verify(managementServiceImpl, Mockito.times(1)).delete(uuid);
+        var response = adaptor.deleteDraft(uuid);
+        Mockito.verify(managementServiceImpl, Mockito.times(1)).deleteDraft(uuid);
         assertEquals(clauseOutput, response);
     }
 }

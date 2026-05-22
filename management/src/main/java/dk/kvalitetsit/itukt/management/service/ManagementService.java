@@ -24,5 +24,5 @@ public interface ManagementService {
 
     Clause activate(String name) throws ServiceException;
 
-    Clause delete(UUID id);
+    Clause deleteDraft(UUID id);
 }

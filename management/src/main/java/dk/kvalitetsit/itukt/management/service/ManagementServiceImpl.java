@@ -92,7 +92,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause delete(UUID id) throws ServiceException {
-        return repository.delete(id);
+    public Clause deleteDraft(UUID id) throws ServiceException {
+        return repository.deleteDraft(id);
     }
 }

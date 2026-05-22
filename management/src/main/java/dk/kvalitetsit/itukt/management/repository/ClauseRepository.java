@@ -36,5 +36,5 @@ public interface ClauseRepository {
      * @throws NotFoundException if the provided id does not match any known clauses
      * @throws ServiceException if the deletion of the clause failed due to any other reason
      */
-    ClauseEntity delete(UUID id) throws NotFoundException, ServiceException;
+    ClauseEntity deleteDraft(UUID id) throws NotFoundException, ServiceException;
 }

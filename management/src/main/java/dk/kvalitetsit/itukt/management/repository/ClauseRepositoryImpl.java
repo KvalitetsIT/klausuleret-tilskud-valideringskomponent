@@ -286,36 +286,15 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
     @Override
     public ClauseEntity deleteDraft(UUID id) throws NotFoundException, ServiceException {
-
-        return read(id).map((c) -> {
-            if (c.status() != Clause.Status.DRAFT)
-                throw new ServiceException("Expected status=DRAFT, was %s".formatted(c.status()));
-
-
-            String sql = """
-                    DELETE c, e
-                    FROM clause c
-                    JOIN expression e ON e.id = c.expression_id
-                    WHERE c.uuid = :uuid and c.status = :status;
-                    """;
-
-            int rowsAffected = template.update(
-                    sql,
-                    Map.of(
-                            "uuid", id.toString(),
-                            "status", Clause.Status.DRAFT.name()
-                    )
-            );
-
-            if (rowsAffected == 0) {
-                throw new NotFoundException("No clause found with uuid %s in DRAFT status".formatted(id));
-            }
-
-            return c;
-        }).orElseThrow(() -> new NotFoundException("The clause was not found"));
-
+        var clause = read(id).filter(c -> c.status() == Clause.Status.DRAFT)
+                .orElseThrow(() -> new NotFoundException("No clause found with uuid %s and status DRAFT".formatted(id)));
+        template.update(
+                "DELETE FROM clause WHERE uuid = :uuid",
+                Map.of("uuid", id.toString())
+        );
+        expressionRepository.delete(clause.expression().id());
+        return clause;
 
     }
-
 
 }

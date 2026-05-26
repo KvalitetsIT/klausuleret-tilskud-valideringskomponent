@@ -319,16 +319,23 @@ public class ClauseRepositoryImplIT extends BaseTest {
             if (status != Clause.Status.DRAFT) {
                 var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", status, null);
                 var created = repository.create(clause);
-                var e = assertThrows(ServiceException.class, () -> repository.deleteDraft(created.uuid()));
-                Assertions.assertEquals("Expected status=DRAFT, was %s".formatted(status.name()), e.getMessage());
+                var e = assertThrows(NotFoundException.class, () -> repository.deleteDraft(created.uuid()));
+                Assertions.assertEquals("No clause found with uuid %s and status DRAFT".formatted(created.uuid()), e.getDetailedError());
             }
         }
     }
 
     @Test
-    void deleteDraft_givenStatusDraft_SuccessfullyDeletesClause() {
+    void deleteDraft_givenStatusDraft_SuccessfullyDeletesClauseAndExpressions() {
+        var jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
         var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
         var created = repository.create(clause);
+
         assertDoesNotThrow(() -> repository.deleteDraft(created.uuid()));
+
+        var clauseAfterDeletion = repository.read(created.uuid());
+        assertTrue(clauseAfterDeletion.isEmpty(), "Did not expect clause in db after deletion");
+        Integer expressionCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM expression", Integer.class);
+        assertEquals(0, expressionCount, "Expected clause expression and child expressions to be deleted when deleting the clause");
     }
 }

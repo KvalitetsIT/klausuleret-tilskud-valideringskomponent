@@ -33,6 +33,8 @@ services:
       - ITUKT_GATEWAY_API_URL=http://validation-component:8080
       - ITUKT_GATEWAY_LOGINREDIRECTURL=http://localhost:4200
       - ITUKT_GATEWAY_USERIDATTRIBUTE=https://data.gov.dk/model/core/eid/email
+      - ITUKT_GATEWAY_USERROLEATTRIBUTE=http://schemas.microsoft.com/ws/2008/06/identity/claims/role
+      - ITUKT_GATEWAY_REQUIREDUSERROLEFROMSEB=testRole
       - SPRING_PROFILES_ACTIVE=without-oiosaml
     ports:
       - 8040:8080

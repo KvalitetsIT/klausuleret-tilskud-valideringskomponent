@@ -187,7 +187,7 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void inactivate_givenAnActiveClause_whenInactivate_thenEnsureResetSkippedValidationIsInvoked() {
+    void givenAnActiveClause_whenInactivate_thenEnsureResetSkippedValidationIsInvoked() {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 

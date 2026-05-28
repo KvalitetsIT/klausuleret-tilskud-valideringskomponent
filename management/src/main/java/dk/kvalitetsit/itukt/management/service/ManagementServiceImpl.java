@@ -72,15 +72,15 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause inactivate(String name) throws ServiceException {
-        return getClause(name, Clause.Status.ACTIVE, "Only ACTIVE clauses can be inactivated", Clause.Status.INACTIVE);
+        return updateStatus(name, Clause.Status.ACTIVE, "Only ACTIVE clauses can be inactivated", Clause.Status.INACTIVE);
     }
 
     @Override
     public Clause activate(String name) throws ServiceException {
-        return getClause(name, Clause.Status.INACTIVE, "Only INACTIVE clauses can be activated", Clause.Status.ACTIVE);
+        return updateStatus(name, Clause.Status.INACTIVE, "Only INACTIVE clauses can be activated", Clause.Status.ACTIVE);
     }
 
-    private Clause getClause(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) {
+    private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) {
         var clause = repository.readCurrentClause(name)
                 .filter(c -> c.status() == currentStatus)
                 .orElseThrow(() -> new BadRequestException(errorMessage));

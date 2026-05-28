@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dk.kvalitetsit.itukt.management.MockFactory.CLAUSE_1_MODEL;
 import static dk.kvalitetsit.itukt.management.MockFactory.EXPRESSION_1_MODEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -187,9 +186,35 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() {
+    void givenAnActiveClause_whenInactivate_thenEnsureSkippedValidationIsCopied() {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+
+        Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), clause.validFrom());
+        Mockito.when(dao.create(any())).thenReturn(created);
+
+        service.inactivate("test");
+
+        Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(clause.id(), created.id());
+    }
+
+    @Test
+    void givenAnInactiveClause_whenActivate_thenEnsureSkippedValidationIsCopied() {
+        var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
+        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+
+        Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), clause.validFrom());
+        Mockito.when(dao.create(any())).thenReturn(created);
+
+        service.activate("test");
+
+        Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(clause.id(), created.id());
+    }
+
+    @Test
+    void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() {
+        var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
+        Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
         var inactiveClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(inactiveClause);
 
@@ -224,7 +249,7 @@ class ManagementServiceImplTest {
     @Test
     void activate_WhenClauseIsInactive_CreatesNewClauseAndSetsActive() {
         var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()));
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
         var activeClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(activeClause);
 

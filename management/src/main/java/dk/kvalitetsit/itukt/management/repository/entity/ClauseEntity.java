@@ -14,6 +14,7 @@ public record ClauseEntity(
         int errorCode,
         String errorMessage,
         ExpressionEntity expression,
-        Optional<Date> validFrom
+        Optional<Date> validFrom,
+        String createdBy
 ) {
 }

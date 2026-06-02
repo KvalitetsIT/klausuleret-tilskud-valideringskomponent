@@ -38,7 +38,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void createAndReadDraft() {
-        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
+        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null, "tester");
 
         var createdClause = repository.create(clauseInput);
         var readClause = repository.read(createdClause.uuid());
@@ -61,7 +61,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void createAndReadInactiveClause() {
-        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.INACTIVE, new Date());
+        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.INACTIVE, new Date(), "tester");
 
         var createdClause = repository.create(clauseInput);
         var readClause = repository.read(createdClause.uuid());
@@ -85,8 +85,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void createAndReadAllDrafts() {
-        var clauseInput1 = new ClauseEntityInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message1", Clause.Status.DRAFT, null);
-        var clauseInput2 = new ClauseEntityInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message2", Clause.Status.DRAFT, null);
+        var clauseInput1 = new ClauseEntityInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message1", Clause.Status.DRAFT, null, "tester");
+        var clauseInput2 = new ClauseEntityInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message2", Clause.Status.DRAFT, null, "tester");
 
         var createdClause1 = repository.create(clauseInput1);
         var createdClause2 = repository.create(clauseInput2);
@@ -122,8 +122,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void createTwoDraftClausesWithSameName_ThenReadAllDrafts_ReturnsBothClauses() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
-        var clauseInput1 = new ClauseEntityInput("clause", expression, "errorA", Clause.Status.DRAFT, null);
-        var clauseInput2 = new ClauseEntityInput("clause", expression, "errorB", Clause.Status.DRAFT, null);
+        var clauseInput1 = new ClauseEntityInput("clause", expression, "errorA", Clause.Status.DRAFT, null, "tester");
+        var clauseInput2 = new ClauseEntityInput("clause", expression, "errorB", Clause.Status.DRAFT, null, "tester");
 
         var clauseA = repository.create(clauseInput1);
         var clauseB = repository.create(clauseInput2);
@@ -137,8 +137,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void createTwoActiveClausesWithSameName_ThenReadCurrentClauses_ReturnsLatestValidClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
-        var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
-        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
+        var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date(), "tester");
+        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)), "tester");
 
         var clauseA = repository.create(clauseInput1);
         var clauseB = repository.create(clauseInput2);
@@ -156,8 +156,8 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void createTwoActiveClausesWithSameName_ThenReadCurrentClause_ReturnsLatestValidClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
-        var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date());
-        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)));
+        var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, new Date(), "tester");
+        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, Date.from(Instant.now().plusSeconds(1)), "tester");
 
         var clauseA = repository.create(clauseInput1);
         var clauseB = repository.create(clauseInput2);
@@ -175,7 +175,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void createClauseWithoutValidFrom_ThenReadCurrentClause_ReturnsNothing() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
-        ClauseEntityInput clauseInput = new ClauseEntityInput("blaah", expression, "error", Clause.Status.DRAFT, null);
+        ClauseEntityInput clauseInput = new ClauseEntityInput("blaah", expression, "error", Clause.Status.DRAFT, null, "tester");
 
         repository.create(clauseInput);
         var latestClause = repository.readCurrentClause("blaah");
@@ -202,7 +202,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
                         new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 20)
                 )
         );
-        var clauseInput = new ClauseEntityInput("ClauseName", expression, "message", Clause.Status.DRAFT, null);
+        var clauseInput = new ClauseEntityInput("ClauseName", expression, "message", Clause.Status.DRAFT, null, "tester");
 
         var created = repository.create(clauseInput);
 
@@ -222,13 +222,13 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void testCreateAndReadExistingDrugMedicationCondition() {
         var existingDrugMedicationCondition = new ExpressionEntity.ExistingDrugMedicationConditionEntity(null, "ATC", "form", "adm");
-        var clauseInput = new ClauseEntityInput("CLAUSE", existingDrugMedicationCondition, "message", Clause.Status.DRAFT, null);
+        var clauseInput = new ClauseEntityInput("CLAUSE", existingDrugMedicationCondition, "message", Clause.Status.DRAFT, null, "tester");
 
         UUID clauseUuid = repository.create(clauseInput).uuid();
         var readClause = repository.read(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
-        var expectedClause = new ClauseEntity(null, null, "CLAUSE", Clause.Status.DRAFT, 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom());
+        var expectedClause = new ClauseEntity(null, null, "CLAUSE", Clause.Status.DRAFT, 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom(), "tester");
         assertThat(readClause.get())
                 .usingRecursiveComparison()
                 .ignoringFields("id", "uuid", "errorCode", "expression.id")
@@ -241,9 +241,9 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var ageCondition = new ExpressionEntity.NumberConditionEntity(null, Field.AGE, Operator.EQUAL, 10);
         String clauseName = "test";
 
-        var activeClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.ACTIVE, Date.from(Instant.now()));
-        var inactiveClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.INACTIVE, Date.from(Instant.now().plusSeconds(1)));
-        var draftClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.DRAFT, null);
+        var activeClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.ACTIVE, Date.from(Instant.now()), "tester");
+        var inactiveClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.INACTIVE, Date.from(Instant.now().plusSeconds(1)), "tester");
+        var draftClauseInput = new ClauseEntityInput(clauseName, ageCondition, "message", Clause.Status.DRAFT, null, "tester");
         var activeClause = repository.create(activeClauseInput);
         var inactiveClause = repository.create(inactiveClauseInput);
         var draftClause = repository.create(draftClauseInput);
@@ -258,7 +258,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void readHistory_WhenOnlyDraftClauseExists_ReturnsEmptyList() {
         var ageCondition = new ExpressionEntity.NumberConditionEntity(null, Field.AGE, Operator.EQUAL, 10);
-        var clauseInput = new ClauseEntityInput("test", ageCondition, "test", Clause.Status.DRAFT, null);
+        var clauseInput = new ClauseEntityInput("test", ageCondition, "test", Clause.Status.DRAFT, null, "tester");
         repository.create(clauseInput);
 
         var history = repository.readHistory(clauseInput.name());
@@ -279,7 +279,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
     @Test
     void updateDraftToActive_WhenUuidMatchesClause_SucceedsOnlyWhenInDraft() {
-        var clauseInput = new ClauseEntityInput("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error", Clause.Status.DRAFT, null);
+        var clauseInput = new ClauseEntityInput("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error", Clause.Status.DRAFT, null, "tester");
 
         var clause = repository.create(clauseInput);
 
@@ -295,7 +295,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     void create_WhenAllErrorCodesHasBeenUsed_ThrowsException() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
         jdbcTemplate.execute("INSERT INTO error_code (error_code, clause_name) VALUES (10999, 'clause_with_last_error_code')");
-        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
+        var clauseInput = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null, "tester");
 
         var e = assertThrows(ServiceException.class, () -> repository.create(clauseInput));
 
@@ -306,7 +306,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     void create_WhenDbContainsErrorCodeBelowAllowedRange_ThrowsException() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
         jdbcTemplate.execute("INSERT INTO error_code (error_code, clause_name) VALUES (10799, 'clause_with_invalid_error_code')");
-        var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
+        var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null, "tester");
 
         var e = assertThrows(ServiceException.class, () -> repository.create(clause));
 

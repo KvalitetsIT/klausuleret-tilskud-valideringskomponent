@@ -10,7 +10,8 @@ public record ClauseFullInput(
         Expression expression,
         String errorMessage,
         Clause.Status status,
-        Date validFrom
+        Date validFrom,
+        String createdBy
 ) {
 
 }

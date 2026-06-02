@@ -26,7 +26,7 @@ class ClauseInputModelEntityMapperTest {
     @Test
     void map_MapsAllFields() {
         var expression = Mockito.mock(AgeConditionExpression.class);
-        var clauseInput = new ClauseFullInput("test name", expression, "test error", Clause.Status.DRAFT, new Date());
+        var clauseInput = new ClauseFullInput("test name", expression, "test error", Clause.Status.DRAFT, new Date(), "tester");
         var expectedExpressionEntity = Mockito.mock(ExpressionEntity.StringConditionEntity.class);
         Mockito.when(expressionMapper.map(expression)).thenReturn(expectedExpressionEntity);
 
@@ -37,5 +37,6 @@ class ClauseInputModelEntityMapperTest {
         assertEquals(clauseInput.errorMessage(), result.errorMessage(), "Error message should be mapped correctly");
         assertEquals(clauseInput.status(), result.status(), "Status should be mapped correctly");
         assertEquals(clauseInput.validFrom(), result.validFrom(), "Valid from date should be mapped correctly");
+        assertEquals(clauseInput.createdBy(), result.createdBy(), "Created by should be mapped correctly");
     }
 }

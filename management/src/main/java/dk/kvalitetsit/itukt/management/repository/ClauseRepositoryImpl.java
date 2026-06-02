@@ -39,8 +39,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             ExpressionEntity createdExpression = expressionRepository.create(clauseInput.expression());
 
-            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from) " +
-                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from) " +
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from, created_by) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from, :created_by) " +
                     "RETURNING id";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
@@ -49,7 +49,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .addValue("expression_id", createdExpression.id())
                     .addValue("error_message", clauseInput.errorMessage())
                     .addValue("status", clauseInput.status().name())
-                    .addValue("valid_from", clauseInput.validFrom());
+                    .addValue("valid_from", clauseInput.validFrom())
+                    .addValue("created_by", clauseInput.createdBy());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
@@ -64,7 +65,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         errorCode,
                         clauseInput.errorMessage(),
                         createdExpression,
-                        Optional.ofNullable(clauseInput.validFrom())
+                        Optional.ofNullable(clauseInput.validFrom()),
+                        clauseInput.createdBy()
                 );
             });
 
@@ -115,7 +117,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.valid_from
+                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.valid_from, c.created_by
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -136,7 +138,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
-                                Optional.ofNullable(rs.getTimestamp("valid_from"))
+                                Optional.ofNullable(rs.getTimestamp("valid_from")),
+                                rs.getString("created_by")
                         );
                     });
 

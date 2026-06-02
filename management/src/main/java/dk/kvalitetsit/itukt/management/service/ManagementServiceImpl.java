@@ -19,15 +19,17 @@ public class ManagementServiceImpl implements ManagementService {
 
     private final ClauseRepositoryAdaptor repository;
     private final SkippedValidationRepository skippedValidationRepository;
+    private final UserContextService userContextService;
 
-    public ManagementServiceImpl(ClauseRepositoryAdaptor repository, SkippedValidationRepository skippedValidationRepository) {
+    public ManagementServiceImpl(ClauseRepositoryAdaptor repository, SkippedValidationRepository skippedValidationRepository, UserContextService userContextService) {
         this.repository = repository;
         this.skippedValidationRepository = skippedValidationRepository;
+        this.userContextService = userContextService;
     }
 
     @Override
     public Clause create(ClauseInput clause) throws ServiceException {
-        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null);
+        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null, "TODO");
         return repository.create(clauseFullInput);
     }
 
@@ -85,7 +87,7 @@ public class ManagementServiceImpl implements ManagementService {
                 .filter(c -> c.status() == currentStatus)
                 .orElseThrow(() -> new BadRequestException(errorMessage));
 
-        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, new Date());
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, new Date(), "TODO");
         Clause created = repository.create(clauseInput);
         skippedValidationRepository.copySkippedValidation(clause.id(), created.id());
         return created;

@@ -20,7 +20,8 @@ public record Clause(
         UUID uuid,
         Error error,
         Expression expression,
-        Optional<Date> validFrom
+        Optional<Date> validFrom,
+        String createdBy
 ) {
 
     /**

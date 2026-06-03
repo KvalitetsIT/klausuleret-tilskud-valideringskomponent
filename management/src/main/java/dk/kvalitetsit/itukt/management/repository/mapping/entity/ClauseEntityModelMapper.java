@@ -20,7 +20,8 @@ public class ClauseEntityModelMapper implements Mapper<ClauseEntity, Clause> {
                 entry.uuid(),
                 new Clause.Error(entry.errorMessage(), entry.errorCode()),
                 expressionEntityModelMapper.map(entry.expression()),
-                entry.validFrom()
+                entry.validFrom(),
+                entry.createdBy()
         );
     }
 }

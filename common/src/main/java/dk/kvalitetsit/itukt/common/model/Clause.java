@@ -21,7 +21,8 @@ public record Clause(
         Error error,
         Expression expression,
         Optional<Date> validFrom,
-        String createdBy
+        String createdBy,
+        Date createdTime
 ) {
 
     /**

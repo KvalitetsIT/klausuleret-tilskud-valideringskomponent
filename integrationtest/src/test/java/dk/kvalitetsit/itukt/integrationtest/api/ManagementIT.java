@@ -96,9 +96,10 @@ class ManagementIT extends BaseTest {
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
+        assertNotNull(clauses.getFirst().getCreatedTime());
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom")
+                .ignoringFields("uuid", "validFrom", "createdTime")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -110,9 +111,10 @@ class ManagementIT extends BaseTest {
         assertEquals(1, clauses.size());
         var clause = clauses.getFirst();
 
+        assertNotNull(clause.getCreatedTime());
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom")
+                .ignoringFields("uuid", "validFrom", "createdTime")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -179,7 +181,7 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status", "createdBy")
+                .ignoringFields("uuid", "validFrom", "status", "createdBy", "createdTime")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
@@ -267,7 +269,8 @@ class ManagementIT extends BaseTest {
                 .uuid(createClauseResponse.getUuid())
                 .validFrom(createClauseResponse.getValidFrom())
                 .status(ClauseStatus.DRAFT)
-                .createdBy(USER_ID);
+                .createdBy(USER_ID)
+                .createdTime(createClauseResponse.getCreatedTime());
 
         var getDslResponse = api.management20250801ClausesDslIdGet(createClauseResponse.getUuid());
 
@@ -353,7 +356,8 @@ class ManagementIT extends BaseTest {
                 .uuid(dslOutput.getUuid())
                 .validFrom(getClauseResponse.getValidFrom())
                 .status(ClauseStatus.DRAFT)
-                .createdBy(USER_ID);
+                .createdBy(USER_ID)
+                .createdTime(getClauseResponse.getCreatedTime());
 
         assertEquals(clauseOutput, getClauseResponse, "Expected the clause to match the dsl initially created");
 

@@ -21,7 +21,8 @@ public class ClauseEntityModelMapper implements Mapper<ClauseEntity, Clause> {
                 new Clause.Error(entry.errorMessage(), entry.errorCode()),
                 expressionEntityModelMapper.map(entry.expression()),
                 entry.validFrom(),
-                entry.createdBy()
+                entry.createdBy(),
+                entry.createdTime()
         );
     }
 }

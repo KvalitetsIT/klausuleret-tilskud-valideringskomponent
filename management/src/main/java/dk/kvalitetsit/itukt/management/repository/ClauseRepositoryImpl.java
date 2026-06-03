@@ -41,7 +41,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from, created_by) " +
                     "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from, :created_by) " +
-                    "RETURNING id";
+                    "RETURNING id, created_time";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue("uuid", uuid.toString())
@@ -66,7 +66,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         clauseInput.errorMessage(),
                         createdExpression,
                         Optional.ofNullable(clauseInput.validFrom()),
-                        clauseInput.createdBy()
+                        clauseInput.createdBy(),
+                        rs.getTimestamp("created_time")
                 );
             });
 
@@ -117,7 +118,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.valid_from, c.created_by
+                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.valid_from, c.created_by, c.created_time
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -139,7 +140,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getString("error_message"),
                                 expression,
                                 Optional.ofNullable(rs.getTimestamp("valid_from")),
-                                rs.getString("created_by")
+                                rs.getString("created_by"),
+                                rs.getTimestamp("created_time")
                         );
                     });
 

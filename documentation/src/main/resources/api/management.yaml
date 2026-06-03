@@ -343,6 +343,7 @@ components:
             - validFrom
             - status
             - createdBy
+            - createdTime
           properties:
             uuid:
               type: string
@@ -360,6 +361,10 @@ components:
             createdBy:
               description: ID of the user who created the clause
               type: string
+            createdTime:
+              description: when the clause was created
+              type: string
+              format: date-time
 
 
     Expression:
@@ -547,6 +552,7 @@ components:
             - validFrom
             - status
             - createdBy
+            - createdTime
           properties:
             uuid:
               type: string
@@ -564,6 +570,10 @@ components:
             createdBy:
               description: ID of the user who created the clause
               type: string
+            createdTime:
+              description: when the clause was created
+              type: string
+              format: date-time
 
 
     Dsl:

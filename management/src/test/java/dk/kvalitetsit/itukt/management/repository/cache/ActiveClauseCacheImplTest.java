@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,7 +57,8 @@ class ActiveClauseCacheImplTest {
                         "value"
                 ),
                 Optional.empty(),
-                "user1"
+                "user1",
+                new Date()
         );
         var inactiveClause = new ClauseEntity(
                 2L,
@@ -70,7 +72,8 @@ class ActiveClauseCacheImplTest {
                         "value"
                 ),
                 Optional.empty(),
-                "user2"
+                "user2",
+                new Date()
         );
         Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
@@ -90,8 +93,8 @@ class ActiveClauseCacheImplTest {
 
     @Test
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
-        var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, Optional.empty(), "user1");
-        var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, Optional.empty(), "user2");
+        var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, Optional.empty(), "user1", new Date());
+        var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, Optional.empty(), "user2",  new Date());
         Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(existingClause1, existingClause2));
         cache.load();
 

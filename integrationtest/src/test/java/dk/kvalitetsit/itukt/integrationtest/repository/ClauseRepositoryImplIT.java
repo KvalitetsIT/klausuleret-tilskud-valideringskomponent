@@ -48,15 +48,16 @@ public class ClauseRepositoryImplIT extends BaseTest {
         assertNotNull(createdClause.id(), "An id is expected to be assigned by the database when writing a clause");
         assertNotNull(createdClause.uuid(), "A uuid is expected to be assigned by the database when writing a clause");
         assertTrue(createdClause.validFrom().isEmpty(), "validFrom is expected to be empty when not included in the input");
-        assertEquals(clauseInput.name(), createdClause.name(), "The input name is expected to be used in the written clause");
-        assertEquals(clauseInput.errorMessage(), createdClause.errorMessage(), "The input error message is expected to be used in the written clause");
-        assertEquals(clauseInput.status(), createdClause.status(), "The input status is expected to be used in the written clause");
-        var idPathsToIgnore = ignoreFieldRecursive(createdClause.expression(), "id");
-        assertThat(createdClause.expression())
+        assertNotNull(createdClause.createdTime(), "createdTime is expected to be set by the database when writing a clause");
+
+        var pathsToIgnore = Stream.concat(ignoreFieldRecursive(createdClause.expression(), "id", "expression."),
+                        Stream.of("id", "uuid", "errorCode", "createdTime", "validFrom"))
+                .toArray(String[]::new);
+        assertThat(createdClause)
                 .usingRecursiveComparison()
-                .ignoringFields(idPathsToIgnore)
-                .withFailMessage("The input expression is expected to be used in the written clause")
-                .isEqualTo(clauseInput.expression());
+                .ignoringFields(pathsToIgnore)
+                .withFailMessage("Expected the clause returned to be equal to the one given as argument")
+                .isEqualTo(clauseInput);
     }
 
     @Test
@@ -70,17 +71,17 @@ public class ClauseRepositoryImplIT extends BaseTest {
         assertEquals(createdClause, readClause.get(), "The clause read is expected to match the clause created");
         assertNotNull(createdClause.id(), "An id is expected to be assigned by the database when writing a clause");
         assertNotNull(createdClause.uuid(), "A uuid is expected to be assigned by the database when writing a clause");
-        assertEquals(clauseInput.name(), createdClause.name(), "The input name is expected to be used in the written clause");
-        assertEquals(clauseInput.errorMessage(), createdClause.errorMessage(), "The input error message is expected to be used in the written clause");
-        assertEquals(clauseInput.status(), createdClause.status(), "The input status is expected to be used in the written clause");
         assertTrue(createdClause.validFrom().isPresent(), "validFrom is expected to be set when included in the input");
         assertEquals(clauseInput.validFrom(), createdClause.validFrom().get(), "The input validFrom is expected to be used in the written clause");
-        var idPathsToIgnore = ignoreFieldRecursive(createdClause.expression(), "id");
-        assertThat(createdClause.expression())
+
+        var pathsToIgnore = Stream.concat(ignoreFieldRecursive(createdClause.expression(), "id", "expression."),
+                        Stream.of("id", "uuid", "errorCode", "createdTime", "validFrom"))
+                .toArray(String[]::new);
+        assertThat(createdClause)
                 .usingRecursiveComparison()
-                .ignoringFields(idPathsToIgnore)
-                .withFailMessage("The input expression is expected to be used in the written clause")
-                .isEqualTo(clauseInput.expression());
+                .ignoringFields(pathsToIgnore)
+                .withFailMessage("Expected the clause returned to be equal to the one given as argument")
+                .isEqualTo(clauseInput);
     }
 
     @Test
@@ -95,10 +96,6 @@ public class ClauseRepositoryImplIT extends BaseTest {
         assertEquals(2, readClauses.size());
         assertTrue(readClauses.contains(createdClause1));
         assertTrue(readClauses.contains(createdClause2));
-    }
-
-    String[] ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore) {
-        return ignoreFieldRecursive(expression, fieldToIgnore, "").toArray(String[]::new);
     }
 
     Stream<String> ignoreFieldRecursive(ExpressionEntity expression, String fieldToIgnore, String path) {
@@ -206,12 +203,14 @@ public class ClauseRepositoryImplIT extends BaseTest {
 
         var created = repository.create(clauseInput);
 
-        var fieldsToIgnore = ignoreFieldRecursive(expression, "id");
-        assertThat(created.expression())
+        var pathsToIgnore = Stream.concat(ignoreFieldRecursive(created.expression(), "id", "expression."),
+                        Stream.of("id", "uuid", "errorCode", "createdTime", "validFrom"))
+                .toArray(String[]::new);
+        assertThat(created)
                 .usingRecursiveComparison()
-                .ignoringFields(fieldsToIgnore)
-                .withFailMessage("Expected the expression returned to be equal to the one given as argument")
-                .isEqualTo(expression);
+                .ignoringFields(pathsToIgnore)
+                .withFailMessage("Expected the clause returned to be equal to the one given as argument")
+                .isEqualTo(clauseInput);
 
         var read = repository.read(created.uuid());
 
@@ -228,10 +227,10 @@ public class ClauseRepositoryImplIT extends BaseTest {
         var readClause = repository.read(clauseUuid);
 
         assertTrue(readClause.isPresent(), "A clause is expected to be read since it was just created");
-        var expectedClause = new ClauseEntity(null, null, "CLAUSE", Clause.Status.DRAFT, 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom(), "tester");
+        var expectedClause = new ClauseEntity(null, null, "CLAUSE", Clause.Status.DRAFT, 10800, "message", existingDrugMedicationCondition, readClause.get().validFrom(), "tester", null);
         assertThat(readClause.get())
                 .usingRecursiveComparison()
-                .ignoringFields("id", "uuid", "errorCode", "expression.id")
+                .ignoringFields("id", "uuid", "errorCode", "expression.id", "createdTime")
                 .withFailMessage("The clause read is expected to match the clause created")
                 .isEqualTo(expectedClause);
     }

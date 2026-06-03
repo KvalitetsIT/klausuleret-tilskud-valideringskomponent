@@ -20,8 +20,8 @@ public class ClauseDtoDslMapper implements Mapper<ClauseOutput, DslOutput> {
                 entry.getUuid(),
                 entry.getValidFrom(),
                 entry.getStatus(),
-                entry.getValidFrom(),
-                entry.getCreatedBy()
+                entry.getCreatedBy(),
+                entry.getCreatedTime()
         );
     }
 }

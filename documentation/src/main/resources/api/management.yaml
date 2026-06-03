@@ -342,6 +342,7 @@ components:
             - uuid
             - validFrom
             - status
+            - createdBy
           properties:
             uuid:
               type: string
@@ -356,6 +357,9 @@ components:
               format: date-time
             status:
               $ref: '#/components/schemas/ClauseStatus'
+            createdBy:
+              description: ID of the user who created the clause
+              type: string
 
 
     Expression:
@@ -542,6 +546,7 @@ components:
             - uuid
             - validFrom
             - status
+            - createdBy
           properties:
             uuid:
               type: string
@@ -556,6 +561,9 @@ components:
               format: date-time
             status:
               $ref: '#/components/schemas/ClauseStatus'
+            createdBy:
+              description: ID of the user who created the clause
+              type: string
 
 
     Dsl:

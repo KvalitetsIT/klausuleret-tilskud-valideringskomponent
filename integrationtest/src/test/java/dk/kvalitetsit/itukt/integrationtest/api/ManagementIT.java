@@ -179,7 +179,7 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status")
+                .ignoringFields("uuid", "validFrom", "status", "createdBy")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
@@ -266,7 +266,8 @@ class ManagementIT extends BaseTest {
                 .error(error)
                 .uuid(createClauseResponse.getUuid())
                 .validFrom(createClauseResponse.getValidFrom())
-                .status(ClauseStatus.DRAFT);
+                .status(ClauseStatus.DRAFT)
+                .createdBy(USER_ID);
 
         var getDslResponse = api.management20250801ClausesDslIdGet(createClauseResponse.getUuid());
 
@@ -351,7 +352,8 @@ class ManagementIT extends BaseTest {
                 .error(error)
                 .uuid(dslOutput.getUuid())
                 .validFrom(getClauseResponse.getValidFrom())
-                .status(ClauseStatus.DRAFT);
+                .status(ClauseStatus.DRAFT)
+                .createdBy(USER_ID);
 
         assertEquals(clauseOutput, getClauseResponse, "Expected the clause to match the dsl initially created");
 

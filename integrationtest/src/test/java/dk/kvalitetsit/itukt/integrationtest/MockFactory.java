@@ -15,6 +15,7 @@ import static dk.kvalitetsit.itukt.common.model.Operator.GREATER_THAN_OR_EQUAL_T
 
 public class MockFactory {
 
+    public static final String USER_ID = "integrationtest";
     // Note: This clause(clause_1_dsl) matches: clause_1_*
     public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput()
             .name("CHOL")
@@ -86,7 +87,8 @@ public class MockFactory {
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
             .uuid(UUID.randomUUID()).error("message")
-            .status(ClauseStatus.DRAFT);
+            .status(ClauseStatus.DRAFT)
+            .createdBy(USER_ID);
 
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")

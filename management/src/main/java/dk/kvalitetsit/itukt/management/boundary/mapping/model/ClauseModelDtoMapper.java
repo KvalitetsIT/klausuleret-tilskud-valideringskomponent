@@ -25,7 +25,9 @@ public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.mod
                 entry.error().message(),
                 entry.uuid(),
                 entry.validFrom().map(this::dateToOffsetDateTime).orElse(null),
-                ClauseStatus.fromValue(entry.status().name())
+                ClauseStatus.fromValue(entry.status().name()),
+                entry.validFrom().map(this::dateToOffsetDateTime).orElse(null),
+                entry.createdBy()
         );
     }
 

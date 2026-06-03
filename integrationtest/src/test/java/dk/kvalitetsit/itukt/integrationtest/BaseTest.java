@@ -23,7 +23,6 @@ import java.util.TimeZone;
 public abstract class BaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
-    protected static final String userID = "integrationtest";
     protected static final ComposeContainer dbEnvironment = new ComposeContainer(getComposeFile("docker-compose.db.yaml"))
             .withServices("itukt-db", "stamdata-db")
             .withExposedService("itukt-db", 3306, Wait.forHealthcheck())
@@ -57,7 +56,7 @@ public abstract class BaseTest {
         component.start();
 
         // Configure API client
-        client = new ApiClient().addDefaultHeader("User-ID", userID).setBasePath(String.format("http://%s:%s", component.getHost(), component.getPort()));
+        client = new ApiClient().addDefaultHeader("User-ID", MockFactory.USER_ID).setBasePath(String.format("http://%s:%s", component.getHost(), component.getPort()));
     }
 
     @AfterEach

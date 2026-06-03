@@ -29,7 +29,8 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause create(ClauseInput clause) throws ServiceException {
-        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null, "TODO");
+        String userID = userContextService.getUserID();
+        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null, userID);
         return repository.create(clauseFullInput);
     }
 

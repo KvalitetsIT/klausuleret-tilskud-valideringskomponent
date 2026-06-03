@@ -35,11 +35,15 @@ class ManagementServiceImplTest {
     private ClauseRepositoryAdaptor dao;
     @Mock
     private SkippedValidationRepository skippedValidationRepository;
+    @Mock
+    private UserContextService userContextService;
 
     @Test
     void create_CreatesDraftClause() {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
-        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, null, "asdf");
+        String userId = "tester";
+        Mockito.when(userContextService.getUserID()).thenReturn(userId);
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, null, userId);
         var clause = mock(Clause.class);
         Mockito.when(dao.create(expectedClauseFullInput))
                 .thenReturn(clause);

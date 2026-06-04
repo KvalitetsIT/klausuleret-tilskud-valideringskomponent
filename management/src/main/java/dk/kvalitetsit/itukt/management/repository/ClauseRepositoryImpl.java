@@ -39,9 +39,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             ExpressionEntity createdExpression = expressionRepository.create(clauseInput.expression());
 
-            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from, created_by) " +
-                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from, :created_by) " +
-                    "RETURNING id, created_time";
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from, created_by, created_time) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from, :created_by, :created_time) " +
+                    "RETURNING id";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue("uuid", uuid.toString())
@@ -50,7 +50,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .addValue("error_message", clauseInput.errorMessage())
                     .addValue("status", clauseInput.status().name())
                     .addValue("valid_from", clauseInput.validFrom())
-                    .addValue("created_by", clauseInput.createdBy());
+                    .addValue("created_by", clauseInput.createdBy())
+                    .addValue("created_time", clauseInput.createdTime());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
@@ -67,7 +68,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         createdExpression,
                         Optional.ofNullable(clauseInput.validFrom()),
                         clauseInput.createdBy(),
-                        rs.getTimestamp("created_time")
+                        clauseInput.createdTime()
                 );
             });
 

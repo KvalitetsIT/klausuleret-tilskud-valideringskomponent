@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
+import org.openapitools.model.ClauseStatus;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -23,7 +24,8 @@ public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.mod
                 this.expressionModelMapper.map(entry.expression()),
                 entry.error().message(),
                 entry.uuid(),
-                entry.validFrom().map(this::dateToOffsetDateTime).orElse(null)
+                entry.validFrom().map(this::dateToOffsetDateTime).orElse(null),
+                ClauseStatus.fromValue(entry.status().name())
         );
     }
 

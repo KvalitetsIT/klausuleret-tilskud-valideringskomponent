@@ -132,7 +132,7 @@ class ManagementIT extends BaseTest {
         assertEquals(1, activeClauses.size());
         assertThat(activeClauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("validFrom")
+                .ignoringFields("validFrom", "status")
                 .isEqualTo(updatedClause);
     }
 
@@ -147,15 +147,17 @@ class ManagementIT extends BaseTest {
 
         assertThat(inactiveClause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom")
+                .ignoringFields("uuid", "validFrom", "status")
                 .isEqualTo(clause);
+        assertEquals(ClauseStatus.INACTIVE, inactiveClause.getStatus());
         assertEquals(1, inactiveClauses.size());
         assertEquals(inactiveClause, inactiveClauses.getFirst());
 
         assertThat(activeClause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom")
+                .ignoringFields("uuid", "validFrom", "status")
                 .isEqualTo(clause);
+        assertEquals(ClauseStatus.ACTIVE, activeClause.getStatus());
         assertEquals(1, activeClauses.size());
         assertEquals(activeClause, activeClauses.getFirst());
     }
@@ -177,7 +179,7 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom")
+                .ignoringFields("uuid", "validFrom", "status")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
@@ -258,7 +260,13 @@ class ManagementIT extends BaseTest {
 
         ClauseOutput createClauseResponse = api.management20250801ClausesPost(clauseInput);
 
-        DslOutput dslOutput = new DslOutput().name("CLAUSE").dsl(dsl).error(error).uuid(createClauseResponse.getUuid()).validFrom(createClauseResponse.getValidFrom());
+        DslOutput dslOutput = new DslOutput()
+                .name("CLAUSE")
+                .dsl(dsl)
+                .error(error)
+                .uuid(createClauseResponse.getUuid())
+                .validFrom(createClauseResponse.getValidFrom())
+                .status(ClauseStatus.DRAFT);
 
         var getDslResponse = api.management20250801ClausesDslIdGet(createClauseResponse.getUuid());
 
@@ -342,7 +350,8 @@ class ManagementIT extends BaseTest {
                                                         ))))))
                 .error(error)
                 .uuid(dslOutput.getUuid())
-                .validFrom(getClauseResponse.getValidFrom());
+                .validFrom(getClauseResponse.getValidFrom())
+                .status(ClauseStatus.DRAFT);
 
         assertEquals(clauseOutput, getClauseResponse, "Expected the clause to match the dsl initially created");
 

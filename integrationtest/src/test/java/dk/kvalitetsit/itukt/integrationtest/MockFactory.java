@@ -85,7 +85,8 @@ public class MockFactory {
     public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput()
             .name("CHOL")
             .expression(EXPRESSION_1_DTO)
-            .uuid(UUID.randomUUID()).error("message");
+            .uuid(UUID.randomUUID()).error("message")
+            .status(ClauseStatus.DRAFT);
 
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput()
             .name("CHOL")

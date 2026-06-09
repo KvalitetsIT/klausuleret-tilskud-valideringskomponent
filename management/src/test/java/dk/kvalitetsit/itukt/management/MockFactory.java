@@ -87,7 +87,7 @@ public class MockFactory {
             .operator(BinaryOperator.OR)
             .left(EXPRESSION_2_DTO)
             .right(EXPRESSION_7_DTO);
-    public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, CLAUSE_1_MODEL.error().message(), CLAUSE_1_MODEL.uuid(), validFrom.toInstant().atOffset(ZoneOffset.UTC));
+    public static final ClauseOutput CLAUSE_1_OUTPUT = new ClauseOutput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, CLAUSE_1_MODEL.error().message(), CLAUSE_1_MODEL.uuid(), validFrom.toInstant().atOffset(ZoneOffset.UTC), mapStatus(CLAUSE_1_MODEL.status()));
     public static final ClauseInput CLAUSE_1_INPUT = new ClauseInput(CLAUSE_1_ENTITY.name(), EXPRESSION_1_DTO, CLAUSE_1_MODEL.error().message());
 
     public static String EXPRESSION_1_DSL = "(INDIKATION = C10BA03) eller (INDIKATION i C10BA02, C10BA05) og (AGE >= 13)";
@@ -96,7 +96,7 @@ public class MockFactory {
     // Note: This clause(CLAUSE_1_DSL) matches: clause_1_*
 
     public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput("name","message", EXPRESSION_1_DSL);
-    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput("name", "message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid(), validFrom.toInstant().atOffset(ZoneOffset.UTC));
+    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput("name", "message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid(), validFrom.toInstant().atOffset(ZoneOffset.UTC), CLAUSE_1_OUTPUT.getStatus());
 
     private static dk.kvalitetsit.itukt.common.model.BinaryExpression EXPRESSION_7_MODEL() {
         return new dk.kvalitetsit.itukt.common.model.BinaryExpression(
@@ -104,5 +104,9 @@ public class MockFactory {
                 dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND,
                 EXPRESSION_6_MODEL
         );
+    }
+
+    private static ClauseStatus mapStatus(Clause.Status status) {
+        return ClauseStatus.fromValue(status.name());
     }
 }

@@ -320,6 +320,7 @@ components:
           required:
             - uuid
             - validFrom
+            - status
           properties:
             uuid:
               type: string
@@ -332,6 +333,8 @@ components:
               description: when the clause is valid from
               type: string
               format: date-time
+            status:
+              $ref: '#/components/schemas/ClauseStatus'
 
 
     Expression:
@@ -517,6 +520,7 @@ components:
           required:
             - uuid
             - validFrom
+            - status
           properties:
             uuid:
               type: string
@@ -529,6 +533,8 @@ components:
               description: when the clause is valid from
               type: string
               format: date-time
+            status:
+              $ref: '#/components/schemas/ClauseStatus'
 
 
     Dsl:

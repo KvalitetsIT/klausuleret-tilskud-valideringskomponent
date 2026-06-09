@@ -18,7 +18,8 @@ public class ClauseDtoDslMapper implements Mapper<ClauseOutput, DslOutput> {
                 entry.getError(),
                 this.expressionDslMapper.map(entry.getExpression()),
                 entry.getUuid(),
-                entry.getValidFrom()
+                entry.getValidFrom(),
+                entry.getStatus()
         );
     }
 }

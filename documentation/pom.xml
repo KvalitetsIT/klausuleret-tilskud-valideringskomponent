@@ -149,7 +149,7 @@
 							<configOptions>
 								<sourceFolder>src/test/java</sourceFolder>
 								<dateLibrary>java8</dateLibrary>
-								<useSpringBoot3>true</useSpringBoot3>
+								<useSpringBoot4>true</useSpringBoot4>
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
 								<useOneOfInterfaces>true</useOneOfInterfaces>
@@ -173,7 +173,7 @@
 							<configOptions>
 								<sourceFolder>src/test/java</sourceFolder>
 								<dateLibrary>java8</dateLibrary>
-								<useSpringBoot3>true</useSpringBoot3>
+								<useSpringBoot4>true</useSpringBoot4>
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
 								<useOneOfInterfaces>true</useOneOfInterfaces>
@@ -202,7 +202,7 @@
 								<interfaceOnly>true</interfaceOnly>
 								<performBeanValidation>true</performBeanValidation>
 								<library>spring-cloud</library>
-								<useSpringBoot3>true</useSpringBoot3>
+								<useSpringBoot4>true</useSpringBoot4>
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
 								<useTags>true</useTags>
@@ -228,7 +228,7 @@
 								<interfaceOnly>true</interfaceOnly>
 								<performBeanValidation>true</performBeanValidation>
 								<library>spring-cloud</library>
-								<useSpringBoot3>true</useSpringBoot3>
+								<useSpringBoot4>true</useSpringBoot4>
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
 								<useTags>true</useTags>

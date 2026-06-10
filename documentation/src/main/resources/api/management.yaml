@@ -359,10 +359,10 @@ components:
             status:
               $ref: '#/components/schemas/ClauseStatus'
             createdBy:
-              description: ID of the user who created the clause
+              description: ID of the user who created this version of the clause
               type: string
             createdTime:
-              description: when the clause was created
+              description: When this version of the clause was created
               type: string
               format: date-time
 
@@ -568,10 +568,10 @@ components:
             status:
               $ref: '#/components/schemas/ClauseStatus'
             createdBy:
-              description: ID of the user who created the clause
+              description: ID of the user who created this version of the clause
               type: string
             createdTime:
-              description: when the clause was created
+              description: When this version of the clause was created
               type: string
               format: date-time
 

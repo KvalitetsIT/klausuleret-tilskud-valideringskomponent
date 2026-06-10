@@ -62,16 +62,16 @@ class ManagementIT extends BaseTest {
         assertEquals(created.size(), clauses.size());
 
         for (int i = 0; i < created.size(); i++) {
-            var x = created.get(i);
+            var x = created.reversed().get(i);
             var y = clauses.get(i);
             assertEquals(x.getError(), y.getError());
             if (i != 0) {
-                // Assert that the timestamp is greater than the previous
+                // Assert that the timestamp is less than the previous
                 DslOutput prev_y = clauses.get(i - 1);
 
                 assertTrue(
-                        y.getValidFrom().isAfter(prev_y.getValidFrom()),
-                        "The timestamp is expected to be greater than the previous version"
+                        y.getValidFrom().isBefore(prev_y.getValidFrom()),
+                        "The timestamp is expected to be less than the previous version"
                 );
             }
         }

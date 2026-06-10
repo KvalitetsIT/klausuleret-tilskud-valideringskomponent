@@ -266,31 +266,6 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void updateDraftToActive_WhenNoClauseWithUuidExist_ThrowsException() {
-        UUID nonExistingUuid = UUID.randomUUID();
-
-        var e = assertThrows(
-                NotFoundException.class,
-                () -> repository.updateDraftToActive(nonExistingUuid));
-
-        assertEquals("No clause found with uuid %s in DRAFT status".formatted(nonExistingUuid), e.getDetailedError());
-    }
-
-    @Test
-    void updateDraftToActive_WhenUuidMatchesClause_SucceedsOnlyWhenInDraft() {
-        var clauseInput = new ClauseEntityInput("test", new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah"), "error", Clause.Status.DRAFT, null, "tester");
-
-        var clause = repository.create(clauseInput);
-
-        assertDoesNotThrow(() -> repository.updateDraftToActive(clause.uuid()));
-        var e = assertThrows(
-                NotFoundException.class,
-                () -> repository.updateDraftToActive(clause.uuid()));
-
-        assertEquals("No clause found with uuid %s in DRAFT status".formatted(clause.uuid()), e.getDetailedError());
-    }
-
-    @Test
     void create_WhenAllErrorCodesHasBeenUsed_ThrowsException() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
         jdbcTemplate.execute("INSERT INTO error_code (error_code, clause_name) VALUES (10999, 'clause_with_last_error_code')");

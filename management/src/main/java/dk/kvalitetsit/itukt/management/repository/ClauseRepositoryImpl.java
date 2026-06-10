@@ -241,7 +241,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         SELECT uuid
                         FROM clause
                         WHERE name = :name AND valid_from IS NOT NULL
-                        ORDER BY valid_from
+                        ORDER BY valid_from DESC
                     """;
 
             List<UUID> uuids = template.queryForList(sql, Map.of("name", name), UUID.class);

@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.repository;
 
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Field;
@@ -72,6 +73,45 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
         };
     }
 
+    @Override
+    public void delete(Long id) throws NotFoundException {
+        var expression = read(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Expression with id %d was not found", id)));
+        delete(expression);
+    }
+
+    private void delete(ExpressionEntity expression) throws NotFoundException {
+        switch (expression) {
+            case ExpressionEntity.StringConditionEntity e -> deleteStringCondition(e);
+            case ExpressionEntity.NumberConditionEntity e -> deleteNumberCondition(e);
+            case ExpressionEntity.BinaryExpressionEntity e -> deleteBinary(e);
+            case ExpressionEntity.ExistingDrugMedicationConditionEntity e -> deleteExistingDrugMedication(e);
+        }
+        template.update("DELETE FROM expression WHERE id = :id",
+                Map.of("id", expression.id()));
+    }
+
+    private void deleteBinary(ExpressionEntity.BinaryExpressionEntity binary) throws NotFoundException {
+        template.update("DELETE FROM binary_expression WHERE expression_id = :id",
+                Map.of("id", binary.id()));
+        delete(binary.left());
+        delete(binary.right());
+    }
+
+    private void deleteStringCondition(ExpressionEntity.StringConditionEntity condition) {
+        template.update("DELETE FROM string_condition_expression WHERE expression_id = :id",
+                Map.of("id", condition.id()));
+    }
+
+    private void deleteNumberCondition(ExpressionEntity.NumberConditionEntity condition) {
+        template.update("DELETE FROM number_condition_expression WHERE expression_id = :id",
+                Map.of("id", condition.id()));
+    }
+
+    private void deleteExistingDrugMedication(ExpressionEntity.ExistingDrugMedicationConditionEntity existingDrugMedication) {
+        template.update("DELETE FROM existing_drug_medication_condition_expression WHERE expression_id = :id",
+                Map.of("id", existingDrugMedication.id()));
+    }
 
     private ExpressionEntity.StringConditionEntity insertStringCondition(ExpressionEntity.StringConditionEntity condition) {
         template.update(
@@ -192,8 +232,6 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
             return Optional.empty();
         }
     }
-
-
 
 
 }

@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
@@ -147,7 +148,6 @@ class ManagementControllerTest {
     }
 
 
-
     @Test
     void call20250801clausesNameStatusPut_GivenActiveStatus_UpdatesClauseStatus() {
         String name = "test";
@@ -159,5 +159,22 @@ class ManagementControllerTest {
 
         assertEquals(dslOutput, response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801ClausesIdDelete() {
+        UUID uuid = UUID.randomUUID();
+        var clauseOutput = Mockito.mock(ClauseOutput.class);
+        Mockito.when(clauseService.deleteDraft(uuid)).thenReturn(clauseOutput);
+        var response = managementController.management20250801ClausesIdDelete(uuid);
+        assertEquals(clauseOutput, response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801ClausesIdDelete_whenError() {
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(ServiceException.class);
+        assertThrows(ServiceException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
     }
 }

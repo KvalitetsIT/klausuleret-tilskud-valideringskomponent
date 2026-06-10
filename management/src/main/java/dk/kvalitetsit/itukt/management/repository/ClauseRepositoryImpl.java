@@ -263,10 +263,10 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public ClauseEntity updateDraftToActive(UUID uuid) throws NotFoundException {
 
         String updateSql = """
-        UPDATE clause
-        SET status = :new_status, valid_from = NOW(3)
-        WHERE uuid = :uuid AND status = :current_status
-        """;
+                UPDATE clause
+                SET status = :new_status, valid_from = NOW(3)
+                WHERE uuid = :uuid AND status = :current_status
+                """;
 
         int rowsAffected = template.update(
                 updateSql,
@@ -284,5 +284,17 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         return read(uuid).orElseThrow();
     }
 
+    @Override
+    public ClauseEntity deleteDraft(UUID id) throws NotFoundException, ServiceException {
+        var clause = read(id).filter(c -> c.status() == Clause.Status.DRAFT)
+                .orElseThrow(() -> new NotFoundException("No clause found with uuid %s and status DRAFT".formatted(id)));
+        template.update(
+                "DELETE FROM clause WHERE uuid = :uuid",
+                Map.of("uuid", id.toString())
+        );
+        expressionRepository.delete(clause.expression().id());
+        return clause;
+
+    }
 
 }

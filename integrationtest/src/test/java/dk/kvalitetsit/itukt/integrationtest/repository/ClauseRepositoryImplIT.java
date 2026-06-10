@@ -316,7 +316,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     void deleteDraft_givenStatusNotDraft_ThrowsException() {
         for (var status : Clause.Status.values()) {
             if (status != Clause.Status.DRAFT) {
-                var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", status, null);
+                var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", status, null, null);
                 var created = repository.create(clause);
                 var e = assertThrows(NotFoundException.class, () -> repository.deleteDraft(created.uuid()));
                 Assertions.assertEquals("No clause found with uuid %s and status DRAFT".formatted(created.uuid()), e.getDetailedError());
@@ -327,7 +327,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
     @Test
     void deleteDraft_givenStatusDraft_SuccessfullyDeletesClauseAndExpressions() {
         var jdbcTemplate = new JdbcTemplate(appDatabase.getDatasource());
-        var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null);
+        var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", Clause.Status.DRAFT, null, null);
         var created = repository.create(clause);
 
         assertDoesNotThrow(() -> repository.deleteDraft(created.uuid()));

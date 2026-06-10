@@ -118,52 +118,75 @@ class ManagementServiceImplTest {
 
         Mockito.when(active.id()).thenReturn(1L);
         Mockito.when(draft.name()).thenReturn("blaaah");
-
+        Mockito.when(draft.expression()).thenReturn(Mockito.mock(BinaryExpression.class));
+        Mockito.when(draft.error()).thenReturn(new Clause.Error("message", 10800));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
-        Mockito.when(draft.id()).thenReturn(2L);
-
+        String userId = "tester";
+        Mockito.when(userContextService.getUserID()).thenReturn(userId);
         Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
         Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.of(active));
+        var createdClause = mock(Clause.class);
+        Mockito.when(dao.create(Mockito.any())).thenReturn(createdClause);
+        Mockito.when(createdClause.id()).thenReturn(3L);
 
         service.approve(draft.uuid(), false);
 
-        Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(active.id(), draft.id());
-        Mockito.verify(dao, Mockito.times(1)).updateDraftToActive(draft.uuid());
+        Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(active.id(), createdClause.id());
+        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, null, userId);
+        Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
+            assertThat(input)
+                    .usingRecursiveComparison()
+                    .ignoringFields("validFrom")
+                    .isEqualTo(expectedClauseInput);
+            return true;
+        }));
+        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
     @Test
     void approve_givenResetSkippedValidations_whenApprove_thenUpdateClauseStatusFromDraftToActiveWithoutCopyingSkippedValidations() {
         var active = Mockito.mock(Clause.class);
         var draft = Mockito.mock(Clause.class);
-
         Mockito.when(draft.name()).thenReturn("blaaah");
-
+        Mockito.when(draft.expression()).thenReturn(Mockito.mock(BinaryExpression.class));
+        Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
-
         Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
         Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.of(active));
 
         service.approve(draft.uuid(), true);
 
         Mockito.verifyNoInteractions(skippedValidationRepository);
-        Mockito.verify(dao, Mockito.times(1)).updateDraftToActive(draft.uuid());
+        Mockito.verify(dao, Mockito.times(1)).create(Mockito.any());
+        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
-
     @Test
-    void approve_givenResetSkippedValidations_givenEmptyClause_whenApprove_thenUpdateClauseStatusFromDraftToActiveWithoutCopyingSkippedValidations() {
-        var draft = Mockito.mock(Clause.class);
+    void approve_WhenNoDraftMatchesUuid_ThrowsException() {
+        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.empty());
 
-        Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
-
-        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> service.approve(draft.uuid(), true));
+        assertThrows(NotFoundException.class, () -> service.approve(UUID.randomUUID(), true));
 
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verifyNoMoreInteractions(dao);
     }
 
+    @Test
+    void approve_givenNoResetSkippedValidationsWithNoCurrentClause_UpdatesClauseStatusFromDraftToActiveWithoutCopyingSkippedValidations() {
+        var draft = Mockito.mock(Clause.class);
+        Mockito.when(draft.name()).thenReturn("blaaah");
+        Mockito.when(draft.expression()).thenReturn(Mockito.mock(BinaryExpression.class));
+        Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
+        Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
+        Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.empty());
+
+        service.approve(draft.uuid(), false);
+
+        Mockito.verifyNoInteractions(skippedValidationRepository);
+        Mockito.verify(dao, Mockito.times(1)).create(Mockito.any());
+        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
+    }
 
     @Test
     void readHistory_assertThrowsNotFoundIfEmpty() {

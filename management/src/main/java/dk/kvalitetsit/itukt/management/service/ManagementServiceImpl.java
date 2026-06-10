@@ -64,13 +64,18 @@ public class ManagementServiceImpl implements ManagementService {
     public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ServiceException {
         Clause draft = repository.read(clauseUuid)
                 .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
-
         Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
+        String userID = userContextService.getUserID();
+
+        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, new Date(), userID);
+        Clause created = repository.create(clauseInput);
+
+        repository.deleteDraft(draft.uuid());
 
         if (!resetSkippedValidations && currentClause.isPresent()) {
-            skippedValidationRepository.copySkippedValidation(currentClause.get().id(), draft.id());
+            skippedValidationRepository.copySkippedValidation(currentClause.get().id(), created.id());
         }
-        return repository.updateDraftToActive(draft.uuid());
+        return created;
     }
 
     @Override

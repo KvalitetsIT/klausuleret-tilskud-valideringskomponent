@@ -5,10 +5,9 @@ CREATE TABLE clause (
     expression_id INT NOT NULL UNIQUE,
     error_message VARCHAR(255) NOT NULL,
     status ENUM('DRAFT','ACTIVE', 'INACTIVE') NOT NULL,
-    valid_from DATETIME(3),
     created_time DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     created_by VARCHAR(255) NOT NULL,
-    UNIQUE INDEX unique_clause_version (name, valid_from),
+    UNIQUE INDEX unique_clause_version (name, created_time),
     FOREIGN KEY (expression_id) REFERENCES expression(id)
 )
 DEFAULT CHARSET=utf8 COLLATE=utf8_bin

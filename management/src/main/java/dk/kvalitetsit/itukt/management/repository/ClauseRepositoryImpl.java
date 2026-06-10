@@ -39,8 +39,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             ExpressionEntity createdExpression = expressionRepository.create(clauseInput.expression());
 
-            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, valid_from, created_by) " +
-                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :valid_from, :created_by) " +
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, created_by) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :created_by) " +
                     "RETURNING id, created_time";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
@@ -49,7 +49,6 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .addValue("expression_id", createdExpression.id())
                     .addValue("error_message", clauseInput.errorMessage())
                     .addValue("status", clauseInput.status().name())
-                    .addValue("valid_from", clauseInput.validFrom())
                     .addValue("created_by", clauseInput.createdBy());
 
 
@@ -118,7 +117,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.valid_from, c.created_by, c.created_time
+                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.created_by, c.created_time
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -139,7 +138,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
-                                Optional.ofNullable(rs.getTimestamp("valid_from")),
+                                Optional.ofNullable(null),
                                 rs.getString("created_by"),
                                 rs.getTimestamp("created_time")
                         );
@@ -161,8 +160,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        WHERE valid_from IS NOT NULL AND name = :name
-                        ORDER BY c.valid_from DESC
+                        WHERE status != 'DRAFT' AND name = :name
+                        ORDER BY c.created_time DESC
                         LIMIT 1
                     """;
 
@@ -188,13 +187,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         SELECT c.uuid
                         FROM clause c
                         JOIN (
-                            SELECT name, MAX(valid_from) AS max_valid_from
+                            SELECT name, MAX(created_time) AS max_created_time
                             FROM clause
-                            WHERE valid_from IS NOT NULL
+                            WHERE status != 'DRAFT'
                             GROUP BY name
                         ) latest
                           ON c.name = latest.name
-                            AND c.valid_from = latest.max_valid_from
+                            AND c.created_time = latest.max_created_time
                         ORDER BY c.id
                     """;
 
@@ -245,8 +244,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             String sql = """
                         SELECT uuid
                         FROM clause
-                        WHERE name = :name AND valid_from IS NOT NULL
-                        ORDER BY valid_from DESC
+                        WHERE name = :name AND status != 'DRAFT'
+                        ORDER BY created_time DESC
                     """;
 
             List<UUID> uuids = template.queryForList(sql, Map.of("name", name), UUID.class);

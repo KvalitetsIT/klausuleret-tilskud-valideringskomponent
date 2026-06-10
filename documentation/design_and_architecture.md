@@ -18,7 +18,7 @@ Valideringsmodulet fungerer som grænseflade til FMK og benytter i den forbindel
 
 ## Tech Stack
 Systemet er designet med fokus på modularitet, testbarhed og skalérbarhed. Her anvendes en **lagdelt arkitektur**, hvor forretningslogik, datatilgang og præsentationslag er klart adskilt. Dette sikrer, at ændringer i ét lag har minimal indvirkning på andre dele af systemet og fremmer genanvendelighed af komponenter. De centrale teknologier og designvalg omfatter:
-- **Java 35 med Spring Boot**: Primært backend-framework med dependency injection og hurtig opsætning.
+- **Java 25 med Spring Boot**: Primært backend-framework med dependency injection og hurtig opsætning.
 - **Contract-First API Design**: API’er defineres først via OpenAPI-specifikationer, hvilket sikrer konsistente kontrakter mellem services.
 - **RESTful Services**: Tjenester eksponeres som REST API’er, hvilket giver interoperabilitet og standardiseret kommunikation.
 - **MariaDB**: Relationel SQL database valgt for at afspejle stamdatabasen.

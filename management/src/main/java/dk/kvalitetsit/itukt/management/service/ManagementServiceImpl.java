@@ -30,7 +30,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public Clause create(ClauseInput clause) throws ServiceException {
         String userID = userContextService.getUserID();
-        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null, userID, new Date());
+        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null, userID);
         return repository.create(clauseFullInput);
     }
 
@@ -88,7 +88,7 @@ public class ManagementServiceImpl implements ManagementService {
                 .filter(c -> c.status() == currentStatus)
                 .orElseThrow(() -> new BadRequestException(errorMessage));
 
-        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, new Date(), clause.createdBy(), clause.createdTime());
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, new Date(), clause.createdBy());
         Clause created = repository.create(clauseInput);
         skippedValidationRepository.copySkippedValidation(clause.id(), created.id());
         return created;

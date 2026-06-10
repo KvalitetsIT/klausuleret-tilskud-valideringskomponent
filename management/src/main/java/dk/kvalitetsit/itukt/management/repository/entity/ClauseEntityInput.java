@@ -10,8 +10,7 @@ public record ClauseEntityInput(
         String errorMessage,
         Clause.Status status,
         Date validFrom,
-        String createdBy,
-        Date createdTime
+        String createdBy
 ) {
 
 }

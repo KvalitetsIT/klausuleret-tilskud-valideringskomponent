@@ -6,7 +6,7 @@ CREATE TABLE clause (
     error_message VARCHAR(255) NOT NULL,
     status ENUM('DRAFT','ACTIVE', 'INACTIVE') NOT NULL,
     valid_from DATETIME(3),
-    created_time DATETIME(3) NOT NULL,
+    created_time DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     created_by VARCHAR(255) NOT NULL,
     UNIQUE INDEX unique_clause_version (name, valid_from),
     FOREIGN KEY (expression_id) REFERENCES expression(id)

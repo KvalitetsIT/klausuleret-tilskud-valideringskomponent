@@ -24,7 +24,8 @@ import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.management.MockFactory.EXPRESSION_1_MODEL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,17 +44,13 @@ class ManagementServiceImplTest {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, null, userId);
         var clause = mock(Clause.class);
-        Mockito.when(dao.create(Mockito.any())).thenReturn(clause);
+        Mockito.when(dao.create(expectedClauseFullInput))
+                .thenReturn(clause);
 
         var result = service.create(clauseForCreation);
 
-        Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
-            var expectedClauseInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, null, userId, input.createdTime());
-            assertEquals(expectedClauseInput, input);
-            assertNotNull(input.createdTime());
-            return true;
-        }));
         assertEquals(clause, result, "Created clause should be returned from service");
     }
 
@@ -229,7 +226,7 @@ class ManagementServiceImplTest {
         var clauseResponse = service.inactivate(clause.name());
 
         assertEquals(inactiveClause, clauseResponse);
-        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, null, clause.createdBy(), clause.createdTime());
+        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, null, clause.createdBy());
         Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
             assertThat(input)
                     .usingRecursiveComparison()
@@ -265,7 +262,7 @@ class ManagementServiceImplTest {
         var clauseResponse = service.activate(clause.name());
 
         assertEquals(activeClause, clauseResponse);
-        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, null, clause.createdBy(), clause.createdTime());
+        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, null, clause.createdBy());
         Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
             assertThat(input)
                     .usingRecursiveComparison()

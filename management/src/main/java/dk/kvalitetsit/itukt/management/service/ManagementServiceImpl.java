@@ -10,7 +10,6 @@ import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,15 +18,18 @@ public class ManagementServiceImpl implements ManagementService {
 
     private final ClauseRepositoryAdaptor repository;
     private final SkippedValidationRepository skippedValidationRepository;
+    private final UserContextService userContextService;
 
-    public ManagementServiceImpl(ClauseRepositoryAdaptor repository, SkippedValidationRepository skippedValidationRepository) {
+    public ManagementServiceImpl(ClauseRepositoryAdaptor repository, SkippedValidationRepository skippedValidationRepository, UserContextService userContextService) {
         this.repository = repository;
         this.skippedValidationRepository = skippedValidationRepository;
+        this.userContextService = userContextService;
     }
 
     @Override
     public Clause create(ClauseInput clause) throws ServiceException {
-        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, null);
+        String userID = userContextService.getUserID();
+        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID);
         return repository.create(clauseFullInput);
     }
 
@@ -61,13 +63,18 @@ public class ManagementServiceImpl implements ManagementService {
     public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ServiceException {
         Clause draft = repository.read(clauseUuid)
                 .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
-
         Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
+        String userID = userContextService.getUserID();
+
+        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID);
+        Clause created = repository.create(clauseInput);
+
+        repository.deleteDraft(draft.uuid());
 
         if (!resetSkippedValidations && currentClause.isPresent()) {
-            skippedValidationRepository.copySkippedValidation(currentClause.get().id(), draft.id());
+            skippedValidationRepository.copySkippedValidation(currentClause.get().id(), created.id());
         }
-        return repository.updateDraftToActive(draft.uuid());
+        return created;
     }
 
     @Override
@@ -85,7 +92,7 @@ public class ManagementServiceImpl implements ManagementService {
                 .filter(c -> c.status() == currentStatus)
                 .orElseThrow(() -> new BadRequestException(errorMessage));
 
-        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, new Date());
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, clause.createdBy());
         Clause created = repository.create(clauseInput);
         skippedValidationRepository.copySkippedValidation(clause.id(), created.id());
         return created;

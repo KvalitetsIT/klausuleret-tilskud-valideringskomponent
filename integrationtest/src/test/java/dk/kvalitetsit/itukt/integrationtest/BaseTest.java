@@ -56,7 +56,7 @@ public abstract class BaseTest {
         component.start();
 
         // Configure API client
-        client = new ApiClient().setBasePath(String.format("http://%s:%s", component.getHost(), component.getPort()));
+        client = new ApiClient().addDefaultHeader("User-ID", MockFactory.USER_ID).setBasePath(String.format("http://%s:%s", component.getHost(), component.getPort()));
     }
 
     @AfterEach

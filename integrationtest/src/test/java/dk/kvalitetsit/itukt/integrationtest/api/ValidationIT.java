@@ -24,7 +24,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.AND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,10 +70,9 @@ public class ValidationIT extends BaseTest {
         var createdByExpression = new ExpressionEntity.StringConditionEntity(Field.DOCTOR_SPECIALITY, VALID_DOCTOR_SPECIALITY);
         ExpressionEntity.BinaryExpressionEntity specialityConditions = new ExpressionEntity.BinaryExpressionEntity(2L, createdByExpression, AND, departmentSpecialityRequirement);
         var expression = new ExpressionEntity.BinaryExpressionEntity(orExpression, AND, specialityConditions);
-        var clauseInput = new ClauseEntityInput(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE, dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, null);
+        var clauseInput = new ClauseEntityInput(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE, dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, "tester");
 
-        UUID uuid = repository.create(clauseInput).uuid();
-        repository.updateDraftToActive(uuid);
+        repository.create(clauseInput);
     }
 
     private static void setupStamdata() {

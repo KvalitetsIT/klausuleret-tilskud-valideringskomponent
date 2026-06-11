@@ -122,15 +122,6 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void updateDraftToActive() {
-        UUID uuid = UUID.randomUUID();
-
-        adaptor.updateDraftToActive(uuid);
-
-        Mockito.verify(concreteRepository).updateDraftToActive(uuid);
-    }
-
-    @Test
     void deleteDraft_whenSuccess_thenReturnDeletedClause() {
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var expected = Mockito.mock(Clause.class);

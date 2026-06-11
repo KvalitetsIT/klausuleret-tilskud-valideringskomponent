@@ -17,6 +17,7 @@ import org.openapitools.client.model.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
+import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +71,7 @@ class ManagementIT extends BaseTest {
                 DslOutput prev_y = clauses.get(i - 1);
 
                 assertTrue(
-                        y.getValidFrom().isBefore(prev_y.getValidFrom()),
+                        y.getCreatedTime().isBefore(prev_y.getCreatedTime()),
                         "The timestamp is expected to be less than the previous version"
                 );
             }
@@ -96,9 +97,10 @@ class ManagementIT extends BaseTest {
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
+        assertNotNull(clauses.getFirst().getCreatedTime());
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom")
+                .ignoringFields("uuid", "createdTime")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -110,9 +112,10 @@ class ManagementIT extends BaseTest {
         assertEquals(1, clauses.size());
         var clause = clauses.getFirst();
 
+        assertNotNull(clause.getCreatedTime());
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom")
+                .ignoringFields("uuid", "createdTime")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -132,7 +135,7 @@ class ManagementIT extends BaseTest {
         assertEquals(1, activeClauses.size());
         assertThat(activeClauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("validFrom", "status")
+                .ignoringFields("uuid", "status", "createdTime")
                 .isEqualTo(updatedClause);
     }
 
@@ -147,7 +150,7 @@ class ManagementIT extends BaseTest {
 
         assertThat(inactiveClause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status")
+                .ignoringFields("uuid", "status", "createdTime")
                 .isEqualTo(clause);
         assertEquals(ClauseStatus.INACTIVE, inactiveClause.getStatus());
         assertEquals(1, inactiveClauses.size());
@@ -155,7 +158,7 @@ class ManagementIT extends BaseTest {
 
         assertThat(activeClause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status")
+                .ignoringFields("uuid", "status", "createdTime")
                 .isEqualTo(clause);
         assertEquals(ClauseStatus.ACTIVE, activeClause.getStatus());
         assertEquals(1, activeClauses.size());
@@ -179,7 +182,7 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status")
+                .ignoringFields("uuid", "status", "createdBy", "createdTime")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
@@ -265,8 +268,9 @@ class ManagementIT extends BaseTest {
                 .dsl(dsl)
                 .error(error)
                 .uuid(createClauseResponse.getUuid())
-                .validFrom(createClauseResponse.getValidFrom())
-                .status(ClauseStatus.DRAFT);
+                .status(ClauseStatus.DRAFT)
+                .createdBy(USER_ID)
+                .createdTime(createClauseResponse.getCreatedTime());
 
         var getDslResponse = api.management20250801ClausesDslIdGet(createClauseResponse.getUuid());
 
@@ -350,8 +354,9 @@ class ManagementIT extends BaseTest {
                                                         ))))))
                 .error(error)
                 .uuid(dslOutput.getUuid())
-                .validFrom(getClauseResponse.getValidFrom())
-                .status(ClauseStatus.DRAFT);
+                .status(ClauseStatus.DRAFT)
+                .createdBy(USER_ID)
+                .createdTime(getClauseResponse.getCreatedTime());
 
         assertEquals(clauseOutput, getClauseResponse, "Expected the clause to match the dsl initially created");
 
@@ -359,12 +364,11 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testApproveAndResetSkippedValidationOfExistingClause() {
-
         var clauseCreated1 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
         var draftRead1 = clauseRepository.read(clauseCreated1.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead1.status());
-        api.management20250801ClausesDraftsIdStatusPut(clauseCreated1.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
-        var activeClause1 = clauseRepository.read(draftRead1.uuid()).orElseThrow();
+        UUID approvedUuid1 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated1.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false)).getUuid();
+        var activeClause1 = clauseRepository.read(approvedUuid1).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, activeClause1.status());
         SkippedValidationEntity skippedValidation1 = new SkippedValidationEntity(activeClause1.id(), "blaah", "blaaaaah");
         skippedValidationRepository.create(List.of(skippedValidation1));
@@ -373,8 +377,8 @@ class ManagementIT extends BaseTest {
         var clauseCreated2 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
         var draftRead2 = clauseRepository.read(clauseCreated2.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead2.status());
-        api.management20250801ClausesDraftsIdStatusPut(clauseCreated2.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
-        var activeClause2 = clauseRepository.read(draftRead2.uuid()).orElseThrow();
+        UUID approvedUuid2 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated2.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false)).getUuid();
+        var activeClause2 = clauseRepository.read(approvedUuid2).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, activeClause2.status());
         SkippedValidationEntity skippedValidation2 = new SkippedValidationEntity(activeClause2.id(), skippedValidation1.actorId(), skippedValidation1.personId());
         Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation2), "The entry is expected to exist since the 'resetSKippedValidations' flag was set to false and therefore the entries are supposed to be copied from the original clause");
@@ -382,8 +386,8 @@ class ManagementIT extends BaseTest {
         var clauseCreated3 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
         var draftRead3 = clauseRepository.read(clauseCreated3.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead3.status());
-        api.management20250801ClausesDraftsIdStatusPut(clauseCreated3.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(true));
-        var activeClause3 = clauseRepository.read(draftRead3.uuid()).orElseThrow();
+        UUID approvedUuid3 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated3.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(true)).getUuid();
+        var activeClause3 = clauseRepository.read(approvedUuid3).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, activeClause3.status());
         SkippedValidationEntity skippedValidation3 = new SkippedValidationEntity(activeClause3.id(), skippedValidation1.actorId(), skippedValidation1.personId());
         Assertions.assertFalse(skippedValidationRepository.exists(skippedValidation3), "The entry is not expected to exist since the 'resetSKippedValidations' flag was set to true and therefore the entries are not supposed to be copied from the original clause");

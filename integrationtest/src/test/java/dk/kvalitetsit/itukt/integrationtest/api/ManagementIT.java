@@ -71,7 +71,7 @@ class ManagementIT extends BaseTest {
                 DslOutput prev_y = clauses.get(i - 1);
 
                 assertTrue(
-                        y.getValidFrom().isBefore(prev_y.getValidFrom()),
+                        y.getCreatedTime().isBefore(prev_y.getCreatedTime()),
                         "The timestamp is expected to be less than the previous version"
                 );
             }
@@ -100,7 +100,7 @@ class ManagementIT extends BaseTest {
         assertNotNull(clauses.getFirst().getCreatedTime());
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "createdTime")
+                .ignoringFields("uuid", "createdTime")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -115,7 +115,7 @@ class ManagementIT extends BaseTest {
         assertNotNull(clause.getCreatedTime());
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "createdTime")
+                .ignoringFields("uuid", "createdTime")
                 .isEqualTo(CLAUSE_1_OUTPUT);
     }
 
@@ -135,7 +135,7 @@ class ManagementIT extends BaseTest {
         assertEquals(1, activeClauses.size());
         assertThat(activeClauses.getFirst())
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status", "createdTime")
+                .ignoringFields("uuid", "status", "createdTime")
                 .isEqualTo(updatedClause);
     }
 
@@ -150,7 +150,7 @@ class ManagementIT extends BaseTest {
 
         assertThat(inactiveClause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status", "createdTime")
+                .ignoringFields("uuid", "status", "createdTime")
                 .isEqualTo(clause);
         assertEquals(ClauseStatus.INACTIVE, inactiveClause.getStatus());
         assertEquals(1, inactiveClauses.size());
@@ -158,7 +158,7 @@ class ManagementIT extends BaseTest {
 
         assertThat(activeClause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status", "createdTime")
+                .ignoringFields("uuid", "status", "createdTime")
                 .isEqualTo(clause);
         assertEquals(ClauseStatus.ACTIVE, activeClause.getStatus());
         assertEquals(1, activeClauses.size());
@@ -182,7 +182,7 @@ class ManagementIT extends BaseTest {
         var clause = clauses.getFirst();
         assertThat(clause)
                 .usingRecursiveComparison()
-                .ignoringFields("uuid", "validFrom", "status", "createdBy", "createdTime")
+                .ignoringFields("uuid", "status", "createdBy", "createdTime")
                 .withFailMessage("The clauses read is expected to match the clauses created")
                 .isEqualTo(clauseInput);
     }
@@ -268,7 +268,6 @@ class ManagementIT extends BaseTest {
                 .dsl(dsl)
                 .error(error)
                 .uuid(createClauseResponse.getUuid())
-                .validFrom(createClauseResponse.getValidFrom())
                 .status(ClauseStatus.DRAFT)
                 .createdBy(USER_ID)
                 .createdTime(createClauseResponse.getCreatedTime());
@@ -355,7 +354,6 @@ class ManagementIT extends BaseTest {
                                                         ))))))
                 .error(error)
                 .uuid(dslOutput.getUuid())
-                .validFrom(getClauseResponse.getValidFrom())
                 .status(ClauseStatus.DRAFT)
                 .createdBy(USER_ID)
                 .createdTime(getClauseResponse.getCreatedTime());

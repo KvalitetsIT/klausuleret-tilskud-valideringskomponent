@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.management.MockFactory.EXPRESSION_1_MODEL;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -44,7 +43,7 @@ class ManagementServiceImplTest {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
-        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, null, userId);
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId);
         var clause = mock(Clause.class);
         Mockito.when(dao.create(expectedClauseFullInput))
                 .thenReturn(clause);
@@ -102,8 +101,8 @@ class ManagementServiceImplTest {
     void readHistory_invokesRepositoryOnce() {
         String name = "blaah";
         var clauses = List.of(
-                new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("message1", 10800), null, Optional.empty(), "tester", new Date()),
-                new Clause(2L, name, Clause.Status.INACTIVE, null, new Clause.Error("message2", 10800), null, Optional.empty(), "tester", new Date())
+                new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("message1", 10800), null, "tester", new Date()),
+                new Clause(2L, name, Clause.Status.INACTIVE, null, new Clause.Error("message2", 10800), null, "tester", new Date())
         );
         Mockito.when(dao.readHistory(name)).thenReturn(clauses);
         var result = service.readHistory(name);
@@ -132,14 +131,8 @@ class ManagementServiceImplTest {
         service.approve(draft.uuid(), false);
 
         Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(active.id(), createdClause.id());
-        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, null, userId);
-        Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
-            assertThat(input)
-                    .usingRecursiveComparison()
-                    .ignoringFields("validFrom")
-                    .isEqualTo(expectedClauseInput);
-            return true;
-        }));
+        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId);
+        Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
         Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
@@ -215,10 +208,10 @@ class ManagementServiceImplTest {
 
     @Test
     void givenAnActiveClause_whenInactivate_thenEnsureSkippedValidationIsCopied() {
-        var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()), "tester", new Date());
+        var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 
-        Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), clause.validFrom(), "tester", new Date());
+        Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), "tester", new Date());
         Mockito.when(dao.create(any())).thenReturn(created);
 
         service.inactivate("test");
@@ -228,10 +221,10 @@ class ManagementServiceImplTest {
 
     @Test
     void givenAnInactiveClause_whenActivate_thenEnsureSkippedValidationIsCopied() {
-        var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()), "tester", new Date());
+        var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 
-        Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), clause.validFrom(), "tester", new Date());
+        Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), "tester", new Date());
         Mockito.when(dao.create(any())).thenReturn(created);
 
         service.activate("test");
@@ -241,7 +234,7 @@ class ManagementServiceImplTest {
 
     @Test
     void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() {
-        var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()), "tester", new Date());
+        var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
         Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
         var inactiveClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(inactiveClause);
@@ -249,14 +242,8 @@ class ManagementServiceImplTest {
         var clauseResponse = service.inactivate(clause.name());
 
         assertEquals(inactiveClause, clauseResponse);
-        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, null, clause.createdBy());
-        Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
-            assertThat(input)
-                    .usingRecursiveComparison()
-                    .ignoringFields("validFrom")
-                    .isEqualTo(expectedClauseInput);
-            return true;
-        }));
+        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, clause.createdBy());
+        Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
 
     @Test
@@ -277,7 +264,7 @@ class ManagementServiceImplTest {
 
     @Test
     void activate_WhenClauseIsInactive_CreatesNewClauseAndSetsActive() {
-        var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, Optional.of(new Date()), "tester", new Date());
+        var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
         Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
         var activeClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(activeClause);
@@ -285,13 +272,7 @@ class ManagementServiceImplTest {
         var clauseResponse = service.activate(clause.name());
 
         assertEquals(activeClause, clauseResponse);
-        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, null, clause.createdBy());
-        Mockito.verify(dao, Mockito.times(1)).create(Mockito.argThat(input -> {
-            assertThat(input)
-                    .usingRecursiveComparison()
-                    .ignoringFields("validFrom")
-                    .isEqualTo(expectedClauseInput);
-            return true;
-        }));
+        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, clause.createdBy());
+        Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
 }

@@ -42,7 +42,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
     @Test
     void createAndExists() {
         var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
-        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.DRAFT, null, "tester");
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.DRAFT, "tester");
         var clause = clauseRepository.create(clauseInput);
         var createdSkippedValidation = new SkippedValidationEntity(clause.id(), "actor", "person");
         var uncreatedSkippedValidation = new SkippedValidationEntity(clause.id(), "actor", "another person");
@@ -58,7 +58,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
     @Test
     void create_SameEntityTwice_DoesNotFail() {
         var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
-        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.DRAFT, null, "tester");
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.DRAFT, "tester");
         var clause = clauseRepository.create(clauseInput);
         var skippedValidation = new SkippedValidationEntity(clause.id(), "actor", "person");
 
@@ -69,7 +69,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
     @Test
     void copySkippedValidation_givenASkippedValidation_whenCopySkippedValidation_thenEnsureItExist() {
         var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
-        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, null, "tester");
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester");
 
         var clause1 = clauseRepository.create(clauseInput);
         var clause2 = clauseRepository.create(clauseInput);

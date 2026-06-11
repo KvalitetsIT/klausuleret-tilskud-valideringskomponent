@@ -64,7 +64,6 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         errorCode,
                         clauseInput.errorMessage(),
                         createdExpression,
-                        Optional.ofNullable(clauseInput.validFrom()),
                         clauseInput.createdBy(),
                         rs.getTimestamp("created_time")
                 );
@@ -138,7 +137,6 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getInt("error_code"),
                                 rs.getString("error_message"),
                                 expression,
-                                Optional.ofNullable(null),
                                 rs.getString("created_by"),
                                 rs.getTimestamp("created_time")
                         );

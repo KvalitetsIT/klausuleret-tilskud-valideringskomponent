@@ -21,7 +21,6 @@ public class ClauseInputModelEntityMapper implements Mapper<ClauseFullInput, Cla
                 expressionEntity,
                 clauseInput.errorMessage(),
                 clauseInput.status(),
-                clauseInput.validFrom(),
                 clauseInput.createdBy());
     }
 }

@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
@@ -23,7 +24,7 @@ class AgeConditionBuilderTest {
         var value = new Condition.Value.Simple("notAnInteger");
 
         var e = assertThrows(DslParserException.class, () -> ageConditionBuilder.build(Operator.EQUAL, value));
-        assertEquals("Invalid value for age condition: notAnInteger", e.getMessage());
+        assertEquals(ErrorMessages.unexpectedAgeValue(value.value()), e.getMessage());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
@@ -11,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.ExistingDrugMedicationCondition;
 import org.openapitools.model.Operator;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +29,7 @@ class ExistingDrugMedicationConditionBuilderTest {
         var operator = Operator.GREATER_THAN;
 
         var e = assertThrows(DslParserException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
-        assertEquals("Unsupported operator for existing drug medication condition: >", e.getMessage());
+        assertEquals(ErrorMessages.unexpectedValue(operator.getValue()), e.getMessage());
     }
 
     @Test
@@ -36,7 +38,7 @@ class ExistingDrugMedicationConditionBuilderTest {
         var operator = Operator.EQUAL;
 
         var e = assertThrows(DslParserException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
-        assertEquals("Expected structured value but got simple value: test", e.getMessage());
+        assertEquals(ErrorMessages.unexpectedValue(value.value()), e.getMessage());
     }
 
     @Test
@@ -46,7 +48,7 @@ class ExistingDrugMedicationConditionBuilderTest {
         var operator = Operator.EQUAL;
 
         var e = assertThrows(DslParserException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
-        assertEquals("Existing drug medication condition must only contain values for: ATC, FORM, ROUTE", e.getMessage());
+        assertEquals(ErrorMessages.unexpectedExistingDrugMedicationKeys(List.of("ATC", "FORM", "ROUTE")), e.getMessage());
     }
 
     @Test

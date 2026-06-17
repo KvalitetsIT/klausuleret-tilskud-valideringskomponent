@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
@@ -24,7 +25,7 @@ class DepartmentSpecialityConditionBuilderTest {
         var operator = Operator.GREATER_THAN;
 
         var e = assertThrows(DslParserException.class, () -> departmentSpecialityConditionBuilder.build(operator, value));
-        assertEquals("Unsupported operator for department speciality condition: >", e.getMessage());
+        assertEquals(ErrorMessages.unexpectedValue(operator.getValue()), e.getMessage());
     }
 
     @Test

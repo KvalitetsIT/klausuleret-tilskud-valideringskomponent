@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
@@ -22,7 +23,7 @@ public class AgeConditionBuilder implements ConditionBuilder {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new DslParserException("Invalid value for age condition: " + value);
+            throw new DslParserException(ErrorMessages.unexpectedAgeValue(value));
         }
     }
 }

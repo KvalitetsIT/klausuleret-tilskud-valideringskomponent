@@ -1,6 +1,9 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -14,6 +17,7 @@ public enum Identifier {
     DOCTOR_SPECIALITY("LÆGESPECIALE"),
     DEPARTMENT_SPECIALITY("AFDELINGSSPECIALE");
 
+    private static final Logger logger = LoggerFactory.getLogger(Identifier.class);
     private final String value;
 
     Identifier(String value) {
@@ -26,8 +30,8 @@ public enum Identifier {
                 return id;
             }
         }
-        throw new DslParserException("Unknown identifier: %s. Available identifiers: %s"
-                .formatted(s, Arrays.toString(Identifier.values())));
+        logger.debug("Unknown identifier: {}. Available identifiers: {}", s, Arrays.toString(Identifier.values()));
+        throw new DslParserException(ErrorMessages.unexpectedValue(s));
     }
 
     @Override

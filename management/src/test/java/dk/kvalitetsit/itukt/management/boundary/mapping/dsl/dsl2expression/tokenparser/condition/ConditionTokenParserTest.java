@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
@@ -75,7 +76,7 @@ class ConditionTokenParserTest {
 
         DslParserException e = assertThrows(DslParserException.class, () -> conditionTokenParser.parse(tokenIterator));
 
-        assertEquals("Unexpected operator for multi-value condition: unexpectedOperator", e.getMessage());
+        assertEquals(ErrorMessages.unexpectedValue("unexpectedOperator"), e.getMessage());
     }
 
     @Test

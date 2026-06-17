@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +23,7 @@ class LexerTest {
         String input = "alder = @";
 
         var e = assertThrows(DslParserException.class, () -> lexer.getTokens(input));
-        assertEquals("Unknown token: @", e.getMessage());
+        assertEquals(ErrorMessages.unexpectedValue("@"), e.getMessage());
     }
 
     @Test

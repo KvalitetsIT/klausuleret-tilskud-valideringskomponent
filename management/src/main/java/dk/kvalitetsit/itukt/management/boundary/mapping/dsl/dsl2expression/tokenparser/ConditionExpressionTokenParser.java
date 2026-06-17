@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
@@ -41,7 +42,7 @@ public class ConditionExpressionTokenParser implements TokenParser<Expression> {
     public Expression parse(TokenIterator tokens) {
         Condition condition = conditionTokenParser.parse(tokens);
         var conditionBuilder = Optional.ofNullable(conditionBuilders.get(condition.identifier()))
-                .orElseThrow(() -> new DslParserException("Unsupported identifier: " + condition.identifier()));
+                .orElseThrow(() -> new DslParserException(ErrorMessages.unexpectedValue(condition.identifier().toString())));
         return buildExpression(condition, conditionBuilder);
     }
 
@@ -56,7 +57,7 @@ public class ConditionExpressionTokenParser implements TokenParser<Expression> {
         var conditionExpressions = condition.values().stream()
                 .map(value -> conditionBuilder.build(Operator.EQUAL, value)).iterator();
         if (!conditionExpressions.hasNext()) {
-            throw new DslParserException("No values provided for multi-value condition");
+            throw new DslParserException(ErrorMessages.unexpectedEmptyMultiValueCondition());
         }
 
         Expression expression = conditionExpressions.next();

@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
@@ -53,7 +54,7 @@ public class ConditionTokenParser implements TokenParser<Condition> {
 
     private static Condition createMultiValueCondition(Identifier identifier, Token operator, List<Condition.Value> values) {
         if (!operator.text().equalsIgnoreCase("i")) {
-            throw new DslParserException("Unexpected operator for multi-value condition: " + operator.text());
+            throw new DslParserException(ErrorMessages.unexpectedValue(operator.text()));
         }
         return new Condition.MultiValueCondition(identifier, values);
     }

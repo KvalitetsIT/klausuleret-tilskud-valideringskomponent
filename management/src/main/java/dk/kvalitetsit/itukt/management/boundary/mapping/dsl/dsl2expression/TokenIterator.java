@@ -1,10 +1,15 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class TokenIterator {
+    private final Logger logger = LoggerFactory.getLogger(TokenIterator.class);
     private final LinkedList<Token> tokens;
 
     public static TokenIterator fromTokens(List<Token> tokens) {
@@ -22,7 +27,8 @@ public class TokenIterator {
         validateHasNext();
         var token = tokens.pop();
         if (token.type() != expectedType) {
-            throw new DslParserException("Unexpected token type: " + token.type() + ", expected: " + expectedType);
+            logger.debug("Unexpected token type: {}, expected: {}", token.type(), expectedType);
+            throw new DslParserException(ErrorMessages.unexpectedValue(token.text()));
         }
         return token;
     }
@@ -34,7 +40,8 @@ public class TokenIterator {
         validateHasNext();
         var token = tokens.pop();
         if (Arrays.stream(expectedText).noneMatch(expected -> expected.equalsIgnoreCase(token.text()))) {
-            throw new DslParserException("Unexpected value: " + token.text() + ", expected one of: " + String.join(", ", expectedText));
+            logger.debug("Unexpected value: {}, expected one of: {}", token.text(), String.join(", ", expectedText));
+            throw new DslParserException(ErrorMessages.unexpectedValue(token.text()));
         }
         return token;
     }
@@ -52,13 +59,13 @@ public class TokenIterator {
      */
     public void expectNoMoreTokens() {
         if (!tokens.isEmpty()) {
-            throw new DslParserException("Expected no more tokens, but found: " + tokens.peek().text());
+            throw new DslParserException(ErrorMessages.unexpectedValue(tokens.peek().text()));
         }
     }
 
     private void validateHasNext() {
         if (tokens.isEmpty()) {
-            throw new DslParserException("Unexpected end of tokens");
+            throw new DslParserException(ErrorMessages.unexpectedEndOfDsl());
         }
     }
 }

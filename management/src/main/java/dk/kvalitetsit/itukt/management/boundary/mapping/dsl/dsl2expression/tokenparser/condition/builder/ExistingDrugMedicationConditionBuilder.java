@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
+import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
@@ -19,12 +20,12 @@ public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder 
     @Override
     public ExistingDrugMedicationCondition build(Operator operator, Condition.Value value) {
         if (operator != Operator.EQUAL) {
-            throw new DslParserException("Unsupported operator for existing drug medication condition: " + operator);
+            throw new DslParserException(ErrorMessages.unexpectedValue(operator.getValue()));
         }
         Map<String, String> values = value.asStructured().values();
         List<String> validValueKeys = List.of(Identifier.ATC_CODE.toString(), Identifier.FORM_CODE.toString(), Identifier.ROUTE.toString());
         if (!validValueKeys.containsAll(values.keySet())) {
-            throw new DslParserException("Existing drug medication condition must only contain values for: " + String.join(", ", validValueKeys));
+            throw new DslParserException(ErrorMessages.unexpectedExistingDrugMedicationKeys(validValueKeys));
         }
 
         return new ExistingDrugMedicationCondition(

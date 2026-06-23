@@ -1,11 +1,10 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition;
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.TokenParser;
 import org.openapitools.model.Operator;
 
@@ -54,7 +53,7 @@ public class ConditionTokenParser implements TokenParser<Condition> {
 
     private static Condition createMultiValueCondition(Identifier identifier, Token operator, List<Condition.Value> values) {
         if (!operator.text().equalsIgnoreCase("i")) {
-            throw new DslParserException(ErrorMessages.unexpectedValue(operator.text()));
+            throw new UnexpectedValueException(operator.text());
         }
         return new Condition.MultiValueCondition(identifier, values);
     }

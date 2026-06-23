@@ -1,8 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,8 +23,8 @@ class DepartmentSpecialityConditionBuilderTest {
         var value = new Condition.Value.Simple("someSpeciality");
         var operator = Operator.GREATER_THAN;
 
-        var e = assertThrows(DslParserException.class, () -> departmentSpecialityConditionBuilder.build(operator, value));
-        assertEquals(ErrorMessages.unexpectedValue(operator.getValue()), e.getMessage());
+        var e = assertThrows(UnexpectedValueException.class, () -> departmentSpecialityConditionBuilder.build(operator, value));
+        assertEquals(operator.getValue(), e.getValue());
     }
 
     @Test

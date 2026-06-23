@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,7 @@ public enum Identifier {
             }
         }
         logger.debug("Unknown identifier: {}. Available identifiers: {}", s, Arrays.toString(Identifier.values()));
-        throw new DslParserException(ErrorMessages.unexpectedValue(s));
+        throw new UnexpectedValueException(s);
     }
 
     @Override

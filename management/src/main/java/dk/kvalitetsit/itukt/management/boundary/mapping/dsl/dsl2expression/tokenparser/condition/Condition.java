@@ -1,8 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition;
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import org.openapitools.model.Operator;
 
 import java.util.List;
@@ -22,14 +21,14 @@ public sealed interface Condition permits Condition.MultiValueCondition, Conditi
             return switch (this) {
                 case Simple simple -> simple;
                 case Structured structured ->
-                        throw new DslParserException(ErrorMessages.unexpectedValue(structured.values().toString()));
+                        throw new UnexpectedValueException(structured.values().toString());
             };
         }
 
         default Structured asStructured() {
             return switch (this) {
                 case Simple simple ->
-                        throw new DslParserException(ErrorMessages.unexpectedValue(simple.value()));
+                        throw new UnexpectedValueException(simple.value());
                 case Structured structured -> structured;
             };
         }

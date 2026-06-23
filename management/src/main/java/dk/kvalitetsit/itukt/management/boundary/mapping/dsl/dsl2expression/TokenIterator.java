@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.IncompleteDslException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ public class TokenIterator {
         var token = tokens.pop();
         if (token.type() != expectedType) {
             logger.debug("Unexpected token type: {}, expected: {}", token.type(), expectedType);
-            throw new DslParserException(ErrorMessages.unexpectedValue(token.text()));
+            throw new UnexpectedValueException(token.text());
         }
         return token;
     }
@@ -41,7 +42,7 @@ public class TokenIterator {
         var token = tokens.pop();
         if (Arrays.stream(expectedText).noneMatch(expected -> expected.equalsIgnoreCase(token.text()))) {
             logger.debug("Unexpected value: {}, expected one of: {}", token.text(), String.join(", ", expectedText));
-            throw new DslParserException(ErrorMessages.unexpectedValue(token.text()));
+            throw new UnexpectedValueException(token.text());
         }
         return token;
     }
@@ -59,13 +60,13 @@ public class TokenIterator {
      */
     public void expectNoMoreTokens() {
         if (!tokens.isEmpty()) {
-            throw new DslParserException(ErrorMessages.unexpectedValue(tokens.peek().text()));
+            throw new UnexpectedValueException(tokens.peek().text());
         }
     }
 
     private void validateHasNext() {
         if (tokens.isEmpty()) {
-            throw new DslParserException(ErrorMessages.unexpectedEndOfDsl());
+            throw new IncompleteDslException();
         }
     }
 }

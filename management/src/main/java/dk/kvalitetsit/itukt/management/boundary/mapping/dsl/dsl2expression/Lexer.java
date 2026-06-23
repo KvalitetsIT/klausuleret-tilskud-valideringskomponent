@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ public class Lexer {
             else if (matcher.group(4) != null)
                 tokens.add(new Token(TokenType.SYMBOL, matcher.group(4)));
             else
-                throw new DslParserException(ErrorMessages.unexpectedValue(matcher.group(5)));
+                throw new UnexpectedValueException(matcher.group(5));
         }
         return tokens;
     }

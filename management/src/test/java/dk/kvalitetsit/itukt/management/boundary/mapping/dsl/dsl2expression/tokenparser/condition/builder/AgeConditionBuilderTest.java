@@ -1,8 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedAgeValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +22,8 @@ class AgeConditionBuilderTest {
     void build_WithNonIntegerValue_ThrowsException() {
         var value = new Condition.Value.Simple("notAnInteger");
 
-        var e = assertThrows(DslParserException.class, () -> ageConditionBuilder.build(Operator.EQUAL, value));
-        assertEquals(ErrorMessages.unexpectedAgeValue(value.value()), e.getMessage());
+        var e = assertThrows(UnexpectedAgeValueException.class, () -> ageConditionBuilder.build(Operator.EQUAL, value));
+        assertEquals(value.value(), e.getValue());
     }
 
     @Test

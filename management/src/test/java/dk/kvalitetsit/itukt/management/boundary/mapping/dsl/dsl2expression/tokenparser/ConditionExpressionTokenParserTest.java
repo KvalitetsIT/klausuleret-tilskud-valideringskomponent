@@ -1,9 +1,9 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser;
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedEmptyMultiValueConditionException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.ConditionTokenParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder.ConditionBuilder;
@@ -66,9 +66,9 @@ class ConditionExpressionTokenParserTest {
         Mockito.when(condition.identifier()).thenReturn(Identifier.DEPARTMENT_SPECIALITY);
         Mockito.when(conditionTokenParser.parse(tokenIterator)).thenReturn(condition);
 
-        var exception = assertThrows(DslParserException.class, () -> conditionExpressionTokenParser.parse(tokenIterator));
+        var exception = assertThrows(UnexpectedValueException.class, () -> conditionExpressionTokenParser.parse(tokenIterator));
 
-        assertEquals(ErrorMessages.unexpectedValue(Identifier.DEPARTMENT_SPECIALITY.toString()), exception.getMessage());
+        assertEquals(Identifier.DEPARTMENT_SPECIALITY.toString(), exception.getValue());
     }
 
     @Test
@@ -88,9 +88,7 @@ class ConditionExpressionTokenParserTest {
         var multiValueCondition = new Condition.MultiValueCondition(Identifier.INDICATION, List.of());
         Mockito.when(conditionTokenParser.parse(tokenIterator)).thenReturn(multiValueCondition);
 
-        var exception = assertThrows(DslParserException.class, () -> conditionExpressionTokenParser.parse(tokenIterator));
-
-        assertEquals(ErrorMessages.unexpectedEmptyMultiValueCondition(), exception.getMessage());
+        assertThrows(UnexpectedEmptyMultiValueConditionException.class, () -> conditionExpressionTokenParser.parse(tokenIterator));
     }
 
     @Test

@@ -1,9 +1,9 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
-import dk.kvalitetsit.itukt.management.boundary.ErrorMessages;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedExistingDrugMedicationKeysException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +28,8 @@ class ExistingDrugMedicationConditionBuilderTest {
         var value = new Condition.Value.Structured(Map.of());
         var operator = Operator.GREATER_THAN;
 
-        var e = assertThrows(DslParserException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
-        assertEquals(ErrorMessages.unexpectedValue(operator.getValue()), e.getMessage());
+        var e = assertThrows(UnexpectedValueException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
+        assertEquals(operator.getValue(), e.getValue());
     }
 
     @Test
@@ -37,8 +37,8 @@ class ExistingDrugMedicationConditionBuilderTest {
         var value = new Condition.Value.Simple("test");
         var operator = Operator.EQUAL;
 
-        var e = assertThrows(DslParserException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
-        assertEquals(ErrorMessages.unexpectedValue(value.value()), e.getMessage());
+        var e = assertThrows(UnexpectedValueException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
+        assertEquals(value.value(), e.getValue());
     }
 
     @Test
@@ -47,8 +47,8 @@ class ExistingDrugMedicationConditionBuilderTest {
                 Map.of(Identifier.FORM_CODE.toString(), "1", Identifier.ROUTE.toString(), "2", "hest", "3"));
         var operator = Operator.EQUAL;
 
-        var e = assertThrows(DslParserException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
-        assertEquals(ErrorMessages.unexpectedExistingDrugMedicationKeys(List.of("ATC", "FORM", "ROUTE")), e.getMessage());
+        var e = assertThrows(UnexpectedExistingDrugMedicationKeysException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
+        assertEquals(List.of("ATC", "FORM", "ROUTE"), e.getValidKeys());
     }
 
     @Test

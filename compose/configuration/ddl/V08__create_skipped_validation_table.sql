@@ -5,7 +5,7 @@ CREATE TABLE skipped_validation (
     person_id VARCHAR(255) NOT NULL,
     replaces INT, -- If the skipped validation is replaced. This id points to previous row
     FOREIGN KEY (clause_id) REFERENCES clause(id),
-    FOREIGN KEY (replaces) REFERENCES clause(id),
+    FOREIGN KEY (replaces) REFERENCES skipped_validation(id),
 
     CONSTRAINT unique_skipped_validation UNIQUE (clause_id, actor_id, person_id)
 )

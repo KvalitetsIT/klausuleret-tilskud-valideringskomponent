@@ -85,8 +85,11 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ManagementService managementService(@Autowired ClauseRepositoryAdaptor clauseRepository, @Autowired SkippedValidationRepository skippedValidationRepository) {
-        return new ManagementServiceImpl(clauseRepository, skippedValidationRepository);
+    public ManagementService managementService(
+            @Autowired ClauseRepositoryAdaptor clauseRepository,
+            @Autowired SkippedValidationRepository skippedValidationRepository,
+            @Autowired UserContextService userContextService) {
+        return new ManagementServiceImpl(clauseRepository, skippedValidationRepository, userContextService);
     }
 
     @Bean

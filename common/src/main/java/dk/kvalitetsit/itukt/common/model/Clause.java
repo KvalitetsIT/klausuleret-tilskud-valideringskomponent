@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.common.model;
 
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -20,7 +19,8 @@ public record Clause(
         UUID uuid,
         Error error,
         Expression expression,
-        Optional<Date> validFrom
+        String createdBy,
+        Date createdTime
 ) {
 
     /**

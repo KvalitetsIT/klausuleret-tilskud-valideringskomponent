@@ -1,16 +1,16 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions;
 
-import java.util.List;
+import java.util.Set;
 
 public final class UnexpectedExistingDrugMedicationKeysException extends DslParserException {
-    private final List<String> validKeys;
+    private final Set<String> validKeys;
 
-    public UnexpectedExistingDrugMedicationKeysException(List<String> validKeys) {
+    public UnexpectedExistingDrugMedicationKeysException(Set<String> validKeys) {
         super("Existing drug medication condition keys must be one of: " + validKeys);
         this.validKeys = validKeys;
     }
 
-    public List<String> getValidKeys() {
+    public Set<String> getValidKeys() {
         return validKeys;
     }
 }

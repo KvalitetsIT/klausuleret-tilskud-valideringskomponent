@@ -12,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.ExistingDrugMedicationCondition;
 import org.openapitools.model.Operator;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -48,7 +48,7 @@ class ExistingDrugMedicationConditionBuilderTest {
         var operator = Operator.EQUAL;
 
         var e = assertThrows(UnexpectedExistingDrugMedicationKeysException.class, () -> existingDrugMedicationConditionBuilder.build(operator, value));
-        assertEquals(List.of("ATC", "FORM", "ROUTE"), e.getValidKeys());
+        assertEquals(Set.of("ATC", "FORM", "ROUTE"), e.getValidKeys());
     }
 
     @Test

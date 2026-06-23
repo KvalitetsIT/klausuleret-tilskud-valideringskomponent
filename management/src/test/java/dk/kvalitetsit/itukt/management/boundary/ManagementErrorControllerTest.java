@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -46,11 +46,11 @@ class ManagementErrorControllerTest {
     @Test
     void handleDslParserException_WhenUnexpectedExistingDrugMedicationKeysException_ReturnsBadRequestWithExpectedMessage() {
         var response = managementErrorController.handleDslParserException(
-                new UnexpectedExistingDrugMedicationKeysException(List.of("a", "b")),
+                new UnexpectedExistingDrugMedicationKeysException(Set.of("a")),
                 request()
         );
 
-        assertBadRequest(response, "Ugyldig klausulbetingelse. Eksisterende lægemiddel kan kun have værdier for: a, b");
+        assertBadRequest(response, "Ugyldig klausulbetingelse. Eksisterende lægemiddel kan kun have værdier for: a");
     }
 
     private static MockHttpServletRequest request() {

@@ -8,14 +8,15 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.token
 import org.openapitools.model.ExistingDrugMedicationCondition;
 import org.openapitools.model.Operator;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder {
-    private static final List<String> IDENTIFIERS = List.of(
+    private static final Set<String> IDENTIFIERS = Set.of(
             Identifier.ATC_CODE.toString(),
             Identifier.FORM_CODE.toString(),
-            Identifier.ROUTE.toString());
+            Identifier.ROUTE.toString()
+    );
 
     @Override
     public Identifier identifier() {

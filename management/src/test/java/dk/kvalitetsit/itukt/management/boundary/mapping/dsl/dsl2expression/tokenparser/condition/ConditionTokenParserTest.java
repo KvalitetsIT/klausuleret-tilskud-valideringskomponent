@@ -1,10 +1,10 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -73,9 +73,9 @@ class ConditionTokenParserTest {
         Mockito.when(tokenIterator.nextWithType(TokenType.OPERATOR))
                 .thenReturn(new Token(TokenType.OPERATOR, "unexpectedOperator"));
 
-        DslParserException e = assertThrows(DslParserException.class, () -> conditionTokenParser.parse(tokenIterator));
+        var e = assertThrows(UnexpectedValueException.class, () -> conditionTokenParser.parse(tokenIterator));
 
-        assertEquals("Unexpected operator for multi-value condition: unexpectedOperator", e.getMessage());
+        assertEquals("unexpectedOperator", e.getValue());
     }
 
     @Test

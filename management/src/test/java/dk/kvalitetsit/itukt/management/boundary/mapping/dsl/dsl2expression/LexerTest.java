@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,8 +22,8 @@ class LexerTest {
     void getTokens_WithUnknownToken_ThrowsException() {
         String input = "alder = @";
 
-        var e = assertThrows(DslParserException.class, () -> lexer.getTokens(input));
-        assertEquals("Unknown token: @", e.getMessage());
+        var e = assertThrows(UnexpectedValueException.class, () -> lexer.getTokens(input));
+        assertEquals("@", e.getValue());
     }
 
     @Test

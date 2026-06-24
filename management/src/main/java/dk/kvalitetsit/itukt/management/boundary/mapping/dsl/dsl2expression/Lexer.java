@@ -1,6 +1,8 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
 
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -55,7 +57,7 @@ public class Lexer {
             else if (matcher.group(4) != null)
                 tokens.add(new Token(TokenType.SYMBOL, matcher.group(4)));
             else
-                throw new DslParserException("Unknown token: " + matcher.group(5));
+                throw new UnexpectedValueException(matcher.group(5));
         }
         return tokens;
     }

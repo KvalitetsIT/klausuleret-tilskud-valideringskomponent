@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
 import org.openapitools.model.DepartmentSpecialityCondition;
 import org.openapitools.model.Operator;
@@ -16,7 +16,7 @@ public class DepartmentSpecialityConditionBuilder implements ConditionBuilder {
     @Override
     public DepartmentSpecialityCondition build(Operator operator, Condition.Value value) {
         if (operator != Operator.EQUAL) {
-            throw new DslParserException("Unsupported operator for department speciality condition: " + operator);
+            throw new UnexpectedValueException(operator.getValue());
         }
         return new DepartmentSpecialityCondition(value.asSimple().value(), ExpressionType.DEPARTMENT_SPECIALITY);
     }

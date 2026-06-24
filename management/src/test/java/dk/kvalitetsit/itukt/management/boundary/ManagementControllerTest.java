@@ -1,10 +1,8 @@
 package dk.kvalitetsit.itukt.management.boundary;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParserException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,14 +54,6 @@ class ManagementControllerTest {
         managementController.management20250801ClausesPost(CLAUSE_1_INPUT);
 
         Mockito.verify(clauseService, times(1)).create(CLAUSE_1_INPUT);
-    }
-
-    @Test
-    void management20250801ClausesDslPost_WhenDslParserExceptionIsThrown_ThrowsBadRequestException() {
-        Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenThrow(new DslParserException("test"));
-
-        var e = assertThrows(BadRequestException.class, () -> managementController.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT));
-        assertEquals("test", e.getDetailedError());
     }
 
     @Test

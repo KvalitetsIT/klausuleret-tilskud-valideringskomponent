@@ -173,6 +173,17 @@ public class ManagementServiceAdaptorTest {
         Mockito.verify(managementServiceImpl, Mockito.times(1)).deleteDraft(uuid);
         assertEquals(clauseOutput, response);
     }
+
+    @Test
+    void getNumberOfDrugsForClause_ReturnsDrugCountFromService() {
+        String clauseName = "testClause";
+        long expectedDrugCount = 5L;
+        Mockito.when(managementServiceImpl.getNumberOfDrugsForClause(clauseName)).thenReturn(expectedDrugCount);
+
+        var result = adaptor.getNumberOfDrugsForClause(clauseName);
+
+        assertEquals(expectedDrugCount, result.getDrugCount());
+    }
 }
 
 

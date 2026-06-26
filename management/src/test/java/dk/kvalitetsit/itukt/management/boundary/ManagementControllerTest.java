@@ -167,4 +167,16 @@ class ManagementControllerTest {
         Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(ServiceException.class);
         assertThrows(ServiceException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
     }
+
+    @Test
+    void management20250801ClausesNameDrugCountGet_ReturnsDrugCount() {
+        String name = "test";
+        var drugCount = new DrugCount().drugCount(5L);
+        Mockito.when(clauseService.getNumberOfDrugsForClause(name)).thenReturn(drugCount);
+
+        var response = managementController.management20250801ClausesNameDrugCountGet(name);
+
+        assertEquals(drugCount, response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
 }

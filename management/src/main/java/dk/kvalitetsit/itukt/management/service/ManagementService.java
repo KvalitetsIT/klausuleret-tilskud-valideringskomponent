@@ -25,4 +25,6 @@ public interface ManagementService {
     Clause activate(String name) throws ServiceException;
 
     Clause deleteDraft(UUID id);
+
+    long getNumberOfDrugsForClause(String name) throws ServiceException;
 }

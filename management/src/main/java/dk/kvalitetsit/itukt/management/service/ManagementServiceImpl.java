@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
+import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -19,11 +20,13 @@ public class ManagementServiceImpl implements ManagementService {
     private final ClauseRepositoryAdaptor repository;
     private final SkippedValidationRepository skippedValidationRepository;
     private final UserContextService userContextService;
+    private final ClauseDrugCounter clauseDrugCounter;
 
-    public ManagementServiceImpl(ClauseRepositoryAdaptor repository, SkippedValidationRepository skippedValidationRepository, UserContextService userContextService) {
+    public ManagementServiceImpl(ClauseRepositoryAdaptor repository, SkippedValidationRepository skippedValidationRepository, UserContextService userContextService, ClauseDrugCounter clauseDrugCounter) {
         this.repository = repository;
         this.skippedValidationRepository = skippedValidationRepository;
         this.userContextService = userContextService;
+        this.clauseDrugCounter = clauseDrugCounter;
     }
 
     @Override
@@ -101,5 +104,10 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public Clause deleteDraft(UUID id) throws ServiceException {
         return repository.deleteDraft(id);
+    }
+
+    @Override
+    public long getNumberOfDrugsForClause(String name) throws ServiceException {
+        return clauseDrugCounter.getNumberOfDrugsForClause(name);
     }
 }

@@ -66,4 +66,41 @@ class DrugClauseCacheTest {
         assertEquals(result1, result2, "Expected the data to be the same as previously returned by the first invocation");
 
     }
+
+    @Test
+    void getNumberOfDrugsForClause_BeforeLoadIsCalled_Returns0() {
+        var stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
+
+        var result = stamDataCache.getNumberOfDrugsForClause("test");
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    void getNumberOfDrugsForClause_WhenClauseIsNotInCache_Returns0() {
+        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("code", "")));
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(drugClause));
+        var stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
+        stamDataCache.load();
+
+        var result = stamDataCache.getNumberOfDrugsForClause("non-existing-code");
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    void getNumberOfDrugsForClause_WhenClauseHas2DifferentDrugs_Returns2() {
+        var clause = new DrugClause.Clause("test", "");
+        var drugClause1 = new DrugClause(new DrugClause.Drug(1L), Set.of(clause));
+        var drugClause2 = new DrugClause(new DrugClause.Drug(2L), Set.of(clause));
+        var drugClause3 = new DrugClause(new DrugClause.Drug(3L), Set.of(new DrugClause.Clause("another-clause", "")));
+        var drugClause4 = new DrugClause(new DrugClause.Drug(2L), Set.of(clause));
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(drugClause1, drugClause2, drugClause3, drugClause4));
+        var stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
+        stamDataCache.load();
+
+        var result = stamDataCache.getNumberOfDrugsForClause(clause.code());
+
+        assertEquals(2, result);
+    }
 }

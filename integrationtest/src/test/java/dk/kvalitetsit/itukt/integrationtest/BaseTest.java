@@ -10,6 +10,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -49,7 +50,7 @@ public abstract class BaseTest {
         boolean runInDocker = Boolean.getBoolean("runInDocker");
         component = runInDocker ? new InDockerComponent(logger) : new OutsideDockerComponent();
 
-
+        clearStamdata();
         this.load(new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource())));
 
         logger.info("Starting component");
@@ -65,6 +66,14 @@ public abstract class BaseTest {
         if (component != null) {
             component.stop();
         }
+    }
+
+    private void clearStamdata() {
+        var stamdataJdbcTemplate = new JdbcTemplate(stamDatabase.getDatasource());
+        stamdataJdbcTemplate.execute("DELETE FROM SorEntity");
+        stamdataJdbcTemplate.execute("DELETE FROM Laegemiddel");
+        stamdataJdbcTemplate.execute("DELETE FROM Pakning");
+        stamdataJdbcTemplate.execute("DELETE FROM Klausulering");
     }
 
     public static File getComposeFile(String fileName) {

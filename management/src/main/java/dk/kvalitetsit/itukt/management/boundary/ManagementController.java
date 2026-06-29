@@ -69,6 +69,12 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
+    public ResponseEntity<DrugCount> management20250801ClausesNameDrugCountGet(String name) {
+        var drugCount = service.getNumberOfDrugsForClause(name);
+        return ResponseEntity.ok(drugCount);
+    }
+
+    @Override
     public ResponseEntity<DslOutput> management20250801ClausesDraftsIdStatusPut(UUID id, DraftClauseStatusInput clauseStatusInput) {
         var clause = switch (clauseStatusInput.getStatus()) {
             case ACTIVE -> service.approveClause(id, clauseStatusInput.getResetSkippedValidations());

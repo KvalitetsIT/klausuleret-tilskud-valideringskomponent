@@ -5,10 +5,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
-import org.openapitools.model.ClauseOutput;
-import org.openapitools.model.ClauseStatus;
-import org.openapitools.model.DslInput;
-import org.openapitools.model.DslOutput;
+import org.openapitools.model.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -85,6 +82,11 @@ public class ManagementServiceAdaptor {
     public DslOutput activateClause(String clauseName) throws ServiceException {
         var clause = clauseService.activate(clauseName);
         return mapResponse(clause);
+    }
+
+    public DrugCount getNumberOfDrugsForClause(String clauseName) {
+        long drugCount = clauseService.getNumberOfDrugsForClause(clauseName);
+        return new DrugCount().drugCount(drugCount);
     }
 
     private Clause.Status mapStatus(ClauseStatus status) {

@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -77,11 +76,6 @@ public class ValidationIT extends BaseTest {
 
     private static void setupStamdata() {
         var stamdataDatasource = stamDatabase.getDatasource();
-        var stamdataJdbcTemplate = new JdbcTemplate(stamDatabase.getDatasource());
-        stamdataJdbcTemplate.execute("DELETE FROM SorEntity");
-        stamdataJdbcTemplate.execute("DELETE FROM Laegemiddel");
-        stamdataJdbcTemplate.execute("DELETE FROM Pakning");
-        stamdataJdbcTemplate.execute("DELETE FROM Klausulering");
         var laegemiddelRepository = new LaegemiddelRepository(stamdataDatasource);
         var pakningRepository = new PakningRepository(stamdataDatasource);
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);

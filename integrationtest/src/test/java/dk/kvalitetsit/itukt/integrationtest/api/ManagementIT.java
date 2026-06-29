@@ -4,11 +4,16 @@ import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
+import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.KlausuleringRepository;
+import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.LaegemiddelRepository;
+import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.PakningRepository;
+import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.entity.Pakning;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +21,8 @@ import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ManagementIT extends BaseTest {
-
+    private static final String CLAUSE_WITH_ONE_DRUG = "TEST";
     private static ManagementApi api;
 
     private static ClauseRepository clauseRepository;
@@ -41,7 +48,7 @@ class ManagementIT extends BaseTest {
 
     @Override
     protected void load(ClauseRepository repository) {
-        // Load data before component initialization
+        setupStamdata();
     }
 
     @Test
@@ -402,6 +409,38 @@ class ManagementIT extends BaseTest {
 
         assertEquals(clauseCreated, clauseDeleted, "Expected the created clause to be deleted");
         assertTrue(noClause.isEmpty(), "Expected the created clause to be deleted");
+    }
+
+    @Test
+    void testGetDrugCount_ForClauseWithOneDrug_Returns1() {
+        var drugCount = api.management20250801ClausesNameDrugCountGet(CLAUSE_WITH_ONE_DRUG);
+
+        assertNotNull(drugCount);
+        assertEquals(1, drugCount.getDrugCount());
+    }
+
+    @Test
+    void testGetDrugCount_ForClauseWithNoDrugs_Returns0() {
+        var drugCount = api.management20250801ClausesNameDrugCountGet("HEST");
+
+        assertNotNull(drugCount);
+        assertEquals(0, drugCount.getDrugCount());
+    }
+
+    private static void setupStamdata() {
+        var stamdataDatasource = stamDatabase.getDatasource();
+        var laegemiddelRepository = new LaegemiddelRepository(stamdataDatasource);
+        var pakningRepository = new PakningRepository(stamdataDatasource);
+        var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
+
+        var inThePast = Date.from(Instant.now().minusSeconds(1));
+        var inTheFuture = Date.from(Instant.now().plusSeconds(1000));
+        var laegemiddel = new DrugClauseView.Laegemiddel(1L);
+        var pakning = new Pakning(laegemiddel.DrugId(), CLAUSE_WITH_ONE_DRUG, 1L);
+        var klausulering = new DrugClauseView.Klausulering(CLAUSE_WITH_ONE_DRUG, "test");
+        laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
+        pakningRepository.insert(pakning, inThePast, inTheFuture);
+        klausuleringRepository.insert(klausulering, inThePast, inTheFuture);
     }
 
 }

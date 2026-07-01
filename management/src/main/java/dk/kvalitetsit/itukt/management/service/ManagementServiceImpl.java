@@ -10,6 +10,7 @@ import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 
 import java.util.List;
 import java.util.Optional;
@@ -109,6 +110,16 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public Clause deleteDraft(UUID id) throws NotFoundException {
         return repository.deleteDraft(id);
+    }
+
+    @Override
+    public Clause updateDraft(String name, ClauseUpdateInput clause) {
+        var currentDraft = repository.readCurrentDraft(name)
+                .orElseThrow(() -> new NotFoundException("No current draft found with name '%s'".formatted(name)));
+
+        String userID = userContextService.getUserID();
+        var clauseFullInput = new ClauseFullInput(name, clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID, currentDraft.id());
+        return repository.create(clauseFullInput);
     }
 
     @Override

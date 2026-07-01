@@ -11,6 +11,7 @@ import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -80,6 +81,35 @@ class ManagementServiceImplTest {
         var result = service.create(clauseForCreation);
 
         assertEquals(clause, result, "Created clause should be returned from service");
+    }
+
+    @Test
+    void update_WhenNameDoesNotMatchADraftClause_ThrowsException() {
+        var name = "test";
+        var clauseForUpdate = new ClauseUpdateInput(Mockito.mock(BinaryExpression.class), "test error");
+        Mockito.when(dao.readCurrentDraft(name)).thenReturn(Optional.empty());
+
+        var e = assertThrows(NotFoundException.class, () -> service.updateDraft(name, clauseForUpdate));
+        assertEquals("No current draft found with name '%s'".formatted(name), e.getDetailedError());
+    }
+
+    @Test
+    void update_WhenNameMatchesADraftClause_CreatesDraftClauseWithParent() {
+        var name = "test";
+        var clauseForUpdate = new ClauseUpdateInput(Mockito.mock(BinaryExpression.class), "test error");
+        String userId = "tester";
+        Mockito.when(userContextService.getUserID()).thenReturn(userId);
+        var existingDraft = mock(Clause.class);
+        Mockito.when(existingDraft.id()).thenReturn(1L);
+        Mockito.when(dao.readCurrentDraft(name)).thenReturn(Optional.of(existingDraft));
+        var expectedDraftOutput = mock(Clause.class);
+        Mockito.when(dao.create(Mockito.any())).thenReturn(expectedDraftOutput);
+
+        var draftOutput = service.updateDraft(name, clauseForUpdate);
+
+        assertEquals(expectedDraftOutput, draftOutput, "Updated draft clause should be returned from service");
+        var expectedClauseInput = new ClauseFullInput(name, clauseForUpdate.expression(), clauseForUpdate.errorMessage(), Clause.Status.DRAFT, userId, existingDraft.id());
+        Mockito.verify(dao, times(1)).create(expectedClauseInput);
     }
 
     @Test

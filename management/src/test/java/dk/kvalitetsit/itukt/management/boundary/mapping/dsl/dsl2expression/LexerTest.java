@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,7 @@ class LexerTest {
     }
 
     @Test
-    void getTokens_WithAllValidTokenTypes_ReturnsTokensWithUppercaseValues() {
+    void getTokens_WithAllValidTokenTypes_ReturnsTokensWithUppercaseValues() throws DslParserException {
         String input = "a æøÅ * og eller >= <= = > < i , ( ) [ ] { }";
 
         try (MockedStatic<TokenIterator> tokenIteratorMock = Mockito.mockStatic(TokenIterator.class)) {

@@ -4,6 +4,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +67,7 @@ class ConditionTokenParserTest {
     }
 
     @Test
-    void parse_WithMultiValueTokenButUnexpectedOperator_ThrowsException() {
+    void parse_WithMultiValueTokenButUnexpectedOperator_ThrowsException() throws DslParserException {
         Mockito.when(multiValueTokenParser.canParse(tokenIterator)).thenReturn(true);
         Mockito.when(tokenIterator.nextWithType(TokenType.VALUE))
                 .thenReturn(new Token(TokenType.VALUE, Identifier.INDICATION.toString()));
@@ -79,7 +80,7 @@ class ConditionTokenParserTest {
     }
 
     @Test
-    void parse_WithMultiValueTokenAndExpectedOperator_ReturnsParsedMultiValueCondition() {
+    void parse_WithMultiValueTokenAndExpectedOperator_ReturnsParsedMultiValueCondition() throws DslParserException {
         Mockito.when(multiValueTokenParser.canParse(tokenIterator)).thenReturn(true);
         List<Condition.Value> values = List.of(Mockito.mock(Condition.Value.Simple.class));
         Mockito.when(multiValueTokenParser.parse(tokenIterator))
@@ -97,7 +98,7 @@ class ConditionTokenParserTest {
     }
 
     @Test
-    void parse_WithSimpleValueToken_ReturnsParsedSimpleValueCondition() {
+    void parse_WithSimpleValueToken_ReturnsParsedSimpleValueCondition() throws DslParserException {
         Mockito.when(multiValueTokenParser.canParse(tokenIterator)).thenReturn(false);
         Mockito.when(structuredValueTokenParser.canParse(tokenIterator)).thenReturn(false);
         Identifier identifier = Identifier.AGE;
@@ -116,7 +117,7 @@ class ConditionTokenParserTest {
     }
 
     @Test
-    void parse_WithStructuredValueToken_ReturnsParsedStructuredValueCondition() {
+    void parse_WithStructuredValueToken_ReturnsParsedStructuredValueCondition() throws DslParserException {
         Mockito.when(multiValueTokenParser.canParse(tokenIterator)).thenReturn(false);
         Mockito.when(structuredValueTokenParser.canParse(tokenIterator)).thenReturn(true);
         Identifier identifier = Identifier.AGE;

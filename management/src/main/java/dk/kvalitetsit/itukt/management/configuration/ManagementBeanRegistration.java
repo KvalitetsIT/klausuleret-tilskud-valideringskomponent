@@ -7,6 +7,7 @@ import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDtoDslMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.DslParserExceptionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Lexer;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.ExpressionTokenParser;
@@ -128,7 +129,8 @@ public class ManagementBeanRegistration {
                 ),
                 new ClauseDslDtoMapper(dslParser),
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),
-                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper())
+                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper()),
+                new DslParserExceptionMapper()
         );
     }
 

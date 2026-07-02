@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,7 +57,7 @@ class BinaryExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithNeitherBinaryOperatorOrParenthesis_ParsesCondition() {
+    void parse_WithNeitherBinaryOperatorOrParenthesis_ParsesCondition() throws DslParserException {
         Mockito.when(parenthesizedParser.canParse(tokenIterator)).thenReturn(false);
         Mockito.when(tokenIterator.nextHasText("eller")).thenReturn(false);
         Mockito.when(tokenIterator.nextHasText("og")).thenReturn(false);
@@ -75,7 +76,7 @@ class BinaryExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithNeitherBinaryOperatorButParenthesisCanParse_ParsesParenthesized() {
+    void parse_WithNeitherBinaryOperatorButParenthesisCanParse_ParsesParenthesized() throws DslParserException {
         Mockito.when(parenthesizedParser.canParse(tokenIterator)).thenReturn(true);
         Mockito.when(tokenIterator.nextHasText("eller")).thenReturn(false);
         Mockito.when(tokenIterator.nextHasText("og")).thenReturn(false);
@@ -93,7 +94,7 @@ class BinaryExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithAndOperatorAndConditions_ParsesConditionsAndReturnsAndExpression() {
+    void parse_WithAndOperatorAndConditions_ParsesConditionsAndReturnsAndExpression() throws DslParserException {
         var condition1 = Mockito.mock(AgeCondition.class);
         var condition2 = Mockito.mock(AgeCondition.class);
         Mockito.when(parenthesizedParser.canParse(tokenIterator)).thenReturn(false);
@@ -110,7 +111,7 @@ class BinaryExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithAndOperatorAndParenthesizedExpressions_ParsesParenthesizedExpressionsAndReturnsAndExpression() {
+    void parse_WithAndOperatorAndParenthesizedExpressions_ParsesParenthesizedExpressionsAndReturnsAndExpression() throws DslParserException {
         var parenthesizedExpression1 = Mockito.mock(AgeCondition.class);
         var parenthesizedExpression2 = Mockito.mock(AgeCondition.class);
         Mockito.when(parenthesizedParser.canParse(tokenIterator)).thenReturn(true);
@@ -127,7 +128,7 @@ class BinaryExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithOrOperatorAndConditions_ParsesConditionsAndReturnsOrExpression() {
+    void parse_WithOrOperatorAndConditions_ParsesConditionsAndReturnsOrExpression() throws DslParserException {
         var condition1 = Mockito.mock(AgeCondition.class);
         var condition2 = Mockito.mock(AgeCondition.class);
         Mockito.when(parenthesizedParser.canParse(tokenIterator)).thenReturn(false);
@@ -144,7 +145,7 @@ class BinaryExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithOrOperatorAndParenthesizedExpressions_ParsesParenthesizedExpressionsAndReturnsOrExpression() {
+    void parse_WithOrOperatorAndParenthesizedExpressions_ParsesParenthesizedExpressionsAndReturnsOrExpression() throws DslParserException {
         var parenthesizedExpression1 = Mockito.mock(AgeCondition.class);
         var parenthesizedExpression2 = Mockito.mock(AgeCondition.class);
         Mockito.when(parenthesizedParser.canParse(tokenIterator)).thenReturn(true);
@@ -161,7 +162,7 @@ class BinaryExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithOrAndAndOperatorsWithConditions_ParsesConditionsAndReturnsOrExpression() {
+    void parse_WithOrAndAndOperatorsWithConditions_ParsesConditionsAndReturnsOrExpression() throws DslParserException {
         var condition1 = Mockito.mock(AgeCondition.class);
         var condition2 = Mockito.mock(AgeCondition.class);
         var condition3 = Mockito.mock(AgeCondition.class);

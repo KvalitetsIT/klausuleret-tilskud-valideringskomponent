@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class DoctorSpecialityConditionBuilderTest {
     }
 
     @Test
-    void build_WithEqualOperator_ReturnsDoctorSpecialityCondition() {
+    void build_WithEqualOperator_ReturnsDoctorSpecialityCondition() throws DslParserException {
         var value = new Condition.Value.Simple("someSpeciality");
         var operator = Operator.EQUAL;
 

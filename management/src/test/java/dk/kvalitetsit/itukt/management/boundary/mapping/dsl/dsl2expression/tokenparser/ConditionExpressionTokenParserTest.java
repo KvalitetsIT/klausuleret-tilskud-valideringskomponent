@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedEmptyMultiValueConditionException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
@@ -61,7 +62,7 @@ class ConditionExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WhenNoBuilderMatchesIdentifier_ThrowsException() {
+    void parse_WhenNoBuilderMatchesIdentifier_ThrowsException() throws DslParserException {
         var condition = Mockito.mock(Condition.SingleValueCondition.class);
         Mockito.when(condition.identifier()).thenReturn(Identifier.DEPARTMENT_SPECIALITY);
         Mockito.when(conditionTokenParser.parse(tokenIterator)).thenReturn(condition);
@@ -72,7 +73,7 @@ class ConditionExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithSingleValueCondition_BuildsExpressionWithMatchingConditionBuilder() {
+    void parse_WithSingleValueCondition_BuildsExpressionWithMatchingConditionBuilder() throws DslParserException {
         var singleValueCondition = new Condition.SingleValueCondition(Identifier.AGE, Operator.EQUAL, new Condition.Value.Simple("30"));
         Mockito.when(conditionTokenParser.parse(tokenIterator)).thenReturn(singleValueCondition);
         var ageCondition = Mockito.mock(AgeCondition.class);
@@ -84,7 +85,7 @@ class ConditionExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithEmptyMultiValueCondition_ThrowsException() {
+    void parse_WithEmptyMultiValueCondition_ThrowsException() throws DslParserException {
         var multiValueCondition = new Condition.MultiValueCondition(Identifier.INDICATION, List.of());
         Mockito.when(conditionTokenParser.parse(tokenIterator)).thenReturn(multiValueCondition);
 
@@ -92,7 +93,7 @@ class ConditionExpressionTokenParserTest {
     }
 
     @Test
-    void parse_WithNonEmptyMultiValueCondition_BuildsOrExpressionUsingMatchingBuilder() {
+    void parse_WithNonEmptyMultiValueCondition_BuildsOrExpressionUsingMatchingBuilder() throws DslParserException {
         var simpleConditionValue1 = new Condition.Value.Simple("A");
         var simpleConditionValue2 = new Condition.Value.Simple("B");
         var simpleConditionValue3 = new Condition.Value.Simple("C");

@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedAgeValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
 import org.openapitools.model.AgeCondition;
@@ -14,11 +15,11 @@ public class AgeConditionBuilder implements ConditionBuilder {
     }
 
     @Override
-    public AgeCondition build(Operator operator, Condition.Value value) {
+    public AgeCondition build(Operator operator, Condition.Value value) throws DslParserException {
         return new AgeCondition(operator, parseAge(value.asSimple().value()), ExpressionType.AGE);
     }
 
-    private int parseAge(String value) {
+    private int parseAge(String value) throws DslParserException {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {

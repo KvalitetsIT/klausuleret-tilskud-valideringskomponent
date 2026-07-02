@@ -2,7 +2,10 @@ package dk.kvalitetsit.itukt.management.service;
 
 
 import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +35,7 @@ public class ManagementServiceAdaptorTest {
     private Mapper<Clause, org.openapitools.model.ClauseOutput> clauseModelDtoMapper;
 
     @Mock
-    private Mapper<DslInput, org.openapitools.model.ClauseInput> clauseDslDtoMapper;
+    private ClauseDslDtoMapper clauseDslDtoMapper;
 
     @Mock
     private Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
@@ -40,6 +43,8 @@ public class ManagementServiceAdaptorTest {
     @Mock
     private Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
 
+    @Mock
+    private Mapper<DslParserException, BadRequestException> dslParserExceptionMapper;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +53,8 @@ public class ManagementServiceAdaptorTest {
                 clauseModelDtoMapper,
                 clauseDslDtoMapper,
                 clauseDtoDslMapper,
-                clauseInputMapper
+                clauseInputMapper,
+                dslParserExceptionMapper
         );
     }
 
@@ -68,7 +74,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void testCreateDsl() {
+    void testCreateDsl() throws DslParserException {
         var dslInput = new DslInput("name", "message", "test");
         var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "message");
         var clause = Mockito.mock(Clause.class);

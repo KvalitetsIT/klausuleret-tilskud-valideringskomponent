@@ -2,8 +2,9 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 
 public interface TokenParser<T> {
     boolean canParse(TokenIterator tokens);
-    T parse(TokenIterator tokens);
+    T parse(TokenIterator tokens) throws DslParserException;
 }

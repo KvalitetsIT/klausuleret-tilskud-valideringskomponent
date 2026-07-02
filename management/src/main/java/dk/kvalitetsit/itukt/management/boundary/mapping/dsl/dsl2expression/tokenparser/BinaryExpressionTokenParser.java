@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.BinaryOperator;
 import org.openapitools.model.Expression;
@@ -27,11 +28,11 @@ public class BinaryExpressionTokenParser implements TokenParser<Expression> {
     }
 
     @Override
-    public Expression parse(TokenIterator tokens) {
+    public Expression parse(TokenIterator tokens) throws DslParserException {
         return parseOr(tokens);
     }
 
-    private Expression parseOr(TokenIterator tokens) {
+    private Expression parseOr(TokenIterator tokens) throws DslParserException {
         Expression expression = parseAnd(tokens);
         while (tokens.nextHasText(OR_KEYWORD)) {
             tokens.nextWithText(OR_KEYWORD);
@@ -41,7 +42,7 @@ public class BinaryExpressionTokenParser implements TokenParser<Expression> {
         return expression;
     }
 
-    private Expression parseAnd(TokenIterator tokens) {
+    private Expression parseAnd(TokenIterator tokens) throws DslParserException {
         Expression expression = parseAndOperand(tokens);
         while (tokens.nextHasText(AND_KEYWORD)) {
             tokens.nextWithText(AND_KEYWORD);
@@ -51,7 +52,7 @@ public class BinaryExpressionTokenParser implements TokenParser<Expression> {
         return expression;
     }
 
-    private Expression parseAndOperand(TokenIterator tokens) {
+    private Expression parseAndOperand(TokenIterator tokens) throws DslParserException {
         if (parenthesizedParser.canParse(tokens)) {
             return parenthesizedParser.parse(tokens);
         } else {

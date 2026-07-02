@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
 import org.openapitools.model.Expression;
 
 /**
@@ -19,7 +20,7 @@ public class ParenthesizedExpressionTokenParser implements TokenParser<Expressio
     }
 
     @Override
-    public Expression parse(TokenIterator tokens) {
+    public Expression parse(TokenIterator tokens) throws DslParserException {
         tokens.nextWithText("(");
         var expression = expressionTokenParser.parse(tokens);
         tokens.nextWithText(")");

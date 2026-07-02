@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.common.exceptions;
+package dk.kvalitetsit.itukt.validation.service.exceptions;
 
 public class ExistingDrugMedicationRequiredException extends RuntimeException {
     public ExistingDrugMedicationRequiredException() {

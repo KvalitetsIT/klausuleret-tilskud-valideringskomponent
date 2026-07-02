@@ -1,11 +1,11 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationFailed;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.validation.service.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;

@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
@@ -55,7 +56,7 @@ public class ClauseRepositoryAdaptor {
         return this.entityMapper.map(clauseRepository.readHistory(name));
     }
 
-    public Clause deleteDraft(UUID id) {
+    public Clause deleteDraft(UUID id) throws NotFoundException {
         return this.entityMapper.map(clauseRepository.deleteDraft(id));
     }
 }

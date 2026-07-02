@@ -7,6 +7,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.openapitools.model.*;
 
@@ -65,8 +66,12 @@ public class ManagementServiceAdaptor {
     }
 
     public List<DslOutput> readHistoryDsl(String name) {
-        List<Clause> clauses = clauseService.readHistory(name);
-        return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
+        try {
+            List<Clause> clauses = clauseService.readHistory(name);
+            return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
+        } catch (NotFoundException e) {
+            throw managementExceptionMapper.map(e);
+        }
     }
 
     public List<ClauseOutput> readByStatus(ClauseStatus status) {
@@ -79,7 +84,11 @@ public class ManagementServiceAdaptor {
     }
 
     public DslOutput approveClause(UUID clauseUuid, boolean resetSkippedValidation) {
-        return mapResponse(clauseService.approve(clauseUuid, resetSkippedValidation));
+        try {
+            return mapResponse(clauseService.approve(clauseUuid, resetSkippedValidation));
+        } catch (NotFoundException e) {
+            throw managementExceptionMapper.map(e);
+        }
     }
 
 
@@ -111,6 +120,10 @@ public class ManagementServiceAdaptor {
     }
 
     public ClauseOutput deleteDraft(UUID id) {
-        return clauseDtoMapper.map(clauseService.deleteDraft(id));
+        try {
+            return clauseDtoMapper.map(clauseService.deleteDraft(id));
+        } catch (NotFoundException e) {
+            throw managementExceptionMapper.map(e);
+        }
     }
 }

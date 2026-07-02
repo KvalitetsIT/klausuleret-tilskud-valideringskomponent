@@ -1,11 +1,11 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -54,7 +54,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public List<Clause> readHistory(String name) {
+    public List<Clause> readHistory(String name) throws NotFoundException {
         List<Clause> history = repository.readHistory(name);
         if (history.isEmpty())
             throw new NotFoundException(String.format("clause with name '%s' was not found", name));
@@ -62,7 +62,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) {
+    public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws NotFoundException {
         Clause draft = repository.read(clauseUuid)
                 .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
         Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
@@ -92,7 +92,7 @@ public class ManagementServiceImpl implements ManagementService {
     private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) {
         var clause = repository.readCurrentClause(name)
                 .filter(c -> c.status() == currentStatus)
-                .orElseThrow(() -> new BadRequestException(errorMessage));
+                .orElseThrow(() -> new BadRequestApiException(errorMessage));
 
         var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, clause.createdBy());
         Clause created = repository.create(clauseInput);
@@ -101,7 +101,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause deleteDraft(UUID id) {
+    public Clause deleteDraft(UUID id) throws NotFoundException {
         return repository.deleteDraft(id);
     }
 

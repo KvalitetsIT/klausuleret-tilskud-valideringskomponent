@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.management.repository;
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 
 import java.util.Optional;

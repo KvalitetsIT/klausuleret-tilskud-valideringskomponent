@@ -1,8 +1,9 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
@@ -121,7 +122,7 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void deleteDraft_whenSuccess_thenReturnDeletedClause() {
+    void deleteDraft_whenSuccess_thenReturnDeletedClause() throws NotFoundException {
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var expected = Mockito.mock(Clause.class);
 
@@ -136,14 +137,14 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void deleteDraft_whenThrowsNotFoundException_thenThrow() {
+    void deleteDraft_whenThrowsNotFoundException_thenThrow() throws NotFoundException {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(concreteRepository.deleteDraft(uuid)).thenThrow(NotFoundException.class);
-        Assertions.assertThrows(NotFoundException.class, () -> adaptor.deleteDraft(uuid));
+        Mockito.when(concreteRepository.deleteDraft(uuid)).thenThrow(NotFoundApiException.class);
+        Assertions.assertThrows(NotFoundApiException.class, () -> adaptor.deleteDraft(uuid));
     }
 
     @Test
-    void deleteDraft_whenThrowsException_ThrowsException() {
+    void deleteDraft_whenThrowsException_ThrowsException() throws NotFoundException {
         UUID uuid = UUID.randomUUID();
         var expectedException = new RuntimeException("test");
         Mockito.when(concreteRepository.deleteDraft(uuid)).thenThrow(expectedException);

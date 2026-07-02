@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.management.service;
 
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -12,7 +12,7 @@ class UserContextServiceTest {
     @Test
     void getUserID_WithNoUserIdHeader_ThrowsException() {
         var userContextService = new UserContextService(new MockHttpServletRequest());
-        assertThrows(BadRequestException.class, userContextService::getUserID);
+        assertThrows(BadRequestApiException.class, userContextService::getUserID);
     }
 
     @Test

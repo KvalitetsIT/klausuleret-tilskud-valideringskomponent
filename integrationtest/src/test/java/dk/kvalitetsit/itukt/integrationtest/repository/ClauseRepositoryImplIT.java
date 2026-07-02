@@ -1,12 +1,12 @@
 package dk.kvalitetsit.itukt.integrationtest.repository;
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
@@ -288,7 +288,7 @@ public class ClauseRepositoryImplIT extends BaseTest {
                 var clause = new ClauseEntityInput("clause", MockFactory.EXPRESSION_1_ENTITY, "message", status, "tester");
                 var created = repository.create(clause);
                 var e = assertThrows(NotFoundException.class, () -> repository.deleteDraft(created.uuid()));
-                Assertions.assertEquals("No clause found with uuid %s and status DRAFT".formatted(created.uuid()), e.getDetailedError());
+                Assertions.assertEquals("No clause found with uuid %s and status DRAFT".formatted(created.uuid()), e.getMessage());
             }
         }
     }

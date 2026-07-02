@@ -1,13 +1,11 @@
 package dk.kvalitetsit.itukt.common.exceptions;
 
-public class ServiceException extends RuntimeException {
-
-
-    public ServiceException(String message) {
+public abstract class ServiceException extends Exception {
+    protected ServiceException(String message) {
         super(message);
     }
 
-    public ServiceException(String message, Throwable cause) {
+    protected ServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 }

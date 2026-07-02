@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
@@ -32,7 +31,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
     }
 
     @Override
-    public Optional<ExpressionEntity> read(Long id) throws ServiceException {
+    public Optional<ExpressionEntity> read(Long id) {
         try {
             String sql = "SELECT type FROM expression WHERE id = :id";
             ExpressionType type = template.queryForObject(sql, Map.of("id", id), ExpressionType.class);
@@ -51,7 +50,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
     }
 
     @Override
-    public ExpressionEntity create(ExpressionEntity expression) throws ServiceException {
+    public ExpressionEntity create(ExpressionEntity expression) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         template.update(
@@ -62,7 +61,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
         );
 
         long expressionId = Optional.ofNullable(keyHolder.getKey())
-                .orElseThrow(() -> new ServiceException("Failed to get expression primary key"))
+                .orElseThrow(() -> new RuntimeException("Failed to get expression primary key"))
                 .longValue();
 
         return switch (expression.withId(expressionId)) {

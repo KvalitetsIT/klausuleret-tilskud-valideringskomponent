@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,8 +163,8 @@ class ManagementControllerTest {
     @Test
     void management20250801ClausesIdDelete_whenError() {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(ServiceException.class);
-        assertThrows(ServiceException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
+        Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(RuntimeException.class);
+        assertThrows(RuntimeException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
     }
 
     @Test

@@ -1,7 +1,6 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 
@@ -10,21 +9,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ManagementService {
-    Clause create(ClauseInput clause) throws ServiceException;
+    Clause create(ClauseInput clause);
 
-    Optional<Clause> read(UUID id) throws ServiceException;
+    Optional<Clause> read(UUID id);
 
-    List<Clause> readByStatus(Clause.Status status) throws ServiceException;
+    List<Clause> readByStatus(Clause.Status status);
 
-    List<Clause> readHistory(String name) throws ServiceException;
+    List<Clause> readHistory(String name);
 
-    Clause approve(UUID clauseUuid, boolean skipValidation) throws ServiceException;
+    Clause approve(UUID clauseUuid, boolean skipValidation);
 
-    Clause inactivate(String name) throws ServiceException;
+    Clause inactivate(String name);
 
-    Clause activate(String name) throws ServiceException;
+    Clause activate(String name);
 
     Clause deleteDraft(UUID id);
 
-    long getNumberOfDrugsForClause(String name) throws ServiceException;
+    long getNumberOfDrugsForClause(String name);
 }

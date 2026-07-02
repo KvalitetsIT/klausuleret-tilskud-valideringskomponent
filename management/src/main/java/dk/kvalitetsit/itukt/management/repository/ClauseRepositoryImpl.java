@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.management.repository;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
@@ -33,7 +32,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity create(ClauseEntityInput clauseInput) throws ServiceException {
+    public ClauseEntity create(ClauseEntityInput clauseInput) {
         try {
             UUID uuid = UUID.randomUUID();
 
@@ -70,8 +69,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             });
 
         } catch (Exception e) {
-            logger.error("Failed to create clause", e);
-            throw new ServiceException("Failed to create clause", e);
+            throw new RuntimeException("Failed to create clause", e);
         }
     }
 
@@ -113,7 +111,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
+    public Optional<ClauseEntity> read(UUID uuid) {
         try {
             String sql = """
                         SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.created_by, c.created_time
@@ -127,7 +125,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     Map.of("uuid", uuid.toString()),
                     (rs, rowNum) -> {
                         long expressionId = rs.getLong("expression_id");
-                        var expression = expressionRepository.read(expressionId).orElseThrow(() -> new ServiceException(String.format("Expected to find an expression with id '%s', but nothing was found", expressionId)));
+                        var expression = expressionRepository.read(expressionId).orElseThrow(() -> new RuntimeException(String.format("Expected to find an expression with id '%s', but nothing was found", expressionId)));
 
                         return new ClauseEntity(
                                 rs.getLong("id"),
@@ -147,13 +145,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (Exception e) {
-            logger.error("Failed to read clause {}", uuid, e);
-            throw new ServiceException("Failed to read clause", e);
+            throw new RuntimeException("Failed to read clause %s".formatted(uuid), e);
         }
     }
 
     @Override
-    public Optional<ClauseEntity> readCurrentClause(String name) throws ServiceException {
+    public Optional<ClauseEntity> readCurrentClause(String name) {
         try {
             String sql = """
                         SELECT c.uuid
@@ -173,13 +170,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (Exception e) {
-            logger.error("Failed to read latest clause", e);
-            throw new ServiceException("Failed to read latest clause", e);
+            throw new RuntimeException("Failed to read latest clause", e);
         }
     }
 
     @Override
-    public List<ClauseEntity> readCurrentClauses() throws ServiceException {
+    public List<ClauseEntity> readCurrentClauses() {
         try {
             String sql = """
                         SELECT c.uuid
@@ -205,13 +201,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            logger.error("Failed to read latest clauses", e);
-            throw new ServiceException("Failed to read latest clauses", e);
+            throw new RuntimeException("Failed to read latest clauses", e);
         }
     }
 
     @Override
-    public List<ClauseEntity> readAllDrafts() throws ServiceException {
+    public List<ClauseEntity> readAllDrafts() {
         try {
             String sql = """
                         SELECT c.uuid
@@ -231,8 +226,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            logger.error("Failed to read draft clauses", e);
-            throw new ServiceException("Failed to read draft clauses", e);
+            throw new RuntimeException("Failed to read draft clauses", e);
         }
     }
 
@@ -254,15 +248,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            var message = String.format("Failed to read the history of clause '%s'", name);
-            logger.error(message, e);
-            throw new ServiceException(message, e);
+            throw new RuntimeException("Failed to read the history of clause '%s'".formatted(name), e);
         }
 
     }
 
     @Override
-    public ClauseEntity deleteDraft(UUID id) throws NotFoundException, ServiceException {
+    public ClauseEntity deleteDraft(UUID id) throws NotFoundException {
         var clause = read(id).filter(c -> c.status() == Clause.Status.DRAFT)
                 .orElseThrow(() -> new NotFoundException("No clause found with uuid %s and status DRAFT".formatted(id)));
         template.update(

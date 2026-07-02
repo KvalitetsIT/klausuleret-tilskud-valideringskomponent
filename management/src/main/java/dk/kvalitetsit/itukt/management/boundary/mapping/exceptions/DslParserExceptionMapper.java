@@ -1,8 +1,8 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
+package dk.kvalitetsit.itukt.management.boundary.mapping.exceptions;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.*;
+import dk.kvalitetsit.itukt.management.exceptions.*;
 
 public class DslParserExceptionMapper implements Mapper<DslParserException, BadRequestException> {
     private static final String INVALID_DSL = "Ugyldig klausulbetingelse. ";

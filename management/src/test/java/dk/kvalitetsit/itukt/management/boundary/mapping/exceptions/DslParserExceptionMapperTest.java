@@ -1,6 +1,6 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
+package dk.kvalitetsit.itukt.management.boundary.mapping.exceptions;
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.*;
+import dk.kvalitetsit.itukt.management.exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;

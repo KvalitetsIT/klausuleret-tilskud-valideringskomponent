@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParser;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.openapitools.model.ClauseInput;
 import org.openapitools.model.DslInput;
 

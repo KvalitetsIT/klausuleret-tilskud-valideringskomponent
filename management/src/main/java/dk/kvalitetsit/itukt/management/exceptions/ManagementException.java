@@ -1,6 +1,6 @@
-package dk.kvalitetsit.itukt.management;
+package dk.kvalitetsit.itukt.management.exceptions;
 
-public abstract class ManagementException extends Exception {
+public sealed abstract class ManagementException extends Exception permits DslParserException {
     protected ManagementException(String message) {
         super(message);
     }

@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.BinaryOperator;
 import org.openapitools.model.Expression;

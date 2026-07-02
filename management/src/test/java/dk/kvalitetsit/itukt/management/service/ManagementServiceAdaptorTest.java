@@ -2,10 +2,13 @@ package dk.kvalitetsit.itukt.management.service;
 
 
 import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class ManagementServiceAdaptorTest {
@@ -44,7 +48,7 @@ public class ManagementServiceAdaptorTest {
     private Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
 
     @Mock
-    private Mapper<DslParserException, BadRequestException> dslParserExceptionMapper;
+    private Mapper<ManagementException, ApiException> managementExceptionMapper;
 
     @BeforeEach
     void setUp() {
@@ -54,7 +58,7 @@ public class ManagementServiceAdaptorTest {
                 clauseDslDtoMapper,
                 clauseDtoDslMapper,
                 clauseInputMapper,
-                dslParserExceptionMapper
+                managementExceptionMapper
         );
     }
 
@@ -90,6 +94,18 @@ public class ManagementServiceAdaptorTest {
         var result = adaptor.createDSL(dslInput);
 
         assertEquals(dslOutput, result);
+    }
+
+    @Test
+    void createDSL_WhenDslParserExceptionIsThrown_MapsToApiException() throws DslParserException {
+        var dslInput = new DslInput("name", "message", "test");
+        var parserException = new UnexpectedValueException("Parsing error");
+        Mockito.when(clauseDslDtoMapper.map(dslInput)).thenThrow(parserException);
+        var apiException = new BadRequestException("test");
+        Mockito.when(managementExceptionMapper.map(parserException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestException.class, () -> adaptor.createDSL(dslInput));
+        assertEquals(apiException, e);
     }
 
     @Test

@@ -2,10 +2,11 @@ package dk.kvalitetsit.itukt.management.service;
 
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
+import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.openapitools.model.*;
 
@@ -20,7 +21,7 @@ public class ManagementServiceAdaptor {
     private final ClauseDslDtoMapper dslClauseMapper;
     private final Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
     private final Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
-    private final Mapper<DslParserException, BadRequestException> dslParserExceptionMapper;
+    private final Mapper<ManagementException, ApiException> managementExceptionMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
@@ -28,14 +29,14 @@ public class ManagementServiceAdaptor {
             ClauseDslDtoMapper dslClauseMapper,
             Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper,
             Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper,
-            Mapper<DslParserException, BadRequestException> dslParserExceptionMapper
+            Mapper<ManagementException, ApiException> managementExceptionMapper
     ) {
         this.clauseService = clauseService;
         this.clauseDtoMapper = modelDtoMapper;
         this.dslClauseMapper = dslClauseMapper;
         this.clauseDtoDslMapper = clauseDtoDslMapper;
         this.clauseInputMapper = clauseInputMapper;
-        this.dslParserExceptionMapper = dslParserExceptionMapper;
+        this.managementExceptionMapper = managementExceptionMapper;
     }
 
     public ClauseOutput create(org.openapitools.model.ClauseInput clauseInput) {
@@ -48,7 +49,7 @@ public class ManagementServiceAdaptor {
             var clauseInput = this.dslClauseMapper.map(dsl);
             return clauseDtoDslMapper.map(this.create(clauseInput));
         } catch (DslParserException e) {
-            throw dslParserExceptionMapper.map(e);
+            throw managementExceptionMapper.map(e);
         }
     }
 

@@ -1,8 +1,9 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedAgeValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedAgeValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,7 +28,7 @@ class AgeConditionBuilderTest {
     }
 
     @Test
-    void build_WithIntegerValue_ReturnsAgeCondition() {
+    void build_WithIntegerValue_ReturnsAgeCondition() throws DslParserException {
         var value = new Condition.Value.Simple("5");
 
         var ageCondition = ageConditionBuilder.build(Operator.EQUAL, value);

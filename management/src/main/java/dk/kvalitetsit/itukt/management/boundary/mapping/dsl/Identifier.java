@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ public enum Identifier {
         this.value = value;
     }
 
-    public static Identifier from(String s) {
+    public static Identifier from(String s) throws DslParserException {
         for (Identifier id : Identifier.values()) {
             if (id.value.equalsIgnoreCase(s)) { // case-insensitive match
                 return id;

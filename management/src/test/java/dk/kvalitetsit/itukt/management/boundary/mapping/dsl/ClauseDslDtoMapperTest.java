@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParser;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +22,7 @@ class ClauseDslDtoMapperTest {
     private ClauseDslDtoMapper clauseDslDtoMapper;
 
     @Test
-    void map_ParsesDslAndMapsInput() {
+    void map_ParsesDslAndMapsInput() throws DslParserException {
         var dslInput = new DslInput("name", "dsl", "error");
         var expression = Mockito.mock(AgeCondition.class);
         Mockito.when(dslParser.parse(dslInput.getDsl())).thenReturn(expression);

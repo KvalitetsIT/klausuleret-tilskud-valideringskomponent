@@ -1,6 +1,6 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions;
+package dk.kvalitetsit.itukt.management.exceptions;
 
-public abstract sealed class DslParserException extends RuntimeException permits
+public abstract sealed class DslParserException extends ManagementException permits
         UnexpectedValueException,
         UnexpectedAgeValueException,
         IncompleteDslException,

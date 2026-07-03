@@ -2,10 +2,11 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.openapitools.model.Expression;
 import org.openapitools.model.Operator;
 
 public interface ConditionBuilder {
     Identifier identifier();
-    Expression build(Operator operator, Condition.Value value);
+    Expression build(Operator operator, Condition.Value value) throws DslParserException;
 }

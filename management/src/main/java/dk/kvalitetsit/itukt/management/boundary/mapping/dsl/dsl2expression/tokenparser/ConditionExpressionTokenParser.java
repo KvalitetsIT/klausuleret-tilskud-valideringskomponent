@@ -3,11 +3,12 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedEmptyMultiValueConditionException;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.ConditionTokenParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder.ConditionBuilder;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedEmptyMultiValueConditionException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.openapitools.model.BinaryExpression;
 import org.openapitools.model.BinaryOperator;
 import org.openapitools.model.Expression;
@@ -39,30 +40,30 @@ public class ConditionExpressionTokenParser implements TokenParser<Expression> {
     }
 
     @Override
-    public Expression parse(TokenIterator tokens) {
+    public Expression parse(TokenIterator tokens) throws DslParserException {
         Condition condition = conditionTokenParser.parse(tokens);
         var conditionBuilder = Optional.ofNullable(conditionBuilders.get(condition.identifier()))
                 .orElseThrow(() -> new UnexpectedValueException(condition.identifier().toString()));
         return buildExpression(condition, conditionBuilder);
     }
 
-    private Expression buildExpression(Condition condition, ConditionBuilder conditionBuilder) {
+    private Expression buildExpression(Condition condition, ConditionBuilder conditionBuilder) throws DslParserException {
         return switch (condition) {
             case Condition.SingleValueCondition svc -> conditionBuilder.build(svc.operator(), svc.value());
             case Condition.MultiValueCondition mvc -> buildMultiValueConditionExpression(mvc, conditionBuilder);
         };
     }
 
-    private Expression buildMultiValueConditionExpression(Condition.MultiValueCondition condition, ConditionBuilder conditionBuilder) {
-        var conditionExpressions = condition.values().stream()
-                .map(value -> conditionBuilder.build(Operator.EQUAL, value)).iterator();
-        if (!conditionExpressions.hasNext()) {
+    private Expression buildMultiValueConditionExpression(Condition.MultiValueCondition condition, ConditionBuilder conditionBuilder) throws DslParserException {
+        var values = condition.values().iterator();
+        if (!values.hasNext()) {
             throw new UnexpectedEmptyMultiValueConditionException();
         }
 
-        Expression expression = conditionExpressions.next();
-        while (conditionExpressions.hasNext()) {
-            expression = new BinaryExpression(expression, BinaryOperator.OR, conditionExpressions.next(), ExpressionType.BINARY);
+        Expression expression = conditionBuilder.build(Operator.EQUAL, values.next());
+        while (values.hasNext()) {
+            Expression nextExpression = conditionBuilder.build(Operator.EQUAL, values.next());
+            expression = new BinaryExpression(expression, BinaryOperator.OR, nextExpression, ExpressionType.BINARY);
         }
         return expression;
     }

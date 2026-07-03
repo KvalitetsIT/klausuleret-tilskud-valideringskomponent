@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.validation.stamdata.repository;
 
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -20,7 +19,7 @@ public class DepartmentRepository implements Repository<DepartmentEntity> {
     }
 
     @Override
-    public List<DepartmentEntity> fetchAll() throws ServiceException {
+    public List<DepartmentEntity> fetchAll() {
         try {
             String sql = """
                     SELECT
@@ -52,7 +51,7 @@ public class DepartmentRepository implements Repository<DepartmentEntity> {
             return template.query(sql, rowMapper);
 
         } catch (Exception e) {
-            throw new ServiceException("Failed to fetch all DepartmentEntities", e);
+            throw new RuntimeException("Failed to fetch all DepartmentEntities", e);
         }
     }
 }

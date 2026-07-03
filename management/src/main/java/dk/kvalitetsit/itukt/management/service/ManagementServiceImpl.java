@@ -1,12 +1,12 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestException;
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
+import dk.kvalitetsit.itukt.management.exceptions.InvalidInputException;
+import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -30,19 +30,19 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause create(ClauseInput clause) throws ServiceException {
+    public Clause create(ClauseInput clause) throws InvalidInputException {
         String userID = userContextService.getUserID();
         var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID);
         return repository.create(clauseFullInput);
     }
 
     @Override
-    public Optional<Clause> read(UUID id) throws ServiceException {
+    public Optional<Clause> read(UUID id) {
         return repository.read(id);
     }
 
     @Override
-    public List<Clause> readByStatus(Clause.Status status) throws ServiceException {
+    public List<Clause> readByStatus(Clause.Status status) {
         return switch (status) {
             case ACTIVE, INACTIVE -> getLatestClauseVersions(status);
             case DRAFT -> repository.readAllDrafts();
@@ -55,7 +55,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public List<Clause> readHistory(String name) throws ServiceException {
+    public List<Clause> readHistory(String name) throws NotFoundException {
         List<Clause> history = repository.readHistory(name);
         if (history.isEmpty())
             throw new NotFoundException(String.format("clause with name '%s' was not found", name));
@@ -63,7 +63,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ServiceException {
+    public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ManagementException {
         Clause draft = repository.read(clauseUuid)
                 .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
         Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
@@ -81,19 +81,19 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause inactivate(String name) throws ServiceException {
+    public Clause inactivate(String name) throws InvalidInputException {
         return updateStatus(name, Clause.Status.ACTIVE, "Only ACTIVE clauses can be inactivated", Clause.Status.INACTIVE);
     }
 
     @Override
-    public Clause activate(String name) throws ServiceException {
+    public Clause activate(String name) throws InvalidInputException {
         return updateStatus(name, Clause.Status.INACTIVE, "Only INACTIVE clauses can be activated", Clause.Status.ACTIVE);
     }
 
-    private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) {
+    private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) throws InvalidInputException {
         var clause = repository.readCurrentClause(name)
                 .filter(c -> c.status() == currentStatus)
-                .orElseThrow(() -> new BadRequestException(errorMessage));
+                .orElseThrow(() -> new InvalidInputException(errorMessage));
 
         var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, clause.createdBy());
         Clause created = repository.create(clauseInput);
@@ -102,12 +102,12 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause deleteDraft(UUID id) throws ServiceException {
+    public Clause deleteDraft(UUID id) throws NotFoundException {
         return repository.deleteDraft(id);
     }
 
     @Override
-    public long getNumberOfDrugsForClause(String name) throws ServiceException {
+    public long getNumberOfDrugsForClause(String name) {
         return clauseDrugCounter.getNumberOfDrugsForClause(name);
     }
 }

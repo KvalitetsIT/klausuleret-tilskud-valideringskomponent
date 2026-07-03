@@ -2,9 +2,10 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedExistingDrugMedicationKeysException;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedExistingDrugMedicationKeysException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -52,7 +53,7 @@ class ExistingDrugMedicationConditionBuilderTest {
     }
 
     @Test
-    void build_WithAllExpectedKeys_ReturnsExistingDrugMedicationCondition() {
+    void build_WithAllExpectedKeys_ReturnsExistingDrugMedicationCondition() throws DslParserException {
         var value = new Condition.Value.Structured(
                 Map.of(Identifier.ATC_CODE.toString(), "1", Identifier.FORM_CODE.toString(), "2", Identifier.ROUTE.toString(), "3"));
         var operator = Operator.EQUAL;
@@ -64,7 +65,7 @@ class ExistingDrugMedicationConditionBuilderTest {
     }
 
     @Test
-    void build_WithEmptyMap_ReturnsExistingDrugMedicationConditionWithWildcards() {
+    void build_WithEmptyMap_ReturnsExistingDrugMedicationConditionWithWildcards() throws DslParserException {
         var value = new Condition.Value.Structured(Map.of());
         var operator = Operator.EQUAL;
 

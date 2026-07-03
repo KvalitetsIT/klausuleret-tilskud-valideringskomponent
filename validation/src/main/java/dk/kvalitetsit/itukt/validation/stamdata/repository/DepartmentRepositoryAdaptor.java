@@ -1,9 +1,8 @@
 package dk.kvalitetsit.itukt.validation.stamdata.repository;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class DepartmentRepositoryAdaptor implements Repository<Department> {
     }
 
     @Override
-    public List<Department> fetchAll() throws ServiceException {
+    public List<Department> fetchAll() {
         return mapper.map(repository.fetchAll());
     }
 }

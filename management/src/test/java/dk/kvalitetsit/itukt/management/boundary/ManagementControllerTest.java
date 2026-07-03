@@ -1,8 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,7 +80,7 @@ class ManagementControllerTest {
         UUID uuid = UUID.randomUUID();
         Mockito.when(clauseService.read(uuid)).thenReturn(Optional.empty());
 
-        var e = assertThrows(NotFoundException.class, () -> managementController.management20250801ClausesIdGet(uuid));
+        var e = assertThrows(NotFoundApiException.class, () -> managementController.management20250801ClausesIdGet(uuid));
         assertEquals("Clause was not found", e.getDetailedError());
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
@@ -91,7 +90,7 @@ class ManagementControllerTest {
         UUID uuid = UUID.randomUUID();
         Mockito.when(clauseService.readDsl(uuid)).thenReturn(Optional.empty());
 
-        var e = assertThrows(NotFoundException.class, () -> managementController.management20250801ClausesDslIdGet(uuid));
+        var e = assertThrows(NotFoundApiException.class, () -> managementController.management20250801ClausesDslIdGet(uuid));
         assertEquals("Clause was not found", e.getDetailedError());
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
@@ -164,8 +163,8 @@ class ManagementControllerTest {
     @Test
     void management20250801ClausesIdDelete_whenError() {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(ServiceException.class);
-        assertThrows(ServiceException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
+        Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(RuntimeException.class);
+        assertThrows(RuntimeException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
     }
 
     @Test

@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.management.service;
 
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
+import dk.kvalitetsit.itukt.management.exceptions.InvalidInputException;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -12,11 +12,11 @@ class UserContextServiceTest {
     @Test
     void getUserID_WithNoUserIdHeader_ThrowsException() {
         var userContextService = new UserContextService(new MockHttpServletRequest());
-        assertThrows(BadRequestApiException.class, userContextService::getUserID);
+        assertThrows(InvalidInputException.class, userContextService::getUserID);
     }
 
     @Test
-    void getUserID_WithUserIdHeader_ReturnsUserID() {
+    void getUserID_WithUserIdHeader_ReturnsUserID() throws InvalidInputException {
         String expectedUserID = "test-user-id";
         var request = new MockHttpServletRequest();
         request.addHeader("User-ID", expectedUserID);

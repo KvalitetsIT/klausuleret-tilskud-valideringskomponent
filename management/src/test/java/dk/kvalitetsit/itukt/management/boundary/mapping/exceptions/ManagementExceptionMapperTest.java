@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.exceptions;
 
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.management.exceptions.InvalidInputException;
 import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,16 @@ class ManagementExceptionMapperTest {
         var result = managementExceptionMapper.map(inputException);
 
         var apiException = assertInstanceOf(NotFoundApiException.class, result);
+        assertEquals(inputException.getMessage(), apiException.getDetailedError());
+    }
+
+    @Test
+    void map_WithInvalidInputException() {
+        var inputException = new InvalidInputException("message");
+
+        var result = managementExceptionMapper.map(inputException);
+
+        var apiException = assertInstanceOf(BadRequestApiException.class, result);
         assertEquals(inputException.getMessage(), apiException.getDetailedError());
     }
 }

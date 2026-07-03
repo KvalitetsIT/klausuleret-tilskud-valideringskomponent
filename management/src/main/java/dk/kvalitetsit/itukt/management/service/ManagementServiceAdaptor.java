@@ -5,9 +5,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
-import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
-import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.openapitools.model.*;
 
@@ -41,15 +39,19 @@ public class ManagementServiceAdaptor {
     }
 
     public ClauseOutput create(org.openapitools.model.ClauseInput clauseInput) {
-        var clauseForCreation = clauseInputMapper.map(clauseInput);
-        return clauseDtoMapper.map(clauseService.create(clauseForCreation));
+        try {
+            var clauseForCreation = clauseInputMapper.map(clauseInput);
+            return clauseDtoMapper.map(clauseService.create(clauseForCreation));
+        } catch (ManagementException e) {
+            throw managementExceptionMapper.map(e);
+        }
     }
 
     public DslOutput createDSL(DslInput dsl) {
         try {
             var clauseInput = this.dslClauseMapper.map(dsl);
             return clauseDtoDslMapper.map(this.create(clauseInput));
-        } catch (DslParserException e) {
+        } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
         }
     }
@@ -69,7 +71,7 @@ public class ManagementServiceAdaptor {
         try {
             List<Clause> clauses = clauseService.readHistory(name);
             return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
-        } catch (NotFoundException e) {
+        } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
         }
     }
@@ -86,20 +88,28 @@ public class ManagementServiceAdaptor {
     public DslOutput approveClause(UUID clauseUuid, boolean resetSkippedValidation) {
         try {
             return mapResponse(clauseService.approve(clauseUuid, resetSkippedValidation));
-        } catch (NotFoundException e) {
+        } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
         }
     }
 
 
     public DslOutput inactivateClause(String clauseName) {
-        var clause = clauseService.inactivate(clauseName);
-        return mapResponse(clause);
+        try {
+            var clause = clauseService.inactivate(clauseName);
+            return mapResponse(clause);
+        } catch (ManagementException e) {
+            throw managementExceptionMapper.map(e);
+        }
     }
 
     public DslOutput activateClause(String clauseName) {
-        var clause = clauseService.activate(clauseName);
-        return mapResponse(clause);
+        try {
+            var clause = clauseService.activate(clauseName);
+            return mapResponse(clause);
+        } catch (ManagementException e) {
+            throw managementExceptionMapper.map(e);
+        }
     }
 
     public DrugCount getNumberOfDrugsForClause(String clauseName) {
@@ -122,7 +132,7 @@ public class ManagementServiceAdaptor {
     public ClauseOutput deleteDraft(UUID id) {
         try {
             return clauseDtoMapper.map(clauseService.deleteDraft(id));
-        } catch (NotFoundException e) {
+        } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
         }
     }

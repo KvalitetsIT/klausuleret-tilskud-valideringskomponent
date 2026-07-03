@@ -6,10 +6,7 @@ import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
-import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
-import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
-import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
+import dk.kvalitetsit.itukt.management.exceptions.*;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +61,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void testCreate() {
+    void testCreate() throws ManagementException {
         var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "Message");
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
@@ -79,7 +76,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void testCreateDsl() throws DslParserException {
+    void testCreateDsl() throws ManagementException {
         var dslInput = new DslInput("name", "message", "test");
         var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "message");
         var clause = Mockito.mock(Clause.class);
@@ -149,14 +146,14 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void approveClause_WithUuid_ApprovesClause() throws NotFoundException {
+    void approveClause_WithUuid_ApprovesClause() throws ManagementException {
         var uuid = UUID.randomUUID();
         adaptor.approveClause(uuid, false);
         Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid, false);
     }
 
     @Test
-    void approveClause_WhenNotFoundExceptionIsThrown_MapsToApiException() throws NotFoundException {
+    void approveClause_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
         var notFoundException = new NotFoundException("Clause not found");
         Mockito.when(managementServiceImpl.approve(Mockito.any(), Mockito.anyBoolean()))
                 .thenThrow(notFoundException);
@@ -168,7 +165,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void inactivateClause_WithName_InactivatesClause() {
+    void inactivateClause_WithName_InactivatesClause() throws ManagementException {
         String name = "test";
         var inactiveClause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
@@ -183,7 +180,18 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void activateClause_WithName_ActivatesClause() {
+    void inactivateClause_WhenInvalidInputExceptionIsThrown_MapsToApiException() throws ManagementException {
+        var invalidInputException = new InvalidInputException("Invalid input");
+        Mockito.when(managementServiceImpl.inactivate(Mockito.any())).thenThrow(invalidInputException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(invalidInputException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.inactivateClause("test"));
+        assertEquals(apiException, e);
+    }
+
+    @Test
+    void activateClause_WithName_ActivatesClause() throws ManagementException {
         String name = "test";
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
@@ -198,7 +206,18 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void deleteDraft() throws NotFoundException {
+    void activateClause_WhenInvalidInputExceptionIsThrown_MapsToApiException() throws ManagementException {
+        var invalidInputException = new InvalidInputException("Invalid input");
+        Mockito.when(managementServiceImpl.activate(Mockito.any())).thenThrow(invalidInputException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(invalidInputException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.activateClause("test"));
+        assertEquals(apiException, e);
+    }
+
+    @Test
+    void deleteDraft() throws ManagementException {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         UUID uuid = UUID.randomUUID();
@@ -210,7 +229,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void deleteDraft_WhenNotFoundExceptionIsThrown_MapsToApiException() throws NotFoundException {
+    void deleteDraft_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
         var notFoundException = new NotFoundException("Clause not found");
         Mockito.when(managementServiceImpl.deleteDraft(Mockito.any()))
                 .thenThrow(notFoundException);
@@ -233,7 +252,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void readHistoryDsl_ReturnsMappedHistory() throws NotFoundException {
+    void readHistoryDsl_ReturnsMappedHistory() throws ManagementException {
         String name = "test";
         var clauses = List.of(Mockito.mock(Clause.class));
         Mockito.when(managementServiceImpl.readHistory(name)).thenReturn(clauses);
@@ -248,7 +267,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void readHistoryDsl_WhenNotFoundExceptionIsThrown_MapsToApiException() throws NotFoundException {
+    void readHistoryDsl_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
         String name = "test";
         var notFoundException = new NotFoundException("Clause not found");
         Mockito.when(managementServiceImpl.readHistory(name)).thenThrow(notFoundException);

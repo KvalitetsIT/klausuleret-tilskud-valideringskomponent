@@ -1,11 +1,12 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.management.MockFactory;
+import dk.kvalitetsit.itukt.management.exceptions.InvalidInputException;
+import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
 import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
@@ -39,7 +40,7 @@ class ManagementServiceImplTest {
     private UserContextService userContextService;
 
     @Test
-    void create_CreatesDraftClause() {
+    void create_CreatesDraftClause() throws InvalidInputException {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
@@ -111,7 +112,7 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void approve_givenNoResetSkippedValidations_whenApprove_thenUpdateClauseStatusFromDraftToActiveAndCopySkippedValidations() throws NotFoundException {
+    void approve_givenNoResetSkippedValidations_whenApprove_thenUpdateClauseStatusFromDraftToActiveAndCopySkippedValidations() throws ManagementException {
         var active = Mockito.mock(Clause.class);
         var draft = Mockito.mock(Clause.class);
 
@@ -137,7 +138,7 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void approve_givenResetSkippedValidations_whenApprove_thenUpdateClauseStatusFromDraftToActiveWithoutCopyingSkippedValidations() throws NotFoundException {
+    void approve_givenResetSkippedValidations_whenApprove_thenUpdateClauseStatusFromDraftToActiveWithoutCopyingSkippedValidations() throws ManagementException {
         var active = Mockito.mock(Clause.class);
         var draft = Mockito.mock(Clause.class);
         Mockito.when(draft.name()).thenReturn("blaaah");
@@ -165,7 +166,7 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void approve_givenNoResetSkippedValidationsWithNoCurrentClause_UpdatesClauseStatusFromDraftToActiveWithoutCopyingSkippedValidations() throws NotFoundException {
+    void approve_givenNoResetSkippedValidationsWithNoCurrentClause_UpdatesClauseStatusFromDraftToActiveWithoutCopyingSkippedValidations() throws ManagementException {
         var draft = Mockito.mock(Clause.class);
         Mockito.when(draft.name()).thenReturn("blaaah");
         Mockito.when(draft.expression()).thenReturn(Mockito.mock(BinaryExpression.class));
@@ -194,7 +195,7 @@ class ManagementServiceImplTest {
     void inactivate_WhenClauseDoesNotExist_ThrowsException() {
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.empty());
 
-        assertThrows(BadRequestApiException.class, () -> service.inactivate("test"));
+        assertThrows(InvalidInputException.class, () -> service.inactivate("test"));
     }
 
     @Test
@@ -203,11 +204,11 @@ class ManagementServiceImplTest {
         Mockito.when(clause.status()).thenReturn(Clause.Status.INACTIVE);
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 
-        assertThrows(BadRequestApiException.class, () -> service.inactivate("test"));
+        assertThrows(InvalidInputException.class, () -> service.inactivate("test"));
     }
 
     @Test
-    void givenAnActiveClause_whenInactivate_thenEnsureSkippedValidationIsCopied() {
+    void givenAnActiveClause_whenInactivate_thenEnsureSkippedValidationIsCopied() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 
@@ -220,7 +221,7 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void givenAnInactiveClause_whenActivate_thenEnsureSkippedValidationIsCopied() {
+    void givenAnInactiveClause_whenActivate_thenEnsureSkippedValidationIsCopied() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 
@@ -233,7 +234,7 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() {
+    void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
         Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
         var inactiveClause = Mockito.mock(Clause.class);
@@ -250,7 +251,7 @@ class ManagementServiceImplTest {
     void activate_WhenClauseDoesNotExist_ThrowsException() {
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.empty());
 
-        assertThrows(BadRequestApiException.class, () -> service.activate("test"));
+        assertThrows(InvalidInputException.class, () -> service.activate("test"));
     }
 
     @Test
@@ -259,11 +260,11 @@ class ManagementServiceImplTest {
         Mockito.when(clause.status()).thenReturn(Clause.Status.ACTIVE);
         Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
 
-        assertThrows(BadRequestApiException.class, () -> service.activate("test"));
+        assertThrows(InvalidInputException.class, () -> service.activate("test"));
     }
 
     @Test
-    void activate_WhenClauseIsInactive_CreatesNewClauseAndSetsActive() {
+    void activate_WhenClauseIsInactive_CreatesNewClauseAndSetsActive() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
         Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
         var activeClause = Mockito.mock(Clause.class);

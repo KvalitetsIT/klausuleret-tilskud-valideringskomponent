@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.management.service;
 
-import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
+import dk.kvalitetsit.itukt.management.exceptions.InvalidInputException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Optional;
@@ -12,7 +12,7 @@ public class UserContextService {
         userID = Optional.ofNullable(request.getHeader("User-ID"));
     }
 
-    public String getUserID() {
-        return userID.orElseThrow(() -> new BadRequestApiException("User-ID header is missing"));
+    public String getUserID() throws InvalidInputException {
+        return userID.orElseThrow(() -> new InvalidInputException("User-ID header is missing"));
     }
 }

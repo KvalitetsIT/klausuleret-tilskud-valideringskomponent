@@ -10,6 +10,7 @@ import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 
 import java.util.List;
 import java.util.Optional;
@@ -104,6 +105,16 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public Clause deleteDraft(UUID id) throws ServiceException {
         return repository.deleteDraft(id);
+    }
+
+    @Override
+    public Clause updateDraft(UUID id, ClauseUpdateInput clause) {
+        var existing = repository.read(id)
+                .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
+        repository.deleteDraft(id);
+        String userID = userContextService.getUserID();
+        var newDraft = new ClauseFullInput(existing.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID);
+        return repository.create(newDraft);
     }
 
     @Override

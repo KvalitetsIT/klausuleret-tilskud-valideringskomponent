@@ -183,14 +183,11 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        JOIN (
-                            SELECT name, MAX(created_time) AS max_created_time
+                        WHERE status != 'DRAFT' AND c.id NOT IN (
+                            SELECT parent_clause_id
                             FROM clause
-                            WHERE status != 'DRAFT'
-                            GROUP BY name
-                        ) latest
-                          ON c.name = latest.name
-                            AND c.created_time = latest.max_created_time
+                            WHERE parent_clause_id IS NOT NULL
+                        )
                         ORDER BY c.id
                     """;
 
@@ -209,17 +206,20 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<ClauseEntity> readAllDrafts() {
+    public List<ClauseEntity> readCurrentDrafts() {
         try {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        WHERE status = :status
+                        WHERE status = 'DRAFT' AND c.id NOT IN (
+                            SELECT parent_clause_id
+                            FROM clause
+                            WHERE parent_clause_id IS NOT NULL
+                        )
                         ORDER BY c.id
                     """;
 
             List<UUID> uuids = template.query(sql,
-                    Map.of("status", Clause.Status.DRAFT.name()),
                     (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
             );
 

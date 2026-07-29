@@ -19,7 +19,10 @@ public interface ClauseRepository {
      * Retrieves the current version of each clause. Excluding drafts.
      */
     List<ClauseEntity> readCurrentClauses();
-    List<ClauseEntity> readAllDrafts();
+    /**
+     * Retrieves the current version of each draft clause.
+     */
+    List<ClauseEntity> readCurrentDrafts();
 
     List<ClauseEntity> readHistory(String name);
 

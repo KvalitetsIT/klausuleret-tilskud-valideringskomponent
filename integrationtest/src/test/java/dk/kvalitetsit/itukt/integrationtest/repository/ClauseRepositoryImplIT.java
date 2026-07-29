@@ -81,13 +81,13 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createAndReadAllDrafts() {
+    void createAndReadCurrentDrafts() {
         var clauseInput1 = new ClauseEntityInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message1", Clause.Status.DRAFT, "tester", null);
         var clauseInput2 = new ClauseEntityInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message2", Clause.Status.DRAFT, "tester", null);
 
         var createdClause1 = repository.create(clauseInput1);
         var createdClause2 = repository.create(clauseInput2);
-        var readClauses = repository.readAllDrafts();
+        var readClauses = repository.readCurrentDrafts();
 
         assertEquals(2, readClauses.size());
         assertTrue(readClauses.contains(createdClause1));
@@ -113,28 +113,46 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createTwoDraftClausesWithSameName_ThenReadAllDrafts_ReturnsBothClauses() {
-        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
-        var clauseInput1 = new ClauseEntityInput("clause", expression, "errorA", Clause.Status.DRAFT, "tester", null);
-        var clauseInput2 = new ClauseEntityInput("clause", expression, "errorB", Clause.Status.DRAFT, "tester", null);
+    void readCurrentDrafts_WithNoClauses_ReturnsEmptyList() {
+        var clauses = repository.readCurrentDrafts();
 
-        var clauseA = repository.create(clauseInput1);
-        var clauseB = repository.create(clauseInput2);
-        var clauses = repository.readAllDrafts();
-
-        assertEquals(2, clauses.size(), "Expected both clauses to be returned");
-        assertTrue(clauses.contains(clauseA));
-        assertTrue(clauses.contains(clauseB));
+        assertTrue(clauses.isEmpty(), "Expected no clauses to be returned when no clauses exist");
     }
 
     @Test
-    void createTwoActiveClausesWithSameName_ThenReadCurrentClauses_ReturnsLatestValidClause() {
+    void readCurrentDrafts_ReturnsDraftsWithNoChildClause() {
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        var clauseInput1 = new ClauseEntityInput("clause1", expression, "errorA", Clause.Status.DRAFT, "tester", null);
+        var clause1 = repository.create(clauseInput1);
+        var clauseInput2 = new ClauseEntityInput("clause2", expression, "errorB", Clause.Status.DRAFT, "tester", null);
+        var clause2 = repository.create(clauseInput2);
+        var clauseInput3 = new ClauseEntityInput("clause3", expression, "errorB", Clause.Status.DRAFT, "tester", clause2.id());
+        var clause3 = repository.create(clauseInput3);
+        var clauseInput4 = new ClauseEntityInput("clause4", expression, "errorB", Clause.Status.DRAFT, "tester", clause3.id());
+        var clause4 = repository.create(clauseInput4);
+
+        var clauses = repository.readCurrentDrafts();
+
+        assertEquals(2, clauses.size(), "Expected current clauses to be returned");
+        assertTrue(clauses.contains(clause1));
+        assertTrue(clauses.contains(clause4));
+    }
+
+    @Test
+    void readCurrentClauses_WithNoClauses_ReturnsEmptyList() {
+        var clauses = repository.readCurrentClauses();
+
+        assertTrue(clauses.isEmpty(), "Expected no clauses to be returned when no clauses exist");
+    }
+
+    @Test
+    void readCurrentClauses_ReturnsClausesWithNoChildClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, "tester", null);
-        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", null);
-
         var clauseA = repository.create(clauseInput1);
+        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", clauseA.id());
         var clauseB = repository.create(clauseInput2);
+
         var clauses = repository.readCurrentClauses();
 
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");

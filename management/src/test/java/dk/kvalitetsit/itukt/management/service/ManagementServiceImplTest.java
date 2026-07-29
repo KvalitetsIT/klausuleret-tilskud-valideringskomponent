@@ -91,7 +91,7 @@ class ManagementServiceImplTest {
     @Test
     void readByStatus_WithStatusDraft_ReturnsDraftClauses() {
         var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.readAllDrafts()).thenReturn(List.of(model));
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(model));
 
         var result = service.readByStatus(Clause.Status.DRAFT);
 
@@ -132,9 +132,8 @@ class ManagementServiceImplTest {
         service.approve(draft.uuid(), false);
 
         Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(active.id(), createdClause.id());
-        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId, null);
+        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId, draft.id());
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
-        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
     @Test
@@ -152,7 +151,6 @@ class ManagementServiceImplTest {
 
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verify(dao, Mockito.times(1)).create(Mockito.any());
-        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
     @Test
@@ -179,7 +177,6 @@ class ManagementServiceImplTest {
 
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verify(dao, Mockito.times(1)).create(Mockito.any());
-        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
     @Test

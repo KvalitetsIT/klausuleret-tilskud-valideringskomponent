@@ -45,7 +45,7 @@ public class ManagementServiceImpl implements ManagementService {
     public List<Clause> readByStatus(Clause.Status status) {
         return switch (status) {
             case ACTIVE, INACTIVE -> getLatestClauseVersions(status);
-            case DRAFT -> repository.readAllDrafts();
+            case DRAFT -> repository.readCurrentDrafts();
         };
     }
 
@@ -69,10 +69,8 @@ public class ManagementServiceImpl implements ManagementService {
         Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
         String userID = userContextService.getUserID();
 
-        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID, null);
+        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID, draft.id());
         Clause created = repository.create(clauseInput);
-
-        repository.deleteDraft(draft.uuid());
 
         if (!resetSkippedValidations && currentClause.isPresent()) {
             skippedValidationRepository.copySkippedValidation(currentClause.get().id(), created.id());

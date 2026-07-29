@@ -47,8 +47,11 @@ public class ClauseRepositoryAdaptor {
         return clauseRepository.readCurrentClause(name).map(entityMapper::map);
     }
 
-    public List<Clause> readAllDrafts() {
-        return this.entityMapper.map(clauseRepository.readAllDrafts());
+    /**
+     * Retrieves the current version of each draft clause.
+     */
+    public List<Clause> readCurrentDrafts() {
+        return this.entityMapper.map(clauseRepository.readCurrentDrafts());
     }
 
 

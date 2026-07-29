@@ -14,6 +14,7 @@ public record ClauseEntity(
         String errorMessage,
         ExpressionEntity expression,
         String createdBy,
-        Date createdTime
+        Date createdTime,
+        Long parentClauseId
 ) {
 }

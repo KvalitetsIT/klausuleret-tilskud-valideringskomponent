@@ -32,7 +32,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public Clause create(ClauseInput clause) throws InvalidInputException {
         String userID = userContextService.getUserID();
-        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID);
+        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID, null);
         return repository.create(clauseFullInput);
     }
 
@@ -69,7 +69,7 @@ public class ManagementServiceImpl implements ManagementService {
         Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
         String userID = userContextService.getUserID();
 
-        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID);
+        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID, null);
         Clause created = repository.create(clauseInput);
 
         repository.deleteDraft(draft.uuid());
@@ -95,7 +95,7 @@ public class ManagementServiceImpl implements ManagementService {
                 .filter(c -> c.status() == currentStatus)
                 .orElseThrow(() -> new InvalidInputException(errorMessage));
 
-        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, clause.createdBy());
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, clause.createdBy(), clause.id());
         Clause created = repository.create(clauseInput);
         skippedValidationRepository.copySkippedValidation(clause.id(), created.id());
         return created;

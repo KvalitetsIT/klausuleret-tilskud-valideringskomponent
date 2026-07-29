@@ -8,7 +8,8 @@ public record ClauseFullInput(
         Expression expression,
         String errorMessage,
         Clause.Status status,
-        String createdBy
+        String createdBy,
+        Long parentClauseId
 ) {
 
 }

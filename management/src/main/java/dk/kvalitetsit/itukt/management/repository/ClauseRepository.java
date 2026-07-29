@@ -14,11 +14,11 @@ public interface ClauseRepository {
     /**
      * Retrieves the current version of a clause. Excluding drafts.
      */
-    Optional<ClauseEntity> readCurrentClause(String name);
+    Optional<ClauseEntity> readCurrentNonDraftClause(String name);
     /**
      * Retrieves the current version of each clause. Excluding drafts.
      */
-    List<ClauseEntity> readCurrentClauses();
+    List<ClauseEntity> readCurrentNonDraftClauses();
     /**
      * Retrieves the current version of each draft clause.
      */

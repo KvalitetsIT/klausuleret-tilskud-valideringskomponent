@@ -50,7 +50,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     private List<Clause> getLatestClauseVersions(Clause.Status status) {
-        return repository.readCurrentClauses().stream()
+        return repository.readCurrentNonDraftClauses().stream()
                 .filter(clause -> clause.status() == status).toList();
     }
 
@@ -66,7 +66,7 @@ public class ManagementServiceImpl implements ManagementService {
     public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ManagementException {
         Clause draft = repository.read(clauseUuid)
                 .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
-        Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
+        Optional<Clause> currentClause = repository.readCurrentNonDraftClause(draft.name());
         String userID = userContextService.getUserID();
 
         var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID, draft.id());
@@ -89,7 +89,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) throws InvalidInputException {
-        var clause = repository.readCurrentClause(name)
+        var clause = repository.readCurrentNonDraftClause(name)
                 .filter(c -> c.status() == currentStatus)
                 .orElseThrow(() -> new InvalidInputException(errorMessage));
 

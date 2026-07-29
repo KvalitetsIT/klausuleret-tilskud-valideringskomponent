@@ -68,7 +68,7 @@ class ManagementServiceImplTest {
         Mockito.when(activeClause.status()).thenReturn(Clause.Status.ACTIVE);
         var inactiveClause = mock(Clause.class);
         Mockito.when(inactiveClause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
+        Mockito.when(dao.readCurrentNonDraftClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
         var result = service.readByStatus(Clause.Status.ACTIVE);
 
@@ -81,7 +81,7 @@ class ManagementServiceImplTest {
         Mockito.when(activeClause.status()).thenReturn(Clause.Status.ACTIVE);
         var inactiveClause = mock(Clause.class);
         Mockito.when(inactiveClause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
+        Mockito.when(dao.readCurrentNonDraftClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
         var result = service.readByStatus(Clause.Status.INACTIVE);
 
@@ -124,7 +124,7 @@ class ManagementServiceImplTest {
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
         Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
-        Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.of(active));
+        Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.of(active));
         var createdClause = mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(createdClause);
         Mockito.when(createdClause.id()).thenReturn(3L);
@@ -145,7 +145,7 @@ class ManagementServiceImplTest {
         Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
         Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
-        Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.of(active));
+        Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.of(active));
 
         service.approve(draft.uuid(), true);
 
@@ -171,7 +171,7 @@ class ManagementServiceImplTest {
         Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
         Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
-        Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.empty());
+        Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.empty());
 
         service.approve(draft.uuid(), false);
 
@@ -190,7 +190,7 @@ class ManagementServiceImplTest {
 
     @Test
     void inactivate_WhenClauseDoesNotExist_ThrowsException() {
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.empty());
 
         assertThrows(InvalidInputException.class, () -> service.inactivate("test"));
     }
@@ -199,7 +199,7 @@ class ManagementServiceImplTest {
     void inactivate_WhenClauseIsAlreadyInactive_ThrowsException() {
         var clause = mock(Clause.class);
         Mockito.when(clause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         assertThrows(InvalidInputException.class, () -> service.inactivate("test"));
     }
@@ -207,7 +207,7 @@ class ManagementServiceImplTest {
     @Test
     void givenAnActiveClause_whenInactivate_thenEnsureSkippedValidationIsCopied() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), "tester", new Date());
         Mockito.when(dao.create(any())).thenReturn(created);
@@ -220,7 +220,7 @@ class ManagementServiceImplTest {
     @Test
     void givenAnInactiveClause_whenActivate_thenEnsureSkippedValidationIsCopied() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), "tester", new Date());
         Mockito.when(dao.create(any())).thenReturn(created);
@@ -233,7 +233,7 @@ class ManagementServiceImplTest {
     @Test
     void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(clause.name())).thenReturn(Optional.of(clause));
         var inactiveClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(inactiveClause);
 
@@ -246,7 +246,7 @@ class ManagementServiceImplTest {
 
     @Test
     void activate_WhenClauseDoesNotExist_ThrowsException() {
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.empty());
 
         assertThrows(InvalidInputException.class, () -> service.activate("test"));
     }
@@ -255,7 +255,7 @@ class ManagementServiceImplTest {
     void activate_WhenClauseIsAlreadyActive_ThrowsException() {
         var clause = mock(Clause.class);
         Mockito.when(clause.status()).thenReturn(Clause.Status.ACTIVE);
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         assertThrows(InvalidInputException.class, () -> service.activate("test"));
     }
@@ -263,7 +263,7 @@ class ManagementServiceImplTest {
     @Test
     void activate_WhenClauseIsInactive_CreatesNewClauseAndSetsActive() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(clause.name())).thenReturn(Optional.of(clause));
         var activeClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(activeClause);
 

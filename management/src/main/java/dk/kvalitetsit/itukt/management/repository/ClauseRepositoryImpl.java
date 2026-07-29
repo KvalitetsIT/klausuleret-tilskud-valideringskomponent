@@ -153,7 +153,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public Optional<ClauseEntity> readCurrentClause(String name) {
+    public Optional<ClauseEntity> readCurrentNonDraftClause(String name) {
         try {
             String sql = """
                         SELECT c.uuid
@@ -178,7 +178,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<ClauseEntity> readCurrentClauses() {
+    public List<ClauseEntity> readCurrentNonDraftClauses() {
         try {
             String sql = """
                         SELECT c.uuid

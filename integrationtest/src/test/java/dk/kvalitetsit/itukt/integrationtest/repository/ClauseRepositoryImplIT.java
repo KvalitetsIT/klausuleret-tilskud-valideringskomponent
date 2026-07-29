@@ -139,21 +139,21 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void readCurrentClauses_WithNoClauses_ReturnsEmptyList() {
-        var clauses = repository.readCurrentClauses();
+    void readCurrentNonDraftClauses_WithNoClauses_ReturnsEmptyList() {
+        var clauses = repository.readCurrentNonDraftClauses();
 
         assertTrue(clauses.isEmpty(), "Expected no clauses to be returned when no clauses exist");
     }
 
     @Test
-    void readCurrentClauses_ReturnsClausesWithNoChildClause() {
+    void readCurrentNonDraftClauses_ReturnsClausesWithNoChildClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, "tester", null);
         var clauseA = repository.create(clauseInput1);
         var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", clauseA.id());
         var clauseB = repository.create(clauseInput2);
 
-        var clauses = repository.readCurrentClauses();
+        var clauses = repository.readCurrentNonDraftClauses();
 
         assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
         assertThat(clauses.getFirst())
@@ -165,14 +165,14 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createTwoActiveClausesWithSameName_ThenReadCurrentClause_ReturnsLatestValidClause() {
+    void createTwoActiveClausesWithSameName_ThenReadCurrentNonDraftClause_ReturnsLatestValidClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, "tester", null);
         var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", null);
 
         var clauseA = repository.create(clauseInput1);
         var clauseB = repository.create(clauseInput2);
-        var clause = repository.readCurrentClause("blaah");
+        var clause = repository.readCurrentNonDraftClause("blaah");
 
         assertTrue(clause.isPresent());
         assertThat(clause.get())
@@ -184,12 +184,12 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createDraftClause_ThenReadCurrentClause_ReturnsNothing() {
+    void createDraftClause_ThenReadCurrentNonDraftClause_ReturnsNothing() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         ClauseEntityInput clauseInput = new ClauseEntityInput("blaah", expression, "error", Clause.Status.DRAFT, "tester", null);
 
         repository.create(clauseInput);
-        var latestClause = repository.readCurrentClause("blaah");
+        var latestClause = repository.readCurrentNonDraftClause("blaah");
 
         assertTrue(latestClause.isEmpty());
     }

@@ -151,7 +151,7 @@ class ManagementServiceImplTest {
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
-        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(draft));
         Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.of(active));
         var createdClause = mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(createdClause);
@@ -172,7 +172,7 @@ class ManagementServiceImplTest {
         Mockito.when(draft.expression()).thenReturn(Mockito.mock(BinaryExpression.class));
         Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
-        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(draft));
         Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.of(active));
 
         service.approve(draft.uuid(), true);
@@ -183,10 +183,14 @@ class ManagementServiceImplTest {
 
     @Test
     void approve_WhenNoDraftMatchesUuid_ThrowsException() {
-        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.empty());
+        var uuid = UUID.randomUUID();
+        var anotherDraft = mock(Clause.class);
+        Mockito.when(anotherDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(anotherDraft));
 
-        assertThrows(NotFoundException.class, () -> service.approve(UUID.randomUUID(), true));
+        var e = assertThrows(NotFoundException.class, () -> service.approve(uuid, true));
 
+        assertEquals(e.getDetailedError(), "Clause %s is not a current draft and can not be approved".formatted(uuid));
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verifyNoMoreInteractions(dao);
     }
@@ -198,7 +202,7 @@ class ManagementServiceImplTest {
         Mockito.when(draft.expression()).thenReturn(Mockito.mock(BinaryExpression.class));
         Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
-        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(draft));
         Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.empty());
 
         service.approve(draft.uuid(), false);

@@ -68,8 +68,11 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ManagementException {
-        Clause draft = repository.read(clauseUuid)
-                .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
+        Clause draft = repository.readCurrentDrafts()
+                .stream()
+                .filter(clause -> clause.uuid().equals(clauseUuid))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Clause %s is not a current draft and can not be approved".formatted(clauseUuid)));
         Optional<Clause> currentClause = repository.readCurrentNonDraftClause(draft.name());
         String userID = userContextService.getUserID();
 

@@ -178,16 +178,47 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public List<ClauseEntity> readCurrentNonDraftClauses() {
+    public Optional<ClauseEntity> readCurrentDraft(String name) {
         try {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        WHERE status != 'DRAFT' AND c.id NOT IN (
+                        WHERE name = :name AND status = 'DRAFT' AND c.id NOT IN (
                             SELECT parent_clause_id
                             FROM clause
                             WHERE parent_clause_id IS NOT NULL
                         )
+                    """;
+
+            UUID latestClauseUuid = template.queryForObject(
+                    sql,
+                    Map.of("name", name),
+                    UUID.class);
+
+            return read(latestClauseUuid);
+
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (Exception e) {
+            logger.error("Failed to read current draft clause", e);
+            throw new ServiceException("Failed to read current draft clause", e);
+        }
+    }
+
+    @Override
+    public List<ClauseEntity> readCurrentNonDraftClauses() throws ServiceException {
+        try {
+            String sql = """
+                        SELECT c.uuid
+                        FROM clause c
+                        JOIN (
+                            SELECT name, MAX(created_time) AS max_created_time
+                            FROM clause
+                            WHERE status != 'DRAFT'
+                            GROUP BY name
+                        ) latest
+                          ON c.name = latest.name
+                            AND c.created_time = latest.max_created_time
                         ORDER BY c.id
                     """;
 

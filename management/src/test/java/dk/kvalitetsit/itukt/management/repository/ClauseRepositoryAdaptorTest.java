@@ -108,6 +108,19 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
+    void testReadCurrentDraft() {
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        String name = "test";
+        Mockito.when(concreteRepository.readCurrentDraft(name)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
+        var result = adaptor.readCurrentDraft(name);
+
+        assertEquals(Optional.of(clause), result);
+    }
+
+    @Test
     void testReadCurrentDrafts() {
 
         var clauseEntity = Mockito.mock(ClauseEntity.class);

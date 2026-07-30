@@ -48,7 +48,14 @@ public class ClauseRepositoryAdaptor {
     }
 
     /**
-     * Retrieves the current version of each draft clause.
+     * Retrieves the draft clause with no child clauses, if such exist.
+     */
+    public Optional<Clause> readCurrentDraft(String name) throws ServiceException {
+        return clauseRepository.readCurrentDraft(name).map(entityMapper::map);
+    }
+
+    /**
+     * Retrieves all draft clauses that have no child clauses.
      */
     public List<Clause> readCurrentDrafts() {
         return this.entityMapper.map(clauseRepository.readCurrentDrafts());

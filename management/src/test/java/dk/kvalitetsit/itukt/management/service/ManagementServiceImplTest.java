@@ -40,11 +40,39 @@ class ManagementServiceImplTest {
     private UserContextService userContextService;
 
     @Test
-    void create_CreatesDraftClause() throws InvalidInputException {
+    void create_WhenDraftWithSameNameAlreadyExists_ThrowsException() {
+        var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
+        var existingDraftClause = mock(Clause.class);
+        Mockito.when(dao.readCurrentDraft(clauseForCreation.name())).thenReturn(Optional.of(existingDraftClause));
+
+        var e = assertThrows(BadRequestException.class, () -> service.create(clauseForCreation));
+        assertEquals(e.getDetailedError(), String.format("A draft clause with name '%s' already exists", clauseForCreation.name()));
+    }
+
+    @Test
+    void create_WhenNoClauseWithMatchingNameExists_CreatesDraftClauseWithoutParent() throws InvalidInputException {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
         var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, null);
+        var clause = mock(Clause.class);
+        Mockito.when(dao.create(expectedClauseFullInput))
+                .thenReturn(clause);
+
+        var result = service.create(clauseForCreation);
+
+        assertEquals(clause, result, "Created clause should be returned from service");
+    }
+
+    @Test
+    void create_WhenNonDraftClauseWithMatchingNameExists_CreatesDraftClauseWithParent() {
+        var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
+        String userId = "tester";
+        Mockito.when(userContextService.getUserID()).thenReturn(userId);
+        var existingClause = mock(Clause.class);
+        Mockito.when(existingClause.id()).thenReturn(1L);
+        Mockito.when(dao.readCurrentNonDraftClause(clauseForCreation.name())).thenReturn(Optional.of(existingClause));
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, existingClause.id());
         var clause = mock(Clause.class);
         Mockito.when(dao.create(expectedClauseFullInput))
                 .thenReturn(clause);

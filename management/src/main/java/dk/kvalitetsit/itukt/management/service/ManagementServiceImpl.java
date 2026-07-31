@@ -31,9 +31,9 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause create(ClauseInput clause) throws InvalidInputException {
-        repository.readCurrentDraft(clause.name()).ifPresent(_ -> {
-            throw new BadRequestException("A draft clause with name '%s' already exists".formatted(clause.name()));
-        });
+        if (repository.readCurrentDraft(clause.name()).isPresent()) {
+            throw new InvalidInputException("A draft clause with name '%s' already exists".formatted(clause.name()));
+        }
         var parentClauseId = repository.readCurrentNonDraftClause(clause.name()).map(Clause::id).orElse(null);
         String userID = userContextService.getUserID();
         var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID, parentClauseId);

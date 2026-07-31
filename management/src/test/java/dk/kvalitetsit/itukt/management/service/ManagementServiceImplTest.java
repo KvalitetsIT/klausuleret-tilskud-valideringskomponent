@@ -45,8 +45,8 @@ class ManagementServiceImplTest {
         var existingDraftClause = mock(Clause.class);
         Mockito.when(dao.readCurrentDraft(clauseForCreation.name())).thenReturn(Optional.of(existingDraftClause));
 
-        var e = assertThrows(BadRequestException.class, () -> service.create(clauseForCreation));
-        assertEquals(e.getDetailedError(), String.format("A draft clause with name '%s' already exists", clauseForCreation.name()));
+        var e = assertThrows(InvalidInputException.class, () -> service.create(clauseForCreation));
+        assertEquals(e.getMessage(), String.format("A draft clause with name '%s' already exists", clauseForCreation.name()));
     }
 
     @Test
@@ -65,7 +65,7 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void create_WhenNonDraftClauseWithMatchingNameExists_CreatesDraftClauseWithParent() {
+    void create_WhenNonDraftClauseWithMatchingNameExists_CreatesDraftClauseWithParent() throws InvalidInputException {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
@@ -190,7 +190,7 @@ class ManagementServiceImplTest {
 
         var e = assertThrows(NotFoundException.class, () -> service.approve(uuid, true));
 
-        assertEquals(e.getDetailedError(), "Clause %s is not a current draft and can not be approved".formatted(uuid));
+        assertEquals(e.getMessage(), "Clause %s is not a current draft and can not be approved".formatted(uuid));
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verifyNoMoreInteractions(dao);
     }

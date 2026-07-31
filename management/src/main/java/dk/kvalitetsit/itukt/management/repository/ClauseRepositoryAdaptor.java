@@ -50,7 +50,7 @@ public class ClauseRepositoryAdaptor {
     /**
      * Retrieves the draft clause with no child clauses, if such exist.
      */
-    public Optional<Clause> readCurrentDraft(String name) throws ServiceException {
+    public Optional<Clause> readCurrentDraft(String name) {
         return clauseRepository.readCurrentDraft(name).map(entityMapper::map);
     }
 

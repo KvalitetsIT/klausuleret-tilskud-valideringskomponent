@@ -18,7 +18,7 @@ public interface ClauseRepository {
     /**
      * Retrieves the draft clause with no child clauses, if such exist.
      */
-    Optional<ClauseEntity> readCurrentDraft(String name) throws ServiceException;
+    Optional<ClauseEntity> readCurrentDraft(String name);
     /**
      * Retrieves the current version of each clause. Excluding drafts.
      */

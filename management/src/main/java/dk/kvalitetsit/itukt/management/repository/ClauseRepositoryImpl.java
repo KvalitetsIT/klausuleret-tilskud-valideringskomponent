@@ -201,12 +201,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             return Optional.empty();
         } catch (Exception e) {
             logger.error("Failed to read current draft clause", e);
-            throw new ServiceException("Failed to read current draft clause", e);
+            throw new RuntimeException("Failed to read current draft clause", e);
         }
     }
 
     @Override
-    public List<ClauseEntity> readCurrentNonDraftClauses() throws ServiceException {
+    public List<ClauseEntity> readCurrentNonDraftClauses() {
         try {
             String sql = """
                         SELECT c.uuid

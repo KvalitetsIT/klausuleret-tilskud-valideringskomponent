@@ -115,6 +115,28 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
+    void testDslPostPutAndGet() {
+        var input = new DslInput().name("test").dsl("ALDER = 1").error("error");
+        api.management20250801ClausesDslPost(input);
+        var updateInput = new DslUpdateInput().dsl("ALDER = 55").error("updated error");
+        var updateOutput = api.management20250801ClausesDraftsNamePut(input.getName(), updateInput);
+        var drafts = api.management20250801ClausesDslGet(ClauseStatus.DRAFT);
+
+        var expected = new DslOutput()
+                .name(input.getName())
+                .dsl(updateInput.getDsl())
+                .error(updateInput.getError())
+                .status(ClauseStatus.DRAFT)
+                .createdBy(USER_ID);
+        assertThat(updateOutput)
+                .usingRecursiveComparison()
+                .ignoringFields("uuid", "createdTime")
+                .isEqualTo(expected);
+        assertEquals(1, drafts.size());
+        assertEquals(updateOutput, drafts.getFirst());
+    }
+
+    @Test
     void testDraftAndApproveExistingClause() {
         var postInput1 = CLAUSE_1_INPUT;
         var postInput2 = postInput1.error("updated error");

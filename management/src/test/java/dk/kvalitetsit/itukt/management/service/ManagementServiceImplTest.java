@@ -335,4 +335,64 @@ class ManagementServiceImplTest {
         var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, clause.createdBy(), clause.id());
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
+
+    @Test
+    void deleteDraft_WhenNoClauseExistsForUuid_ThrowsException() {
+        UUID uuid = UUID.randomUUID();
+
+        var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
+
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getDetailedError());
+    }
+
+    @Test
+    void deleteDraft_WhenNoCurrentDraftIsFoundForClause_ThrowsException() {
+        UUID uuid = UUID.randomUUID();
+        var clause = mock(Clause.class);
+        Mockito.when(clause.name()).thenReturn("test");
+        Mockito.when(dao.read(uuid)).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentDraft(clause.name())).thenReturn(Optional.empty());
+
+        var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
+
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getDetailedError());
+    }
+
+    @Test
+    void deleteDraft_WhenUuidDoesNotMatchTheCurrentDraft_ThrowsException() {
+        UUID uuid = UUID.randomUUID();
+        var clause = mock(Clause.class);
+        Mockito.when(clause.name()).thenReturn("test");
+        Mockito.when(dao.read(uuid)).thenReturn(Optional.of(clause));
+        var currentDraft = mock(Clause.class);
+        Mockito.when(currentDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(dao.readCurrentDraft(clause.name())).thenReturn(Optional.of(currentDraft));
+
+        var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
+
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getDetailedError());
+    }
+
+    @Test
+    void deleteDraft_WithTwoDraftVersions_DeletesBothVersions() {
+        UUID uuid = UUID.randomUUID();
+        var latestDraft = mock(Clause.class);
+        Mockito.when(latestDraft.name()).thenReturn("test");
+        Mockito.when(latestDraft.uuid()).thenReturn(uuid);
+        var secondLatestDraft = mock(Clause.class);
+        Mockito.when(secondLatestDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(dao.read(uuid)).thenReturn(Optional.of(latestDraft));
+        Mockito.when(dao.readCurrentDraft(latestDraft.name()))
+                .thenReturn(Optional.of(latestDraft))
+                .thenReturn(Optional.of(latestDraft))
+                .thenReturn(Optional.of(secondLatestDraft))
+                .thenReturn(Optional.empty());
+        Mockito.when(dao.deleteDraft(latestDraft.uuid())).thenReturn(latestDraft);
+        Mockito.when(dao.deleteDraft(secondLatestDraft.uuid())).thenReturn(secondLatestDraft);
+
+        service.deleteDraft(uuid);
+
+        Mockito.verify(dao, times(1)).deleteDraft(latestDraft.uuid());
+        Mockito.verify(dao, times(1)).deleteDraft(secondLatestDraft.uuid());
+    }
 }

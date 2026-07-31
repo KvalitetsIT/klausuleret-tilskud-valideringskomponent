@@ -107,9 +107,27 @@ public class ManagementServiceImpl implements ManagementService {
         return created;
     }
 
+    /**
+     * Deletes the current draft versions of the clause matching the given uuid.
+     * Draft versions are deleted up until the initial draft version.
+     * I.e. the version that either has no parent clause, or a parent that is not a draft.
+     * @param uuid UUID of the current draft version.
+     * @throws ServiceException If the given UUID does not match a current draft version
+     */
     @Override
-    public Clause deleteDraft(UUID id) throws NotFoundException {
-        return repository.deleteDraft(id);
+    public Clause deleteDraft(UUID uuid) throws NotFoundException {
+        var draft = repository.read(uuid)
+                .flatMap(clause -> repository.readCurrentDraft(clause.name()))
+                .filter(clause -> clause.uuid().equals(uuid))
+                .orElseThrow(() -> new NotFoundException("Clause %s is not a current draft and can not be deleted".formatted(uuid)));
+        deleteDraft(draft.name());
+        return draft;
+    }
+
+    private void deleteDraft(String name) {
+        repository.readCurrentDraft(name)
+                .map(draft -> repository.deleteDraft(draft.uuid()))
+                .ifPresent(_ -> deleteDraft(name));
     }
 
     @Override

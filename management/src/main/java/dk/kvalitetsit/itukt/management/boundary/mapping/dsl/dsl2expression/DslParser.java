@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.ExpressionTokenParser;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.openapitools.model.Expression;
 
 public class DslParser {
@@ -12,7 +13,7 @@ public class DslParser {
         this.lexer = lexer;
     }
 
-    public Expression parse(String dsl) {
+    public Expression parse(String dsl) throws DslParserException {
         var tokenIterator = lexer.getTokens(dsl);
         Expression expression = expressionTokenParser.parse(tokenIterator);
         tokenIterator.expectNoMoreTokens();

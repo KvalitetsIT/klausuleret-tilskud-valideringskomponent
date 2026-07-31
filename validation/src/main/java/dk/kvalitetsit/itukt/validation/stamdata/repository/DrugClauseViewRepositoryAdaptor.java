@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.validation.stamdata.repository;
 
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DrugClauseViewMapper;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
@@ -18,7 +17,7 @@ public class DrugClauseViewRepositoryAdaptor implements Repository<DrugClause> {
     }
 
     @Override
-    public List<DrugClause> fetchAll() throws ServiceException {
+    public List<DrugClause> fetchAll() {
         return drugClauseViewMapper.map(repository.fetchAll());
     }
 }

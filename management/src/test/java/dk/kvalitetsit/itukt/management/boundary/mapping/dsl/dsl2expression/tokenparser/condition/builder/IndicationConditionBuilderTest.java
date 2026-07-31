@@ -1,8 +1,9 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder;
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,7 +29,7 @@ class IndicationConditionBuilderTest {
     }
 
     @Test
-    void build_WithEqualOperator_ReturnsIndicationCondition() {
+    void build_WithEqualOperator_ReturnsIndicationCondition() throws DslParserException {
         var value = new Condition.Value.Simple("someSpeciality");
         var operator = Operator.EQUAL;
 

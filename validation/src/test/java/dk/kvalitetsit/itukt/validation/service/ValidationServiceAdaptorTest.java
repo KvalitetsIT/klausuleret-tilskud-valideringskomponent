@@ -1,9 +1,9 @@
 package dk.kvalitetsit.itukt.validation.service;
 
-import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.validation.mapping.ErrorMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
+import dk.kvalitetsit.itukt.validation.service.exceptions.ExistingDrugMedicationRequiredException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

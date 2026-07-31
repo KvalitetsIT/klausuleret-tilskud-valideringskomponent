@@ -1,10 +1,10 @@
 package dk.kvalitetsit.itukt.management.repository;
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionType;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
     }
 
     @Override
-    public Optional<ExpressionEntity> read(Long id) throws ServiceException {
+    public Optional<ExpressionEntity> read(Long id) {
         try {
             String sql = "SELECT type FROM expression WHERE id = :id";
             ExpressionType type = template.queryForObject(sql, Map.of("id", id), ExpressionType.class);
@@ -51,7 +51,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
     }
 
     @Override
-    public ExpressionEntity create(ExpressionEntity expression) throws ServiceException {
+    public ExpressionEntity create(ExpressionEntity expression) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         template.update(
@@ -62,7 +62,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
         );
 
         long expressionId = Optional.ofNullable(keyHolder.getKey())
-                .orElseThrow(() -> new ServiceException("Failed to get expression primary key"))
+                .orElseThrow(() -> new RuntimeException("Failed to get expression primary key"))
                 .longValue();
 
         return switch (expression.withId(expressionId)) {
@@ -80,7 +80,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
         delete(expression);
     }
 
-    private void delete(ExpressionEntity expression) throws NotFoundException {
+    private void delete(ExpressionEntity expression) throws NotFoundApiException {
         switch (expression) {
             case ExpressionEntity.StringConditionEntity e -> deleteStringCondition(e);
             case ExpressionEntity.NumberConditionEntity e -> deleteNumberCondition(e);
@@ -91,7 +91,7 @@ public class ExpressionRepositoryImpl implements ExpressionRepository {
                 Map.of("id", expression.id()));
     }
 
-    private void deleteBinary(ExpressionEntity.BinaryExpressionEntity binary) throws NotFoundException {
+    private void deleteBinary(ExpressionEntity.BinaryExpressionEntity binary) throws NotFoundApiException {
         template.update("DELETE FROM binary_expression WHERE expression_id = :id",
                 Map.of("id", binary.id()));
         delete(binary.left());

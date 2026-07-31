@@ -1,8 +1,8 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
@@ -23,40 +23,40 @@ public class ClauseRepositoryAdaptor {
         this.clauseInputMapper = clauseInputMapper;
     }
 
-    public Clause create(ClauseFullInput clauseInput) throws ServiceException {
+    public Clause create(ClauseFullInput clauseInput) {
         var clauseEntityInput = clauseInputMapper.map(clauseInput);
         var createdClause = clauseRepository.create(clauseEntityInput);
         return entityMapper.map(createdClause);
     }
 
-    public Optional<Clause> read(UUID id) throws ServiceException {
+    public Optional<Clause> read(UUID id) {
         return clauseRepository.read(id).map(entityMapper::map);
     }
 
     /**
      * Retrieves the current version of each clause. Excluding drafts.
      */
-    public List<Clause> readCurrentClauses() throws ServiceException {
+    public List<Clause> readCurrentClauses() {
         return this.entityMapper.map(clauseRepository.readCurrentClauses());
     }
 
     /**
      * Retrieves the current version of a clause. Excluding drafts.
      */
-    public Optional<Clause> readCurrentClause(String name) throws ServiceException {
+    public Optional<Clause> readCurrentClause(String name) {
         return clauseRepository.readCurrentClause(name).map(entityMapper::map);
     }
 
-    public List<Clause> readAllDrafts() throws ServiceException {
+    public List<Clause> readAllDrafts() {
         return this.entityMapper.map(clauseRepository.readAllDrafts());
     }
 
 
-    public List<Clause> readHistory(String name) throws ServiceException {
+    public List<Clause> readHistory(String name) {
         return this.entityMapper.map(clauseRepository.readHistory(name));
     }
 
-    public Clause deleteDraft(UUID id) throws ServiceException {
+    public Clause deleteDraft(UUID id) throws NotFoundException {
         return this.entityMapper.map(clauseRepository.deleteDraft(id));
     }
 }

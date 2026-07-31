@@ -1,4 +1,4 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions;
+package dk.kvalitetsit.itukt.management.exceptions;
 
 public final class UnexpectedEmptyMultiValueConditionException extends DslParserException {
     public UnexpectedEmptyMultiValueConditionException() {

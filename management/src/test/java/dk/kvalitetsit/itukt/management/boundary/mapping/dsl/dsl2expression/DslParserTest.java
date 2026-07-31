@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.ExpressionTokenParser;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +24,7 @@ class DslParserTest {
     private DslParser dslParser;
 
     @Test
-    void parse_GetsAndParsesTokens() {
+    void parse_GetsAndParsesTokens() throws DslParserException {
         String dsl = "some dsl";
         var tokenIterator = Mockito.mock(TokenIterator.class);
         Mockito.when(lexer.getTokens(dsl)).thenReturn(tokenIterator);

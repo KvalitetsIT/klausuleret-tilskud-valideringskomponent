@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser;
 
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,7 +42,7 @@ class ParenthesizedExpressionTokenParserTest {
     }
 
     @Test
-    void parse_RemovesParenthesisTokensAndParsesExpression() {
+    void parse_RemovesParenthesisTokensAndParsesExpression() throws DslParserException {
         var parsedExpression = Mockito.mock(AgeCondition.class);
         Mockito.when(expressionTokenParser.parse(tokenIterator)).thenReturn(parsedExpression);
 

@@ -18,6 +18,8 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.token
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl.ExpressionDtoDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl.MapperFactory;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.DslParserExceptionMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.ManagementExceptionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
@@ -121,6 +123,7 @@ public class ManagementBeanRegistration {
             @Autowired ManagementService managementService,
             @Autowired MapperFactory mapperFactory,
             @Autowired DslParser dslParser) {
+        var dslParserExceptionMapper = new DslParserExceptionMapper();
         return new ManagementServiceAdaptor(
                 managementService,
                 new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(
@@ -128,7 +131,8 @@ public class ManagementBeanRegistration {
                 ),
                 new ClauseDslDtoMapper(dslParser),
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),
-                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper())
+                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper()),
+                new ManagementExceptionMapper(dslParserExceptionMapper)
         );
     }
 

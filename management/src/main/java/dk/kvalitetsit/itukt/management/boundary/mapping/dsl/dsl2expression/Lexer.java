@@ -1,7 +1,8 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class Lexer {
      * <p>
      * If an unrecognized token is encountered, it throws a {@code RuntimeException}.
      */
-    private List<Token> tokenize(String input) {
+    private List<Token> tokenize(String input) throws DslParserException {
         Matcher matcher = TOKEN_PATTERNS.matcher(input);
         ArrayList<Token> tokens = new ArrayList<>();
         while (matcher.find()) {
@@ -62,7 +63,7 @@ public class Lexer {
         return tokens;
     }
 
-    public TokenIterator getTokens(String input) {
+    public TokenIterator getTokens(String input) throws DslParserException {
         List<Token> tokens = tokenize(input).stream()
                 .map(x -> new Token(x.type(), x.text().toUpperCase())).toList();
         return TokenIterator.fromTokens(tokens);

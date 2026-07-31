@@ -2,7 +2,11 @@ package dk.kvalitetsit.itukt.management.service;
 
 
 import dk.kvalitetsit.itukt.common.Mapper;
+import dk.kvalitetsit.itukt.common.exceptions.ApiException;
+import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
+import dk.kvalitetsit.itukt.management.exceptions.*;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class ManagementServiceAdaptorTest {
@@ -32,7 +37,7 @@ public class ManagementServiceAdaptorTest {
     private Mapper<Clause, org.openapitools.model.ClauseOutput> clauseModelDtoMapper;
 
     @Mock
-    private Mapper<DslInput, org.openapitools.model.ClauseInput> clauseDslDtoMapper;
+    private ClauseDslDtoMapper clauseDslDtoMapper;
 
     @Mock
     private Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
@@ -40,6 +45,8 @@ public class ManagementServiceAdaptorTest {
     @Mock
     private Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
 
+    @Mock
+    private Mapper<ManagementException, ApiException> managementExceptionMapper;
 
     @BeforeEach
     void setUp() {
@@ -48,12 +55,13 @@ public class ManagementServiceAdaptorTest {
                 clauseModelDtoMapper,
                 clauseDslDtoMapper,
                 clauseDtoDslMapper,
-                clauseInputMapper
+                clauseInputMapper,
+                managementExceptionMapper
         );
     }
 
     @Test
-    void testCreate() {
+    void testCreate() throws ManagementException {
         var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "Message");
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
@@ -68,7 +76,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void testCreateDsl() {
+    void testCreateDsl() throws ManagementException {
         var dslInput = new DslInput("name", "message", "test");
         var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "message");
         var clause = Mockito.mock(Clause.class);
@@ -84,6 +92,18 @@ public class ManagementServiceAdaptorTest {
         var result = adaptor.createDSL(dslInput);
 
         assertEquals(dslOutput, result);
+    }
+
+    @Test
+    void createDSL_WhenDslParserExceptionIsThrown_MapsToApiException() throws DslParserException {
+        var dslInput = new DslInput("name", "message", "test");
+        var parserException = new UnexpectedValueException("Parsing error");
+        Mockito.when(clauseDslDtoMapper.map(dslInput)).thenThrow(parserException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(parserException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.createDSL(dslInput));
+        assertEquals(apiException, e);
     }
 
     @Test
@@ -126,14 +146,26 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void approveClause_WithUuid_ApprovesClause() {
+    void approveClause_WithUuid_ApprovesClause() throws ManagementException {
         var uuid = UUID.randomUUID();
         adaptor.approveClause(uuid, false);
         Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid, false);
     }
 
     @Test
-    void inactivateClause_WithName_InactivatesClause() {
+    void approveClause_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
+        var notFoundException = new NotFoundException("Clause not found");
+        Mockito.when(managementServiceImpl.approve(Mockito.any(), Mockito.anyBoolean()))
+                .thenThrow(notFoundException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(notFoundException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.approveClause(UUID.randomUUID(), false));
+        assertEquals(apiException, e);
+    }
+
+    @Test
+    void inactivateClause_WithName_InactivatesClause() throws ManagementException {
         String name = "test";
         var inactiveClause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
@@ -148,7 +180,18 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void activateClause_WithName_ActivatesClause() {
+    void inactivateClause_WhenInvalidInputExceptionIsThrown_MapsToApiException() throws ManagementException {
+        var invalidInputException = new InvalidInputException("Invalid input");
+        Mockito.when(managementServiceImpl.inactivate(Mockito.any())).thenThrow(invalidInputException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(invalidInputException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.inactivateClause("test"));
+        assertEquals(apiException, e);
+    }
+
+    @Test
+    void activateClause_WithName_ActivatesClause() throws ManagementException {
         String name = "test";
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
@@ -163,7 +206,18 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void deleteDraft() {
+    void activateClause_WhenInvalidInputExceptionIsThrown_MapsToApiException() throws ManagementException {
+        var invalidInputException = new InvalidInputException("Invalid input");
+        Mockito.when(managementServiceImpl.activate(Mockito.any())).thenThrow(invalidInputException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(invalidInputException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.activateClause("test"));
+        assertEquals(apiException, e);
+    }
+
+    @Test
+    void deleteDraft() throws ManagementException {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         UUID uuid = UUID.randomUUID();
@@ -175,6 +229,18 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
+    void deleteDraft_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
+        var notFoundException = new NotFoundException("Clause not found");
+        Mockito.when(managementServiceImpl.deleteDraft(Mockito.any()))
+                .thenThrow(notFoundException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(notFoundException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.deleteDraft(UUID.randomUUID()));
+        assertEquals(apiException, e);
+    }
+
+    @Test
     void getNumberOfDrugsForClause_ReturnsDrugCountFromService() {
         String clauseName = "testClause";
         long expectedDrugCount = 5L;
@@ -183,6 +249,33 @@ public class ManagementServiceAdaptorTest {
         var result = adaptor.getNumberOfDrugsForClause(clauseName);
 
         assertEquals(expectedDrugCount, result.getDrugCount());
+    }
+
+    @Test
+    void readHistoryDsl_ReturnsMappedHistory() throws ManagementException {
+        String name = "test";
+        var clauses = List.of(Mockito.mock(Clause.class));
+        Mockito.when(managementServiceImpl.readHistory(name)).thenReturn(clauses);
+        var clausesOutput = List.of(Mockito.mock(ClauseOutput.class));
+        Mockito.when(clauseModelDtoMapper.map(clauses)).thenReturn(clausesOutput);
+        var dslOutput = List.of(Mockito.mock(DslOutput.class));
+        Mockito.when(clauseDtoDslMapper.map(clausesOutput)).thenReturn(dslOutput);
+
+        var result = adaptor.readHistoryDsl(name);
+
+        assertEquals(dslOutput, result);
+    }
+
+    @Test
+    void readHistoryDsl_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
+        String name = "test";
+        var notFoundException = new NotFoundException("Clause not found");
+        Mockito.when(managementServiceImpl.readHistory(name)).thenThrow(notFoundException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(notFoundException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.readHistoryDsl(name));
+        assertEquals(apiException, e);
     }
 }
 

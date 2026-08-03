@@ -27,7 +27,7 @@ public interface ManagementService {
 
     Clause deleteDraft(UUID id) throws ManagementException;
 
-    Clause updateDraft(String name, ClauseUpdateInput clause);
+    Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException;
 
     long getNumberOfDrugsForClause(String name);
 }

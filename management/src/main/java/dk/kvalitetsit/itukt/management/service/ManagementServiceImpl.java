@@ -112,7 +112,7 @@ public class ManagementServiceImpl implements ManagementService {
      * Draft versions are deleted up until the initial draft version.
      * I.e. the version that either has no parent clause, or a parent that is not a draft.
      * @param uuid UUID of the current draft version.
-     * @throws ServiceException If the given UUID does not match a current draft version
+     * @throws NotFoundException If the given UUID does not match a current draft version
      */
     @Override
     public Clause deleteDraft(UUID uuid) throws NotFoundException {
@@ -126,12 +126,18 @@ public class ManagementServiceImpl implements ManagementService {
 
     private void deleteDraft(String name) {
         repository.readCurrentDraft(name)
-                .map(draft -> repository.deleteDraft(draft.uuid()))
+                .map(draft -> {
+                    try {
+                        return repository.deleteDraft(draft.uuid());
+                    } catch (NotFoundException e) {
+                        throw new RuntimeException(e); // Should never happen, since the draft was just read
+                    }
+                })
                 .ifPresent(_ -> deleteDraft(name));
     }
 
     @Override
-    public Clause updateDraft(String name, ClauseUpdateInput clause) {
+    public Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException {
         var currentDraft = repository.readCurrentDraft(name)
                 .orElseThrow(() -> new NotFoundException("No current draft found with name '%s'".formatted(name)));
 

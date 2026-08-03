@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslUpdateModelMapper;
 import dk.kvalitetsit.itukt.management.exceptions.*;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
@@ -50,7 +51,7 @@ public class ManagementServiceAdaptorTest {
     private Mapper<ManagementException, ApiException> managementExceptionMapper;
 
     @Mock
-    private Mapper<DslUpdateInput, ClauseUpdateInput> dslUpdateModelMapper;
+    private ClauseDslUpdateModelMapper dslUpdateModelMapper;
 
     @BeforeEach
     void setUp() {
@@ -284,7 +285,7 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void update() {
+    void update() throws ManagementException {
         var input = Mockito.mock(DslUpdateInput.class);
         String name = "testName";
         var clauseUpdateInput = Mockito.mock(ClauseUpdateInput.class);
@@ -299,6 +300,18 @@ public class ManagementServiceAdaptorTest {
         var result = adaptor.update(name, input);
 
         assertEquals(dslOutput, result);
+    }
+
+    @Test
+    void update_WhenDslParserExceptionIsThrown_ThrowsApiException() throws DslParserException {
+        var input = Mockito.mock(DslUpdateInput.class);
+        var parserException = new UnexpectedValueException("Parsing error");
+        Mockito.when(dslUpdateModelMapper.map(input)).thenThrow(parserException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(parserException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.update("test", input));
+        assertEquals(apiException, e);
     }
 }
 

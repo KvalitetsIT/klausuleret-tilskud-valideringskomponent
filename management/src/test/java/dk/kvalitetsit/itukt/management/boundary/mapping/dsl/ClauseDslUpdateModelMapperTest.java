@@ -4,6 +4,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParser;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,7 @@ class ClauseDslUpdateModelMapperTest {
     private ClauseDslUpdateModelMapper clauseDslUpdateModelMapper;
 
     @Test
-    void map() {
+    void map() throws DslParserException {
         var dslUpdateInput = new DslUpdateInput("test-dsl", "test-error");
         var dtoExpression = Mockito.mock(org.openapitools.model.AgeCondition.class);
         Mockito.when(dslParser.parse(dslUpdateInput.getDsl())).thenReturn(dtoExpression);

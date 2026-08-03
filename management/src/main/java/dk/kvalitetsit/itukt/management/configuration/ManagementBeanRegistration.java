@@ -134,8 +134,8 @@ public class ManagementBeanRegistration {
                 new ClauseDslDtoMapper(dslParser),
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),
                 new ClauseInputDtoModelMapper(expressionDtoModelMapper),
-                new ClauseDslUpdateModelMapper(dslParser, expressionDtoModelMapper),
-                new ManagementExceptionMapper(dslParserExceptionMapper)
+                new ManagementExceptionMapper(dslParserExceptionMapper),
+                new ClauseDslUpdateModelMapper(dslParser, expressionDtoModelMapper)
         );
     }
 

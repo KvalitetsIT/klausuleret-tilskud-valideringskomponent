@@ -90,11 +90,11 @@ class ManagementServiceImplTest {
         Mockito.when(dao.readCurrentDraft(name)).thenReturn(Optional.empty());
 
         var e = assertThrows(NotFoundException.class, () -> service.updateDraft(name, clauseForUpdate));
-        assertEquals("No current draft found with name '%s'".formatted(name), e.getDetailedError());
+        assertEquals("No current draft found with name '%s'".formatted(name), e.getMessage());
     }
 
     @Test
-    void update_WhenNameMatchesADraftClause_CreatesDraftClauseWithParent() {
+    void update_WhenNameMatchesADraftClause_CreatesDraftClauseWithParent() throws ManagementException {
         var name = "test";
         var clauseForUpdate = new ClauseUpdateInput(Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
@@ -342,7 +342,7 @@ class ManagementServiceImplTest {
 
         var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
 
-        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getDetailedError());
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getMessage());
     }
 
     @Test
@@ -355,7 +355,7 @@ class ManagementServiceImplTest {
 
         var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
 
-        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getDetailedError());
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getMessage());
     }
 
     @Test
@@ -370,11 +370,11 @@ class ManagementServiceImplTest {
 
         var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
 
-        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getDetailedError());
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getMessage());
     }
 
     @Test
-    void deleteDraft_WithTwoDraftVersions_DeletesBothVersions() {
+    void deleteDraft_WithTwoDraftVersions_DeletesBothVersions() throws NotFoundException {
         UUID uuid = UUID.randomUUID();
         var latestDraft = mock(Clause.class);
         Mockito.when(latestDraft.name()).thenReturn("test");

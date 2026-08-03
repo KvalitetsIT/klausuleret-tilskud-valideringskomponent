@@ -5,9 +5,9 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslUpdateModelMapper;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
-import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 import org.openapitools.model.*;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class ManagementServiceAdaptor {
     private final Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
     private final Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
     private final Mapper<ManagementException, ApiException> managementExceptionMapper;
-    private final Mapper<DslUpdateInput, ClauseUpdateInput> dslUpdateModelMapper;
+    private final ClauseDslUpdateModelMapper dslUpdateModelMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
@@ -31,7 +31,7 @@ public class ManagementServiceAdaptor {
             Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper,
             Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper,
             Mapper<ManagementException, ApiException> managementExceptionMapper,
-            Mapper<DslUpdateInput, ClauseUpdateInput> dslUpdateModelMapper
+            ClauseDslUpdateModelMapper dslUpdateModelMapper
     ) {
         this.clauseService = clauseService;
         this.clauseDtoMapper = modelDtoMapper;
@@ -61,9 +61,13 @@ public class ManagementServiceAdaptor {
     }
 
     public DslOutput update(String name, DslUpdateInput dslUpdateInput) {
-        var updateInput = dslUpdateModelMapper.map(dslUpdateInput);
-        var updatedClause = clauseService.updateDraft(name, updateInput);
-        return clauseDtoDslMapper.map(clauseDtoMapper.map(updatedClause));
+        try {
+            var updateInput = dslUpdateModelMapper.map(dslUpdateInput);
+            var updatedClause = clauseService.updateDraft(name, updateInput);
+            return clauseDtoDslMapper.map(clauseDtoMapper.map(updatedClause));
+        } catch (ManagementException e) {
+            throw managementExceptionMapper.map(e);
+        }
     }
 
     public Optional<ClauseOutput> read(UUID id) {

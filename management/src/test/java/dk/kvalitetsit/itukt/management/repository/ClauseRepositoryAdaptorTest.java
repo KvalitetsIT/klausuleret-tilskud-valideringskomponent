@@ -81,43 +81,56 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testReadCurrentClauses() {
+    void testReadCurrentNonDraftClauses() {
 
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
 
-        Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(clauseEntity));
+        Mockito.when(concreteRepository.readCurrentNonDraftClauses()).thenReturn(List.of(clauseEntity));
 
         Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
 
-        var result = adaptor.readCurrentClauses();
+        var result = adaptor.readCurrentNonDraftClauses();
         assertEquals(List.of(clause), result);
     }
 
     @Test
-    void testReadCurrentClause() {
+    void testReadCurrentNonDraftClause() {
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
         String name = "test";
-        Mockito.when(concreteRepository.readCurrentClause(name)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(concreteRepository.readCurrentNonDraftClause(name)).thenReturn(Optional.of(clauseEntity));
         Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
 
-        var result = adaptor.readCurrentClause(name);
+        var result = adaptor.readCurrentNonDraftClause(name);
 
         assertEquals(Optional.of(clause), result);
     }
 
     @Test
-    void testReadAllDrafts() {
+    void testReadCurrentDraft() {
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        String name = "test";
+        Mockito.when(concreteRepository.readCurrentDraft(name)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
+        var result = adaptor.readCurrentDraft(name);
+
+        assertEquals(Optional.of(clause), result);
+    }
+
+    @Test
+    void testReadCurrentDrafts() {
 
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
 
-        Mockito.when(concreteRepository.readAllDrafts()).thenReturn(List.of(clauseEntity));
+        Mockito.when(concreteRepository.readCurrentDrafts()).thenReturn(List.of(clauseEntity));
 
         Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
 
-        var result = adaptor.readAllDrafts();
+        var result = adaptor.readCurrentDrafts();
         assertEquals(List.of(clause), result);
     }
 

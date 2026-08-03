@@ -14,12 +14,19 @@ public interface ClauseRepository {
     /**
      * Retrieves the current version of a clause. Excluding drafts.
      */
-    Optional<ClauseEntity> readCurrentClause(String name);
+    Optional<ClauseEntity> readCurrentNonDraftClause(String name);
+    /**
+     * Retrieves the draft clause with no child clauses, if such exist.
+     */
+    Optional<ClauseEntity> readCurrentDraft(String name);
     /**
      * Retrieves the current version of each clause. Excluding drafts.
      */
-    List<ClauseEntity> readCurrentClauses();
-    List<ClauseEntity> readAllDrafts();
+    List<ClauseEntity> readCurrentNonDraftClauses();
+    /**
+     * Retrieves all draft clauses that have no child clauses.
+     */
+    List<ClauseEntity> readCurrentDrafts();
 
     List<ClauseEntity> readHistory(String name);
 

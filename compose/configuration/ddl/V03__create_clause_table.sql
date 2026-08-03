@@ -7,8 +7,11 @@ CREATE TABLE clause (
     status ENUM('DRAFT','ACTIVE', 'INACTIVE') NOT NULL,
     created_time DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     created_by VARCHAR(255) NOT NULL,
+    parent_clause_id INT NULL,
     UNIQUE INDEX unique_clause_version (name, created_time),
-    FOREIGN KEY (expression_id) REFERENCES expression(id)
+    UNIQUE INDEX unique_parent_status (status, parent_clause_id),
+    FOREIGN KEY (expression_id) REFERENCES expression(id),
+    FOREIGN KEY (parent_clause_id) REFERENCES clause(id)
 )
 DEFAULT CHARSET=utf8 COLLATE=utf8_bin
 COMMENT='Represents a clause linked to an expression';

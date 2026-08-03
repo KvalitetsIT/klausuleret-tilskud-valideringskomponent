@@ -31,8 +31,12 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause create(ClauseInput clause) throws InvalidInputException {
+        if (repository.readCurrentDraft(clause.name()).isPresent()) {
+            throw new InvalidInputException("A draft clause with name '%s' already exists".formatted(clause.name()));
+        }
+        var parentClauseId = repository.readCurrentNonDraftClause(clause.name()).map(Clause::id).orElse(null);
         String userID = userContextService.getUserID();
-        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID);
+        var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID, parentClauseId);
         return repository.create(clauseFullInput);
     }
 
@@ -45,12 +49,12 @@ public class ManagementServiceImpl implements ManagementService {
     public List<Clause> readByStatus(Clause.Status status) {
         return switch (status) {
             case ACTIVE, INACTIVE -> getLatestClauseVersions(status);
-            case DRAFT -> repository.readAllDrafts();
+            case DRAFT -> repository.readCurrentDrafts();
         };
     }
 
     private List<Clause> getLatestClauseVersions(Clause.Status status) {
-        return repository.readCurrentClauses().stream()
+        return repository.readCurrentNonDraftClauses().stream()
                 .filter(clause -> clause.status() == status).toList();
     }
 
@@ -64,15 +68,16 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ManagementException {
-        Clause draft = repository.read(clauseUuid)
-                .orElseThrow(() -> new NotFoundException("The clause associated with the given id was not found"));
-        Optional<Clause> currentClause = repository.readCurrentClause(draft.name());
+        Clause draft = repository.readCurrentDrafts()
+                .stream()
+                .filter(clause -> clause.uuid().equals(clauseUuid))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Clause %s is not a current draft and can not be approved".formatted(clauseUuid)));
+        Optional<Clause> currentClause = repository.readCurrentNonDraftClause(draft.name());
         String userID = userContextService.getUserID();
 
-        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID);
+        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID, draft.id());
         Clause created = repository.create(clauseInput);
-
-        repository.deleteDraft(draft.uuid());
 
         if (!resetSkippedValidations && currentClause.isPresent()) {
             skippedValidationRepository.copySkippedValidation(currentClause.get().id(), created.id());
@@ -91,11 +96,11 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) throws InvalidInputException {
-        var clause = repository.readCurrentClause(name)
+        var clause = repository.readCurrentNonDraftClause(name)
                 .filter(c -> c.status() == currentStatus)
                 .orElseThrow(() -> new InvalidInputException(errorMessage));
 
-        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, clause.createdBy());
+        var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, clause.createdBy(), clause.id());
         Clause created = repository.create(clauseInput);
         skippedValidationRepository.copySkippedValidation(clause.id(), created.id());
         return created;

@@ -53,36 +53,24 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testGetClauseHistory() {
-        AgeCondition expression = new AgeCondition().type("AgeCondition").operator(Operator.EQUAL).value(20);
+        var expression = new AgeCondition().type("AgeCondition").operator(Operator.EQUAL).value(20);
+        var draftClause = api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression));
+        var clause1 = api.management20250801ClausesDraftsIdStatusPut(
+                draftClause.getUuid(),
+                new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
+        var clause2 = api.management20250801ClausesNameStatusPut(
+                draftClause.getName(),
+                new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
+        var clause3 = api.management20250801ClausesNameStatusPut(
+                draftClause.getName(),
+                new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
 
-        var created = List.of(
-                api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression)),
-                api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error2").expression(expression)),
-                api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error3").expression(expression))
-        );
-        created.forEach(clause ->
-                api.management20250801ClausesDraftsIdStatusPut(
-                        clause.getUuid(),
-                        new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false)));
+        List<DslOutput> clauses = api.management20250801ClausesDslNameHistoryGet(draftClause.getName());
 
-        List<DslOutput> clauses = api.management20250801ClausesDslNameHistoryGet("blaaaaah");
-
-        assertEquals(created.size(), clauses.size());
-
-        for (int i = 0; i < created.size(); i++) {
-            var x = created.reversed().get(i);
-            var y = clauses.get(i);
-            assertEquals(x.getError(), y.getError());
-            if (i != 0) {
-                // Assert that the timestamp is less than the previous
-                DslOutput prev_y = clauses.get(i - 1);
-
-                assertTrue(
-                        y.getCreatedTime().isBefore(prev_y.getCreatedTime()),
-                        "The timestamp is expected to be less than the previous version"
-                );
-            }
-        }
+        assertEquals(3, clauses.size());
+        assertEquals(clause3, clauses.get(0));
+        assertEquals(clause2, clauses.get(1));
+        assertEquals(clause1, clauses.get(2));
     }
 
 

@@ -36,19 +36,29 @@ public class ClauseRepositoryAdaptor {
     /**
      * Retrieves the current version of each clause. Excluding drafts.
      */
-    public List<Clause> readCurrentClauses() {
-        return this.entityMapper.map(clauseRepository.readCurrentClauses());
+    public List<Clause> readCurrentNonDraftClauses() {
+        return this.entityMapper.map(clauseRepository.readCurrentNonDraftClauses());
     }
 
     /**
      * Retrieves the current version of a clause. Excluding drafts.
      */
-    public Optional<Clause> readCurrentClause(String name) {
-        return clauseRepository.readCurrentClause(name).map(entityMapper::map);
+    public Optional<Clause> readCurrentNonDraftClause(String name) {
+        return clauseRepository.readCurrentNonDraftClause(name).map(entityMapper::map);
     }
 
-    public List<Clause> readAllDrafts() {
-        return this.entityMapper.map(clauseRepository.readAllDrafts());
+    /**
+     * Retrieves the draft clause with no child clauses, if such exist.
+     */
+    public Optional<Clause> readCurrentDraft(String name) {
+        return clauseRepository.readCurrentDraft(name).map(entityMapper::map);
+    }
+
+    /**
+     * Retrieves all draft clauses that have no child clauses.
+     */
+    public List<Clause> readCurrentDrafts() {
+        return this.entityMapper.map(clauseRepository.readCurrentDrafts());
     }
 
 

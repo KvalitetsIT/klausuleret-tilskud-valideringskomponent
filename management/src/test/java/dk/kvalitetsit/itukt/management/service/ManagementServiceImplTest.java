@@ -40,11 +40,39 @@ class ManagementServiceImplTest {
     private UserContextService userContextService;
 
     @Test
-    void create_CreatesDraftClause() throws InvalidInputException {
+    void create_WhenDraftWithSameNameAlreadyExists_ThrowsException() {
+        var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
+        var existingDraftClause = mock(Clause.class);
+        Mockito.when(dao.readCurrentDraft(clauseForCreation.name())).thenReturn(Optional.of(existingDraftClause));
+
+        var e = assertThrows(InvalidInputException.class, () -> service.create(clauseForCreation));
+        assertEquals(e.getMessage(), String.format("A draft clause with name '%s' already exists", clauseForCreation.name()));
+    }
+
+    @Test
+    void create_WhenNoClauseWithMatchingNameExists_CreatesDraftClauseWithoutParent() throws InvalidInputException {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
-        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId);
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, null);
+        var clause = mock(Clause.class);
+        Mockito.when(dao.create(expectedClauseFullInput))
+                .thenReturn(clause);
+
+        var result = service.create(clauseForCreation);
+
+        assertEquals(clause, result, "Created clause should be returned from service");
+    }
+
+    @Test
+    void create_WhenNonDraftClauseWithMatchingNameExists_CreatesDraftClauseWithParent() throws InvalidInputException {
+        var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
+        String userId = "tester";
+        Mockito.when(userContextService.getUserID()).thenReturn(userId);
+        var existingClause = mock(Clause.class);
+        Mockito.when(existingClause.id()).thenReturn(1L);
+        Mockito.when(dao.readCurrentNonDraftClause(clauseForCreation.name())).thenReturn(Optional.of(existingClause));
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, existingClause.id());
         var clause = mock(Clause.class);
         Mockito.when(dao.create(expectedClauseFullInput))
                 .thenReturn(clause);
@@ -68,7 +96,7 @@ class ManagementServiceImplTest {
         Mockito.when(activeClause.status()).thenReturn(Clause.Status.ACTIVE);
         var inactiveClause = mock(Clause.class);
         Mockito.when(inactiveClause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
+        Mockito.when(dao.readCurrentNonDraftClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
         var result = service.readByStatus(Clause.Status.ACTIVE);
 
@@ -81,7 +109,7 @@ class ManagementServiceImplTest {
         Mockito.when(activeClause.status()).thenReturn(Clause.Status.ACTIVE);
         var inactiveClause = mock(Clause.class);
         Mockito.when(inactiveClause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
+        Mockito.when(dao.readCurrentNonDraftClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
         var result = service.readByStatus(Clause.Status.INACTIVE);
 
@@ -91,7 +119,7 @@ class ManagementServiceImplTest {
     @Test
     void readByStatus_WithStatusDraft_ReturnsDraftClauses() {
         var model = MockFactory.CLAUSE_1_MODEL;
-        Mockito.when(dao.readAllDrafts()).thenReturn(List.of(model));
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(model));
 
         var result = service.readByStatus(Clause.Status.DRAFT);
 
@@ -123,8 +151,8 @@ class ManagementServiceImplTest {
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
-        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
-        Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.of(active));
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(draft));
+        Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.of(active));
         var createdClause = mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(createdClause);
         Mockito.when(createdClause.id()).thenReturn(3L);
@@ -132,9 +160,8 @@ class ManagementServiceImplTest {
         service.approve(draft.uuid(), false);
 
         Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(active.id(), createdClause.id());
-        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId);
+        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId, draft.id());
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
-        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
     @Test
@@ -145,22 +172,25 @@ class ManagementServiceImplTest {
         Mockito.when(draft.expression()).thenReturn(Mockito.mock(BinaryExpression.class));
         Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
-        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
-        Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.of(active));
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(draft));
+        Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.of(active));
 
         service.approve(draft.uuid(), true);
 
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verify(dao, Mockito.times(1)).create(Mockito.any());
-        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
     @Test
     void approve_WhenNoDraftMatchesUuid_ThrowsException() {
-        Mockito.when(dao.read(Mockito.any())).thenReturn(Optional.empty());
+        var uuid = UUID.randomUUID();
+        var anotherDraft = mock(Clause.class);
+        Mockito.when(anotherDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(anotherDraft));
 
-        assertThrows(NotFoundException.class, () -> service.approve(UUID.randomUUID(), true));
+        var e = assertThrows(NotFoundException.class, () -> service.approve(uuid, true));
 
+        assertEquals(e.getMessage(), "Clause %s is not a current draft and can not be approved".formatted(uuid));
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verifyNoMoreInteractions(dao);
     }
@@ -172,14 +202,13 @@ class ManagementServiceImplTest {
         Mockito.when(draft.expression()).thenReturn(Mockito.mock(BinaryExpression.class));
         Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
-        Mockito.when(dao.read(draft.uuid())).thenReturn(Optional.of(draft));
-        Mockito.when(dao.readCurrentClause(draft.name())).thenReturn(Optional.empty());
+        Mockito.when(dao.readCurrentDrafts()).thenReturn(List.of(draft));
+        Mockito.when(dao.readCurrentNonDraftClause(draft.name())).thenReturn(Optional.empty());
 
         service.approve(draft.uuid(), false);
 
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verify(dao, Mockito.times(1)).create(Mockito.any());
-        Mockito.verify(dao, Mockito.times(1)).deleteDraft(draft.uuid());
     }
 
     @Test
@@ -193,7 +222,7 @@ class ManagementServiceImplTest {
 
     @Test
     void inactivate_WhenClauseDoesNotExist_ThrowsException() {
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.empty());
 
         assertThrows(InvalidInputException.class, () -> service.inactivate("test"));
     }
@@ -202,7 +231,7 @@ class ManagementServiceImplTest {
     void inactivate_WhenClauseIsAlreadyInactive_ThrowsException() {
         var clause = mock(Clause.class);
         Mockito.when(clause.status()).thenReturn(Clause.Status.INACTIVE);
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         assertThrows(InvalidInputException.class, () -> service.inactivate("test"));
     }
@@ -210,7 +239,7 @@ class ManagementServiceImplTest {
     @Test
     void givenAnActiveClause_whenInactivate_thenEnsureSkippedValidationIsCopied() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), "tester", new Date());
         Mockito.when(dao.create(any())).thenReturn(created);
@@ -223,7 +252,7 @@ class ManagementServiceImplTest {
     @Test
     void givenAnInactiveClause_whenActivate_thenEnsureSkippedValidationIsCopied() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), "tester", new Date());
         Mockito.when(dao.create(any())).thenReturn(created);
@@ -236,20 +265,20 @@ class ManagementServiceImplTest {
     @Test
     void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(clause.name())).thenReturn(Optional.of(clause));
         var inactiveClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(inactiveClause);
 
         var clauseResponse = service.inactivate(clause.name());
 
         assertEquals(inactiveClause, clauseResponse);
-        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, clause.createdBy());
+        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, clause.createdBy(), clause.id());
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
 
     @Test
     void activate_WhenClauseDoesNotExist_ThrowsException() {
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.empty());
 
         assertThrows(InvalidInputException.class, () -> service.activate("test"));
     }
@@ -258,7 +287,7 @@ class ManagementServiceImplTest {
     void activate_WhenClauseIsAlreadyActive_ThrowsException() {
         var clause = mock(Clause.class);
         Mockito.when(clause.status()).thenReturn(Clause.Status.ACTIVE);
-        Mockito.when(dao.readCurrentClause(Mockito.any())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.of(clause));
 
         assertThrows(InvalidInputException.class, () -> service.activate("test"));
     }
@@ -266,14 +295,14 @@ class ManagementServiceImplTest {
     @Test
     void activate_WhenClauseIsInactive_CreatesNewClauseAndSetsActive() throws InvalidInputException {
         var clause = new Clause(1L, "test", Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        Mockito.when(dao.readCurrentClause(clause.name())).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentNonDraftClause(clause.name())).thenReturn(Optional.of(clause));
         var activeClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(activeClause);
 
         var clauseResponse = service.activate(clause.name());
 
         assertEquals(activeClause, clauseResponse);
-        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, clause.createdBy());
+        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, clause.createdBy(), clause.id());
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
 }

@@ -12,6 +12,7 @@ import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,6 +65,20 @@ public class ManagementServiceImpl implements ManagementService {
         List<Clause> history = repository.readHistory(name);
         if (history.isEmpty())
             throw new NotFoundException(String.format("clause with name '%s' was not found", name));
+        return history;
+    }
+
+    @Override
+    public List<Clause> readDraftHistory(String name) throws NotFoundException {
+        var history = new ArrayList<Clause>();
+        var current = repository.readCurrentDraft(name);
+        while (current.isPresent() && current.get().status() == Clause.Status.DRAFT) {
+            history.add(current.get());
+            current = repository.readParent(current.get().uuid());
+        }
+
+        if (history.isEmpty())
+            throw new NotFoundException(String.format("Clause draft with name '%s' was not found", name));
         return history;
     }
 

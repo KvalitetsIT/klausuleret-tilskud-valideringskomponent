@@ -36,4 +36,6 @@ public interface ClauseRepository {
      * @throws NotFoundException if the provided id does not match any known clauses
      */
     ClauseEntity deleteDraft(UUID id) throws NotFoundException;
+
+    Optional<ClauseEntity> readParent(UUID uuid);
 }

@@ -165,6 +165,19 @@ public class ClauseRepositoryAdaptorTest {
         var e = assertThrows(RuntimeException.class, () -> adaptor.deleteDraft(uuid));
         assertEquals(expectedException, e);
     }
+
+    @Test
+    void readParent() {
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(concreteRepository.readParent(uuid)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
+        var result = adaptor.readParent(uuid);
+
+        assertEquals(Optional.of(clause), result);
+    }
 }
 
 

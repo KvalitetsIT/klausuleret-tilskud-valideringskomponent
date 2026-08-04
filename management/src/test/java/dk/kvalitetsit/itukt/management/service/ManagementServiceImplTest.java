@@ -251,6 +251,54 @@ class ManagementServiceImplTest {
     }
 
     @Test
+    void readDraftHistory_WhenNoDraftMatchesName_ThrowsException() {
+        String name = "test";
+        Mockito.when(dao.readCurrentDraft(name)).thenReturn(Optional.empty());
+
+        var e = assertThrows(NotFoundException.class, () -> service.readDraftHistory(name));
+
+        assertEquals(e.getMessage(), String.format("Clause draft with name '%s' was not found", name));
+    }
+
+    @Test
+    void readDraftHistory_WhenDraftHasNoParent_ReturnsOnlyCurrentDraft() throws NotFoundException {
+        String name = "test";
+        var currentDraft = mock(Clause.class);
+        Mockito.when(currentDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(currentDraft.status()).thenReturn(Clause.Status.DRAFT);
+        Mockito.when(dao.readCurrentDraft(name)).thenReturn(Optional.of(currentDraft));
+        Mockito.when(dao.readParent(currentDraft.uuid())).thenReturn(Optional.empty());
+
+        var result = service.readDraftHistory(name);
+
+        assertEquals(List.of(currentDraft), result);
+    }
+
+    @Test
+    void readDraftHistory_WhenDraftHasDraftParentWithActiveParent_ReturnsOnlyChildrenOfActiveClause() throws NotFoundException {
+        String name = "test";
+        var currentDraft = mock(Clause.class);
+        var parentDraft = mock(Clause.class);
+        var activeParent = mock(Clause.class);
+        Mockito.when(currentDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(currentDraft.status()).thenReturn(Clause.Status.DRAFT);
+        Mockito.when(parentDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(parentDraft.status()).thenReturn(Clause.Status.DRAFT);
+        Mockito.when(activeParent.status()).thenReturn(Clause.Status.ACTIVE);
+        Mockito.when(dao.readCurrentDraft(name)).thenReturn(Optional.of(currentDraft));
+        Mockito.when(dao.readParent(currentDraft.uuid())).thenReturn(Optional.of(parentDraft));
+        Mockito.when(dao.readParent(parentDraft.uuid())).thenReturn(Optional.of(activeParent));
+
+        var result = service.readDraftHistory(name);
+
+        assertEquals(List.of(currentDraft, parentDraft), result);
+        Mockito.verify(dao, times(1)).readCurrentDraft(name);
+        Mockito.verify(dao, times(1)).readParent(currentDraft.uuid());
+        Mockito.verify(dao, times(1)).readParent(parentDraft.uuid());
+        Mockito.verifyNoMoreInteractions(dao);
+    }
+
+    @Test
     void inactivate_WhenClauseDoesNotExist_ThrowsException() {
         Mockito.when(dao.readCurrentNonDraftClause(Mockito.any())).thenReturn(Optional.empty());
 

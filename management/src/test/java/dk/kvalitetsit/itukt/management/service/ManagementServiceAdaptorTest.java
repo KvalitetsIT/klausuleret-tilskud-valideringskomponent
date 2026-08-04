@@ -306,6 +306,33 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
+    void readDraftHistoryDsl_ReturnsMappedHistory() throws ManagementException {
+        String name = "test";
+        var clauses = List.of(Mockito.mock(Clause.class));
+        Mockito.when(managementServiceImpl.readDraftHistory(name)).thenReturn(clauses);
+        var clausesOutput = List.of(Mockito.mock(ClauseOutput.class));
+        Mockito.when(clauseModelDtoMapper.map(clauses)).thenReturn(clausesOutput);
+        var dslOutput = List.of(Mockito.mock(DslOutput.class));
+        Mockito.when(clauseDtoDslMapper.map(clausesOutput)).thenReturn(dslOutput);
+
+        var result = adaptor.readDraftHistoryDsl(name);
+
+        assertEquals(dslOutput, result);
+    }
+
+    @Test
+    void readDraftHistoryDsl_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
+        String name = "test";
+        var notFoundException = new NotFoundException("Clause not found");
+        Mockito.when(managementServiceImpl.readDraftHistory(name)).thenThrow(notFoundException);
+        var apiException = new BadRequestApiException("test");
+        Mockito.when(managementExceptionMapper.map(notFoundException)).thenReturn(apiException);
+
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.readDraftHistoryDsl(name));
+        assertEquals(apiException, e);
+    }
+
+    @Test
     void update() throws ManagementException {
         var input = Mockito.mock(DslUpdateInput.class);
         String name = "testName";

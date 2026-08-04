@@ -93,6 +93,15 @@ public class ManagementServiceAdaptor {
         }
     }
 
+    public List<DslOutput> readDraftHistoryDsl(String name) {
+        try {
+            List<Clause> clauses = clauseService.readDraftHistory(name);
+            return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
+        } catch (ManagementException e) {
+            throw managementExceptionMapper.map(e);
+        }
+    }
+
     public List<ClauseOutput> readByStatus(ClauseStatus status) {
         return clauseDtoMapper.map(clauseService.readByStatus(mapStatus(status)));
     }

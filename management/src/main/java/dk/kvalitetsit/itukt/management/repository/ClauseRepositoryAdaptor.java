@@ -69,4 +69,8 @@ public class ClauseRepositoryAdaptor {
     public Clause deleteDraft(UUID id) throws NotFoundException {
         return this.entityMapper.map(clauseRepository.deleteDraft(id));
     }
+
+    public Optional<Clause> readParent(UUID uuid) {
+        return clauseRepository.readParent(uuid).map(entityMapper::map);
+    }
 }

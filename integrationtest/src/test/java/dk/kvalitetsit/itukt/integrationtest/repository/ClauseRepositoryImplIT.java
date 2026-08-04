@@ -385,4 +385,36 @@ public class ClauseRepositoryImplIT extends BaseTest {
         Integer expressionCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM expression", Integer.class);
         assertEquals(0, expressionCount, "Expected clause expression and child expressions to be deleted when deleting the clause");
     }
+
+    @Test
+    void readParent_WhenNoClauseMatchesUuid_ReturnsEmpty() {
+        var parent = repository.readParent(UUID.randomUUID());
+
+        assertTrue(parent.isEmpty(), "Expected no parent clause for a non-existing clause");
+    }
+
+    @Test
+    void readParent_WhenClauseHasNoParent_ReturnsEmpty() {
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        var clauseInput = new ClauseEntityInput("clause", expression, "message", Clause.Status.DRAFT, "tester", null);
+        var createdClause = repository.create(clauseInput);
+
+        var parent = repository.readParent(createdClause.uuid());
+
+        assertTrue(parent.isEmpty(), "Expected no parent clause for a clause with no parent");
+    }
+
+    @Test
+    void readParent_WhenClauseHasParent_ReturnsParent() {
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        var parentInput = new ClauseEntityInput("clause1", expression, "message1", Clause.Status.DRAFT, "tester", null);
+        var createdParent = repository.create(parentInput);
+        var childInput = new ClauseEntityInput("clause2", expression, "message2", Clause.Status.DRAFT, "tester", createdParent.id());
+        var createdChild = repository.create(childInput);
+
+        var parent = repository.readParent(createdChild.uuid());
+
+        assertTrue(parent.isPresent(), "Expected to find a parent clause for the child clause");
+        assertEquals(createdParent, parent.get(), "Expected the parent clause to match the one created first");
+    }
 }

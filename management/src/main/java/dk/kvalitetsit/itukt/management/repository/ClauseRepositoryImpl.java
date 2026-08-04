@@ -300,4 +300,20 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
     }
 
+    @Override
+    public Optional<ClauseEntity> readParent(UUID uuid) {
+        try {
+            var sql = """
+                    SELECT parent.uuid
+                    FROM clause
+                    LEFT JOIN clause parent ON clause.parent_clause_id = parent.id
+                    WHERE clause.uuid = :uuid
+                    """;
+            UUID parentUuid = template.queryForObject(sql, Map.of("uuid", uuid.toString()), UUID.class);
+            return Optional.ofNullable(parentUuid).flatMap(this::read);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
 }

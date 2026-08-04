@@ -83,6 +83,11 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
+    public ResponseEntity<DslOutput> management20250801ClausesDraftsNamePut(String name, DslUpdateInput dslUpdateInput) {
+        return ResponseEntity.ok(service.update(name, dslUpdateInput));
+    }
+
+    @Override
     public ResponseEntity<DslOutput> management20250801ClausesNameStatusPut(String name, ClauseStatusInput clauseStatusInput) {
         var clause = switch (clauseStatusInput.getStatus()) {
             case INACTIVE -> service.inactivateClause(name);

@@ -10,6 +10,7 @@ import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 
 import java.util.List;
 import java.util.Optional;
@@ -106,9 +107,43 @@ public class ManagementServiceImpl implements ManagementService {
         return created;
     }
 
+    /**
+     * Deletes the current draft versions of the clause matching the given uuid.
+     * Draft versions are deleted up until the initial draft version.
+     * I.e. the version that either has no parent clause, or a parent that is not a draft.
+     * @param uuid UUID of the current draft version.
+     * @throws NotFoundException If the given UUID does not match a current draft version
+     */
     @Override
-    public Clause deleteDraft(UUID id) throws NotFoundException {
-        return repository.deleteDraft(id);
+    public Clause deleteDraft(UUID uuid) throws NotFoundException {
+        var draft = repository.read(uuid)
+                .flatMap(clause -> repository.readCurrentDraft(clause.name()))
+                .filter(clause -> clause.uuid().equals(uuid))
+                .orElseThrow(() -> new NotFoundException("Clause %s is not a current draft and can not be deleted".formatted(uuid)));
+        deleteDraft(draft.name());
+        return draft;
+    }
+
+    private void deleteDraft(String name) {
+        repository.readCurrentDraft(name)
+                .map(draft -> {
+                    try {
+                        return repository.deleteDraft(draft.uuid());
+                    } catch (NotFoundException e) {
+                        throw new RuntimeException(e); // Should never happen, since the draft was just read
+                    }
+                })
+                .ifPresent(_ -> deleteDraft(name));
+    }
+
+    @Override
+    public Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException {
+        var currentDraft = repository.readCurrentDraft(name)
+                .orElseThrow(() -> new NotFoundException("No current draft found with name '%s'".formatted(name)));
+
+        String userID = userContextService.getUserID();
+        var clauseFullInput = new ClauseFullInput(name, clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID, currentDraft.id());
+        return repository.create(clauseFullInput);
     }
 
     @Override

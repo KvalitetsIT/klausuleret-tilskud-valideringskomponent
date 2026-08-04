@@ -115,6 +115,28 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
+    void testDslPostPutAndGet() {
+        var input = new DslInput().name("test").dsl("ALDER = 1").error("error");
+        api.management20250801ClausesDslPost(input);
+        var updateInput = new DslUpdateInput().dsl("ALDER = 55").error("updated error");
+        var updateOutput = api.management20250801ClausesDraftsNamePut(input.getName(), updateInput);
+        var drafts = api.management20250801ClausesDslGet(ClauseStatus.DRAFT);
+
+        var expected = new DslOutput()
+                .name(input.getName())
+                .dsl(updateInput.getDsl())
+                .error(updateInput.getError())
+                .status(ClauseStatus.DRAFT)
+                .createdBy(USER_ID);
+        assertThat(updateOutput)
+                .usingRecursiveComparison()
+                .ignoringFields("uuid", "createdTime")
+                .isEqualTo(expected);
+        assertEquals(1, drafts.size());
+        assertEquals(updateOutput, drafts.getFirst());
+    }
+
+    @Test
     void testDraftAndApproveExistingClause() {
         var postInput1 = CLAUSE_1_INPUT;
         var postInput2 = postInput1.error("updated error");
@@ -392,11 +414,18 @@ class ManagementIT extends BaseTest {
     @Test
     void testDeleteClause(){
         var clauseCreated = api.management20250801ClausesPost(CLAUSE_1_INPUT);
-        var clauseDeleted = api.management20250801ClausesIdDelete(clauseCreated.getUuid());
-        var noClause = clauseRepository.read(clauseCreated.getUuid());
+        var updateInput = new DslUpdateInput().dsl("alder=0").error("updated error");
+        var updatedClause = api.management20250801ClausesDraftsNamePut(clauseCreated.getName(), updateInput);
 
-        assertEquals(clauseCreated, clauseDeleted, "Expected the created clause to be deleted");
-        assertTrue(noClause.isEmpty(), "Expected the created clause to be deleted");
+        api.management20250801ClausesIdDelete(updatedClause.getUuid());
+
+        var initialClauseAfterDeletion = clauseRepository.read(clauseCreated.getUuid());
+        var updatedClauseAfterDeletion = clauseRepository.read(updatedClause.getUuid());
+        var draftsAfterDeletion = api.management20250801ClausesDslGet(ClauseStatus.DRAFT);
+
+        assertTrue(initialClauseAfterDeletion.isEmpty(), "Expected the created clause to be deleted");
+        assertTrue(updatedClauseAfterDeletion.isEmpty(), "Expected the updated clause to be deleted");
+        assertTrue(draftsAfterDeletion.isEmpty(), "Expected no more drafts after deletion");
     }
 
     @Test

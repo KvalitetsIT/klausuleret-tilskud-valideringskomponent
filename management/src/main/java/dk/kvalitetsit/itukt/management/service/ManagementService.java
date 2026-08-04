@@ -4,6 +4,7 @@ package dk.kvalitetsit.itukt.management.service;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,8 @@ public interface ManagementService {
     Clause activate(String name) throws ManagementException;
 
     Clause deleteDraft(UUID id) throws ManagementException;
+
+    Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException;
 
     long getNumberOfDrugsForClause(String name);
 }

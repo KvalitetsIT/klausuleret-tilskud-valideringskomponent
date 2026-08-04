@@ -11,6 +11,7 @@ import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -80,6 +81,35 @@ class ManagementServiceImplTest {
         var result = service.create(clauseForCreation);
 
         assertEquals(clause, result, "Created clause should be returned from service");
+    }
+
+    @Test
+    void update_WhenNameDoesNotMatchADraftClause_ThrowsException() {
+        var name = "test";
+        var clauseForUpdate = new ClauseUpdateInput(Mockito.mock(BinaryExpression.class), "test error");
+        Mockito.when(dao.readCurrentDraft(name)).thenReturn(Optional.empty());
+
+        var e = assertThrows(NotFoundException.class, () -> service.updateDraft(name, clauseForUpdate));
+        assertEquals("No current draft found with name '%s'".formatted(name), e.getMessage());
+    }
+
+    @Test
+    void update_WhenNameMatchesADraftClause_CreatesDraftClauseWithParent() throws ManagementException {
+        var name = "test";
+        var clauseForUpdate = new ClauseUpdateInput(Mockito.mock(BinaryExpression.class), "test error");
+        String userId = "tester";
+        Mockito.when(userContextService.getUserID()).thenReturn(userId);
+        var existingDraft = mock(Clause.class);
+        Mockito.when(existingDraft.id()).thenReturn(1L);
+        Mockito.when(dao.readCurrentDraft(name)).thenReturn(Optional.of(existingDraft));
+        var expectedDraftOutput = mock(Clause.class);
+        Mockito.when(dao.create(Mockito.any())).thenReturn(expectedDraftOutput);
+
+        var draftOutput = service.updateDraft(name, clauseForUpdate);
+
+        assertEquals(expectedDraftOutput, draftOutput, "Updated draft clause should be returned from service");
+        var expectedClauseInput = new ClauseFullInput(name, clauseForUpdate.expression(), clauseForUpdate.errorMessage(), Clause.Status.DRAFT, userId, existingDraft.id());
+        Mockito.verify(dao, times(1)).create(expectedClauseInput);
     }
 
     @Test
@@ -304,5 +334,65 @@ class ManagementServiceImplTest {
         assertEquals(activeClause, clauseResponse);
         var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, clause.createdBy(), clause.id());
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
+    }
+
+    @Test
+    void deleteDraft_WhenNoClauseExistsForUuid_ThrowsException() {
+        UUID uuid = UUID.randomUUID();
+
+        var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
+
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getMessage());
+    }
+
+    @Test
+    void deleteDraft_WhenNoCurrentDraftIsFoundForClause_ThrowsException() {
+        UUID uuid = UUID.randomUUID();
+        var clause = mock(Clause.class);
+        Mockito.when(clause.name()).thenReturn("test");
+        Mockito.when(dao.read(uuid)).thenReturn(Optional.of(clause));
+        Mockito.when(dao.readCurrentDraft(clause.name())).thenReturn(Optional.empty());
+
+        var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
+
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getMessage());
+    }
+
+    @Test
+    void deleteDraft_WhenUuidDoesNotMatchTheCurrentDraft_ThrowsException() {
+        UUID uuid = UUID.randomUUID();
+        var clause = mock(Clause.class);
+        Mockito.when(clause.name()).thenReturn("test");
+        Mockito.when(dao.read(uuid)).thenReturn(Optional.of(clause));
+        var currentDraft = mock(Clause.class);
+        Mockito.when(currentDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(dao.readCurrentDraft(clause.name())).thenReturn(Optional.of(currentDraft));
+
+        var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
+
+        assertEquals("Clause %s is not a current draft and can not be deleted".formatted(uuid), e.getMessage());
+    }
+
+    @Test
+    void deleteDraft_WithTwoDraftVersions_DeletesBothVersions() throws NotFoundException {
+        UUID uuid = UUID.randomUUID();
+        var latestDraft = mock(Clause.class);
+        Mockito.when(latestDraft.name()).thenReturn("test");
+        Mockito.when(latestDraft.uuid()).thenReturn(uuid);
+        var secondLatestDraft = mock(Clause.class);
+        Mockito.when(secondLatestDraft.uuid()).thenReturn(UUID.randomUUID());
+        Mockito.when(dao.read(uuid)).thenReturn(Optional.of(latestDraft));
+        Mockito.when(dao.readCurrentDraft(latestDraft.name()))
+                .thenReturn(Optional.of(latestDraft))
+                .thenReturn(Optional.of(latestDraft))
+                .thenReturn(Optional.of(secondLatestDraft))
+                .thenReturn(Optional.empty());
+        Mockito.when(dao.deleteDraft(latestDraft.uuid())).thenReturn(latestDraft);
+        Mockito.when(dao.deleteDraft(secondLatestDraft.uuid())).thenReturn(secondLatestDraft);
+
+        service.deleteDraft(uuid);
+
+        Mockito.verify(dao, times(1)).deleteDraft(latestDraft.uuid());
+        Mockito.verify(dao, times(1)).deleteDraft(secondLatestDraft.uuid());
     }
 }

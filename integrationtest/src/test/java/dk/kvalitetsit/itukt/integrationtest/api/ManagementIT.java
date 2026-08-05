@@ -76,6 +76,25 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
+    void testGetClauseDraftHistory() {
+        var clauseInput = new DslInput().name("test").error("error1").dsl("ALDER = 20");
+        var origDraftClause = api.management20250801ClausesDslPost(clauseInput);
+        api.management20250801ClausesDraftsIdStatusPut(
+                origDraftClause.getUuid(),
+                new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
+        var currentDraftVersion1 = api.management20250801ClausesDslPost(clauseInput.error("error2"));
+        var currentDraftVersion2 = api.management20250801ClausesDraftsNamePut(
+                clauseInput.getName(),
+                new DslUpdateInput().dsl("ALDER = 21").error("error3"));
+
+        var draftHistory = api.management20250801ClausesDraftsNameHistoryGet(clauseInput.getName());
+
+        assertEquals(2, draftHistory.size());
+        assertTrue(draftHistory.contains(currentDraftVersion1));
+        assertTrue(draftHistory.contains(currentDraftVersion2));
+    }
+
+    @Test
     void testPostAndGetClauseDsl() {
         api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT);
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);

@@ -2,7 +2,6 @@ package dk.kvalitetsit.itukt.integrationtest.repository;
 
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.SorEntityRepository;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.DepartmentRepository;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,11 +35,6 @@ public class DepartmentRepositoryIT extends BaseTest {
     @BeforeEach
     void setUp() {
         jdbcTemplate.execute("DELETE FROM SorEntity");
-    }
-
-    @Override
-    protected void load(ClauseRepository repository) {
-        // Load data before component initialization
     }
 
     @Test

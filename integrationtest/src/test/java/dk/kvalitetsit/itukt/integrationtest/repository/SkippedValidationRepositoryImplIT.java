@@ -29,11 +29,6 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
         skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
     }
 
-    @Override
-    protected void load(ClauseRepository repository) {
-        // Load data before component initialization
-    }
-
     @Test
     void create_WithEmptyList_DoesNotFail() {
         assertDoesNotThrow(() -> skippedValidationRepository.create(List.of()), "Creating skipped validations with an empty list should not fail");

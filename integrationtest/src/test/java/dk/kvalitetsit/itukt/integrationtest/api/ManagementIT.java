@@ -15,7 +15,6 @@ import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
@@ -31,25 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ManagementIT extends BaseTest {
-    private static final String CLAUSE_WITH_ONE_DRUG = "TEST";
-    private static ManagementApi api;
+    private static final ManagementApi api = new ManagementApi(client);
 
-    private static ClauseRepository clauseRepository;
-    private static SkippedValidationRepository skippedValidationRepository;
-
-
-    @BeforeEach
-    void setup() {
-        clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
-        skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
-
-        api = new ManagementApi(client);
-    }
-
-    @Override
-    protected void load(ClauseRepository repository) {
-        setupStamdata();
-    }
+    private static final ClauseRepository clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
+    private static final SkippedValidationRepository skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
 
     @Test
     void testGetClauseHistory() {
@@ -430,7 +414,10 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testGetDrugCount_ForClauseWithOneDrug_Returns1() {
-        var drugCount = api.management20250801ClausesNameDrugCountGet(CLAUSE_WITH_ONE_DRUG);
+        String clauseName = setupStamdataClauseWithOneDrug();
+        restartService();
+
+        var drugCount = api.management20250801ClausesNameDrugCountGet(clauseName);
 
         assertNotNull(drugCount);
         assertEquals(1, drugCount.getDrugCount());
@@ -444,7 +431,8 @@ class ManagementIT extends BaseTest {
         assertEquals(0, drugCount.getDrugCount());
     }
 
-    private static void setupStamdata() {
+    private static String setupStamdataClauseWithOneDrug() {
+        String clauseName = "TEST";
         var stamdataDatasource = stamDatabase.getDatasource();
         var laegemiddelRepository = new LaegemiddelRepository(stamdataDatasource);
         var pakningRepository = new PakningRepository(stamdataDatasource);
@@ -453,11 +441,12 @@ class ManagementIT extends BaseTest {
         var inThePast = Date.from(Instant.now().minusSeconds(1));
         var inTheFuture = Date.from(Instant.now().plusSeconds(1000));
         var laegemiddel = new DrugClauseView.Laegemiddel(1L);
-        var pakning = new Pakning(laegemiddel.DrugId(), CLAUSE_WITH_ONE_DRUG, 1L);
-        var klausulering = new DrugClauseView.Klausulering(CLAUSE_WITH_ONE_DRUG, "test");
+        var pakning = new Pakning(laegemiddel.DrugId(), clauseName, 1L);
+        var klausulering = new DrugClauseView.Klausulering(clauseName, "test");
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
         pakningRepository.insert(pakning, inThePast, inTheFuture);
         klausuleringRepository.insert(klausulering, inThePast, inTheFuture);
+        return clauseName;
     }
 
 }

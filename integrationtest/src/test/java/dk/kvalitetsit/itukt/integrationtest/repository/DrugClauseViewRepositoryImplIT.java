@@ -5,7 +5,6 @@ import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.KlausuleringRepo
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.LaegemiddelRepository;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.PakningRepository;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.entity.Pakning;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugClauseViewRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import org.junit.jupiter.api.BeforeAll;
@@ -190,10 +189,5 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
         assertEquals(expected1, clauseMap.get(expected1.klausulering().Kode()));
         assertEquals(expected2, clauseMap.get(expected2.klausulering().Kode()));
-    }
-
-    @Override
-    protected void load(ClauseRepository repository) {
-        // Load data before component initialization
     }
 }

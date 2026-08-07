@@ -7,12 +7,14 @@ import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.KlausuleringRepository;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.LaegemiddelRepository;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.PakningRepository;
+import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.SorEntityRepository;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.entity.Pakning;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -81,6 +83,15 @@ class ManagementIT extends BaseTest {
                 .usingRecursiveComparison()
                 .ignoringFields("uuid", "createdTime")
                 .isEqualTo(CLAUSE_1_OUTPUT);
+    }
+
+    @Test
+    void postClause_WithUnknownDepartmentSpeciality_ThrowsException() {
+        var input = new DslInput()
+                .name("test")
+                .dsl("AFDELINGSSPECIALE = not_known")
+                .error("error");
+        assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input));
     }
 
     @Test
@@ -437,15 +448,18 @@ class ManagementIT extends BaseTest {
         var laegemiddelRepository = new LaegemiddelRepository(stamdataDatasource);
         var pakningRepository = new PakningRepository(stamdataDatasource);
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
+        var sorEntityRepository = new SorEntityRepository(stamdataDatasource);
 
         var inThePast = Date.from(Instant.now().minusSeconds(1));
         var inTheFuture = Date.from(Instant.now().plusSeconds(1000));
         var laegemiddel = new DrugClauseView.Laegemiddel(1L);
         var pakning = new Pakning(laegemiddel.DrugId(), clauseName, 1L);
         var klausulering = new DrugClauseView.Klausulering(clauseName, "test");
+        var department = new DepartmentEntity("1", "2", DEPARTMENT_SPECIALITY, "", "", "", "", "", "", "");
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
         pakningRepository.insert(pakning, inThePast, inTheFuture);
         klausuleringRepository.insert(klausulering, inThePast, inTheFuture);
+        sorEntityRepository.insert(department, inThePast, inTheFuture, inThePast, inTheFuture);
         return clauseName;
     }
 

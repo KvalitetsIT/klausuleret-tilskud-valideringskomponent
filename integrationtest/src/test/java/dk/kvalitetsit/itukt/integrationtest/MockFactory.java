@@ -21,6 +21,7 @@ public class MockFactory {
             .name("CHOL")
             .dsl("(INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13) og ((LÆGESPECIALE = ortopædkirurg) eller (LÆGESPECIALE = tandlæge)) og AFDELINGSSPECIALE = kardiologi")
             .error("message");
+    public static final String DEPARTMENT_SPECIALITY = "kardiologi";
     private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Field.INDICATION, "C10BA03");
     private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Field.INDICATION, "C10BA02");
     private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, Field.INDICATION, "C10BA05");
@@ -31,7 +32,7 @@ public class MockFactory {
     private static final BinaryExpressionEntity EXPRESSION_7_ENTITY = new BinaryExpressionEntity(7L, EXPRESSION_10_ENTITY, BinaryExpression.Operator.OR, EXPRESSION_11_ENTITY);
     private static final BinaryExpressionEntity EXPRESSION_8_ENTITY = new BinaryExpressionEntity(EXPRESSION_6_ENTITY, BinaryExpression.Operator.AND, EXPRESSION_7_ENTITY);
     private static final BinaryExpressionEntity EXPRESSION_9_ENTITY = new BinaryExpressionEntity(5L, EXPRESSION_5_ENTITY, BinaryExpression.Operator.AND, EXPRESSION_8_ENTITY);
-    private static final StringConditionEntity EXPRESSION_12_ENTITY = new StringConditionEntity(12L, Field.DEPARTMENT_SPECIALITY, "kardiologi");
+    private static final StringConditionEntity EXPRESSION_12_ENTITY = new StringConditionEntity(12L, Field.DEPARTMENT_SPECIALITY, DEPARTMENT_SPECIALITY);
     private static final BinaryExpressionEntity EXPRESSION_13_ENTITY = new BinaryExpressionEntity(13L, EXPRESSION_9_ENTITY, BinaryExpression.Operator.AND, EXPRESSION_12_ENTITY);
     public static final ExpressionEntity EXPRESSION_1_ENTITY = new BinaryExpressionEntity(1L, EXPRESSION_2_ENTITY, BinaryExpression.Operator.OR, EXPRESSION_13_ENTITY);
     private static final AgeCondition EXPRESSION_6_DTO = new AgeCondition().type(ExpressionType.AGE)

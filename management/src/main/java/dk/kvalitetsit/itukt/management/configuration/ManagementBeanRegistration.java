@@ -24,6 +24,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMa
 import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.DslParserExceptionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.ManagementExceptionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
 import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCache;
@@ -97,8 +98,10 @@ public class ManagementBeanRegistration {
             @Autowired ClauseRepositoryAdaptor clauseRepository,
             @Autowired SkippedValidationRepository skippedValidationRepository,
             @Autowired UserContextService userContextService,
-            @Autowired ClauseDrugCounter clauseDrugCounter) {
-        return new ManagementServiceImpl(clauseRepository, skippedValidationRepository, userContextService, clauseDrugCounter);
+            @Autowired ClauseDrugCounter clauseDrugCounter,
+            @Autowired ExpressionValidator<Expression> expressionValidator) {
+        var managementService = new ManagementServiceImpl(clauseRepository, skippedValidationRepository, userContextService, clauseDrugCounter);
+        return new ValidatingManagementService(managementService, expressionValidator);
     }
 
     @Bean
@@ -132,7 +135,7 @@ public class ManagementBeanRegistration {
         var expressionDtoModelMapper = new ExpressionDtoModelMapper();
         return new ManagementServiceAdaptor(
                 managementService,
-                new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(
+                new ClauseModelDtoMapper(
                         new ExpressionModelDtoMapper()
                 ),
                 new ClauseDslDtoMapper(dslParser),

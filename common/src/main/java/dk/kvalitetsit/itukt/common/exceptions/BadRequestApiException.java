@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class BadRequestApiException extends ApiException {
     public BadRequestApiException(String errorText) {
-        super(HttpStatus.BAD_REQUEST, DetailedError.DetailedErrorCodeEnum._1, errorText);
+        super(HttpStatus.BAD_REQUEST, DetailedError.DetailedErrorCodeEnum.FATAL, errorText);
     }
 }

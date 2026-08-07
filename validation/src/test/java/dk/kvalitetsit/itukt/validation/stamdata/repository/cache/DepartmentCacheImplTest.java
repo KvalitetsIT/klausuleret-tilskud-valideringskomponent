@@ -131,13 +131,14 @@ class DepartmentCacheImplTest {
     }
 
     @Test
-    void getSpecialities_WhenLoadedDepartmentsHaveMultipleSpecialities_ReturnsAllSpecialities() {
+    void getSpecialities_WhenLoadedDepartmentsHaveMultipleSpecialities_ReturnsAllNonBlankSpecialities() {
         var shak = new Department.Identifier.SHAK("A");
         var sor = new Department.Identifier.SOR("B");
         var specialityA = new Department.Speciality("speciality A");
         var specialityB = new Department.Speciality("speciality B");
+        var blankSpeciality = new Department.Speciality("");
         var department1 = new Department(Optional.of(shak), Optional.empty(), Set.of(specialityA));
-        var department2 = new Department(Optional.empty(), Optional.of(sor), Set.of(specialityA, specialityB));
+        var department2 = new Department(Optional.empty(), Optional.of(sor), Set.of(specialityA, specialityB, blankSpeciality));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(department1, department2));
         cache.load();
 

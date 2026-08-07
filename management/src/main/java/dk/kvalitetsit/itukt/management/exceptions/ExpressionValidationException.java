@@ -4,11 +4,11 @@ import dk.kvalitetsit.itukt.management.service.model.validation.ExpressionValida
 
 import java.util.List;
 
-public final class RequiresForceException extends ManagementException {
+public final class ExpressionValidationException extends ManagementException {
 
     private final List<ExpressionValidationError> validationErrors;
 
-    public RequiresForceException(List<ExpressionValidationError> validationErrors) {
+    public ExpressionValidationException(List<ExpressionValidationError> validationErrors) {
         super("Requires force. Validation errors: " + validationErrors.stream().map(ExpressionValidationError::errorMessage).toList());
         this.validationErrors = validationErrors;
     }

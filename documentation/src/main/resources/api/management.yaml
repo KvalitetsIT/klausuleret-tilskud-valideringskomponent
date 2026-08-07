@@ -348,15 +348,15 @@ components:
               type: string
             detailed_error_code:
               description: >-
-                Detailed error code. This could be a code describing a validation error.
+                Detailed error code.
                 <ul>
-                  <li>1: Bad request</li>
-                  <li>2: Not found</li>
+                  <li>1: Fatal error</li>
+                  <li>2: Validation error</li>
                 </ul>
               type: string
               enum:
-                - "1"
-                - "2"
+                - "FATAL"
+                - "VALIDATION"
     ClauseInput:
       type: object
       required:

@@ -2,8 +2,8 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
+import dk.kvalitetsit.itukt.management.exceptions.ExpressionValidationException;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
-import dk.kvalitetsit.itukt.management.exceptions.RequiresForceException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 import dk.kvalitetsit.itukt.management.service.validator.ExpressionValidator;
@@ -73,10 +73,10 @@ public class ValidatingManagementService implements ManagementService {
         return managementService.getNumberOfDrugsForClause(name);
     }
 
-    private void validate(Expression expression) throws RequiresForceException {
+    private void validate(Expression expression) throws ExpressionValidationException {
         var validationErrors = expressionValidator.validate(expression);
         if(!validationErrors.isEmpty()) {
-            throw new RequiresForceException(validationErrors);
+            throw new ExpressionValidationException(validationErrors);
         }
     }
 }

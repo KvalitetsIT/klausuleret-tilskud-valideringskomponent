@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
 import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
+import org.apache.logging.log4j.util.Strings;
 
 import java.util.*;
 import java.util.function.Function;
@@ -41,7 +42,9 @@ public class DepartmentCacheImpl implements Cache<Department.Identifier, Departm
     }
 
     private Set<Department.Speciality> getSpecialities(List<Department> response) {
-        return response.stream().flatMap(d -> d.specialities().stream()).collect(Collectors.toSet());
+        return response.stream().flatMap(d -> d.specialities().stream())
+                .filter(s -> Strings.isNotBlank(s.name()))
+                .collect(Collectors.toSet());
     }
 
     public String getCron() {

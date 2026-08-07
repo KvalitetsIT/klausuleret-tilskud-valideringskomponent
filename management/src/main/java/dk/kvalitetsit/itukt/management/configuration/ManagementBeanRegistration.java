@@ -22,10 +22,12 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl.Expre
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl.MapperFactory;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.DslParserExceptionMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.ExpressionValidationExceptionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.ManagementExceptionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.validation.ExpressionValidationErrorMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
 import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCache;
 import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCacheImpl;
@@ -133,6 +135,8 @@ public class ManagementBeanRegistration {
             @Autowired DslParser dslParser) {
         var dslParserExceptionMapper = new DslParserExceptionMapper();
         var expressionDtoModelMapper = new ExpressionDtoModelMapper();
+        var expressionValidationErrorMapper = new ExpressionValidationErrorMapper();
+        var expressionValidationExceptionMapper = new ExpressionValidationExceptionMapper(expressionValidationErrorMapper);
         return new ManagementServiceAdaptor(
                 managementService,
                 new ClauseModelDtoMapper(
@@ -141,7 +145,7 @@ public class ManagementBeanRegistration {
                 new ClauseDslDtoMapper(dslParser),
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),
                 new ClauseInputDtoModelMapper(expressionDtoModelMapper),
-                new ManagementExceptionMapper(dslParserExceptionMapper),
+                new ManagementExceptionMapper(dslParserExceptionMapper, expressionValidationExceptionMapper),
                 new ClauseDslUpdateModelMapper(dslParser, expressionDtoModelMapper)
         );
     }

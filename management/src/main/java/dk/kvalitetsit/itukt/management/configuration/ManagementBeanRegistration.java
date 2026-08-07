@@ -2,9 +2,11 @@ package dk.kvalitetsit.itukt.management.configuration;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslUpdateModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDtoDslMapper;
@@ -32,6 +34,8 @@ import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntit
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseInputModelEntityMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.*;
+import dk.kvalitetsit.itukt.management.service.validator.ExpressionValidator;
+import dk.kvalitetsit.itukt.management.service.validator.ExpressionValidatorFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -139,4 +143,9 @@ public class ManagementBeanRegistration {
         );
     }
 
+    @Bean
+    public ExpressionValidator<Expression> expressionValidator(@Autowired DepartmentSpecialityService departmentSpecialityService) {
+        var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService);
+        return expressionValidatorFactory.createCombinedExpressionValidator();
+    }
 }

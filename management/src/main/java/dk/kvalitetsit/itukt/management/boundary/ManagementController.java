@@ -6,6 +6,8 @@ import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
 import org.openapitools.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -88,6 +90,12 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
+    public ResponseEntity<Resource> management20250801ClausesDslCsvGet(ClauseStatus status) {
+        String csvString = service.readDslCsvByStatus(status);
+        return ResponseEntity.ok(new ByteArrayResource(csvString.getBytes()));
+    }
+
+    @Override
     public ResponseEntity<DslOutput> management20250801ClausesNameStatusPut(String name, ClauseStatusInput clauseStatusInput) {
         var clause = switch (clauseStatusInput.getStatus()) {
             case INACTIVE -> service.inactivateClause(name);
@@ -112,3 +120,4 @@ public class ManagementController implements ManagementApi {
     }
 
 }
+

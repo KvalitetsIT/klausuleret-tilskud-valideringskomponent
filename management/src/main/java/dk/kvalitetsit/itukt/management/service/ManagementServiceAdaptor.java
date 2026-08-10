@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslToCsvMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslUpdateModelMapper;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
@@ -23,6 +24,7 @@ public class ManagementServiceAdaptor {
     private final Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper;
     private final Mapper<ManagementException, ApiException> managementExceptionMapper;
     private final ClauseDslUpdateModelMapper dslUpdateModelMapper;
+    private final ClauseDslToCsvMapper clauseDslToCsvMapper;
 
     public ManagementServiceAdaptor(
             ManagementService clauseService,
@@ -31,7 +33,7 @@ public class ManagementServiceAdaptor {
             Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper,
             Mapper<org.openapitools.model.ClauseInput, ClauseInput> clauseInputMapper,
             Mapper<ManagementException, ApiException> managementExceptionMapper,
-            ClauseDslUpdateModelMapper dslUpdateModelMapper
+            ClauseDslUpdateModelMapper dslUpdateModelMapper, ClauseDslToCsvMapper clauseDslToCsvMapper
     ) {
         this.clauseService = clauseService;
         this.clauseDtoMapper = modelDtoMapper;
@@ -40,6 +42,7 @@ public class ManagementServiceAdaptor {
         this.clauseInputMapper = clauseInputMapper;
         this.managementExceptionMapper = managementExceptionMapper;
         this.dslUpdateModelMapper = dslUpdateModelMapper;
+        this.clauseDslToCsvMapper = clauseDslToCsvMapper;
     }
 
     public ClauseOutput create(org.openapitools.model.ClauseInput clauseInput) {
@@ -97,6 +100,11 @@ public class ManagementServiceAdaptor {
     public List<DslOutput> readDslByStatus(ClauseStatus status) {
         List<Clause> clauses = clauseService.readByStatus(mapStatus(status));
         return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
+    }
+
+    public String readDslCsvByStatus(ClauseStatus status) {
+        var dsl = readDslByStatus(status);
+        return clauseDslToCsvMapper.map(dsl);
     }
 
     public DslOutput approveClause(UUID clauseUuid, boolean resetSkippedValidation) {

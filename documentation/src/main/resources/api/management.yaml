@@ -60,8 +60,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/DslOutput'
+            text/csv:
+              schema:
+                type: string
+                format: binary
+                description: CSV with one row per clause version
         '400':
           $ref: '#/components/responses/400'
+
+  /management/2025/08/01/clauses/dsl.csv:
+    get:
+      tags:
+        - management
+      description: "Retrieves all clauses as dsl"
+      parameters:
+        - $ref: '#/components/parameters/clauseStatus'
+      responses:
+        '200':
+          description: Ok
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+                description: CSV with one row per clause version
 
   /management/2025/08/01/clauses/dsl/{id}:
     get:

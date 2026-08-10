@@ -181,6 +181,7 @@
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
 								<useOneOfInterfaces>true</useOneOfInterfaces>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
 								<library>restclient</library>
 
 							</configOptions>

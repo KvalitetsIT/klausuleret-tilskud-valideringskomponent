@@ -146,4 +146,31 @@ class DepartmentCacheImplTest {
 
         assertEquals(Set.of(specialityA, specialityB), specialities, "Expected getSpecialities to return all unique specialities from loaded departments");
     }
+
+    @Test
+    void getSpeciality_WhenLoadedDepartmentsDoNotContainSpeciality_ReturnsEmpty() {
+        var shak = new Department.Identifier.SHAK("A");
+        var speciality = new Department.Speciality("speciality A");
+        var department = new Department(Optional.of(shak), Optional.empty(), Set.of(speciality));
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(department));
+        cache.load();
+
+        var result = cache.getSpeciality("non-existent speciality");
+
+        assertTrue(result.isEmpty(), "Expected getSpeciality to return empty when the loaded departments do not contain the speciality");
+    }
+
+    @Test
+    void getSpeciality_WhenLoadedDepartmentsDoContainSpeciality_ReturnsSpeciality() {
+        var shak = new Department.Identifier.SHAK("A");
+        var speciality = new Department.Speciality("speciality A");
+        var department = new Department(Optional.of(shak), Optional.empty(), Set.of(speciality));
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(department));
+        cache.load();
+
+        var result = cache.getSpeciality("sPeCiAlItY a");
+
+        assertTrue(result.isPresent(), "Expected getSpeciality to return speciality");
+        assertEquals(speciality, result.get(), "Expected getSpeciality to return the correct speciality");
+    }
 }

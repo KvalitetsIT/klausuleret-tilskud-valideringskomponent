@@ -73,4 +73,9 @@ public class DepartmentCacheImpl implements Cache<Department.Identifier, Departm
         return specialities;
     }
 
+    @Override
+    public Optional<Department.Speciality> getSpeciality(String specialityName) {
+        return Optional.of(new Department.Speciality(specialityName)).filter(specialities::contains);
+    }
+
 }

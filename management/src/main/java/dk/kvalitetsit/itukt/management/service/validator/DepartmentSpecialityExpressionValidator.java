@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.management.service.validator;
 
-import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.DepartmentSpecialityConditionExpression;
 import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
 import dk.kvalitetsit.itukt.management.service.model.validation.ExpressionValidationError;
@@ -17,9 +16,8 @@ public class DepartmentSpecialityExpressionValidator implements ExpressionValida
 
     @Override
     public List<ExpressionValidationError> validate(DepartmentSpecialityConditionExpression expression) {
-        var speciality = new Department.Speciality(expression.requiredSpeciality());
-        var knownSpecialities = departmentSpecialityService.getSpecialities();
-        return knownSpecialities.contains(speciality) ? List.of()
-                : List.of(new UnknownDepartmentSpecialityError(speciality, knownSpecialities));
+        var speciality = departmentSpecialityService.getSpeciality(expression.requiredSpeciality());
+        return speciality.isPresent() ? List.of()
+                : List.of(new UnknownDepartmentSpecialityError(expression.requiredSpeciality(), departmentSpecialityService.getSpecialities()));
     }
 }

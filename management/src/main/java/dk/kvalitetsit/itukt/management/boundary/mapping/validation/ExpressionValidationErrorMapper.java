@@ -8,7 +8,7 @@ public class ExpressionValidationErrorMapper implements Mapper<ExpressionValidat
     @Override
     public String map(ExpressionValidationError error) {
         return switch (error) {
-            case UnknownDepartmentSpecialityError e -> "Ukendt afdelingsspeciale " + e.departmentSpeciality().name();
+            case UnknownDepartmentSpecialityError e -> "Ukendt afdelingsspeciale " + e.departmentSpeciality();
         };
     }
 }

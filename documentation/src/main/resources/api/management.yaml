@@ -350,12 +350,12 @@ components:
               description: >-
                 Detailed error code.
                 <ul>
-                  <li>1: Fatal error</li>
+                  <li>1: Standard error</li>
                   <li>2: Validation error</li>
                 </ul>
               type: string
               enum:
-                - "FATAL"
+                - "ERROR"
                 - "VALIDATION"
     ClauseInput:
       type: object

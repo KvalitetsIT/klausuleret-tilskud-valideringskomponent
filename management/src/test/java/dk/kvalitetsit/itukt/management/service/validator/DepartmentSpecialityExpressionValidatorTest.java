@@ -8,9 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,11 +29,10 @@ class DepartmentSpecialityExpressionValidatorTest {
 
     @Test
     void validate_WhenSpecialityIsKnown_ReturnsNoErrors() {
-        var speciality1 = new Department.Speciality("A");
-        var speciality2 = new Department.Speciality("B");
-        when(departmentSpecialityService.getSpecialities()).thenReturn(Set.of(speciality1, speciality2));
+        var speciality = new Department.Speciality("A");
+        when(departmentSpecialityService.getSpeciality(speciality.name())).thenReturn(Optional.of(speciality));
 
-        var result = validator.validate(new DepartmentSpecialityConditionExpression(speciality1.name()));
+        var result = validator.validate(new DepartmentSpecialityConditionExpression(speciality.name()));
 
         assertEquals(List.of(), result);
     }
@@ -39,11 +40,12 @@ class DepartmentSpecialityExpressionValidatorTest {
     @Test
     void validate_WhenSpecialityIsUnknown_ReturnsUnknownDepartmentSpecialityError() {
         var knownSpecialities = Set.of(new Department.Speciality("A"));
+        when(departmentSpecialityService.getSpeciality(Mockito.any())).thenReturn(Optional.empty());
         when(departmentSpecialityService.getSpecialities()).thenReturn(knownSpecialities);
 
         var result = validator.validate(new DepartmentSpecialityConditionExpression("B"));
 
-        var expected = List.of(new UnknownDepartmentSpecialityError(new Department.Speciality("B"), knownSpecialities));
+        var expected = List.of(new UnknownDepartmentSpecialityError("B", knownSpecialities));
         assertEquals(expected, result);
     }
 }

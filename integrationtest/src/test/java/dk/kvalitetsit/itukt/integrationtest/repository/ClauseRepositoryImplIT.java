@@ -7,7 +7,6 @@ import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
 import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
@@ -105,11 +104,6 @@ public class ClauseRepositoryImplIT extends BaseTest {
             case ExpressionEntity.NumberConditionEntity ignored -> Stream.of(path + fieldToIgnore);
             case ExpressionEntity.StringConditionEntity ignored -> Stream.of(path + fieldToIgnore);
         };
-    }
-
-    @Override
-    protected void load(ClauseRepository repository) {
-        // Load data before component initialization
     }
 
     @Test

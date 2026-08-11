@@ -4,25 +4,35 @@ import org.slf4j.Logger;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
 
+import java.io.File;
 import java.time.Duration;
-
-import static dk.kvalitetsit.itukt.integrationtest.BaseTest.getComposeFile;
 
 final class InDockerComponent implements Component {
     private static final String SERVICE_NAME = "validation-component";
-    private final ComposeContainer component;
+    private final WaitStrategy waitStrategy;
+    private final File composeFile;
+    private final Slf4jLogConsumer logConsumer;
+    private ComposeContainer component;
 
     public InDockerComponent(Logger logger) {
-        this.component = new ComposeContainer(getComposeFile("docker-compose.app.yaml"))
-                .withServices(SERVICE_NAME)
-                .withExposedService(SERVICE_NAME, 8080, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
-                .withLogConsumer(SERVICE_NAME, new Slf4jLogConsumer(logger).withPrefix(SERVICE_NAME));
+        logConsumer = new Slf4jLogConsumer(logger).withPrefix(SERVICE_NAME);
+        composeFile = BaseTest.getComposeFile("docker-compose.app.yaml");
+        waitStrategy = Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60));
     }
 
     @Override
     public void start() {
+        component = createComposeContainer();
         component.start();
+    }
+
+    private ComposeContainer createComposeContainer() {
+        return new ComposeContainer(composeFile)
+                .withServices(SERVICE_NAME)
+                .withExposedService(SERVICE_NAME, 8080, waitStrategy)
+                .withLogConsumer(SERVICE_NAME, logConsumer);
     }
 
     @Override

@@ -1,11 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest;
 
-import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
-import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
@@ -33,42 +28,40 @@ public abstract class BaseTest {
     protected static Database appDatabase;
     protected static Database stamDatabase;
 
-    protected Component component;
-    protected ApiClient client;
+    protected static Component component;
+    protected static ApiClient client;
 
-    @BeforeAll
-    void beforeAll() {
+    static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Copenhagen")); // Same as timezone used in docker containers
 
         dbEnvironment.start();
         appDatabase = getDatabase("itukt-db", "itukt_db", "rootroot");
         stamDatabase = getDatabase("stamdata-db", "sdm_krs_a", "");
-    }
+        clearStamdata();
 
-    @BeforeEach
-    void setupApp() {
         boolean runInDocker = Boolean.getBoolean("runInDocker");
         component = runInDocker ? new InDockerComponent(logger) : new OutsideDockerComponent();
-
-        clearStamdata();
-        this.load(new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource())));
-
-        logger.info("Starting component");
-        component.start();
-
-        // Configure API client
-        client = new ApiClient().addDefaultHeader("User-ID", MockFactory.USER_ID).setBasePath(String.format("http://%s:%s", component.getHost(), component.getPort()));
+        client = new ApiClient().addDefaultHeader("User-ID", MockFactory.USER_ID);
+        startService();
     }
 
     @AfterEach
-    void afterEach() { // Clear both db and cache between each test
+    void afterEach() {
+        clearStamdata();
         appDatabase.clear();
-        if (component != null) {
-            component.stop();
-        }
     }
 
-    private void clearStamdata() {
+    protected static void restartService() {
+        component.stop();
+        startService();
+    }
+
+    private static void startService() {
+        component.start();
+        client.setBasePath(String.format("http://%s:%s", component.getHost(), component.getPort()));
+    }
+
+    private static void clearStamdata() {
         var stamdataJdbcTemplate = new JdbcTemplate(stamDatabase.getDatasource());
         stamdataJdbcTemplate.execute("DELETE FROM SorEntity");
         stamdataJdbcTemplate.execute("DELETE FROM Laegemiddel");
@@ -87,15 +80,5 @@ public abstract class BaseTest {
         var port = dbEnvironment.getServicePort(serviceName, 3306);
         return new Database(host, port, dbName, "root", password);
     }
-
-    /**
-     * Loads data before component initialization
-     * This is required since the caches is loaded during bean initialization on startup
-     * NOTE: this is invoked before the component has been initialized
-     *
-     * @param repository with a datasource injected
-     */
-    protected abstract void load(ClauseRepository repository);
-
 
 }

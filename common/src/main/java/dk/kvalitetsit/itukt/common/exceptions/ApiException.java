@@ -12,6 +12,7 @@ public abstract class ApiException extends RuntimeException {
         this.httpStatus = httpStatus;
         this.detailedErrorCodeEnum = detailedErrorCodeEnum;
         this.detailedError = detailedErrorCode;
+        super(detailedErrorCode);
     }
 
     public HttpStatus getHttpStatus() {

@@ -110,4 +110,67 @@ class DepartmentCacheImplTest {
 
         assertDoesNotThrow(() -> cache.load());
     }
+
+    @Test
+    void getSpecialities_BeforeLoad_ReturnsEmptySet() {
+        var specialities = cache.getSpecialities();
+
+        assertTrue(specialities.isEmpty(), "Expected getSpecialities to return an empty set before load is called");
+    }
+
+    @Test
+    void getSpecialities_WhenLoadedDepartmentsHaveNoSpecialities_ReturnsEmptySet() {
+        var shak = new Department.Identifier.SHAK("A");
+        Department department = new Department(Optional.of(shak), Optional.empty(), Set.of());
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(department));
+        cache.load();
+
+        var specialities = cache.getSpecialities();
+
+        assertTrue(specialities.isEmpty(), "Expected getSpecialities to return an empty set when loaded departments have no specialities");
+    }
+
+    @Test
+    void getSpecialities_WhenLoadedDepartmentsHaveMultipleSpecialities_ReturnsAllNonBlankSpecialities() {
+        var shak = new Department.Identifier.SHAK("A");
+        var sor = new Department.Identifier.SOR("B");
+        var specialityA = new Department.Speciality("speciality A");
+        var specialityB = new Department.Speciality("speciality B");
+        var blankSpeciality = new Department.Speciality("");
+        var department1 = new Department(Optional.of(shak), Optional.empty(), Set.of(specialityA));
+        var department2 = new Department(Optional.empty(), Optional.of(sor), Set.of(specialityA, specialityB, blankSpeciality));
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(department1, department2));
+        cache.load();
+
+        var specialities = cache.getSpecialities();
+
+        assertEquals(Set.of(specialityA, specialityB), specialities, "Expected getSpecialities to return all unique specialities from loaded departments");
+    }
+
+    @Test
+    void getSpeciality_WhenLoadedDepartmentsDoNotContainSpeciality_ReturnsEmpty() {
+        var shak = new Department.Identifier.SHAK("A");
+        var speciality = new Department.Speciality("speciality A");
+        var department = new Department(Optional.of(shak), Optional.empty(), Set.of(speciality));
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(department));
+        cache.load();
+
+        var result = cache.getSpeciality("non-existent speciality");
+
+        assertTrue(result.isEmpty(), "Expected getSpeciality to return empty when the loaded departments do not contain the speciality");
+    }
+
+    @Test
+    void getSpeciality_WhenLoadedDepartmentsDoContainSpeciality_ReturnsSpeciality() {
+        var shak = new Department.Identifier.SHAK("A");
+        var speciality = new Department.Speciality("speciality A");
+        var department = new Department(Optional.of(shak), Optional.empty(), Set.of(speciality));
+        Mockito.when(mock.fetchAll()).thenReturn(List.of(department));
+        cache.load();
+
+        var result = cache.getSpeciality("sPeCiAlItY a");
+
+        assertTrue(result.isPresent(), "Expected getSpeciality to return speciality");
+        assertEquals(speciality, result.get(), "Expected getSpeciality to return the correct speciality");
+    }
 }

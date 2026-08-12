@@ -12,5 +12,5 @@ public interface SkippedValidationRepository {
 
     void copySkippedValidation(long currentClauseId, long newClauseId);
 
-    long deleteOlderThan(Period period);
+    long deleteOlderThan(Period retentionPeriod);
 }

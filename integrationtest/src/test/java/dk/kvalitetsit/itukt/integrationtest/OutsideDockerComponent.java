@@ -17,6 +17,8 @@ final class OutsideDockerComponent implements Component {
         registerDatabaseProperties("itukt-db", "common.ituktdb", "itukt_db", "rootroot", registry);
         registry.setProperty("itukt.validation.stamdata.cache.cron", "0 0 0 * * *");
         registry.setProperty("itukt.management.clause.cache.cron", "0 0 0 * * *");
+        registry.setProperty("itukt.validation.skipped-validation.cleanup-job.cron", "0 0 0 * * *");
+        registry.setProperty("itukt.validation.skipped-validation.cleanup-job.retention-period", "P0D");
         return registry;
     }
 

@@ -47,7 +47,7 @@ class ActiveClauseCacheImplTest {
     }
 
     @Test
-    void givenAnActiveClauseFromRepository_whenLoad_thenReturnActiveClause() {
+    void givenAnActiveClauseFromRepository_whenRun_thenReturnActiveClause() {
         var activeClause = new ClauseEntity(
                 1L,
                 UUID.randomUUID(),
@@ -66,7 +66,7 @@ class ActiveClauseCacheImplTest {
         );
         Mockito.when(concreteRepository.read(queryMatcher(ACTIVE_CLAUSES_QUERY))).thenReturn(List.of(activeClause));
 
-        cache.load();
+        cache.run();
 
         Mockito.verify(concreteRepository, Mockito.times(1)).read(Mockito.any(ClauseQuery.class));
         assertEquals(Optional.of(activeClause), cache.get(activeClause.name()));
@@ -84,7 +84,7 @@ class ActiveClauseCacheImplTest {
         var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, "user1", new Date(), null, null);
         var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, "user2",  new Date(), null, null);
         Mockito.when(concreteRepository.read(queryMatcher(ACTIVE_CLAUSES_QUERY))).thenReturn(List.of(existingClause1, existingClause2));
-        cache.load();
+        cache.run();
 
         var result = cache.getByErrorCode(existingClause2.errorCode());
 

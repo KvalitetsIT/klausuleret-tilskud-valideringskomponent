@@ -15,6 +15,7 @@ public record ClauseEntity(
         ExpressionEntity expression,
         String createdBy,
         Date createdTime,
-        Long parentClauseId
+        Long primaryParentId,
+        Long secondaryParentId
 ) {
 }

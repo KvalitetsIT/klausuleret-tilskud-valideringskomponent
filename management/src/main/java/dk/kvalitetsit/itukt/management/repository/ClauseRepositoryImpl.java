@@ -38,8 +38,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
 
             ExpressionEntity createdExpression = expressionRepository.create(clauseInput.expression());
 
-            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, created_by, parent_clause_id) " +
-                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :created_by, :parent_clause_id) " +
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, created_by, primary_parent_id, secondary_parent_id) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :created_by, :primary_parent_id, :secondary_parent_id) " +
                     "RETURNING id, created_time";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
@@ -49,7 +49,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .addValue("error_message", clauseInput.errorMessage())
                     .addValue("status", clauseInput.status().name())
                     .addValue("created_by", clauseInput.createdBy())
-                    .addValue("parent_clause_id", clauseInput.parentClauseId());
+                    .addValue("primary_parent_id", clauseInput.primaryParentId())
+                    .addValue("secondary_parent_id", clauseInput.secondaryParentId());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
@@ -66,7 +67,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         createdExpression,
                         clauseInput.createdBy(),
                         rs.getTimestamp("created_time"),
-                        clauseInput.parentClauseId()
+                        clauseInput.primaryParentId(),
+                        clauseInput.secondaryParentId()
                 );
             });
 
@@ -116,7 +118,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     public Optional<ClauseEntity> read(UUID uuid) {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.created_by, c.created_time, c.parent_clause_id
+                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.created_by, c.created_time, c.primary_parent_id, c.secondary_parent_id
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -139,7 +141,8 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 expression,
                                 rs.getString("created_by"),
                                 rs.getTimestamp("created_time"),
-                                rs.getObject("parent_clause_id", Long.class)
+                                rs.getObject("primary_parent_id", Long.class),
+                                rs.getObject("secondary_parent_id", Long.class)
                         );
                     });
 
@@ -184,9 +187,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         SELECT c.uuid
                         FROM clause c
                         WHERE name = :name AND status = 'DRAFT' AND c.id NOT IN (
-                            SELECT parent_clause_id
+                            SELECT primary_parent_id
                             FROM clause
-                            WHERE parent_clause_id IS NOT NULL
+                            WHERE primary_parent_id IS NOT NULL
                         )
                     """;
 
@@ -243,9 +246,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         SELECT c.uuid
                         FROM clause c
                         WHERE status = 'DRAFT' AND c.id NOT IN (
-                            SELECT parent_clause_id
+                            SELECT primary_parent_id
                             FROM clause
-                            WHERE parent_clause_id IS NOT NULL
+                            WHERE primary_parent_id IS NOT NULL
                         )
                         ORDER BY c.id
                     """;
@@ -306,7 +309,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             var sql = """
                     SELECT parent.uuid
                     FROM clause
-                    LEFT JOIN clause parent ON clause.parent_clause_id = parent.id
+                    LEFT JOIN clause parent ON clause.primary_parent_id = parent.id
                     WHERE clause.uuid = :uuid
                     """;
             UUID parentUuid = template.queryForObject(sql, Map.of("uuid", uuid.toString()), UUID.class);

@@ -22,6 +22,7 @@ public class ClauseInputModelEntityMapper implements Mapper<ClauseFullInput, Cla
                 clauseInput.errorMessage(),
                 clauseInput.status(),
                 clauseInput.createdBy(),
-                clauseInput.parentClauseId());
+                clauseInput.primaryParentId(),
+                clauseInput.secondaryParentId());
     }
 }

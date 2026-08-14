@@ -37,7 +37,7 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_ENTITY
     );
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "name", Clause.Status.ACTIVE, 10800, "message", EXPRESSION_1_ENTITY, "tester", new Date(), null);
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "name", Clause.Status.ACTIVE, 10800, "message", EXPRESSION_1_ENTITY, "tester", new Date(), null, null);
     private static final AgeConditionExpression EXPRESSION_6_MODEL = new AgeConditionExpression(
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()

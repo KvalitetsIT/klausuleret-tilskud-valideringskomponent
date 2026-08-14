@@ -55,7 +55,7 @@ class ManagementServiceImplTest {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
-        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, null);
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, null, null);
         var clause = mock(Clause.class);
         Mockito.when(dao.create(expectedClauseFullInput))
                 .thenReturn(clause);
@@ -73,7 +73,7 @@ class ManagementServiceImplTest {
         var existingClause = mock(Clause.class);
         Mockito.when(existingClause.id()).thenReturn(1L);
         Mockito.when(dao.readCurrentNonDraftClause(clauseForCreation.name())).thenReturn(Optional.of(existingClause));
-        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, existingClause.id());
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, existingClause.id(), null);
         var clause = mock(Clause.class);
         Mockito.when(dao.create(expectedClauseFullInput))
                 .thenReturn(clause);
@@ -108,7 +108,7 @@ class ManagementServiceImplTest {
         var draftOutput = service.updateDraft(name, clauseForUpdate);
 
         assertEquals(expectedDraftOutput, draftOutput, "Updated draft clause should be returned from service");
-        var expectedClauseInput = new ClauseFullInput(name, clauseForUpdate.expression(), clauseForUpdate.errorMessage(), Clause.Status.DRAFT, userId, existingDraft.id());
+        var expectedClauseInput = new ClauseFullInput(name, clauseForUpdate.expression(), clauseForUpdate.errorMessage(), Clause.Status.DRAFT, userId, existingDraft.id(), null);
         Mockito.verify(dao, times(1)).create(expectedClauseInput);
     }
 
@@ -190,7 +190,7 @@ class ManagementServiceImplTest {
         service.approve(draft.uuid(), false);
 
         Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(active.id(), createdClause.id());
-        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId, draft.id());
+        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId, draft.id(), null);
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
 
@@ -350,7 +350,7 @@ class ManagementServiceImplTest {
         var clauseResponse = service.inactivate(clause.name());
 
         assertEquals(inactiveClause, clauseResponse);
-        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, clause.createdBy(), clause.id());
+        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.INACTIVE, clause.createdBy(), clause.id(), null);
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
 
@@ -380,7 +380,7 @@ class ManagementServiceImplTest {
         var clauseResponse = service.activate(clause.name());
 
         assertEquals(activeClause, clauseResponse);
-        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, clause.createdBy(), clause.id());
+        var expectedClauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), Clause.Status.ACTIVE, clause.createdBy(), clause.id(), null);
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
 

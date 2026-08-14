@@ -58,6 +58,7 @@ class ActiveClauseCacheImplTest {
                 ),
                 "user1",
                 new Date(),
+                null,
                 null
         );
         var inactiveClause = new ClauseEntity(
@@ -73,7 +74,8 @@ class ActiveClauseCacheImplTest {
                 ),
                 "user2",
                 new Date(),
-                1L
+                1L,
+                null
         );
         Mockito.when(concreteRepository.readCurrentNonDraftClauses()).thenReturn(List.of(activeClause, inactiveClause));
 
@@ -93,8 +95,8 @@ class ActiveClauseCacheImplTest {
 
     @Test
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
-        var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, "user1", new Date(), null);
-        var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, "user2",  new Date(), null);
+        var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, "user1", new Date(), null, null);
+        var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, "user2",  new Date(), null, null);
         Mockito.when(concreteRepository.readCurrentNonDraftClauses()).thenReturn(List.of(existingClause1, existingClause2));
         cache.load();
 

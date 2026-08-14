@@ -9,7 +9,8 @@ public record ClauseFullInput(
         String errorMessage,
         Clause.Status status,
         String createdBy,
-        Long parentClauseId
+        Long primaryParentId,
+        Long secondaryParentId
 ) {
 
 }

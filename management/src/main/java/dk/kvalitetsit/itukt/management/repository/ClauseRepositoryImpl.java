@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseQuery;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +14,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class ClauseRepositoryImpl implements ClauseRepository {
 
@@ -156,6 +154,63 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
+    public List<ClauseEntity> read(ClauseQuery query) {
+        try {
+            StringBuilder sql = new StringBuilder("""
+                    SELECT c.uuid
+                    FROM clause c
+                    WHERE 1=1
+                    """);
+
+            Map<String, Object> params = new HashMap<>();
+
+            query.getName().ifPresent(name -> {
+                sql.append(" AND c.name = :name");
+                params.put("name", name);
+            });
+
+            if (!query.getStatuses().isEmpty()) {
+                sql.append(" AND c.status IN (:statuses)");
+                params.put("statuses", query.getStatuses().stream().map(Clause.Status::name).toList());
+            }
+
+            if (query.isWithoutChildren()) {
+                sql.append("""
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM clause child
+                            WHERE child.primary_parent_id = c.id OR child.secondary_parent_id = c.id
+                        )
+                    """);
+            }
+
+            if (query.isWithoutPrimaryChildren()) {
+                sql.append("""
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM clause child
+                            WHERE child.primary_parent_id = c.id
+                        )
+                    """);
+            }
+
+            List<UUID> uuids = template.queryForList(
+                    sql.toString(),
+                    params,
+                    UUID.class
+            );
+
+            return uuids.stream()
+                    .map(this::read)
+                    .flatMap(Optional::stream)
+                    .toList();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read clauses with query %s".formatted(query), e);
+        }
+    }
+
+    @Override
     public Optional<ClauseEntity> readCurrentNonDraftClause(String name) {
         try {
             String sql = """
@@ -186,11 +241,13 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        WHERE name = :name AND status = 'DRAFT' AND c.id NOT IN (
-                            SELECT primary_parent_id
-                            FROM clause
-                            WHERE primary_parent_id IS NOT NULL
-                        )
+                        WHERE name = :name
+                            AND status = 'DRAFT'
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM clause child
+                                WHERE child.primary_parent_id = c.id OR child.secondary_parent_id = c.id
+                            )
                     """;
 
             UUID latestClauseUuid = template.queryForObject(
@@ -205,6 +262,39 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         } catch (Exception e) {
             logger.error("Failed to read current draft clause", e);
             throw new RuntimeException("Failed to read current draft clause", e);
+        }
+    }
+
+    @Override
+    public List<ClauseEntity> readCurrent(String name, Clause.Status ... statuses) {
+        if (statuses.length == 0) {
+            return List.of();
+        }
+        try {
+            String sql = """
+                        SELECT c.uuid
+                        FROM clause c
+                        WHERE name = :name
+                            AND status IN (:statuses)
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM clause child
+                                WHERE child.primary_parent_id = c.id OR child.secondary_parent_id = c.id
+                            )
+                    """;
+
+            List<UUID> uuids = template.queryForList(sql,
+                    Map.of("name", name, "statuses", Arrays.stream(statuses).map(Enum::name).toList()),
+                    UUID.class
+            );
+
+            return uuids.stream()
+                    .map(this::read)
+                    .flatMap(Optional::stream)
+                    .toList();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read draft clauses", e);
         }
     }
 
@@ -245,11 +335,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
             String sql = """
                         SELECT c.uuid
                         FROM clause c
-                        WHERE status = 'DRAFT' AND c.id NOT IN (
-                            SELECT primary_parent_id
-                            FROM clause
-                            WHERE primary_parent_id IS NOT NULL
-                        )
+                        WHERE status = 'DRAFT'
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM clause child
+                                WHERE child.primary_parent_id = c.id OR child.secondary_parent_id = c.id
+                            )
                         ORDER BY c.id
                     """;
 

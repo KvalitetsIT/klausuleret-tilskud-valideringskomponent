@@ -81,43 +81,17 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testReadCurrentNonDraftClauses() {
-
+    void testReadCurrent() {
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var clause = Mockito.mock(Clause.class);
+        String name = "test";
+        Clause.Status status = Clause.Status.ACTIVE;
+        Mockito.when(concreteRepository.readCurrent(name, status)).thenReturn(List.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
 
-        Mockito.when(concreteRepository.readCurrentNonDraftClauses()).thenReturn(List.of(clauseEntity));
+        var result = adaptor.readCurrent(name, status);
 
-        Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
-
-        var result = adaptor.readCurrentNonDraftClauses();
         assertEquals(List.of(clause), result);
-    }
-
-    @Test
-    void testReadCurrentNonDraftClause() {
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-        String name = "test";
-        Mockito.when(concreteRepository.readCurrentNonDraftClause(name)).thenReturn(Optional.of(clauseEntity));
-        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
-
-        var result = adaptor.readCurrentNonDraftClause(name);
-
-        assertEquals(Optional.of(clause), result);
-    }
-
-    @Test
-    void testReadCurrentDraft() {
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-        String name = "test";
-        Mockito.when(concreteRepository.readCurrentDraft(name)).thenReturn(Optional.of(clauseEntity));
-        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
-
-        var result = adaptor.readCurrentDraft(name);
-
-        assertEquals(Optional.of(clause), result);
     }
 
     @Test

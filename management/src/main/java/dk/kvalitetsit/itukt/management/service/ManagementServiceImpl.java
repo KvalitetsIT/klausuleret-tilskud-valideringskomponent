@@ -8,6 +8,7 @@ import dk.kvalitetsit.itukt.management.exceptions.InvalidInputException;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
 import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryAdaptor;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseQuery;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
@@ -33,10 +34,10 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause create(ClauseInput clause) throws InvalidInputException {
-        if (repository.readCurrentDraft(clause.name()).isPresent()) {
+        if (readCurrentDraft(clause.name()).isPresent()) {
             throw new InvalidInputException("A draft clause with name '%s' already exists".formatted(clause.name()));
         }
-        var secondaryParentId = repository.readCurrentNonDraftClause(clause.name()).map(Clause::id).orElse(null);
+        var secondaryParentId = readCurrentNonDraft(clause.name()).map(Clause::id).orElse(null);
         String userID = userContextService.getUserID();
         var clauseFullInput = new ClauseFullInput(clause.name(), clause.expression(), clause.errorMessage(), Clause.Status.DRAFT, userID, null, secondaryParentId);
         return repository.create(clauseFullInput);
@@ -49,15 +50,12 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public List<Clause> readByStatus(Clause.Status status) {
-        return switch (status) {
-            case ACTIVE, INACTIVE -> getLatestClauseVersions(status);
-            case DRAFT -> repository.readCurrentDrafts();
+        ClauseQuery query = new ClauseQuery().statuses(status);
+        query = switch (status) {
+            case ACTIVE, INACTIVE -> query.withoutPrimaryChildren();
+            case DRAFT -> query.withoutChildren();
         };
-    }
-
-    private List<Clause> getLatestClauseVersions(Clause.Status status) {
-        return repository.readCurrentNonDraftClauses().stream()
-                .filter(clause -> clause.status() == status).toList();
+        return repository.read(query);
     }
 
     @Override
@@ -73,33 +71,24 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public List<Clause> readDraftHistory(String name) throws NotFoundException {
-        var history = new ArrayList<Clause>();
-        var current = repository.readCurrentDraft(name);
-        while (current.isPresent() && current.get().status() == Clause.Status.DRAFT) {
-            history.add(current.get());
-            current = repository.readParent(current.get().uuid());
-        }
-
-        if (history.isEmpty())
-            throw new NotFoundException(String.format("Clause draft with name '%s' was not found", name));
-        return history;
+        return null;
     }
 
     @Override
     public Clause approve(UUID clauseUuid, boolean resetSkippedValidations) throws ManagementException {
-        Clause draft = repository.readCurrentDrafts()
+        Clause draft = repository.read(new ClauseQuery().statuses(Clause.Status.DRAFT).withoutChildren())
                 .stream()
                 .filter(clause -> clause.uuid().equals(clauseUuid))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Clause %s is not a current draft and can not be approved".formatted(clauseUuid)));
-        Optional<Clause> currentClause = repository.readCurrentNonDraftClause(draft.name());
+        Optional<Long> currentClauseId = readCurrentNonDraft(draft.name()).map(Clause::id);
         String userID = userContextService.getUserID();
 
-        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID, null, draft.id());
+        var clauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userID, currentClauseId.orElse(null), draft.id());
         Clause created = repository.create(clauseInput);
 
-        if (!resetSkippedValidations && currentClause.isPresent()) {
-            skippedValidationRepository.copySkippedValidation(currentClause.get().id(), created.id());
+        if (!resetSkippedValidations && currentClauseId.isPresent()) {
+            skippedValidationRepository.copySkippedValidation(currentClauseId.get(), created.id());
         }
         return created;
     }
@@ -115,7 +104,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) throws InvalidInputException {
-        var clause = repository.readCurrentNonDraftClause(name)
+        var clause = readCurrentNonDraft(name)
                 .filter(c -> c.status() == currentStatus)
                 .orElseThrow(() -> new InvalidInputException(errorMessage));
 
@@ -135,7 +124,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public Clause deleteDraft(UUID uuid) throws NotFoundException {
         var draft = repository.read(uuid)
-                .flatMap(clause -> repository.readCurrentDraft(clause.name()))
+                .flatMap(clause -> readCurrentDraft(clause.name()))
                 .filter(clause -> clause.uuid().equals(uuid))
                 .orElseThrow(() -> new NotFoundException("Clause %s is not a current draft and can not be deleted".formatted(uuid)));
         deleteDraft(draft.name());
@@ -143,7 +132,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     private void deleteDraft(String name) {
-        repository.readCurrentDraft(name)
+        readCurrentDraft(name)
                 .map(draft -> {
                     try {
                         return repository.deleteDraft(draft.uuid());
@@ -156,7 +145,7 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException {
-        var currentDraft = repository.readCurrentDraft(name)
+        var currentDraft = readCurrentDraft(name)
                 .orElseThrow(() -> new NotFoundException("No current draft found with name '%s'".formatted(name)));
 
         String userID = userContextService.getUserID();
@@ -167,5 +156,29 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public long getNumberOfDrugsForClause(String name) {
         return clauseDrugCounter.getNumberOfDrugsForClause(name);
+    }
+
+    private Optional<Clause> readCurrentDraft(String name) {
+        return readSingle(new ClauseQuery()
+                .name(name)
+                .statuses(Clause.Status.DRAFT)
+                .withoutChildren()
+        );
+    }
+
+    private Optional<Clause> readCurrentNonDraft(String name) {
+        return readSingle(new ClauseQuery()
+                .name(name)
+                .statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE)
+                .withoutPrimaryChildren()
+        );
+    }
+
+    private Optional<Clause> readSingle(ClauseQuery query) {
+        var currentClauses = repository.read(query);
+        if (currentClauses.size() > 1) {
+            throw new RuntimeException("Multiple clauses found for query: " + query);
+        }
+        return currentClauses.stream().findFirst();
     }
 }

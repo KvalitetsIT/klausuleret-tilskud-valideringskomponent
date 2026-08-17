@@ -11,6 +11,7 @@ import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseQuery;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -80,13 +81,13 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void createAndReadCurrentDrafts() {
+    void createAndReadDraftsWithoutChildren() {
         var clauseInput1 = new ClauseEntityInput("clause1", MockFactory.EXPRESSION_1_ENTITY, "message1", Clause.Status.DRAFT, "tester", null, null);
         var clauseInput2 = new ClauseEntityInput("clause2", MockFactory.EXPRESSION_1_ENTITY, "message2", Clause.Status.DRAFT, "tester", null, null);
 
         var createdClause1 = repository.create(clauseInput1);
         var createdClause2 = repository.create(clauseInput2);
-        var readClauses = repository.readCurrentDrafts();
+        var readClauses = repository.read(new ClauseQuery().statuses(Clause.Status.DRAFT).withoutChildren());
 
         assertEquals(2, readClauses.size());
         assertTrue(readClauses.contains(createdClause1));
@@ -107,25 +108,67 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void readCurrentDrafts_WithNoClauses_ReturnsEmptyList() {
-        var clauses = repository.readCurrentDrafts();
+    void read_WithNoClauses_ReturnsEmptyList() {
+        var clauses = repository.read(new ClauseQuery());
 
         assertTrue(clauses.isEmpty(), "Expected no clauses to be returned when no clauses exist");
     }
 
     @Test
-    void readCurrentDrafts_ReturnsDraftsWithNoChildClause() {
+    void read_WithAllTypesOfClausesAndNoQueryParameters_ReturnsAllClauses() {
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        var clauseInput1 = new ClauseEntityInput("clause1", expression, "error", Clause.Status.DRAFT, "tester", null, null);
+        var clause1 = repository.create(clauseInput1);
+        var clauseInput2 = new ClauseEntityInput("clause2", expression, "error", Clause.Status.DRAFT, "tester", clause1.id(), null);
+        var clause2 = repository.create(clauseInput2);
+        var clauseInput3 = new ClauseEntityInput("clause3", expression, "error", Clause.Status.ACTIVE, "tester", null, clause2.id());
+        var clause3 = repository.create(clauseInput3);
+        var clauseInput4 = new ClauseEntityInput("clause4", expression, "error", Clause.Status.INACTIVE, "tester", clause3.id(), null);
+        var clause4 = repository.create(clauseInput4);
+
+        var clauses = repository.read(new ClauseQuery());
+
+        assertEquals(4, clauses.size(), "Expected all clauses to be returned");
+        assertTrue(clauses.contains(clause1));
+        assertTrue(clauses.contains(clause2));
+        assertTrue(clauses.contains(clause3));
+        assertTrue(clauses.contains(clause4));
+    }
+
+    @Test
+    void read_WithNameInQuery_ReturnsClauseWithMatchingName() {
+        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
+        var clauseInput1 = new ClauseEntityInput("clause1", expression, "error", Clause.Status.DRAFT, "tester", null, null);
+        var clause1 = repository.create(clauseInput1);
+        var clauseInput2 = new ClauseEntityInput("clause2", expression, "error", Clause.Status.DRAFT, "tester", clause1.id(), null);
+        var clause2 = repository.create(clauseInput2);
+        var clauseInput3 = new ClauseEntityInput("clause3", expression, "error", Clause.Status.ACTIVE, "tester", null, clause2.id());
+        var clause3 = repository.create(clauseInput3);
+        var clauseInput4 = new ClauseEntityInput("clause1", expression, "error", Clause.Status.INACTIVE, "tester", clause3.id(), null);
+        var clause4 = repository.create(clauseInput4);
+
+        var clauses = repository.read(new ClauseQuery().name("clause1"));
+
+        assertEquals(2, clauses.size(), "Expected all clauses to be returned");
+        assertTrue(clauses.contains(clause1));
+        assertTrue(clauses.contains(clause4));
+    }
+
+    @Test
+    void readDraftsWithoutChildren_ReturnsDraftsWithNoChildClauses() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("clause1", expression, "errorA", Clause.Status.DRAFT, "tester", null, null);
         var clause1 = repository.create(clauseInput1);
         var clauseInput2 = new ClauseEntityInput("clause2", expression, "errorB", Clause.Status.DRAFT, "tester", null, null);
         var clause2 = repository.create(clauseInput2);
-        var clauseInput3 = new ClauseEntityInput("clause3", expression, "errorB", Clause.Status.DRAFT, "tester", clause2.id(), null);
+        var clauseInput3 = new ClauseEntityInput("clause3", expression, "errorB", Clause.Status.DRAFT, "tester", null, null);
         var clause3 = repository.create(clauseInput3);
-        var clauseInput4 = new ClauseEntityInput("clause4", expression, "errorB", Clause.Status.DRAFT, "tester", clause3.id(), null);
+        var clauseInput4 = new ClauseEntityInput("clause4", expression, "errorB", Clause.Status.DRAFT, "tester", clause2.id(), null);
         var clause4 = repository.create(clauseInput4);
+        var clauseInput5 = new ClauseEntityInput("clause5", expression, "errorB", Clause.Status.ACTIVE, "tester", null, clause3.id());
+        repository.create(clauseInput5);
 
-        var clauses = repository.readCurrentDrafts();
+        var clauses = repository.read(new ClauseQuery().statuses(Clause.Status.DRAFT).withoutChildren());
 
         assertEquals(2, clauses.size(), "Expected current clauses to be returned");
         assertTrue(clauses.contains(clause1));
@@ -133,124 +176,97 @@ public class ClauseRepositoryImplIT extends BaseTest {
     }
 
     @Test
-    void readCurrentClauses_WithActiveClausesWithDraftChild_ReturnsLatestActiveClause() {
-        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
-        var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, "tester", null, null);
-        var clause1 = repository.create(clauseInput1);
-        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", clause1.id(), null);
-        var clause2 = repository.create(clauseInput2);
-        var draftClauseInput = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.DRAFT, "tester", clause2.id(), null);
-        repository.create(draftClauseInput);
-
-        var clauses = repository.readCurrentNonDraftClauses();
-
-        assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
-        assertThat(clauses.getFirst())
-                .usingRecursiveComparison()
-                .isEqualTo(clause2);
-    }
-
-    @Test
-    void readCurrentNonDraftClauses_WithNoWithNoActiveOrInactiveClauses_ReturnsEmptyList() {
+    void readActiveAndInactiveClauses_WithNoActiveOrInactiveClauses_ReturnsEmptyList() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.DRAFT, "tester", null, null);
         repository.create(clauseInput);
 
-        var clauses = repository.readCurrentNonDraftClauses();
+        var clauses = repository.read(new ClauseQuery().statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE));
 
-        assertTrue(clauses.isEmpty(), "Expected no clauses to be returned when no clauses exist");
+        assertTrue(clauses.isEmpty(), "Expected no clauses to be returned when no matching clauses exist");
     }
 
     @Test
-    void readCurrentNonDraftClauses_ReturnsLatestClauses() {
+    void readActiveClausesWithoutPrimaryChildren_ReturnsActiveClauseWithoutPrimaryChild() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, "tester", null, null);
         var clauseA = repository.create(clauseInput1);
         var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", clauseA.id(), null);
         var clauseB = repository.create(clauseInput2);
 
-        var clauses = repository.readCurrentNonDraftClauses();
+        var clauses = repository.read(new ClauseQuery().statuses(Clause.Status.ACTIVE).withoutPrimaryChildren());
 
-        assertEquals(1, clauses.size(), "Expected only the latest approved version of the clause");
+        assertEquals(1, clauses.size(), "Expected only the latest active version of the clause");
         assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
                 .isEqualTo(clauseB);
     }
 
     @Test
-    void readCurrentClause_WithActiveClausesWithDraftChild_ReturnsLatestActiveClause() {
+    void readActiveClausesWithNameWithoutPrimaryChildren_WithActiveClausesWithDraftChild_ReturnsLatestActiveClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, "tester", null, null);
         var clause1 = repository.create(clauseInput1);
         var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", clause1.id(), null);
         var clause2 = repository.create(clauseInput2);
-        var draftClauseInput = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.DRAFT, "tester", clause2.id(), null);
+        var draftClauseInput = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.DRAFT, "tester", null, clause2.id());
         repository.create(draftClauseInput);
 
-        var clause = repository.readCurrentNonDraftClause("blaah");
+        var clauses = repository.read(new ClauseQuery().statuses(Clause.Status.ACTIVE).withoutPrimaryChildren());
 
-        assertTrue(clause.isPresent());
-        assertThat(clause.get())
+        assertEquals(1, clauses.size(), "Expected only the latest active version of the clause");
+        assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
                 .isEqualTo(clause2);
     }
 
     @Test
-    void createActiveAndInactiveClauseWithSameName_ThenReadCurrentNonDraftClause_ReturnsTheLatestClause() {
+    void createActiveWithInactiveClauseChild_ThenReadNonDraftClausesWithoutPrimaryChildren_ReturnsTheLatestClause() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.ACTIVE, "tester", null, null);
         var clause1 = repository.create(clauseInput1);
         var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.INACTIVE, "tester", clause1.id(), null);
         var clause2 = repository.create(clauseInput2);
 
-        var clause = repository.readCurrentNonDraftClause("blaah");
+        var clause = repository.read(new ClauseQuery().name("blaah").statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE).withoutPrimaryChildren());
 
-        assertTrue(clause.isPresent());
-        assertThat(clause.get())
+        assertEquals(1, clause.size());
+        assertThat(clause.getFirst())
                 .usingRecursiveComparison()
                 .isEqualTo(clause2);
     }
 
     @Test
-    void createDraftClause_ThenReadCurrentNonDraftClause_ReturnsNothing() {
-        var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
-        ClauseEntityInput clauseInput = new ClauseEntityInput("blaah", expression, "error", Clause.Status.DRAFT, "tester", null, null);
-
-        repository.create(clauseInput);
-        var latestClause = repository.readCurrentNonDraftClause("blaah");
-
-        assertTrue(latestClause.isEmpty());
-    }
-
-    @Test
-    void createClausesWithSameName_ThenReadCurrentDraft_ReturnsTheChildDraftClause() {
+    void createDraftWithChildClauses_ThenReadDraftWithoutChildren_ReturnsTheDraftClauseWithNoChildren() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.DRAFT, "tester", null, null);
         var clause1 = repository.create(clauseInput1);
-        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", clause1.id(), null);
+        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", null, clause1.id());
         var clause2 = repository.create(clauseInput2);
-        var clauseInput3 = new ClauseEntityInput("blaah", expression, "errorC", Clause.Status.DRAFT, "tester", clause2.id(), null);
+        var clauseInput3 = new ClauseEntityInput("blaah", expression, "errorC", Clause.Status.DRAFT, "tester", null, clause2.id());
         var clause3 = repository.create(clauseInput3);
+        var clauseInput4 = new ClauseEntityInput("blaah", expression, "errorD", Clause.Status.DRAFT, "tester", clause3.id(), null);
+        var clause4 = repository.create(clauseInput4);
 
-        var clause = repository.readCurrentDraft("blaah");
+        var clauses = repository.read(new ClauseQuery().name("blaah").statuses(Clause.Status.DRAFT).withoutChildren());
 
-        assertTrue(clause.isPresent());
-        assertThat(clause.get())
+        assertEquals(1, clauses.size());
+        assertThat(clauses.getFirst())
                 .usingRecursiveComparison()
-                .isEqualTo(clause3);
+                .isEqualTo(clause4);
     }
 
     @Test
-    void createDraftClauseWithAnActiveChild_ThenReadCurrentDraft_ReturnsNothing() {
+    void createDraftClauseWithAnActiveChild_ThenReadDraftWithoutChildren_ReturnsNothing() {
         var expression = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "blah");
         var clauseInput1 = new ClauseEntityInput("blaah", expression, "errorA", Clause.Status.DRAFT, "tester", null, null);
         var clause1 = repository.create(clauseInput1);
-        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", clause1.id(), null);
+        var clauseInput2 = new ClauseEntityInput("blaah", expression, "errorB", Clause.Status.ACTIVE, "tester", null, clause1.id());
         repository.create(clauseInput2);
 
-        var latestClause = repository.readCurrentDraft("blaah");
+        var latestClauses = repository.read(new ClauseQuery().name("blaah").statuses(Clause.Status.DRAFT).withoutChildren());
 
-        assertTrue(latestClause.isEmpty());
+        assertTrue(latestClauses.isEmpty());
     }
 
     @Test

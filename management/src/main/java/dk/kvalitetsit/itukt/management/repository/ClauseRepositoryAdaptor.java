@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseQuery;
 import dk.kvalitetsit.itukt.management.service.model.ClauseFullInput;
 
 import java.util.List;
@@ -33,6 +34,10 @@ public class ClauseRepositoryAdaptor {
         return clauseRepository.read(id).map(entityMapper::map);
     }
 
+    public List<Clause> read(ClauseQuery query) {
+        return entityMapper.map(clauseRepository.read(query));
+    }
+
     /**
      * Retrieves the current version of each clause. Excluding drafts.
      */
@@ -41,17 +46,10 @@ public class ClauseRepositoryAdaptor {
     }
 
     /**
-     * Retrieves the current version of a clause. Excluding drafts.
+     * Retrieves clauses with no child clauses, if such exist.
      */
-    public Optional<Clause> readCurrentNonDraftClause(String name) {
-        return clauseRepository.readCurrentNonDraftClause(name).map(entityMapper::map);
-    }
-
-    /**
-     * Retrieves the draft clause with no child clauses, if such exist.
-     */
-    public Optional<Clause> readCurrentDraft(String name) {
-        return clauseRepository.readCurrentDraft(name).map(entityMapper::map);
+    public List<Clause> readCurrent(String name, Clause.Status ... statuses) {
+        return entityMapper.map(clauseRepository.readCurrent(name, statuses));
     }
 
     /**

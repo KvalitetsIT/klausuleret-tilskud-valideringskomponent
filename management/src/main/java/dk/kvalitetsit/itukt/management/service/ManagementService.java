@@ -18,7 +18,7 @@ public interface ManagementService {
 
     List<Clause> readByStatus(Clause.Status status);
 
-    List<Clause> readHistory(String name) throws ManagementException;
+    List<Clause> readHistory(UUID uuid) throws ManagementException;
 
     List<Clause> readDraftHistory(String name) throws NotFoundException;
 

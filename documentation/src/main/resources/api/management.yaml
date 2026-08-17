@@ -101,13 +101,13 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-  /management/2025/08/01/clauses/dsl/{name}/history:
+  /management/2025/08/01/clauses/dsl/{id}/history:
     get:
       tags:
         - management
-      description: "Retrieves all versions of the clause associated with the specified clause name as dsl"
+      description: "Retrieves all previous versions of the clause associated with the specified clause id as dsl"
       parameters:
-        - $ref: '#/components/parameters/name'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           description: Ok

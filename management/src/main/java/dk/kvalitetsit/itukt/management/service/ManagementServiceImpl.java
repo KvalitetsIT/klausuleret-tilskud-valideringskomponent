@@ -61,10 +61,13 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public List<Clause> readHistory(String name) throws NotFoundException {
-        List<Clause> history = repository.readHistory(name);
-        if (history.isEmpty())
-            throw new NotFoundException(String.format("clause with name '%s' was not found", name));
+    public List<Clause> readHistory(UUID uuid) throws NotFoundException {
+        var history = new ArrayList<Clause>();
+        var current = repository.read(uuid);
+        while (current.isPresent()) {
+            history.add(current.get());
+            current = repository.readParent(current.get().uuid());
+        }
         return history;
     }
 

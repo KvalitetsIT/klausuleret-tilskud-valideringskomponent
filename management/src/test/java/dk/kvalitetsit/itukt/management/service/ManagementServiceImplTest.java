@@ -66,14 +66,14 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void create_WhenNonDraftClauseWithMatchingNameExists_CreatesDraftClauseWithParent() throws InvalidInputException {
+    void create_WhenNonDraftClauseWithMatchingNameExists_CreatesDraftClauseWithSecondaryParent() throws InvalidInputException {
         var clauseForCreation = new ClauseInput("test", Mockito.mock(BinaryExpression.class), "test error");
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
         var existingClause = mock(Clause.class);
         Mockito.when(existingClause.id()).thenReturn(1L);
         Mockito.when(dao.readCurrentNonDraftClause(clauseForCreation.name())).thenReturn(Optional.of(existingClause));
-        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, existingClause.id(), null);
+        var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, null, existingClause.id());
         var clause = mock(Clause.class);
         Mockito.when(dao.create(expectedClauseFullInput))
                 .thenReturn(clause);
@@ -157,19 +157,6 @@ class ManagementServiceImplTest {
     }
 
     @Test
-    void readHistory_invokesRepositoryOnce() throws NotFoundException {
-        String name = "blaah";
-        var clauses = List.of(
-                new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("message1", 10800), null, "tester", new Date()),
-                new Clause(2L, name, Clause.Status.INACTIVE, null, new Clause.Error("message2", 10800), null, "tester", new Date())
-        );
-        Mockito.when(dao.readHistory(name)).thenReturn(clauses);
-        var result = service.readHistory(name);
-        verify(dao, times(1)).readHistory(name);
-        assertEquals(clauses, result);
-    }
-
-    @Test
     void approve_givenNoResetSkippedValidations_whenApprove_thenUpdateClauseStatusFromDraftToActiveAndCopySkippedValidations() throws ManagementException {
         var active = Mockito.mock(Clause.class);
         var draft = Mockito.mock(Clause.class);
@@ -190,7 +177,7 @@ class ManagementServiceImplTest {
         service.approve(draft.uuid(), false);
 
         Mockito.verify(skippedValidationRepository, Mockito.times(1)).copySkippedValidation(active.id(), createdClause.id());
-        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId, draft.id(), null);
+        var expectedClauseInput = new ClauseFullInput(draft.name(), draft.expression(), draft.error().message(), Clause.Status.ACTIVE, userId, null, draft.id());
         Mockito.verify(dao, Mockito.times(1)).create(expectedClauseInput);
     }
 
@@ -239,15 +226,6 @@ class ManagementServiceImplTest {
 
         Mockito.verifyNoInteractions(skippedValidationRepository);
         Mockito.verify(dao, Mockito.times(1)).create(Mockito.any());
-    }
-
-    @Test
-    void readHistory_assertThrowsNotFoundIfEmpty() {
-        String name = "blaah";
-        Mockito.when(dao.readHistory(name)).thenReturn(List.of());
-        var e = assertThrows(NotFoundException.class, () -> service.readHistory(name));
-        verify(dao, times(1)).readHistory(name);
-        assertEquals(e.getMessage(), String.format("clause with name '%s' was not found", name));
     }
 
     @Test

@@ -41,8 +41,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<List<DslOutput>> management20250801ClausesDslNameHistoryGet(String name) {
-        return ResponseEntity.ok(service.readHistoryDsl(name));
+    public ResponseEntity<List<DslOutput>> management20250801ClausesDslIdHistoryGet(UUID uuid) {
+        return ResponseEntity.ok(service.readHistoryDsl(uuid));
     }
 
     @Override

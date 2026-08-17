@@ -54,7 +54,7 @@ class ManagementIT extends BaseTest {
                 draftClause.getName(),
                 new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
 
-        List<DslOutput> clauses = api.management20250801ClausesDslNameHistoryGet(draftClause.getName());
+        List<DslOutput> clauses = api.management20250801ClausesDslIdHistoryGet(clause3.getUuid());
 
         assertEquals(3, clauses.size());
         assertEquals(clause3, clauses.get(0));
@@ -64,15 +64,10 @@ class ManagementIT extends BaseTest {
 
 
     @Test
-    void testGetHistoryThrowsNotFoundIfClauseDoesNotExist() {
-        var e = assertThrows(
-                HttpClientErrorException.NotFound.class,
-                () -> api.management20250801ClausesDslNameHistoryGet("UNKNOWN_CLAUSE")
-        );
+    void testGetHistoryReturnsEmptyListIfClauseDoesNotExist() {
+        var history = api.management20250801ClausesDslIdHistoryGet(UUID.randomUUID());
 
-        String body = e.getResponseBodyAsString();
-
-        assertTrue(body.contains("\"detailed_error\":\"clause with name 'UNKNOWN_CLAUSE' was not found\""));
+        assertTrue(history.isEmpty(), "Expected history to be empty for a non-existent clause");
     }
 
     @Test

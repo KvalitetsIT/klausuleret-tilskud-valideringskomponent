@@ -84,9 +84,9 @@ public class ManagementServiceAdaptor {
                 .map(clauseDtoDslMapper::map);
     }
 
-    public List<DslOutput> readHistoryDsl(String name) {
+    public List<DslOutput> readHistoryDsl(UUID uuid) {
         try {
-            List<Clause> clauses = clauseService.readHistory(name);
+            List<Clause> clauses = clauseService.readHistory(uuid);
             return clauseDtoDslMapper.map(clauseDtoMapper.map(clauses));
         } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);

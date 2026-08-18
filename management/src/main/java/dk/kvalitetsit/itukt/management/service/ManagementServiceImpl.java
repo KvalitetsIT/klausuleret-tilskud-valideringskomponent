@@ -59,7 +59,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public List<Clause> readHistory(UUID uuid) throws NotFoundException {
+    public List<Clause> readHistory(UUID uuid) {
         var history = new ArrayList<Clause>();
         var current = repository.read(uuid);
         while (current.isPresent()) {
@@ -67,11 +67,6 @@ public class ManagementServiceImpl implements ManagementService {
             current = repository.readParent(current.get().uuid());
         }
         return history;
-    }
-
-    @Override
-    public List<Clause> readDraftHistory(String name) throws NotFoundException {
-        return null;
     }
 
     @Override
@@ -104,8 +99,10 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) throws InvalidInputException {
-        var clause = readCurrentNonDraft(name)
-                .filter(c -> c.status() == currentStatus)
+        var clause = readSingle(new ClauseQuery()
+                .name(name)
+                .statuses(currentStatus)
+                .withoutPrimaryChildren())
                 .orElseThrow(() -> new InvalidInputException(errorMessage));
 
         var clauseInput = new ClauseFullInput(clause.name(), clause.expression(), clause.error().message(), nextStatus, clause.createdBy(), clause.id(), null);
@@ -118,6 +115,7 @@ public class ManagementServiceImpl implements ManagementService {
      * Deletes the current draft versions of the clause matching the given uuid.
      * Draft versions are deleted up until the initial draft version.
      * I.e. the version that either has no parent clause, or a parent that is not a draft.
+     *
      * @param uuid UUID of the current draft version.
      * @throws NotFoundException If the given UUID does not match a current draft version
      */

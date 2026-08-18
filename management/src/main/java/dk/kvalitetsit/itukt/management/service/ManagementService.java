@@ -3,7 +3,6 @@ package dk.kvalitetsit.itukt.management.service;
 
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
-import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 
@@ -18,9 +17,7 @@ public interface ManagementService {
 
     List<Clause> readByStatus(Clause.Status status);
 
-    List<Clause> readHistory(UUID uuid) throws ManagementException;
-
-    List<Clause> readDraftHistory(String name) throws NotFoundException;
+    List<Clause> readHistory(UUID uuid);
 
     Clause approve(UUID clauseUuid, boolean skipValidation) throws ManagementException;
 

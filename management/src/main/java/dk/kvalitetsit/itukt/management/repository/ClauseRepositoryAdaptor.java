@@ -38,32 +38,6 @@ public class ClauseRepositoryAdaptor {
         return entityMapper.map(clauseRepository.read(query));
     }
 
-    /**
-     * Retrieves the current version of each clause. Excluding drafts.
-     */
-    public List<Clause> readCurrentNonDraftClauses() {
-        return this.entityMapper.map(clauseRepository.readCurrentNonDraftClauses());
-    }
-
-    /**
-     * Retrieves clauses with no child clauses, if such exist.
-     */
-    public List<Clause> readCurrent(String name, Clause.Status ... statuses) {
-        return entityMapper.map(clauseRepository.readCurrent(name, statuses));
-    }
-
-    /**
-     * Retrieves all draft clauses that have no child clauses.
-     */
-    public List<Clause> readCurrentDrafts() {
-        return this.entityMapper.map(clauseRepository.readCurrentDrafts());
-    }
-
-
-    public List<Clause> readHistory(String name) {
-        return this.entityMapper.map(clauseRepository.readHistory(name));
-    }
-
     public Clause deleteDraft(UUID id) throws NotFoundException {
         return this.entityMapper.map(clauseRepository.deleteDraft(id));
     }

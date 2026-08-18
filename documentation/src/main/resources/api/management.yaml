@@ -257,25 +257,6 @@ paths:
         '404':
           $ref: '#/components/responses/404'
 
-  /management/2025/08/01/clauses/drafts/{name}/history:
-    get:
-      tags:
-        - management
-      description: "Retrieves all versions of the draft clause associated with the specified clause name as dsl"
-      parameters:
-        - $ref: '#/components/parameters/name'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DslOutput'
-        '404':
-          $ref: '#/components/responses/404'
-
   /management/2025/08/01/clauses/{name}/status:
     put:
       tags:

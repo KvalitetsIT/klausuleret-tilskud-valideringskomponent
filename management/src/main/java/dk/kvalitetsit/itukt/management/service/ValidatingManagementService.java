@@ -4,7 +4,6 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.management.exceptions.ExpressionValidationException;
 import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
-import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 import dk.kvalitetsit.itukt.management.service.validator.ExpressionValidator;
@@ -39,13 +38,8 @@ public class ValidatingManagementService implements ManagementService {
     }
 
     @Override
-    public List<Clause> readHistory(UUID uuid) throws ManagementException {
+    public List<Clause> readHistory(UUID uuid) {
         return managementService.readHistory(uuid);
-    }
-
-    @Override
-    public List<Clause> readDraftHistory(String name) throws NotFoundException {
-        return managementService.readDraftHistory(name);
     }
 
     @Override

@@ -1,5 +1,6 @@
-package dk.kvalitetsit.itukt.management.boundary.mapping.dsl;
+package dk.kvalitetsit.itukt.management.featureTests;
 
+import dk.kvalitetsit.itukt.management.boundary.mapping.csv.ClauseDslToCsvMapper;
 import org.junit.jupiter.api.Test;
 import org.openapitools.model.ClauseStatus;
 import org.openapitools.model.DslOutput;
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ClauseDslToCsvMapperTest {
+class ClauseDslToCsvMapperFeatureTest {
     private final ClauseDslToCsvMapper mapper = new ClauseDslToCsvMapper();
 
     @Test

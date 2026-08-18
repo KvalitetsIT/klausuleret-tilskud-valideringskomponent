@@ -181,7 +181,7 @@
 								<useJakartaEe>true</useJakartaEe>
 								<useOptional>true</useOptional>
 								<useOneOfInterfaces>true</useOneOfInterfaces>
-								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useAbstractionForFiles>true</useAbstractionForFiles> <!-- To avoid java.io.File in the generated code for the csv endpoint, which Spring doesn't like -->
 								<library>restclient</library>
 
 							</configOptions>

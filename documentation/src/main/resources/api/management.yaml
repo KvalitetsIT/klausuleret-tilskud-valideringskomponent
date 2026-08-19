@@ -60,11 +60,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/DslOutput'
-            text/csv:
-              schema:
-                type: string
-                format: binary
-                description: CSV with one row per clause version
         '400':
           $ref: '#/components/responses/400'
 

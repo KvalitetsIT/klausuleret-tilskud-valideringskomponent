@@ -20,8 +20,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
+import org.springframework.core.io.Resource;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -107,6 +110,20 @@ class ManagementIT extends BaseTest {
                 .usingRecursiveComparison()
                 .ignoringFields("uuid", "createdTime")
                 .isEqualTo(CLAUSE_1_OUTPUT);
+    }
+
+    @Test
+    void testDslPostGetCsv() throws IOException {
+        var input = new DslInput().name("TEST").dsl("ALDER = 1").error("error");
+        api.management20250801ClausesDslPost(input);
+
+        Resource csv = api.management20250801ClausesDslCsvGet(ClauseStatus.DRAFT);
+
+        assertTrue(csv.exists());
+        String[] lines = csv.getContentAsString(Charset.defaultCharset()).split("\n");
+        assertEquals(2, lines.length);
+        assertEquals("name;status;dsl;error;createdBy;createdTime", lines[0]);
+        assertTrue(lines[1].contains("TEST;DRAFT;ALDER = 1;error;" + USER_ID));
     }
 
     @Test

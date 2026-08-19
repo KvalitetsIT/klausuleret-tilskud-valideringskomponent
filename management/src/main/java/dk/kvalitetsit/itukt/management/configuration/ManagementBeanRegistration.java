@@ -7,6 +7,7 @@ import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
+import dk.kvalitetsit.itukt.management.boundary.mapping.csv.ClauseDslToCsvMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslUpdateModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDtoDslMapper;
@@ -146,7 +147,8 @@ public class ManagementBeanRegistration {
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),
                 new ClauseInputDtoModelMapper(expressionDtoModelMapper),
                 new ManagementExceptionMapper(dslParserExceptionMapper, expressionValidationExceptionMapper),
-                new ClauseDslUpdateModelMapper(dslParser, expressionDtoModelMapper)
+                new ClauseDslUpdateModelMapper(dslParser, expressionDtoModelMapper),
+                new ClauseDslToCsvMapper()
         );
     }
 

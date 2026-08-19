@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.exceptions.ApiException;
 import dk.kvalitetsit.itukt.common.exceptions.BadRequestApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.boundary.mapping.csv.ClauseDslToCsvMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslUpdateModelMapper;
 import dk.kvalitetsit.itukt.management.exceptions.*;
@@ -53,6 +54,9 @@ public class ManagementServiceAdaptorTest {
     @Mock
     private ClauseDslUpdateModelMapper dslUpdateModelMapper;
 
+    @Mock
+    private ClauseDslToCsvMapper clauseDslToCsvMapper;
+
     @BeforeEach
     void setUp() {
         adaptor = new ManagementServiceAdaptor(
@@ -62,7 +66,8 @@ public class ManagementServiceAdaptorTest {
                 clauseDtoDslMapper,
                 clauseInputMapper,
                 managementExceptionMapper,
-                dslUpdateModelMapper
+                dslUpdateModelMapper,
+                clauseDslToCsvMapper
         );
     }
 
@@ -149,6 +154,22 @@ public class ManagementServiceAdaptorTest {
         var result = adaptor.readDslByStatus(ClauseStatus.DRAFT);
 
         assertEquals(List.of(dslOutput), result);
+    }
+
+    @Test
+    void testReadDslCsvByStatus() {
+        var clause = Mockito.mock(Clause.class);
+        var clauseOutput = Mockito.mock(ClauseOutput.class);
+        var dslOutput = Mockito.mock(DslOutput.class);
+        String csv = "test-csv";
+        Mockito.when(managementServiceImpl.readByStatus(Clause.Status.ACTIVE)).thenReturn(List.of(clause));
+        Mockito.when(clauseModelDtoMapper.map(List.of(clause))).thenReturn(List.of(clauseOutput));
+        Mockito.when(clauseDtoDslMapper.map(List.of(clauseOutput))).thenReturn(List.of(dslOutput));
+        Mockito.when(clauseDslToCsvMapper.map(List.of(dslOutput))).thenReturn(csv);
+
+        var result = adaptor.readDslCsvByStatus(ClauseStatus.ACTIVE);
+
+        assertEquals(csv, result);
     }
 
     @Test

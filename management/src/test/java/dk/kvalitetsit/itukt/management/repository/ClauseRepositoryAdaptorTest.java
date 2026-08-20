@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -81,60 +80,6 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testReadCurrentNonDraftClauses() {
-
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-
-        Mockito.when(concreteRepository.readCurrentNonDraftClauses()).thenReturn(List.of(clauseEntity));
-
-        Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
-
-        var result = adaptor.readCurrentNonDraftClauses();
-        assertEquals(List.of(clause), result);
-    }
-
-    @Test
-    void testReadCurrentNonDraftClause() {
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-        String name = "test";
-        Mockito.when(concreteRepository.readCurrentNonDraftClause(name)).thenReturn(Optional.of(clauseEntity));
-        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
-
-        var result = adaptor.readCurrentNonDraftClause(name);
-
-        assertEquals(Optional.of(clause), result);
-    }
-
-    @Test
-    void testReadCurrentDraft() {
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-        String name = "test";
-        Mockito.when(concreteRepository.readCurrentDraft(name)).thenReturn(Optional.of(clauseEntity));
-        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
-
-        var result = adaptor.readCurrentDraft(name);
-
-        assertEquals(Optional.of(clause), result);
-    }
-
-    @Test
-    void testReadCurrentDrafts() {
-
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-
-        Mockito.when(concreteRepository.readCurrentDrafts()).thenReturn(List.of(clauseEntity));
-
-        Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
-
-        var result = adaptor.readCurrentDrafts();
-        assertEquals(List.of(clause), result);
-    }
-
-    @Test
     void deleteDraft_whenSuccess_thenReturnDeletedClause() throws NotFoundException {
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var expected = Mockito.mock(Clause.class);
@@ -164,6 +109,19 @@ public class ClauseRepositoryAdaptorTest {
 
         var e = assertThrows(RuntimeException.class, () -> adaptor.deleteDraft(uuid));
         assertEquals(expectedException, e);
+    }
+
+    @Test
+    void readParent() {
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(concreteRepository.readParent(uuid)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
+        var result = adaptor.readParent(uuid);
+
+        assertEquals(Optional.of(clause), result);
     }
 }
 

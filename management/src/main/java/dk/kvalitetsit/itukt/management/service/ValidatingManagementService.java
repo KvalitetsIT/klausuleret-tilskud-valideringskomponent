@@ -38,8 +38,8 @@ public class ValidatingManagementService implements ManagementService {
     }
 
     @Override
-    public List<Clause> readHistory(String name) throws ManagementException {
-        return managementService.readHistory(name);
+    public List<Clause> readHistory(UUID uuid) {
+        return managementService.readHistory(uuid);
     }
 
     @Override

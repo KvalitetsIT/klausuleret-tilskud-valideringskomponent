@@ -17,7 +17,7 @@ public interface ManagementService {
 
     List<Clause> readByStatus(Clause.Status status);
 
-    List<Clause> readHistory(String name) throws ManagementException;
+    List<Clause> readHistory(UUID uuid);
 
     Clause approve(UUID clauseUuid, boolean skipValidation) throws ManagementException;
 

@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseQuery;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,8 +42,8 @@ public class ActiveClauseCacheImpl implements ActiveClauseCache, CacheLoader {
 
     @Override
     public void load() {
-        var activeClauses = clauseRepository.readCurrentNonDraftClauses().stream()
-                .filter(clause -> clause.status() == Clause.Status.ACTIVE).toList();
+        var query = new ClauseQuery().statuses(Clause.Status.ACTIVE).withoutPrimaryChildren();
+        var activeClauses = clauseRepository.read(query).stream().toList();
         nameToClauseMap = activeClauses.stream().collect(Collectors.toMap(ClauseEntity::name, Function.identity()));
         errorCodeToClauseMap = activeClauses.stream().collect(Collectors.toMap(ClauseEntity::errorCode, Function.identity()));
     }

@@ -41,7 +41,7 @@ class ManagementIT extends BaseTest {
     private static final SkippedValidationRepository skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
 
     @Test
-    void testGetClauseHistory() {
+    void testGetClauseHistory_ForNonDraft() {
         var expression = new AgeCondition().type("AgeCondition").operator(Operator.EQUAL).value(20);
         var draftClause = api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression));
         var clause1 = api.management20250801ClausesDraftsIdStatusPut(
@@ -54,7 +54,7 @@ class ManagementIT extends BaseTest {
                 draftClause.getName(),
                 new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
 
-        List<DslOutput> clauses = api.management20250801ClausesDslNameHistoryGet(draftClause.getName());
+        List<DslOutput> clauses = api.management20250801ClausesDslIdHistoryGet(clause3.getUuid());
 
         assertEquals(3, clauses.size());
         assertEquals(clause3, clauses.get(0));
@@ -62,17 +62,34 @@ class ManagementIT extends BaseTest {
         assertEquals(clause1, clauses.get(2));
     }
 
+    @Test
+    void testGetClauseHistory_ForDraft() {
+        var input = new DslInput().name("blaaaaah").dsl("ALDER = 1").error("error1");
+        var draft1 = api.management20250801ClausesDslPost(input);
+        var draft2 = api.management20250801ClausesDraftsNamePut(
+                input.getName(),
+                new DslUpdateInput().dsl("ALDER = 2").error("error2"));
+        var draft3 = api.management20250801ClausesDraftsNamePut(
+                input.getName(),
+                new DslUpdateInput().dsl("ALDER = 3").error("error3"));
+        var draft4 = api.management20250801ClausesDraftsNamePut(
+                input.getName(),
+                new DslUpdateInput().dsl("ALDER = 4").error("error4"));
+
+        List<DslOutput> clauses = api.management20250801ClausesDslIdHistoryGet(draft4.getUuid());
+
+        assertEquals(4, clauses.size());
+        assertEquals(draft4, clauses.get(0));
+        assertEquals(draft3, clauses.get(1));
+        assertEquals(draft2, clauses.get(2));
+        assertEquals(draft1, clauses.get(3));
+    }
 
     @Test
-    void testGetHistoryThrowsNotFoundIfClauseDoesNotExist() {
-        var e = assertThrows(
-                HttpClientErrorException.NotFound.class,
-                () -> api.management20250801ClausesDslNameHistoryGet("UNKNOWN_CLAUSE")
-        );
+    void testGetHistoryReturnsEmptyListIfClauseDoesNotExist() {
+        var history = api.management20250801ClausesDslIdHistoryGet(UUID.randomUUID());
 
-        String body = e.getResponseBodyAsString();
-
-        assertTrue(body.contains("\"detailed_error\":\"clause with name 'UNKNOWN_CLAUSE' was not found\""));
+        assertTrue(history.isEmpty(), "Expected history to be empty for a non-existent clause");
     }
 
     @Test

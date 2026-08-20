@@ -8,7 +8,8 @@ public record ClauseEntityInput(
         String errorMessage,
         Clause.Status status,
         String createdBy,
-        Long parentClauseId
+        Long primaryParentId,
+        Long secondaryParentId
 ) {
 
 }

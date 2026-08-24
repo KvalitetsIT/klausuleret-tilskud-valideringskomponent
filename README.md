@@ -2,11 +2,6 @@
 
 ![Build Status](https://github.com/KvalitetsIT/klausuleret-tilskud-valideringskomponent/workflows/CICD/badge.svg)
 
-**Komponent:** Klausuleret Tilskud – Valideringskomponent  
-**Version:** 0.0.1  
-**Dato:** 20. august 2025  
-**Udarbejdet af:** KvalitetsIT
-
 ---
 
 ## Oversigt 

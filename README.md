@@ -13,30 +13,11 @@
 - [Udvikler-vejledning](./documentation/developer_guide.md)
 - [Design og arkitektur](./documentation/design_and_architecture.md)
 - [Konfiguration](./documentation/configuration.md)
+- [Idriftsættelse](./documentation/deployment.md)
 
-## 1. Formål
+## Formål
 
 Denne README er udarbejdet i forbindelse med første leverance af komponenten *Klausuleret Tilskud –
 Valideringskomponent*.  
 Formålet er at give et klart og præcist overblik over integration, konfiguration og opstart af komponenten, således at
 udviklere og driftsteams hurtigt kan etablere og afprøve løsningen i relevante miljøer. Yderligere detaljer findes i oversigten ovenfor.
-
----
-
-## 2. Endpoints
-
-### 2.1 Komponent
-
-Tjenesten lytter efter forbindelser på port 8080.
-
-Spring Boot Actuator lytter efter forbindelser på `/actuator/health` (dette bruges som Prometheus scrape-endpoint og til
-sundhedsovervågning).
-
-### 2.2 Api specifikation
-
-En OpenAPI/Swagger-UI kan findes på nedenstående
-[adresse](http://localhost:80/openapi), hvor yderligere beskrivelser af felter, endpoints osv. kan ses:
-
-```
-http://localhost:80/openapi
-```

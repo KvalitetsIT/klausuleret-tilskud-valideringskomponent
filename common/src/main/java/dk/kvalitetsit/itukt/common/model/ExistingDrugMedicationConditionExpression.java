@@ -17,6 +17,7 @@ import static dk.kvalitetsit.itukt.common.model.ValidationError.ExistingDrugMedi
  *
  */
 public record ExistingDrugMedicationConditionExpression(ExistingDrugMedication existingDrugMedication) implements Expression.Condition {
+    public static final String WILDCARD = "*";
 
     @Override
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
@@ -38,6 +39,6 @@ public record ExistingDrugMedicationConditionExpression(ExistingDrugMedication e
     }
 
     private boolean valueMatchesCondition(String value, String condition) {
-        return condition.equalsIgnoreCase(value) || condition.equals("*");
+        return condition.equalsIgnoreCase(value) || condition.equals(WILDCARD);
     }
 }

@@ -39,6 +39,16 @@ class ExistingDrugMedicationExpressionValidatorTest {
     }
 
     @Test
+    void validate_WhenFormIsWildcard_ReturnsNoErrors() {
+        when(drugMedicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());
+        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("", ExistingDrugMedicationConditionExpression.WILDCARD, ""));
+
+        var result = validator.validate(expression);
+
+        assertEquals(List.of(), result);
+    }
+
+    @Test
     void validate_WhenFormIsUnknown_ReturnsUnknownFormCodeError() {
         var knownForms = Set.of(new DrugMedication.Form("knownFormCode"));
         when(drugMedicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());

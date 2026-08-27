@@ -18,7 +18,7 @@ public class ExistingDrugMedicationExpressionValidator implements ExpressionVali
     public List<ExpressionValidationError> validate(ExistingDrugMedicationConditionExpression expression) {
         String formCode = expression.existingDrugMedication().formCode();
         var form = drugMedicationFormService.getForm(formCode);
-        return form.isPresent() ? List.of()
+        return form.isPresent() || ExistingDrugMedicationConditionExpression.WILDCARD.equals(formCode) ? List.of()
                 : List.of(new UnknownFormCodeError(formCode, drugMedicationFormService.getForms()));
     }
 }

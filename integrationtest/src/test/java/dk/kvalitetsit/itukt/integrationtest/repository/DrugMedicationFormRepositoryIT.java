@@ -5,7 +5,6 @@ import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.FormbetegnelseRepository;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.DrugMedicationFormRepository;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -30,11 +29,6 @@ public class DrugMedicationFormRepositoryIT extends BaseTest {
 
         inThePast = Date.from(Instant.now().minusSeconds(1));
         inTheFuture = Date.from(Instant.now().plusSeconds(1000));
-    }
-
-    @BeforeEach
-    void setUp() {
-        jdbcTemplate.execute("DELETE FROM Formbetegnelse");
     }
 
     @Test

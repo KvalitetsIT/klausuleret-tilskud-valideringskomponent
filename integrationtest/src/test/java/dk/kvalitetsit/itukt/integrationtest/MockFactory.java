@@ -22,6 +22,7 @@ public class MockFactory {
             .dsl("(INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13) og ((LÆGESPECIALE = ortopædkirurg) eller (LÆGESPECIALE = tandlæge)) og AFDELINGSSPECIALE = kardiologi")
             .error("message");
     public static final String DEPARTMENT_SPECIALITY = "kardiologi";
+    public static final String FORM_CODE = "TABLET";
     private static final StringConditionEntity EXPRESSION_2_ENTITY = new StringConditionEntity(2L, Field.INDICATION, "C10BA03");
     private static final StringConditionEntity EXPRESSION_3_ENTITY = new StringConditionEntity(3L, Field.INDICATION, "C10BA02");
     private static final StringConditionEntity EXPRESSION_4_ENTITY = new StringConditionEntity(4L, Field.INDICATION, "C10BA05");

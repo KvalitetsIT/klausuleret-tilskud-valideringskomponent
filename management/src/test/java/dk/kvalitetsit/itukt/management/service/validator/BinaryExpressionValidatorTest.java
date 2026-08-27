@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.management.service.validator;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownDepartmentSpecialityError;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,8 +30,8 @@ class BinaryExpressionValidatorTest {
         var left = Mockito.mock(IndicationConditionExpression.class);
         var right = Mockito.mock(IndicationConditionExpression.class);
         var binaryExpression = new BinaryExpression(left, BinaryExpression.Operator.AND, right);
-        var leftError = Mockito.mock(UnknownDepartmentSpecialityError.class);
-        var rightError = Mockito.mock(UnknownDepartmentSpecialityError.class);
+        var leftError = Mockito.mock(UnknownValueError.class);
+        var rightError = Mockito.mock(UnknownValueError.class);
         when(expressionValidator.validate(left)).thenReturn(List.of(leftError));
         when(expressionValidator.validate(right)).thenReturn(List.of(rightError));
 

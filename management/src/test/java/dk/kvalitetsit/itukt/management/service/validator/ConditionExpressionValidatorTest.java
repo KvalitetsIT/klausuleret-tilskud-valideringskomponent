@@ -3,8 +3,7 @@ package dk.kvalitetsit.itukt.management.service.validator;
 import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.DepartmentSpecialityConditionExpression;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownDepartmentSpecialityError;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownFormCodeError;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +41,7 @@ class ConditionExpressionValidatorTest {
     @Test
     void validate_WhenExpressionIsDepartmentSpeciality_DelegatesToDepartmentSpecialityValidator() {
         var condition = Mockito.mock(DepartmentSpecialityConditionExpression.class);
-        var error = Mockito.mock(UnknownDepartmentSpecialityError.class);
+        var error = Mockito.mock(UnknownValueError.class);
         Mockito.when(departmentSpecialityExpressionValidator.validate(condition)).thenReturn(List.of(error));
 
         var result = validator.validate(condition);
@@ -53,7 +52,7 @@ class ConditionExpressionValidatorTest {
     @Test
     void validate_WhenExpressionIsExistingDrugMedication_DelegatesToExistingDrugMedicationValidator() {
         var condition = Mockito.mock(ExistingDrugMedicationConditionExpression.class);
-        var error = Mockito.mock(UnknownFormCodeError.class);
+        var error = Mockito.mock(UnknownValueError.class);
         Mockito.when(existingDrugMedicationValidator.validate(condition)).thenReturn(List.of(error));
 
         var result = validator.validate(condition);

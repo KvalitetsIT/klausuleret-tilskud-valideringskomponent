@@ -4,7 +4,8 @@ import dk.kvalitetsit.itukt.common.model.DrugMedication;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedication;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.service.DrugMedicationFormService;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownFormCodeError;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,15 +51,15 @@ class ExistingDrugMedicationExpressionValidatorTest {
 
     @Test
     void validate_WhenFormIsUnknown_ReturnsUnknownFormCodeError() {
-        var knownForms = Set.of(new DrugMedication.Form("knownFormCode"));
+        String knownFormCode = "KNOWN_FORM_CODE";
         when(drugMedicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());
-        when(drugMedicationFormService.getForms()).thenReturn(knownForms);
-        String formCode = "anotherFormCode";
+        when(drugMedicationFormService.getForms()).thenReturn(Set.of(new DrugMedication.Form(knownFormCode)));
+        String formCode = "ANOTHER_FORM_CODE";
         var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("", formCode, ""));
 
         var result = validator.validate(expression);
 
-        var expected = List.of(new UnknownFormCodeError(formCode, knownForms));
+        var expected = List.of(new UnknownValueError(Identifier.FORM_CODE, formCode, Set.of(knownFormCode)));
         assertEquals(expected, result);
     }
 }

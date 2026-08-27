@@ -112,7 +112,7 @@ class ManagementIT extends BaseTest {
                 .dsl("AFDELINGSSPECIALE = NOT_KNOWN")
                 .error("error");
         var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input));
-        assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale NOT_KNOWN"));
+        assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale 'NOT_KNOWN'"));
     }
 
     @Test
@@ -133,7 +133,7 @@ class ManagementIT extends BaseTest {
                 .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = NOT_KNOWN}")
                 .error("error");
         var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input));
-        assertTrue(e.getMessage().contains("Ukendt formkode NOT_KNOWN"));
+        assertTrue(e.getMessage().contains("Ukendt form 'NOT_KNOWN'"));
     }
 
     @Test

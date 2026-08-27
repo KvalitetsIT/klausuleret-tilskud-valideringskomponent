@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.validation;
 
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownDepartmentSpecialityError;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownFormCodeError;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -11,24 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ExpressionValidationErrorMapperTest {
 
     @Test
-    void map_WithUnknownDepartmentSpecialityError_MapsError() {
+    void map_WithUnknownValueError_MapsError() {
         var mapper = new ExpressionValidationErrorMapper();
-        var speciality = "test";
-        var error = new UnknownDepartmentSpecialityError(speciality, Set.of());
+        var value = "test";
+        var error = new UnknownValueError(Identifier.DEPARTMENT_SPECIALITY, value, Set.of("existing1", "existing2"));
 
         String errorMessage = mapper.map(error);
 
-        assertEquals("Ukendt afdelingsspeciale " + speciality, errorMessage);
-    }
-
-    @Test
-    void map_WithUnknownFormCodeError_MapsError() {
-        var mapper = new ExpressionValidationErrorMapper();
-        var formCode = "test";
-        var error = new UnknownFormCodeError(formCode, Set.of());
-
-        String errorMessage = mapper.map(error);
-
-        assertEquals("Ukendt formkode " + formCode, errorMessage);
+        assertEquals("Ukendt afdelingsspeciale 'test'. Gyldige værdier er: existing1, existing2", errorMessage);
     }
 }

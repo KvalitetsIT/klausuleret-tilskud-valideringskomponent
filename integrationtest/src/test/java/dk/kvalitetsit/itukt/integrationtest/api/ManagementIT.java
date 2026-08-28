@@ -68,13 +68,16 @@ class ManagementIT extends BaseTest {
         var draft1 = api.management20250801ClausesDslPost(input, true);
         var draft2 = api.management20250801ClausesDraftsNamePut(
                 input.getName(),
-                new DslUpdateInput().dsl("ALDER = 2").error("error2"));
+                new DslUpdateInput().dsl("ALDER = 2").error("error2"),
+                true);
         var draft3 = api.management20250801ClausesDraftsNamePut(
                 input.getName(),
-                new DslUpdateInput().dsl("ALDER = 3").error("error3"));
+                new DslUpdateInput().dsl("ALDER = 3").error("error3"),
+                true);
         var draft4 = api.management20250801ClausesDraftsNamePut(
                 input.getName(),
-                new DslUpdateInput().dsl("ALDER = 4").error("error4"));
+                new DslUpdateInput().dsl("ALDER = 4").error("error4"),
+                true);
 
         List<DslOutput> clauses = api.management20250801ClausesDslIdHistoryGet(draft4.getUuid());
 
@@ -146,7 +149,23 @@ class ManagementIT extends BaseTest {
                 .name("test")
                 .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = TEST}")
                 .error("error");
-        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input));
+        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, false));
+    }
+
+    @Test
+    void updateClause_WithUnknownDepartmentSpeciality_ThrowsExceptionOnlyWhenNotSkippingValidation() {
+        var input = new DslInput()
+                .name("test")
+                .dsl("ALDER = 5")
+                .error("error");
+        api.management20250801ClausesDslPost(input, true);
+        var updateInput = new DslUpdateInput()
+                .dsl("AFDELINGSSPECIALE = not_known")
+                .error("error");
+
+        assertThrows(HttpClientErrorException.BadRequest.class,
+                () -> api.management20250801ClausesDraftsNamePut(input.getName(), updateInput, false));
+        assertDoesNotThrow(() -> api.management20250801ClausesDraftsNamePut(input.getName(), updateInput, true));
     }
 
     @Test
@@ -183,7 +202,7 @@ class ManagementIT extends BaseTest {
         var input = new DslInput().name("test").dsl("ALDER = 1").error("error");
         api.management20250801ClausesDslPost(input, true);
         var updateInput = new DslUpdateInput().dsl("ALDER = 55").error("updated error");
-        var updateOutput = api.management20250801ClausesDraftsNamePut(input.getName(), updateInput);
+        var updateOutput = api.management20250801ClausesDraftsNamePut(input.getName(), updateInput, true);
         var drafts = api.management20250801ClausesDslGet(ClauseStatus.DRAFT);
 
         var expected = new DslOutput()
@@ -479,7 +498,7 @@ class ManagementIT extends BaseTest {
     void testDeleteClause() {
         var clauseCreated = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var updateInput = new DslUpdateInput().dsl("alder=0").error("updated error");
-        var updatedClause = api.management20250801ClausesDraftsNamePut(clauseCreated.getName(), updateInput);
+        var updatedClause = api.management20250801ClausesDraftsNamePut(clauseCreated.getName(), updateInput, true);
 
         api.management20250801ClausesIdDelete(updatedClause.getUuid());
 

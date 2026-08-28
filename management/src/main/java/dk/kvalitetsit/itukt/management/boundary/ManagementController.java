@@ -86,8 +86,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<DslOutput> management20250801ClausesDraftsNamePut(String name, DslUpdateInput dslUpdateInput) {
-        return ResponseEntity.ok(service.update(name, dslUpdateInput));
+    public ResponseEntity<DslOutput> management20250801ClausesDraftsNamePut(String name, DslUpdateInput dslUpdateInput, Optional<Boolean> skipValidation) {
+        return ResponseEntity.ok(service.update(name, dslUpdateInput, skipValidation));
     }
 
     @Override

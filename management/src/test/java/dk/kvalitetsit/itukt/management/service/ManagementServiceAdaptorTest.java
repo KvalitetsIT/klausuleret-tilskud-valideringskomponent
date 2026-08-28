@@ -314,15 +314,22 @@ public class ManagementServiceAdaptorTest {
         var clauseUpdateInput = Mockito.mock(ClauseUpdateInput.class);
         Mockito.when(dslUpdateModelMapper.map(input)).thenReturn(clauseUpdateInput);
         var updatedClause = Mockito.mock(Clause.class);
-        Mockito.when(managementService.updateDraft(name, clauseUpdateInput)).thenReturn(updatedClause);
+        Mockito.when(managementService.updateDraft(name, clauseUpdateInput, true)).thenReturn(updatedClause);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         Mockito.when(clauseModelDtoMapper.map(updatedClause)).thenReturn(clauseOutput);
         var dslOutput = Mockito.mock(DslOutput.class);
         Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
 
-        var result = adaptor.update(name, input);
+        var result = adaptor.update(name, input, Optional.of(true));
 
         assertEquals(dslOutput, result);
+    }
+
+    @Test
+    void update_WithEmptySkippedValidation_DefaultsToFalse() throws ManagementException {
+        adaptor.update("test", Mockito.mock(DslUpdateInput.class), Optional.empty());
+
+        Mockito.verify(managementService, Mockito.times(1)).updateDraft(Mockito.anyString(), Mockito.any(), Mockito.eq(false));
     }
 
     @Test
@@ -333,7 +340,7 @@ public class ManagementServiceAdaptorTest {
         var apiException = new BadRequestApiException("test");
         Mockito.when(managementExceptionMapper.map(parserException)).thenReturn(apiException);
 
-        var e = assertThrows(BadRequestApiException.class, () -> adaptor.update("test", input));
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.update("test", input, Optional.of(false)));
         assertEquals(apiException, e);
     }
 }

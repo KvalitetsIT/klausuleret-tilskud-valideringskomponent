@@ -63,10 +63,10 @@ public class ManagementServiceAdaptor {
         }
     }
 
-    public DslOutput update(String name, DslUpdateInput dslUpdateInput) {
+    public DslOutput update(String name, DslUpdateInput dslUpdateInput, Optional<Boolean> skipValidation) {
         try {
             var updateInput = dslUpdateModelMapper.map(dslUpdateInput);
-            var updatedClause = clauseService.updateDraft(name, updateInput);
+            var updatedClause = clauseService.updateDraft(name, updateInput, skipValidation.orElse(false));
             return clauseDtoDslMapper.map(clauseDtoMapper.map(updatedClause));
         } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);

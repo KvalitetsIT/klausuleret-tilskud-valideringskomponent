@@ -56,8 +56,10 @@ public class ValidatingManagementService {
         return managementService.deleteDraft(id);
     }
 
-    public Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException {
-        validate(clause.expression());
+    public Clause updateDraft(String name, ClauseUpdateInput clause, boolean skipValidation) throws ManagementException {
+        if (!skipValidation) {
+            validate(clause.expression());
+        }
         return managementService.updateDraft(name, clause);
     }
 

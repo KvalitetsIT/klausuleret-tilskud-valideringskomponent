@@ -71,19 +71,32 @@ class ValidatingManagementServiceTest {
     }
 
     @Test
-    void updateDraft_WhenExpressionContainsValidationErrors_ThrowsException() {
+    void updateDraft_WhenSkippingValidation_DoesNotValidate() throws ManagementException {
+        var input = Mockito.mock(ClauseUpdateInput.class);
+        var expectedClause = Mockito.mock(Clause.class);
+        String name = "test";
+        Mockito.when(managementService.updateDraft(name, input)).thenReturn(expectedClause);
+
+        var result = validatingManagementService.updateDraft(name, input, true);
+
+        Mockito.verifyNoInteractions(expressionValidator);
+        assertEquals(expectedClause, result);
+    }
+
+    @Test
+    void updateDraft_WithoutSkippingValidationWhenExpressionContainsValidationErrors_ThrowsException() {
         var input = Mockito.mock(ClauseUpdateInput.class);
         Mockito.when(input.expression()).thenReturn(Mockito.mock(AgeConditionExpression.class));
         List<ExpressionValidationError> errors = List.of(Mockito.mock(UnknownValueError.class));
         Mockito.when(expressionValidator.validate(input.expression())).thenReturn(errors);
 
-        var e = assertThrows(ExpressionValidationException.class, () -> validatingManagementService.updateDraft("", input));
+        var e = assertThrows(ExpressionValidationException.class, () -> validatingManagementService.updateDraft("", input, false));
 
         assertEquals(errors, e.getValidationErrors());
     }
 
     @Test
-    void updateDraft_WhenExpressionContainsNoErrors_DelegatesToManagementService() throws ManagementException {
+    void updateDraft_WithoutSkippingValidationWhenExpressionContainsNoErrors_DelegatesToManagementService() throws ManagementException {
         var input = Mockito.mock(ClauseUpdateInput.class);
         Mockito.when(input.expression()).thenReturn(Mockito.mock(AgeConditionExpression.class));
         Mockito.when(expressionValidator.validate(input.expression())).thenReturn(List.of());
@@ -91,7 +104,7 @@ class ValidatingManagementServiceTest {
         String name = "test";
         Mockito.when(managementService.updateDraft(name, input)).thenReturn(expectedClause);
 
-        var result = validatingManagementService.updateDraft(name, input);
+        var result = validatingManagementService.updateDraft(name, input, false);
 
         assertEquals(expectedClause, result);
     }

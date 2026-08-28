@@ -1,9 +1,9 @@
 package dk.kvalitetsit.itukt.management.service.validator;
 
-import dk.kvalitetsit.itukt.common.model.DrugMedication;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedication;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
-import dk.kvalitetsit.itukt.common.service.DrugMedicationFormService;
+import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.service.MedicationFormService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import org.junit.jupiter.api.Test;
@@ -23,15 +23,15 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ExistingDrugMedicationExpressionValidatorTest {
     @Mock
-    private DrugMedicationFormService drugMedicationFormService;
+    private MedicationFormService medicationFormService;
 
     @InjectMocks
     private ExistingDrugMedicationExpressionValidator validator;
 
     @Test
     void validate_WhenFormIsKnown_ReturnsNoErrors() {
-        var form = new DrugMedication.Form("knownFormCode");
-        when(drugMedicationFormService.getForm(form.code())).thenReturn(Optional.of(form));
+        var form = new Medication.Form("knownFormCode");
+        when(medicationFormService.getForm(form.code())).thenReturn(Optional.of(form));
         var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("", form.code(), ""));
 
         var result = validator.validate(expression);
@@ -41,7 +41,7 @@ class ExistingDrugMedicationExpressionValidatorTest {
 
     @Test
     void validate_WhenFormIsWildcard_ReturnsNoErrors() {
-        when(drugMedicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());
+        when(medicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());
         var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("", ExistingDrugMedicationConditionExpression.WILDCARD, ""));
 
         var result = validator.validate(expression);
@@ -52,8 +52,8 @@ class ExistingDrugMedicationExpressionValidatorTest {
     @Test
     void validate_WhenFormIsUnknown_ReturnsUnknownFormCodeError() {
         String knownFormCode = "KNOWN_FORM_CODE";
-        when(drugMedicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());
-        when(drugMedicationFormService.getForms()).thenReturn(Set.of(new DrugMedication.Form(knownFormCode)));
+        when(medicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());
+        when(medicationFormService.getForms()).thenReturn(Set.of(new Medication.Form(knownFormCode)));
         String formCode = "ANOTHER_FORM_CODE";
         var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("", formCode, ""));
 

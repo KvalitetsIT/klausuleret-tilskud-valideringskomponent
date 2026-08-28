@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.common.model.DrugMedication;
+import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,15 +17,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-class DrugMedicationFormCacheTest {
+class MedicationFormCacheTest {
     @Mock
     private CacheConfiguration configuration;
 
     @Mock
-    private Repository<DrugMedication.Form> repository;
+    private Repository<Medication.Form> repository;
 
     @InjectMocks
-    private DrugMedicationFormCache formCache;
+    private MedicationFormCache formCache;
 
     @Test
     void getForms_BeforeLoad_ReturnsEmptySet() {
@@ -34,9 +34,9 @@ class DrugMedicationFormCacheTest {
 
     @Test
     void getForms_AfterLoad_ReturnsDistinctForms() {
-        var form1 = new DrugMedication.Form("formA");
-        var form2 = new DrugMedication.Form("formB");
-        var form3 = new DrugMedication.Form("FoRmB");
+        var form1 = new Medication.Form("formA");
+        var form2 = new Medication.Form("formB");
+        var form3 = new Medication.Form("FoRmB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2, form3));
 
@@ -49,8 +49,8 @@ class DrugMedicationFormCacheTest {
 
     @Test
     void getForm_NotMatchingFormFromLoad_ReturnsEmpty() {
-        var form1 = new DrugMedication.Form("formA");
-        var form2 = new DrugMedication.Form("formB");
+        var form1 = new Medication.Form("formA");
+        var form2 = new Medication.Form("formB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2));
 
@@ -62,8 +62,8 @@ class DrugMedicationFormCacheTest {
 
     @Test
     void getForm_MatchingFormFromLoad_ReturnsForm() {
-        var form1 = new DrugMedication.Form("formA");
-        var form2 = new DrugMedication.Form("formB");
+        var form1 = new Medication.Form("formA");
+        var form2 = new Medication.Form("formB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2));
 

@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
-import dk.kvalitetsit.itukt.common.model.DrugMedication;
+import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
@@ -533,7 +533,7 @@ class ManagementIT extends BaseTest {
 
     private static void setupStamdataWithFormCode(String formCode) {
         var formbetegnelseRepository = new FormbetegnelseRepository(stamDatabase.getDatasource());
-        DrugMedication.Form form = new DrugMedication.Form(formCode);
+        Medication.Form form = new Medication.Form(formCode);
         formbetegnelseRepository.insert(form, IN_THE_PAST, IN_THE_FUTURE);
     }
 

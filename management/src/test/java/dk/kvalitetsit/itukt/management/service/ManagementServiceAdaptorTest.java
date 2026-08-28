@@ -34,7 +34,7 @@ public class ManagementServiceAdaptorTest {
     private ManagementServiceAdaptor adaptor;
 
     @Mock
-    private ManagementService managementServiceImpl;
+    private ValidatingManagementService managementService;
 
     @Mock
     private Mapper<Clause, org.openapitools.model.ClauseOutput> clauseModelDtoMapper;
@@ -60,7 +60,7 @@ public class ManagementServiceAdaptorTest {
     @BeforeEach
     void setUp() {
         adaptor = new ManagementServiceAdaptor(
-                managementServiceImpl,
+                managementService,
                 clauseModelDtoMapper,
                 clauseDslDtoMapper,
                 clauseDtoDslMapper,
@@ -72,18 +72,25 @@ public class ManagementServiceAdaptorTest {
     }
 
     @Test
-    void testCreate() throws ManagementException {
+    void testCreate_CreatesClause() throws ManagementException {
         var clauseInput = new org.openapitools.model.ClauseInput("testName", Mockito.mock(BinaryExpression.class), "Message");
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         var clauseForCreation = Mockito.mock(ClauseInput.class);
         Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForCreation);
-        Mockito.when(managementServiceImpl.create(clauseForCreation)).thenReturn(clause);
+        Mockito.when(managementService.create(clauseForCreation, true)).thenReturn(clause);
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
 
-        var result = adaptor.create(clauseInput);
+        var result = adaptor.create(clauseInput, Optional.of(true));
 
         assertEquals(clauseOutput, result);
+    }
+
+    @Test
+    void testCreate_WithEmptySkippedValidation_DefaultsToFalse() throws ManagementException {
+        adaptor.create(Mockito.mock(org.openapitools.model.ClauseInput.class), Optional.empty());
+
+        Mockito.verify(managementService, Mockito.times(1)).create(Mockito.any(), Mockito.eq(false));
     }
 
     @Test
@@ -97,12 +104,19 @@ public class ManagementServiceAdaptorTest {
 
         Mockito.when(clauseInputMapper.map(clauseInput)).thenReturn(clauseForCreation);
         Mockito.when(clauseDslDtoMapper.map(dslInput)).thenReturn(clauseInput);
-        Mockito.when(managementServiceImpl.create(clauseForCreation)).thenReturn(clause);
+        Mockito.when(managementService.create(clauseForCreation, true)).thenReturn(clause);
         Mockito.when(clauseDtoDslMapper.map(clauseDto)).thenReturn(dslOutput);
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseDto);
-        var result = adaptor.createDSL(dslInput);
+        var result = adaptor.createDSL(dslInput, Optional.of(true));
 
         assertEquals(dslOutput, result);
+    }
+
+    @Test
+    void testCreateDsl_WithEmptySkippedValidation_DefaultsToFalse() throws ManagementException {
+        adaptor.createDSL(Mockito.mock(DslInput.class), Optional.empty());
+
+        Mockito.verify(managementService, Mockito.times(1)).create(Mockito.any(), Mockito.eq(false));
     }
 
     @Test
@@ -113,7 +127,7 @@ public class ManagementServiceAdaptorTest {
         var apiException = new BadRequestApiException("test");
         Mockito.when(managementExceptionMapper.map(parserException)).thenReturn(apiException);
 
-        var e = assertThrows(BadRequestApiException.class, () -> adaptor.createDSL(dslInput));
+        var e = assertThrows(BadRequestApiException.class, () -> adaptor.createDSL(dslInput, Optional.empty()));
         assertEquals(apiException, e);
     }
 
@@ -122,7 +136,7 @@ public class ManagementServiceAdaptorTest {
         var uuid = UUID.randomUUID();
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
-        Mockito.when(managementServiceImpl.read(uuid)).thenReturn(Optional.of(clause));
+        Mockito.when(managementService.read(uuid)).thenReturn(Optional.of(clause));
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
 
         var result = adaptor.read(uuid);
@@ -134,7 +148,7 @@ public class ManagementServiceAdaptorTest {
     void testReadByStatus() {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
-        Mockito.when(managementServiceImpl.readByStatus(Clause.Status.ACTIVE)).thenReturn(List.of(clause));
+        Mockito.when(managementService.readByStatus(Clause.Status.ACTIVE)).thenReturn(List.of(clause));
         Mockito.when(clauseModelDtoMapper.map(List.of(clause))).thenReturn(List.of(clauseOutput));
 
         var result = adaptor.readByStatus(ClauseStatus.ACTIVE);
@@ -147,7 +161,7 @@ public class ManagementServiceAdaptorTest {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         var dslOutput = Mockito.mock(DslOutput.class);
-        Mockito.when(managementServiceImpl.readByStatus(Clause.Status.DRAFT)).thenReturn(List.of(clause));
+        Mockito.when(managementService.readByStatus(Clause.Status.DRAFT)).thenReturn(List.of(clause));
         Mockito.when(clauseModelDtoMapper.map(List.of(clause))).thenReturn(List.of(clauseOutput));
         Mockito.when(clauseDtoDslMapper.map(List.of(clauseOutput))).thenReturn(List.of(dslOutput));
 
@@ -162,7 +176,7 @@ public class ManagementServiceAdaptorTest {
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         var dslOutput = Mockito.mock(DslOutput.class);
         String csv = "test-csv";
-        Mockito.when(managementServiceImpl.readByStatus(Clause.Status.ACTIVE)).thenReturn(List.of(clause));
+        Mockito.when(managementService.readByStatus(Clause.Status.ACTIVE)).thenReturn(List.of(clause));
         Mockito.when(clauseModelDtoMapper.map(List.of(clause))).thenReturn(List.of(clauseOutput));
         Mockito.when(clauseDtoDslMapper.map(List.of(clauseOutput))).thenReturn(List.of(dslOutput));
         Mockito.when(clauseDslToCsvMapper.map(List.of(dslOutput))).thenReturn(csv);
@@ -176,13 +190,13 @@ public class ManagementServiceAdaptorTest {
     void approveClause_WithUuid_ApprovesClause() throws ManagementException {
         var uuid = UUID.randomUUID();
         adaptor.approveClause(uuid, false);
-        Mockito.verify(managementServiceImpl, Mockito.times(1)).approve(uuid, false);
+        Mockito.verify(managementService, Mockito.times(1)).approve(uuid, false);
     }
 
     @Test
     void approveClause_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
         var notFoundException = new NotFoundException("Clause not found");
-        Mockito.when(managementServiceImpl.approve(Mockito.any(), Mockito.anyBoolean()))
+        Mockito.when(managementService.approve(Mockito.any(), Mockito.anyBoolean()))
                 .thenThrow(notFoundException);
         var apiException = new BadRequestApiException("test");
         Mockito.when(managementExceptionMapper.map(notFoundException)).thenReturn(apiException);
@@ -197,7 +211,7 @@ public class ManagementServiceAdaptorTest {
         var inactiveClause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         var dslOutput = Mockito.mock(DslOutput.class);
-        Mockito.when(managementServiceImpl.inactivate(name)).thenReturn(inactiveClause);
+        Mockito.when(managementService.inactivate(name)).thenReturn(inactiveClause);
         Mockito.when(clauseModelDtoMapper.map(inactiveClause)).thenReturn(clauseOutput);
         Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
 
@@ -209,7 +223,7 @@ public class ManagementServiceAdaptorTest {
     @Test
     void inactivateClause_WhenInvalidInputExceptionIsThrown_MapsToApiException() throws ManagementException {
         var invalidInputException = new InvalidInputException("Invalid input");
-        Mockito.when(managementServiceImpl.inactivate(Mockito.any())).thenThrow(invalidInputException);
+        Mockito.when(managementService.inactivate(Mockito.any())).thenThrow(invalidInputException);
         var apiException = new BadRequestApiException("test");
         Mockito.when(managementExceptionMapper.map(invalidInputException)).thenReturn(apiException);
 
@@ -223,7 +237,7 @@ public class ManagementServiceAdaptorTest {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         var dslOutput = Mockito.mock(DslOutput.class);
-        Mockito.when(managementServiceImpl.activate(name)).thenReturn(clause);
+        Mockito.when(managementService.activate(name)).thenReturn(clause);
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
         Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
 
@@ -235,7 +249,7 @@ public class ManagementServiceAdaptorTest {
     @Test
     void activateClause_WhenInvalidInputExceptionIsThrown_MapsToApiException() throws ManagementException {
         var invalidInputException = new InvalidInputException("Invalid input");
-        Mockito.when(managementServiceImpl.activate(Mockito.any())).thenThrow(invalidInputException);
+        Mockito.when(managementService.activate(Mockito.any())).thenThrow(invalidInputException);
         var apiException = new BadRequestApiException("test");
         Mockito.when(managementExceptionMapper.map(invalidInputException)).thenReturn(apiException);
 
@@ -248,17 +262,17 @@ public class ManagementServiceAdaptorTest {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         UUID uuid = UUID.randomUUID();
-        Mockito.when(managementServiceImpl.deleteDraft(uuid)).thenReturn(clause);
+        Mockito.when(managementService.deleteDraft(uuid)).thenReturn(clause);
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
         var response = adaptor.deleteDraft(uuid);
-        Mockito.verify(managementServiceImpl, Mockito.times(1)).deleteDraft(uuid);
+        Mockito.verify(managementService, Mockito.times(1)).deleteDraft(uuid);
         assertEquals(clauseOutput, response);
     }
 
     @Test
     void deleteDraft_WhenNotFoundExceptionIsThrown_MapsToApiException() throws ManagementException {
         var notFoundException = new NotFoundException("Clause not found");
-        Mockito.when(managementServiceImpl.deleteDraft(Mockito.any()))
+        Mockito.when(managementService.deleteDraft(Mockito.any()))
                 .thenThrow(notFoundException);
         var apiException = new BadRequestApiException("test");
         Mockito.when(managementExceptionMapper.map(notFoundException)).thenReturn(apiException);
@@ -271,7 +285,7 @@ public class ManagementServiceAdaptorTest {
     void getNumberOfDrugsForClause_ReturnsDrugCountFromService() {
         String clauseName = "testClause";
         long expectedDrugCount = 5L;
-        Mockito.when(managementServiceImpl.getNumberOfDrugsForClause(clauseName)).thenReturn(expectedDrugCount);
+        Mockito.when(managementService.getNumberOfDrugsForClause(clauseName)).thenReturn(expectedDrugCount);
 
         var result = adaptor.getNumberOfDrugsForClause(clauseName);
 
@@ -282,7 +296,7 @@ public class ManagementServiceAdaptorTest {
     void readHistoryDsl_ReturnsMappedHistory() {
         UUID uuid = UUID.randomUUID();
         var clauses = List.of(Mockito.mock(Clause.class));
-        Mockito.when(managementServiceImpl.readHistory(uuid)).thenReturn(clauses);
+        Mockito.when(managementService.readHistory(uuid)).thenReturn(clauses);
         var clausesOutput = List.of(Mockito.mock(ClauseOutput.class));
         Mockito.when(clauseModelDtoMapper.map(clauses)).thenReturn(clausesOutput);
         var dslOutput = List.of(Mockito.mock(DslOutput.class));
@@ -300,7 +314,7 @@ public class ManagementServiceAdaptorTest {
         var clauseUpdateInput = Mockito.mock(ClauseUpdateInput.class);
         Mockito.when(dslUpdateModelMapper.map(input)).thenReturn(clauseUpdateInput);
         var updatedClause = Mockito.mock(Clause.class);
-        Mockito.when(managementServiceImpl.updateDraft(name, clauseUpdateInput)).thenReturn(updatedClause);
+        Mockito.when(managementService.updateDraft(name, clauseUpdateInput)).thenReturn(updatedClause);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         Mockito.when(clauseModelDtoMapper.map(updatedClause)).thenReturn(clauseOutput);
         var dslOutput = Mockito.mock(DslOutput.class);

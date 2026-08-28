@@ -43,7 +43,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testGetClauseHistory_ForNonDraft() {
         var expression = new AgeCondition().type("AgeCondition").operator(Operator.EQUAL).value(20);
-        var draftClause = api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression));
+        var draftClause = api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression), true);
         var clause1 = api.management20250801ClausesDraftsIdStatusPut(
                 draftClause.getUuid(),
                 new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
@@ -65,7 +65,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testGetClauseHistory_ForDraft() {
         var input = new DslInput().name("blaaaaah").dsl("ALDER = 1").error("error1");
-        var draft1 = api.management20250801ClausesDslPost(input);
+        var draft1 = api.management20250801ClausesDslPost(input, true);
         var draft2 = api.management20250801ClausesDraftsNamePut(
                 input.getName(),
                 new DslUpdateInput().dsl("ALDER = 2").error("error2"));
@@ -94,7 +94,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testPostAndGetClauseDsl() {
-        api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT);
+        api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT, true);
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
@@ -106,7 +106,7 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void postClause_WithUnknownDepartmentSpeciality_ThrowsException() {
+    void postClause_WithUnknownDepartmentSpeciality_ThrowsExceptionOnlyWhenNotSkippingValidation() {
         var input = new DslInput()
                 .name("test")
                 .dsl("AFDELINGSSPECIALE = NOT_KNOWN")
@@ -132,8 +132,10 @@ class ManagementIT extends BaseTest {
                 .name("test")
                 .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = NOT_KNOWN}")
                 .error("error");
-        var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input));
+
+        var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input, false));
         assertTrue(e.getMessage().contains("Ukendt form 'NOT_KNOWN'"));
+        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, true));
     }
 
     @Test
@@ -149,7 +151,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testPostAndGetClause() {
-        api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
@@ -165,7 +167,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testDslPostGetCsv() throws IOException {
         var input = new DslInput().name("TEST").dsl("ALDER = 1").error("error");
-        api.management20250801ClausesDslPost(input);
+        api.management20250801ClausesDslPost(input, true);
 
         Resource csv = api.management20250801ClausesDslCsvGet(ClauseStatus.DRAFT);
 
@@ -179,7 +181,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testDslPostPutAndGet() {
         var input = new DslInput().name("test").dsl("ALDER = 1").error("error");
-        api.management20250801ClausesDslPost(input);
+        api.management20250801ClausesDslPost(input, true);
         var updateInput = new DslUpdateInput().dsl("ALDER = 55").error("updated error");
         var updateOutput = api.management20250801ClausesDraftsNamePut(input.getName(), updateInput);
         var drafts = api.management20250801ClausesDslGet(ClauseStatus.DRAFT);
@@ -203,9 +205,9 @@ class ManagementIT extends BaseTest {
         var postInput1 = CLAUSE_1_INPUT;
         var postInput2 = postInput1.error("updated error");
 
-        var clause = api.management20250801ClausesPost(postInput1);
+        var clause = api.management20250801ClausesPost(postInput1, true);
         api.management20250801ClausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
-        var updatedClause = api.management20250801ClausesPost(postInput2);
+        var updatedClause = api.management20250801ClausesPost(postInput2, true);
         api.management20250801ClausesDraftsIdStatusPut(updatedClause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
         var drafts = api.management20250801ClausesGet(ClauseStatus.DRAFT);
         var activeClauses = api.management20250801ClausesGet(ClauseStatus.ACTIVE);
@@ -220,7 +222,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testInactivateAndActivate() {
-        var clause = api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT);
+        var clause = api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT, true);
         api.management20250801ClausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
         var inactiveClause = api.management20250801ClausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
         var inactiveClauses = api.management20250801ClausesDslGet(ClauseStatus.INACTIVE);
@@ -254,7 +256,7 @@ class ManagementIT extends BaseTest {
                 .expression(expression)
                 .error("message");
 
-        api.management20250801ClausesPost(clauseInput);
+        api.management20250801ClausesPost(clauseInput, true);
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size(), "Expected the same number of clauses as were created");
@@ -340,7 +342,7 @@ class ManagementIT extends BaseTest {
                         ))
                 .error(error);
 
-        ClauseOutput createClauseResponse = api.management20250801ClausesPost(clauseInput);
+        ClauseOutput createClauseResponse = api.management20250801ClausesPost(clauseInput, true);
 
         DslOutput dslOutput = new DslOutput()
                 .name("CLAUSE")
@@ -363,7 +365,7 @@ class ManagementIT extends BaseTest {
         String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = LÆGE eller LÆGESPECIALE i [KÆBEKIRURG, ORTOPÆDKIRURG] og ALDER >= 18))";
         DslInput dslInput = new DslInput().name("CLAUSE").dsl(dsl).error(error);
 
-        var createDslResponse = api.management20250801ClausesDslPost(dslInput);
+        var createDslResponse = api.management20250801ClausesDslPost(dslInput, true);
 
         DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createDslResponse.getUuid());
         assertEquals(dslOutput.getDsl(), createDslResponse.getDsl(), "Expected the input dsl to match the dsl in the response");
@@ -443,7 +445,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testApproveAndResetSkippedValidationOfExistingClause() {
-        var clauseCreated1 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        var clauseCreated1 = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var draftRead1 = clauseRepository.read(clauseCreated1.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead1.status());
         UUID approvedUuid1 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated1.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false)).getUuid();
@@ -453,7 +455,7 @@ class ManagementIT extends BaseTest {
         skippedValidationRepository.create(List.of(skippedValidation1));
         Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation1));
 
-        var clauseCreated2 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        var clauseCreated2 = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var draftRead2 = clauseRepository.read(clauseCreated2.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead2.status());
         UUID approvedUuid2 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated2.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false)).getUuid();
@@ -462,7 +464,7 @@ class ManagementIT extends BaseTest {
         SkippedValidationEntity skippedValidation2 = new SkippedValidationEntity(activeClause2.id(), skippedValidation1.actorId(), skippedValidation1.personId());
         Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation2), "The entry is expected to exist since the 'resetSKippedValidations' flag was set to false and therefore the entries are supposed to be copied from the original clause");
 
-        var clauseCreated3 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        var clauseCreated3 = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var draftRead3 = clauseRepository.read(clauseCreated3.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead3.status());
         UUID approvedUuid3 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated3.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(true)).getUuid();
@@ -474,8 +476,8 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void testDeleteClause(){
-        var clauseCreated = api.management20250801ClausesPost(CLAUSE_1_INPUT);
+    void testDeleteClause() {
+        var clauseCreated = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var updateInput = new DslUpdateInput().dsl("alder=0").error("updated error");
         var updatedClause = api.management20250801ClausesDraftsNamePut(clauseCreated.getName(), updateInput);
 

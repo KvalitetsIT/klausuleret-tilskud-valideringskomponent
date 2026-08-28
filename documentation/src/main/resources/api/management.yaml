@@ -29,6 +29,8 @@ paths:
     post:
       tags:
         - management
+      parameters:
+        - $ref: '#/components/parameters/skipValidation'
       requestBody:
         description: "A clause in Domain-Specific Language (DSL) format"
         required: true
@@ -124,6 +126,8 @@ paths:
     post:
       tags:
         - management
+      parameters:
+        - $ref: '#/components/parameters/skipValidation'
       requestBody:
         description: "A list of expressions"
         required: true
@@ -350,6 +354,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/ClauseStatus'
+    skipValidation:
+      name: skipValidation
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
 
   schemas:
     detailedError:

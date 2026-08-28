@@ -12,6 +12,8 @@ import org.openapitools.model.Operator;
 import java.util.Map;
 import java.util.Set;
 
+import static dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression.WILDCARD;
+
 public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder {
     private static final Set<String> IDENTIFIERS = Set.of(
             Identifier.ATC_CODE.toString(),
@@ -35,9 +37,9 @@ public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder 
         }
 
         return new ExistingDrugMedicationCondition(
-                values.getOrDefault(Identifier.ATC_CODE.toString(), "*"),
-                values.getOrDefault(Identifier.FORM_CODE.toString(), "*"),
-                values.getOrDefault(Identifier.ROUTE.toString(), "*"),
+                values.getOrDefault(Identifier.ATC_CODE.toString(), WILDCARD),
+                values.getOrDefault(Identifier.FORM_CODE.toString(), WILDCARD),
+                values.getOrDefault(Identifier.ROUTE.toString(), WILDCARD),
                 ExpressionType.EXISTING_DRUG_MEDICATION
         );
     }

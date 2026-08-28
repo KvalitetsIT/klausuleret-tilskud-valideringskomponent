@@ -1,13 +1,11 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
+import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.KlausuleringRepository;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.LaegemiddelRepository;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.PakningRepository;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.SorEntityRepository;
+import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.*;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.entity.Pakning;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
@@ -39,6 +37,8 @@ class ManagementIT extends BaseTest {
 
     private static final ClauseRepository clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
     private static final SkippedValidationRepository skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
+    private static final Date IN_THE_PAST = Date.from(Instant.now().minusSeconds(1));
+    private static final Date IN_THE_FUTURE = Date.from(Instant.now().plusSeconds(1000));
 
     @Test
     void testGetClauseHistory_ForNonDraft() {
@@ -109,9 +109,42 @@ class ManagementIT extends BaseTest {
     void postClause_WithUnknownDepartmentSpeciality_ThrowsException() {
         var input = new DslInput()
                 .name("test")
-                .dsl("AFDELINGSSPECIALE = not_known")
+                .dsl("AFDELINGSSPECIALE = NOT_KNOWN")
                 .error("error");
-        assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input));
+        var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input));
+        assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale 'NOT_KNOWN'"));
+    }
+
+    @Test
+    void postClause_WithKnownDepartmentSpeciality_Succeeds() {
+        setupStamdataWithDepartmentSpeciality("TEST");
+        restartService();
+        var input = new DslInput()
+                .name("test")
+                .dsl("AFDELINGSSPECIALE = TEST")
+                .error("error");
+        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input));
+    }
+
+    @Test
+    void postClause_WithUnknownFormCode_ThrowsException() {
+        var input = new DslInput()
+                .name("test")
+                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = NOT_KNOWN}")
+                .error("error");
+        var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input));
+        assertTrue(e.getMessage().contains("Ukendt form 'NOT_KNOWN'"));
+    }
+
+    @Test
+    void postClause_WithKnownFormCode_Succeeds() {
+        setupStamdataWithFormCode("TEST");
+        restartService();
+        var input = new DslInput()
+                .name("test")
+                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = TEST}")
+                .error("error");
+        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input));
     }
 
     @Test
@@ -214,8 +247,8 @@ class ManagementIT extends BaseTest {
     @Test
     void testPostAndGetClauseWithExistingDrugMedicationConditions() {
         var expression = MockFactory.createBinaryAndExpression(
-                MockFactory.createExistingDrugMedicationCondition("atc1", "form1", "adm1"),
-                MockFactory.createExistingDrugMedicationCondition("atc2", "form2", "adm2"));
+                MockFactory.createExistingDrugMedicationCondition("atc1", "*", "adm1"),
+                MockFactory.createExistingDrugMedicationCondition("atc2", "*", "adm2"));
         var clauseInput = new ClauseInput()
                 .name("test")
                 .expression(expression)
@@ -238,7 +271,7 @@ class ManagementIT extends BaseTest {
 
         var error = "blaah";
 
-        String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = læge eller LÆGESPECIALE i [kæbekirurg, ortopædkirurg] og ALDER >= 18))";
+        String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = læge eller LÆGESPECIALE i [kæbekirurg, ortopædkirurg] og ALDER >= 18))";
 
         ClauseInput clauseInput = new ClauseInput().name("CLAUSE").expression(new BinaryExpression()
                         .type(ExpressionType.BINARY)
@@ -266,7 +299,7 @@ class ManagementIT extends BaseTest {
                                         .type(ExpressionType.BINARY)
                                         .left(new ExistingDrugMedicationCondition()
                                                 .type(ExpressionType.EXISTING_DRUG_MEDICATION)
-                                                .formCode("TABLET")
+                                                .formCode("*")
                                                 .routeOfAdministrationCode("*")
                                                 .atcCode("*")
                                         )
@@ -327,7 +360,7 @@ class ManagementIT extends BaseTest {
     void management20250801ClausesDslPost_whenPostingAValidDSLThenRetrieveACorrectlyInterpretedClause() {
         var error = "blaah";
 
-        String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = LÆGE eller LÆGESPECIALE i [KÆBEKIRURG, ORTOPÆDKIRURG] og ALDER >= 18))";
+        String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = LÆGE eller LÆGESPECIALE i [KÆBEKIRURG, ORTOPÆDKIRURG] og ALDER >= 18))";
         DslInput dslInput = new DslInput().name("CLAUSE").dsl(dsl).error(error);
 
         var createDslResponse = api.management20250801ClausesDslPost(dslInput);
@@ -363,7 +396,7 @@ class ManagementIT extends BaseTest {
                                         .type(ExpressionType.BINARY)
                                         .left(new ExistingDrugMedicationCondition()
                                                 .type(ExpressionType.EXISTING_DRUG_MEDICATION)
-                                                .formCode("TABLET")
+                                                .formCode("*")
                                                 .routeOfAdministrationCode("*")
                                                 .atcCode("*")
                                         )
@@ -482,19 +515,26 @@ class ManagementIT extends BaseTest {
         var laegemiddelRepository = new LaegemiddelRepository(stamdataDatasource);
         var pakningRepository = new PakningRepository(stamdataDatasource);
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
-        var sorEntityRepository = new SorEntityRepository(stamdataDatasource);
 
-        var inThePast = Date.from(Instant.now().minusSeconds(1));
-        var inTheFuture = Date.from(Instant.now().plusSeconds(1000));
         var laegemiddel = new DrugClauseView.Laegemiddel(1L);
         var pakning = new Pakning(laegemiddel.DrugId(), clauseName, 1L);
         var klausulering = new DrugClauseView.Klausulering(clauseName, "test");
-        var department = new DepartmentEntity("1", "2", DEPARTMENT_SPECIALITY, "", "", "", "", "", "", "");
-        laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
-        pakningRepository.insert(pakning, inThePast, inTheFuture);
-        klausuleringRepository.insert(klausulering, inThePast, inTheFuture);
-        sorEntityRepository.insert(department, inThePast, inTheFuture, inThePast, inTheFuture);
+        laegemiddelRepository.insert(laegemiddel, IN_THE_PAST, IN_THE_FUTURE);
+        pakningRepository.insert(pakning, IN_THE_PAST, IN_THE_FUTURE);
+        klausuleringRepository.insert(klausulering, IN_THE_PAST, IN_THE_FUTURE);
         return clauseName;
+    }
+
+    private static void setupStamdataWithDepartmentSpeciality(String speciality) {
+        var sorEntityRepository = new SorEntityRepository(stamDatabase.getDatasource());
+        var department = new DepartmentEntity("1", "2", speciality, "", "", "", "", "", "", "");
+        sorEntityRepository.insert(department, IN_THE_PAST, IN_THE_FUTURE, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithFormCode(String formCode) {
+        var formbetegnelseRepository = new FormbetegnelseRepository(stamDatabase.getDatasource());
+        Medication.Form form = new Medication.Form(formCode);
+        formbetegnelseRepository.insert(form, IN_THE_PAST, IN_THE_FUTURE);
     }
 
 }

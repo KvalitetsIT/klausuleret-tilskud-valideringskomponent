@@ -3,7 +3,8 @@ package dk.kvalitetsit.itukt.management.service.validator;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.DepartmentSpecialityConditionExpression;
 import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownDepartmentSpecialityError;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,13 +40,13 @@ class DepartmentSpecialityExpressionValidatorTest {
 
     @Test
     void validate_WhenSpecialityIsUnknown_ReturnsUnknownDepartmentSpecialityError() {
-        var knownSpecialities = Set.of(new Department.Speciality("A"));
+        String knownSpeciality = "A";
         when(departmentSpecialityService.getSpeciality(Mockito.any())).thenReturn(Optional.empty());
-        when(departmentSpecialityService.getSpecialities()).thenReturn(knownSpecialities);
+        when(departmentSpecialityService.getSpecialities()).thenReturn(Set.of(new Department.Speciality(knownSpeciality)));
 
         var result = validator.validate(new DepartmentSpecialityConditionExpression("B"));
 
-        var expected = List.of(new UnknownDepartmentSpecialityError("B", knownSpecialities));
+        var expected = List.of(new UnknownValueError(Identifier.DEPARTMENT_SPECIALITY, "B", Set.of(knownSpeciality)));
         assertEquals(expected, result);
     }
 }

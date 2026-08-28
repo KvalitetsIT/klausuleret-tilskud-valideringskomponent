@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.exceptions;
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.management.exceptions.ExpressionValidationException;
 import dk.kvalitetsit.itukt.management.service.model.validation.ExpressionValidationError;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownDepartmentSpecialityError;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,8 +25,8 @@ class ExpressionValidationExceptionMapperTest {
 
     @Test
     void map_MapsValidationErrors() {
-        var error1 = Mockito.mock(UnknownDepartmentSpecialityError.class);
-        var error2 = Mockito.mock(UnknownDepartmentSpecialityError.class);
+        var error1 = Mockito.mock(UnknownValueError.class);
+        var error2 = Mockito.mock(UnknownValueError.class);
         var exception = new ExpressionValidationException(List.of(error1, error2));
         String errorMessage1 = "Error 1";
         String errorMessage2 = "Error 2";

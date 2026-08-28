@@ -2,17 +2,18 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ErrorMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
-import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.service.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DepartmentCacheImpl;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCacheImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.MedicationFormCache;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DepartmentEntityModelMapper;
@@ -72,6 +73,12 @@ public class ValidationBeanRegistration {
     @Bean
     public Cache<Department.Identifier, Department> departmentCache(DepartmentRepositoryAdaptor adaptor) {
         return new DepartmentCacheImpl(configuration.stamdata().cache(), adaptor);
+    }
+
+    @Bean
+    public MedicationFormCache formCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var formRepository = new MedicationFormRepository(dataSource);
+        return new MedicationFormCache(configuration.stamdata().cache(), formRepository);
     }
 
     @Bean

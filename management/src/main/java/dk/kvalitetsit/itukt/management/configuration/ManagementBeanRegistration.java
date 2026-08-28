@@ -7,6 +7,7 @@ import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
+import dk.kvalitetsit.itukt.common.service.MedicationFormService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.csv.ClauseDslToCsvMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslUpdateModelMapper;
@@ -153,8 +154,11 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ExpressionValidator<Expression> expressionValidator(@Autowired DepartmentSpecialityService departmentSpecialityService) {
-        var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService);
+    public ExpressionValidator<Expression> expressionValidator(
+            @Autowired DepartmentSpecialityService departmentSpecialityService,
+            @Autowired MedicationFormService medicationFormService
+    ) {
+        var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService, medicationFormService);
         return expressionValidatorFactory.createCombinedExpressionValidator();
     }
 }

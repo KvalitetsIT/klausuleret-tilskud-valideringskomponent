@@ -26,7 +26,7 @@ public class CacheScheduler {
         var scheduler = getThreadPoolTaskScheduler(loaders);
 
         loaders.stream()
-                .peek(CacheScheduler::load)
+                .peek(CacheLoader::load)
                 .forEach(cache -> {
                     scheduler.schedule(() -> load(cache), new CronTrigger(cache.getCron()));
                     logger.info("Scheduled loader {} with cron {} was registered", cache.getClass().getSimpleName(), cache.getCron());

@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.management.service.validator;
 import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownDepartmentSpecialityError;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +40,7 @@ class CombinedExpressionValidatorTest {
     @Test
     void validate_WhenExpressionIsBinary_DelegatesToBinaryExpressionValidator() {
         var binaryExpression = Mockito.mock(BinaryExpression.class);
-        var error = Mockito.mock(UnknownDepartmentSpecialityError.class);
+        var error = Mockito.mock(UnknownValueError.class);
         when(binaryExpressionValidator.validate(binaryExpression)).thenReturn(List.of(error));
 
         var result = validator.validate(binaryExpression);
@@ -51,7 +51,7 @@ class CombinedExpressionValidatorTest {
     @Test
     void validate_WhenExpressionIsCondition_DelegatesToConditionExpressionValidator() {
         var condition = Mockito.mock(AgeConditionExpression.class);
-        var error = Mockito.mock(UnknownDepartmentSpecialityError.class);
+        var error = Mockito.mock(UnknownValueError.class);
         when(conditionExpressionValidator.validate(condition)).thenReturn(List.of(error));
 
         var result = validator.validate(condition);

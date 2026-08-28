@@ -8,7 +8,7 @@ import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
 import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 import dk.kvalitetsit.itukt.management.service.model.validation.ExpressionValidationError;
-import dk.kvalitetsit.itukt.management.service.model.validation.UnknownDepartmentSpecialityError;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
 import dk.kvalitetsit.itukt.management.service.validator.ExpressionValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +37,7 @@ class ValidatingManagementServiceTest {
     void create_WhenExpressionContainsValidationErrors_ThrowsException() {
         var input = Mockito.mock(ClauseInput.class);
         Mockito.when(input.expression()).thenReturn(Mockito.mock(AgeConditionExpression.class));
-        List<ExpressionValidationError> errors = List.of(Mockito.mock(UnknownDepartmentSpecialityError.class));
+        List<ExpressionValidationError> errors = List.of(Mockito.mock(UnknownValueError.class));
         Mockito.when(expressionValidator.validate(input.expression())).thenReturn(errors);
 
         var e = assertThrows(ExpressionValidationException.class, () -> validatingManagementService.create(input));
@@ -62,7 +62,7 @@ class ValidatingManagementServiceTest {
     void updateDraft_WhenExpressionContainsValidationErrors_ThrowsException() {
         var input = Mockito.mock(ClauseUpdateInput.class);
         Mockito.when(input.expression()).thenReturn(Mockito.mock(AgeConditionExpression.class));
-        List<ExpressionValidationError> errors = List.of(Mockito.mock(UnknownDepartmentSpecialityError.class));
+        List<ExpressionValidationError> errors = List.of(Mockito.mock(UnknownValueError.class));
         Mockito.when(expressionValidator.validate(input.expression())).thenReturn(errors);
 
         var e = assertThrows(ExpressionValidationException.class, () -> validatingManagementService.updateDraft("", input));

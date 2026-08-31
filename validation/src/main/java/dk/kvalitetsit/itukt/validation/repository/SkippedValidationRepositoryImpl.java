@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import javax.sql.DataSource;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import java.util.Map;
 
@@ -59,5 +61,17 @@ public class SkippedValidationRepositoryImpl implements SkippedValidationReposit
         );
 
         template.update(sql, params);
+    }
+
+    @Override
+    public long deleteOlderThan(Period retentionPeriod) {
+        var olderThanTime = LocalDateTime.now().minus(retentionPeriod);
+
+        String sql = """
+                DELETE FROM skipped_validation
+                WHERE created_time <= :olderThanTime AND replaces IS NULL
+                """;
+
+        return template.update(sql, Map.of("olderThanTime", olderThanTime));
     }
 }

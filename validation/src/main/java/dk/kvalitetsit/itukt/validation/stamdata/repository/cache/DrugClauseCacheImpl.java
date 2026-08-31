@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
-import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
+import dk.kvalitetsit.itukt.common.scheduled.ScheduledJob;
 import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DrugClauseCacheImpl implements Cache<Long, DrugClause>, CacheLoader, ClauseDrugCounter {
+public class DrugClauseCacheImpl implements Cache<Long, DrugClause>, ScheduledJob, ClauseDrugCounter {
 
     private final CacheConfiguration configuration;
     private final Repository<DrugClause> repository;
@@ -31,7 +31,7 @@ public class DrugClauseCacheImpl implements Cache<Long, DrugClause>, CacheLoader
     }
 
     @Override
-    public void load() {
+    public void run() {
         var response = repository.fetchAll();
         entries = toMap(response);
         clauseDrugCount = countDrugs(entries);

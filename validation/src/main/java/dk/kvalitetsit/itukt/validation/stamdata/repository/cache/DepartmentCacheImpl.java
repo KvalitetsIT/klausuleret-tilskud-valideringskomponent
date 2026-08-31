@@ -2,7 +2,7 @@ package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.common.model.Department;
-import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
+import dk.kvalitetsit.itukt.common.scheduled.ScheduledJob;
 import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 import org.apache.logging.log4j.util.Strings;
@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DepartmentCacheImpl implements Cache<Department.Identifier, Department>, CacheLoader, DepartmentSpecialityService {
+public class DepartmentCacheImpl implements Cache<Department.Identifier, Department>, ScheduledJob, DepartmentSpecialityService {
 
     private final CacheConfiguration configuration;
     private final Repository<Department> repository;
@@ -52,7 +52,7 @@ public class DepartmentCacheImpl implements Cache<Department.Identifier, Departm
     }
 
     @Override
-    public void load() {
+    public void run() {
         var response = repository.fetchAll();
 
         sorEntries = toMap(response, Department::sor);

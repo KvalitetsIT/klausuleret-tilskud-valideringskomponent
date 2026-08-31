@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.Period;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,4 +83,42 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
         Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation2));
     }
 
+    @Test
+    void deleteOlderThan_WithNoSkippedValidations_ReturnsZero() {
+        long deletedCount = skippedValidationRepository.deleteOlderThan(Period.ofDays(1));
+
+        assertEquals(0, deletedCount, "Expected no skipped validations to be deleted when none exist");
+    }
+
+    @Test
+    void deleteOlderThan_WithNoSkippedValidationsOlderThanGivenPeriod_ReturnsZero() {
+        var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester", null, null);
+        var clause = clauseRepository.create(clauseInput);
+        var skippedValidation = new SkippedValidationEntity(clause.id(), "actor", "person");
+        skippedValidationRepository.create(List.of(skippedValidation));
+
+        long deletedCount = skippedValidationRepository.deleteOlderThan(Period.ofDays(1));
+
+        assertEquals(0, deletedCount, "Expected no skipped validations to be deleted when none are older than the given period");
+    }
+
+    @Test
+    void deleteOlderThan_WithTwoSkippedValidationsOlderThanGivenPeriod_ReturnsTwo() {
+        var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester", null, null);
+        var clause1 = clauseRepository.create(clauseInput);
+        var clause2 = clauseRepository.create(clauseInput);
+
+        var skippedValidation1 = new SkippedValidationEntity(clause1.id(), "actor1", "person1");
+        var skippedValidation2 = new SkippedValidationEntity(clause1.id(), "actor2", "person2");
+        skippedValidationRepository.create(List.of(skippedValidation1, skippedValidation2));
+        skippedValidationRepository.copySkippedValidation(clause1.id(), clause2.id());
+
+        long deletedCount = skippedValidationRepository.deleteOlderThan(Period.ofDays(0));
+
+        assertEquals(2, deletedCount, "Expected two skipped validations to be deleted when both are older than the given period");
+        assertFalse(skippedValidationRepository.exists(skippedValidation1), "Expected the first skipped validation to be deleted");
+        assertFalse(skippedValidationRepository.exists(skippedValidation2), "Expected the second skipped validation to be deleted");
+    }
 }

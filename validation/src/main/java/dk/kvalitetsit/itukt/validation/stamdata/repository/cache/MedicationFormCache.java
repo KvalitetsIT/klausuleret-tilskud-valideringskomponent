@@ -2,14 +2,14 @@ package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.common.model.Medication;
-import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
+import dk.kvalitetsit.itukt.common.scheduled.ScheduledJob;
 import dk.kvalitetsit.itukt.common.service.MedicationFormService;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 
 import java.util.Optional;
 import java.util.Set;
 
-public class MedicationFormCache implements CacheLoader, MedicationFormService {
+public class MedicationFormCache implements ScheduledJob, MedicationFormService {
     private final CacheConfiguration configuration;
     private final Repository<Medication.Form> repository;
     private Set<Medication.Form> forms = Set.of();
@@ -25,7 +25,7 @@ public class MedicationFormCache implements CacheLoader, MedicationFormService {
     }
 
     @Override
-    public void load() {
+    public void run() {
         forms = Set.copyOf(repository.fetchAll());
     }
 

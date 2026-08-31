@@ -29,6 +29,8 @@ paths:
     post:
       tags:
         - management
+      parameters:
+        - $ref: '#/components/parameters/skipValidation'
       requestBody:
         description: "A clause in Domain-Specific Language (DSL) format"
         required: true
@@ -124,6 +126,8 @@ paths:
     post:
       tags:
         - management
+      parameters:
+        - $ref: '#/components/parameters/skipValidation'
       requestBody:
         description: "A list of expressions"
         required: true
@@ -241,6 +245,7 @@ paths:
       description: "Update draft clause. This will create a new version of the draft with the specified name."
       parameters:
         - $ref: '#/components/parameters/name'
+        - $ref: '#/components/parameters/skipValidation'
       requestBody:
         required: true
         content:
@@ -350,6 +355,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/ClauseStatus'
+    skipValidation:
+      name: skipValidation
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
 
   schemas:
     detailedError:

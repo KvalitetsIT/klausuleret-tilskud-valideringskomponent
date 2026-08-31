@@ -48,21 +48,23 @@ class ManagementControllerTest {
 
     @Test
     void management20250801ClausesPost_CreatesClause() {
-        Mockito.when(clauseService.create(Mockito.any(ClauseInput.class))).thenReturn(CLAUSE_1_OUTPUT);
+        Mockito.when(clauseService.create(Mockito.any(), Mockito.any())).thenReturn(CLAUSE_1_OUTPUT);
+        var skipValidation = Mockito.mock(Optional.class);
 
-        managementController.management20250801ClausesPost(CLAUSE_1_INPUT);
+        managementController.management20250801ClausesPost(CLAUSE_1_INPUT, skipValidation);
 
-        Mockito.verify(clauseService, times(1)).create(CLAUSE_1_INPUT);
+        Mockito.verify(clauseService, times(1)).create(CLAUSE_1_INPUT, skipValidation);
     }
 
     @Test
     void management20250801ClausesDslPost_CreatesClause() {
-        Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(CLAUSE_1_DSL_OUTPUT);
+        Mockito.when(clauseService.createDSL(Mockito.any(), Mockito.any())).thenReturn(CLAUSE_1_DSL_OUTPUT);
+        var skipValidation = Mockito.mock(Optional.class);
 
         DslInput dslInput = CLAUSE_1_DSL_INPUT;
-        managementController.management20250801ClausesDslPost(dslInput);
+        managementController.management20250801ClausesDslPost(dslInput, skipValidation);
 
-        Mockito.verify(clauseService, times(1)).createDSL(dslInput);
+        Mockito.verify(clauseService, times(1)).createDSL(dslInput, skipValidation);
     }
 
     @Test

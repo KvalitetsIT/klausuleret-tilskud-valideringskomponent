@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -46,8 +47,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<DslOutput> management20250801ClausesDslPost(DslInput dslInput) {
-        DslOutput created = service.createDSL(dslInput);
+    public ResponseEntity<DslOutput> management20250801ClausesDslPost(DslInput dslInput, Optional<Boolean> skipValidation) {
+        DslOutput created = service.createDSL(dslInput, skipValidation);
         UUID uuid = created.getUuid();
         URI location = getLocation(c -> c.management20250801ClausesDslIdGet(uuid), uuid);
         return ResponseEntity.created(location).body(created);
@@ -85,8 +86,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<DslOutput> management20250801ClausesDraftsNamePut(String name, DslUpdateInput dslUpdateInput) {
-        return ResponseEntity.ok(service.update(name, dslUpdateInput));
+    public ResponseEntity<DslOutput> management20250801ClausesDraftsNamePut(String name, DslUpdateInput dslUpdateInput, Optional<Boolean> skipValidation) {
+        return ResponseEntity.ok(service.update(name, dslUpdateInput, skipValidation));
     }
 
     @Override
@@ -105,8 +106,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<ClauseOutput> management20250801ClausesPost(ClauseInput clause) {
-        var created = service.create(clause);
+    public ResponseEntity<ClauseOutput> management20250801ClausesPost(ClauseInput clause, Optional<Boolean> skipValidation) {
+        var created = service.create(clause, skipValidation);
         UUID uuid = created.getUuid();
         URI location = getLocation(c -> c.management20250801ClausesIdGet(uuid), uuid);
         return ResponseEntity.created(location).body(created);

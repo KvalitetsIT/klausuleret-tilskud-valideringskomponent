@@ -13,6 +13,10 @@ import java.util.UUID;
 public interface ManagementService {
     Clause create(ClauseInput clause) throws ManagementException;
 
+    default Clause create(ClauseInput clause, boolean skipValidation) throws ManagementException {
+        return create(clause);
+    }
+
     Optional<Clause> read(UUID id);
 
     List<Clause> readByStatus(Clause.Status status);
@@ -28,6 +32,10 @@ public interface ManagementService {
     Clause deleteDraft(UUID id) throws ManagementException;
 
     Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException;
+
+    default Clause updateDraft(String name, ClauseUpdateInput clause, boolean skipValidation) throws ManagementException {
+        return updateDraft(name, clause);
+    }
 
     long getNumberOfDrugsForClause(String name);
 }

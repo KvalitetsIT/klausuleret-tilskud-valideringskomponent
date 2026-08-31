@@ -45,28 +45,28 @@ public class ManagementServiceAdaptor {
         this.clauseDslToCsvMapper = clauseDslToCsvMapper;
     }
 
-    public ClauseOutput create(org.openapitools.model.ClauseInput clauseInput) {
+    public ClauseOutput create(org.openapitools.model.ClauseInput clauseInput, Optional<Boolean> skipValidation) {
         try {
             var clauseForCreation = clauseInputMapper.map(clauseInput);
-            return clauseDtoMapper.map(clauseService.create(clauseForCreation));
+            return clauseDtoMapper.map(clauseService.create(clauseForCreation, skipValidation.orElse(false)));
         } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
         }
     }
 
-    public DslOutput createDSL(DslInput dsl) {
+    public DslOutput createDSL(DslInput dsl, Optional<Boolean> skipValidation) {
         try {
             var clauseInput = this.dslClauseMapper.map(dsl);
-            return clauseDtoDslMapper.map(this.create(clauseInput));
+            return clauseDtoDslMapper.map(this.create(clauseInput, skipValidation));
         } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
         }
     }
 
-    public DslOutput update(String name, DslUpdateInput dslUpdateInput) {
+    public DslOutput update(String name, DslUpdateInput dslUpdateInput, Optional<Boolean> skipValidation) {
         try {
             var updateInput = dslUpdateModelMapper.map(dslUpdateInput);
-            var updatedClause = clauseService.updateDraft(name, updateInput);
+            var updatedClause = clauseService.updateDraft(name, updateInput, skipValidation.orElse(false));
             return clauseDtoDslMapper.map(clauseDtoMapper.map(updatedClause));
         } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);

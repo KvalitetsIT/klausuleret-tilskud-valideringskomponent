@@ -28,19 +28,19 @@ class MedicationFormCacheTest {
     private MedicationFormCache formCache;
 
     @Test
-    void getForms_BeforeLoad_ReturnsEmptySet() {
+    void getForms_BeforeRun_ReturnsEmptySet() {
         assertTrue(formCache.getForms().isEmpty());
     }
 
     @Test
-    void getForms_AfterLoad_ReturnsDistinctForms() {
+    void getForms_AfterRun_ReturnsDistinctForms() {
         var form1 = new Medication.Form("formA");
         var form2 = new Medication.Form("formB");
         var form3 = new Medication.Form("FoRmB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2, form3));
 
-        formCache.load();
+        formCache.run();
         var forms = formCache.getForms();
 
         var expected = Set.of(form1, form2);
@@ -54,7 +54,7 @@ class MedicationFormCacheTest {
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2));
 
-        formCache.load();
+        formCache.run();
         var result = formCache.getForm("nonExistingFormCode");
 
         assertTrue(result.isEmpty());
@@ -67,7 +67,7 @@ class MedicationFormCacheTest {
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2));
 
-        formCache.load();
+        formCache.run();
         var result = formCache.getForm(form1.code());
 
         assertTrue(result.isPresent());
@@ -75,7 +75,7 @@ class MedicationFormCacheTest {
     }
 
     @Test
-    void getForm_BeforeLoad_ReturnsEmpty() {
+    void getForm_BeforeRun_ReturnsEmpty() {
         assertTrue(formCache.getForm("someFormCode").isEmpty());
     }
 }

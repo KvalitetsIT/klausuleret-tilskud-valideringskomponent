@@ -8,6 +8,7 @@ import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ErrorMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.scheduled.SkippedValidationCleanupJob;
 import dk.kvalitetsit.itukt.validation.service.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
@@ -110,5 +111,12 @@ public class ValidationBeanRegistration {
                 new ValidationRequestInputMapper(new ActorDtoModelMapper(departmentCache)),
                 new ErrorMapper()
         );
+    }
+
+    @Bean
+    public SkippedValidationCleanupJob skippedValidationCleanupJob(
+            @Autowired SkippedValidationRepository skippedValidationRepository
+    ) {
+        return new SkippedValidationCleanupJob(configuration.skippedValidation().cleanupJob(), skippedValidationRepository);
     }
 }

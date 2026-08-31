@@ -2,8 +2,8 @@ package dk.kvalitetsit.itukt.common.configuration;
 
 import dk.kvalitetsit.itukt.common.filters.GenericExceptionHandler;
 import dk.kvalitetsit.itukt.common.filters.RequestLogger;
-import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
-import dk.kvalitetsit.itukt.common.repository.cache.CacheScheduler;
+import dk.kvalitetsit.itukt.common.scheduled.JobScheduler;
+import dk.kvalitetsit.itukt.common.scheduled.ScheduledJob;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,8 +51,8 @@ public class CommonBeanRegistration {
     }
 
     @Bean
-    public int cacheScheduler(List<CacheLoader> loaders) {
-        CacheScheduler.init(loaders);
+    public int jobScheduler(List<ScheduledJob> jobs) {
+        JobScheduler.init(jobs);
         return 0;
     }
 }

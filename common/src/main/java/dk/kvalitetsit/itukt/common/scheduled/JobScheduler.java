@@ -26,7 +26,7 @@ public class JobScheduler {
         var scheduler = getThreadPoolTaskScheduler(jobs);
 
         jobs.stream()
-                .peek(JobScheduler::run)
+                .peek(ScheduledJob::run)
                 .forEach(job -> {
                     scheduler.schedule(() -> run(job), new CronTrigger(job.getCron()));
                     logger.info("Scheduled job {} with cron {} was registered", job.getClass().getSimpleName(), job.getCron());

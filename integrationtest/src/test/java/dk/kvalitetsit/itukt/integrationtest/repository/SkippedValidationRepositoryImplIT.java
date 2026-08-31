@@ -93,7 +93,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
     @Test
     void deleteOlderThan_WithNoSkippedValidationsOlderThanGivenPeriod_ReturnsZero() {
         var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
-        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester", null);
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester", null, null);
         var clause = clauseRepository.create(clauseInput);
         var skippedValidation = new SkippedValidationEntity(clause.id(), "actor", "person");
         skippedValidationRepository.create(List.of(skippedValidation));
@@ -106,7 +106,7 @@ class SkippedValidationRepositoryImplIT extends BaseTest {
     @Test
     void deleteOlderThan_WithTwoSkippedValidationsOlderThanGivenPeriod_ReturnsTwo() {
         var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
-        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester", null);
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester", null, null);
         var clause1 = clauseRepository.create(clauseInput);
         var clause2 = clauseRepository.create(clauseInput);
 

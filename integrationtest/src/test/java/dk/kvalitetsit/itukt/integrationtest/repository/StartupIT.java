@@ -31,7 +31,7 @@ public class StartupIT extends BaseTest {
     @Test
     void atServiceStartup_DeletesSkippedValidationsOlderThanConfiguredDuration() {
         var condition = new ExpressionEntity.StringConditionEntity(Field.INDICATION, "test");
-        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester", null);
+        var clauseInput = new ClauseEntityInput("test", condition, "message", Clause.Status.ACTIVE, "tester", null, null);
         var clause = clauseRepository.create(clauseInput);
         var skippedValidation = new SkippedValidationEntity(clause.id(), "actor", "person");
         skippedValidationRepository.create(List.of(skippedValidation));

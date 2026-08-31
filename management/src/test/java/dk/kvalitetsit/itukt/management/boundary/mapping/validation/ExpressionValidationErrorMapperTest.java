@@ -18,6 +18,6 @@ class ExpressionValidationErrorMapperTest {
 
         String errorMessage = mapper.map(error);
 
-        assertEquals("Ukendt afdelingsspeciale 'test'. Gyldige værdier er: existing1, existing2", errorMessage);
+        assertEquals("Ukendt afdelingsspeciale 'test'.", errorMessage);
     }
 }

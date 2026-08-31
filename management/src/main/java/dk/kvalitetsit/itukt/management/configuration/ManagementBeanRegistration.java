@@ -98,7 +98,7 @@ public class ManagementBeanRegistration {
     }
 
     @Bean
-    public ValidatingManagementService managementService(
+    public ManagementService managementService(
             @Autowired ClauseRepositoryAdaptor clauseRepository,
             @Autowired SkippedValidationRepository skippedValidationRepository,
             @Autowired UserContextService userContextService,
@@ -132,7 +132,7 @@ public class ManagementBeanRegistration {
 
     @Bean
     public ManagementServiceAdaptor managementServiceAdaptor(
-            @Autowired ValidatingManagementService managementService,
+            @Autowired ManagementService managementService,
             @Autowired MapperFactory mapperFactory,
             @Autowired DslParser dslParser) {
         var dslParserExceptionMapper = new DslParserExceptionMapper();

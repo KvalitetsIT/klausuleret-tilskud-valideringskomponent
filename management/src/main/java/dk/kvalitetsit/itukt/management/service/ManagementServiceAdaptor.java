@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class ManagementServiceAdaptor {
 
-    private final ValidatingManagementService clauseService;
+    private final ManagementService clauseService;
     private final Mapper<Clause, ClauseOutput> clauseDtoMapper;
     private final ClauseDslDtoMapper dslClauseMapper;
     private final Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper;
@@ -27,7 +27,7 @@ public class ManagementServiceAdaptor {
     private final ClauseDslToCsvMapper clauseDslToCsvMapper;
 
     public ManagementServiceAdaptor(
-            ValidatingManagementService clauseService,
+            ManagementService clauseService,
             Mapper<Clause, ClauseOutput> modelDtoMapper,
             ClauseDslDtoMapper dslClauseMapper,
             Mapper<ClauseOutput, DslOutput> clauseDtoDslMapper,

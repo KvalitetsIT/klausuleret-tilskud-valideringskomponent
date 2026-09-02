@@ -55,12 +55,12 @@ public class ValidatingManagementService implements ManagementService {
     }
 
     @Override
-    public Clause inactivate(String name) throws ManagementException {
+    public Clause inactivate(Clause.Name name) throws ManagementException {
         return managementService.inactivate(name);
     }
 
     @Override
-    public Clause activate(String name) throws ManagementException {
+    public Clause activate(Clause.Name name) throws ManagementException {
         return managementService.activate(name);
     }
 
@@ -70,12 +70,12 @@ public class ValidatingManagementService implements ManagementService {
     }
 
     @Override
-    public Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException {
+    public Clause updateDraft(Clause.Name name, ClauseUpdateInput clause) throws ManagementException {
         return managementService.updateDraft(name, clause);
     }
 
     @Override
-    public Clause updateDraft(String name, ClauseUpdateInput clause, boolean skipValidation) throws ManagementException {
+    public Clause updateDraft(Clause.Name name, ClauseUpdateInput clause, boolean skipValidation) throws ManagementException {
         if (!skipValidation) {
             validate(clause.expression());
         }
@@ -83,7 +83,7 @@ public class ValidatingManagementService implements ManagementService {
     }
 
     @Override
-    public long getNumberOfDrugsForClause(String name) {
+    public long getNumberOfDrugsForClause(Clause.Name name) {
         return managementService.getNumberOfDrugsForClause(name);
     }
 

@@ -66,7 +66,7 @@ public class ManagementServiceAdaptor {
     public DslOutput update(String name, DslUpdateInput dslUpdateInput, Optional<Boolean> skipValidation) {
         try {
             var updateInput = dslUpdateModelMapper.map(dslUpdateInput);
-            var updatedClause = clauseService.updateDraft(name, updateInput, skipValidation.orElse(false));
+            var updatedClause = clauseService.updateDraft(new Clause.Name(name), updateInput, skipValidation.orElse(false));
             return clauseDtoDslMapper.map(clauseDtoMapper.map(updatedClause));
         } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
@@ -114,7 +114,7 @@ public class ManagementServiceAdaptor {
 
     public DslOutput inactivateClause(String clauseName) {
         try {
-            var clause = clauseService.inactivate(clauseName);
+            var clause = clauseService.inactivate(new Clause.Name(clauseName));
             return mapResponse(clause);
         } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
@@ -123,7 +123,7 @@ public class ManagementServiceAdaptor {
 
     public DslOutput activateClause(String clauseName) {
         try {
-            var clause = clauseService.activate(clauseName);
+            var clause = clauseService.activate(new Clause.Name(clauseName));
             return mapResponse(clause);
         } catch (ManagementException e) {
             throw managementExceptionMapper.map(e);
@@ -131,7 +131,7 @@ public class ManagementServiceAdaptor {
     }
 
     public DrugCount getNumberOfDrugsForClause(String clauseName) {
-        long drugCount = clauseService.getNumberOfDrugsForClause(clauseName);
+        long drugCount = clauseService.getNumberOfDrugsForClause(new Clause.Name(clauseName));
         return new DrugCount().drugCount(drugCount);
     }
 

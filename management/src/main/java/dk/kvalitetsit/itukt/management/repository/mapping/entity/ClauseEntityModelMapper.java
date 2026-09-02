@@ -15,7 +15,7 @@ public class ClauseEntityModelMapper implements Mapper<ClauseEntity, Clause> {
     public Clause map(ClauseEntity entry) {
         return new Clause(
                 entry.id(),
-                entry.name(),
+                new Clause.Name(entry.name()),
                 entry.status(),
                 entry.uuid(),
                 new Clause.Error(entry.errorMessage(), entry.errorCode()),

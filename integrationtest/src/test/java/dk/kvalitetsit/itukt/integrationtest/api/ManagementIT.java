@@ -200,7 +200,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testDslPostPutAndGet() {
-        var input = new DslInput().name("test").dsl("ALDER = 1").error("error");
+        var input = new DslInput().name("TEST").dsl("ALDER = 1").error("error");
         api.management20250801ClausesDslPost(input, true);
         var updateInput = new DslUpdateInput().dsl("ALDER = 55").error("updated error");
         var updateOutput = api.management20250801ClausesDraftsNamePut(input.getName(), updateInput, true);
@@ -272,7 +272,7 @@ class ManagementIT extends BaseTest {
                 MockFactory.createExistingDrugMedicationCondition("atc1", "*", "adm1"),
                 MockFactory.createExistingDrugMedicationCondition("atc2", "*", "adm2"));
         var clauseInput = new ClauseInput()
-                .name("test")
+                .name("TEST")
                 .expression(expression)
                 .error("message");
 

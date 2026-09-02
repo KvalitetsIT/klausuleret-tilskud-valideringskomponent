@@ -20,7 +20,7 @@ public class ClauseModelDtoMapper implements Mapper<Clause, org.openapitools.mod
     @Override
     public org.openapitools.model.ClauseOutput map(Clause entry) {
         return new org.openapitools.model.ClauseOutput(
-                entry.name(),
+                entry.name().name(),
                 this.expressionModelMapper.map(entry.expression()),
                 entry.error().message(),
                 entry.uuid(),

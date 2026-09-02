@@ -211,7 +211,7 @@ public class ManagementServiceAdaptorTest {
         var inactiveClause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         var dslOutput = Mockito.mock(DslOutput.class);
-        Mockito.when(managementService.inactivate(name)).thenReturn(inactiveClause);
+        Mockito.when(managementService.inactivate(new Clause.Name(name))).thenReturn(inactiveClause);
         Mockito.when(clauseModelDtoMapper.map(inactiveClause)).thenReturn(clauseOutput);
         Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
 
@@ -237,7 +237,7 @@ public class ManagementServiceAdaptorTest {
         var clause = Mockito.mock(Clause.class);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         var dslOutput = Mockito.mock(DslOutput.class);
-        Mockito.when(managementService.activate(name)).thenReturn(clause);
+        Mockito.when(managementService.activate(new Clause.Name(name))).thenReturn(clause);
         Mockito.when(clauseModelDtoMapper.map(clause)).thenReturn(clauseOutput);
         Mockito.when(clauseDtoDslMapper.map(clauseOutput)).thenReturn(dslOutput);
 
@@ -285,7 +285,7 @@ public class ManagementServiceAdaptorTest {
     void getNumberOfDrugsForClause_ReturnsDrugCountFromService() {
         String clauseName = "testClause";
         long expectedDrugCount = 5L;
-        Mockito.when(managementService.getNumberOfDrugsForClause(clauseName)).thenReturn(expectedDrugCount);
+        Mockito.when(managementService.getNumberOfDrugsForClause(new Clause.Name(clauseName))).thenReturn(expectedDrugCount);
 
         var result = adaptor.getNumberOfDrugsForClause(clauseName);
 
@@ -314,7 +314,7 @@ public class ManagementServiceAdaptorTest {
         var clauseUpdateInput = Mockito.mock(ClauseUpdateInput.class);
         Mockito.when(dslUpdateModelMapper.map(input)).thenReturn(clauseUpdateInput);
         var updatedClause = Mockito.mock(Clause.class);
-        Mockito.when(managementService.updateDraft(name, clauseUpdateInput, true)).thenReturn(updatedClause);
+        Mockito.when(managementService.updateDraft(new Clause.Name(name), clauseUpdateInput, true)).thenReturn(updatedClause);
         var clauseOutput = Mockito.mock(ClauseOutput.class);
         Mockito.when(clauseModelDtoMapper.map(updatedClause)).thenReturn(clauseOutput);
         var dslOutput = Mockito.mock(DslOutput.class);
@@ -329,7 +329,7 @@ public class ManagementServiceAdaptorTest {
     void update_WithEmptySkippedValidation_DefaultsToFalse() throws ManagementException {
         adaptor.update("test", Mockito.mock(DslUpdateInput.class), Optional.empty());
 
-        Mockito.verify(managementService, Mockito.times(1)).updateDraft(Mockito.anyString(), Mockito.any(), Mockito.eq(false));
+        Mockito.verify(managementService, Mockito.times(1)).updateDraft(Mockito.any(), Mockito.any(), Mockito.eq(false));
     }
 
     @Test

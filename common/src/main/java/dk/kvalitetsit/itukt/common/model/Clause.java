@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 public record Clause(
         Long id,
-        String name,
+        Name name,
         Status status,
         UUID uuid,
         Error error,
@@ -22,6 +22,11 @@ public record Clause(
         String createdBy,
         Date createdTime
 ) {
+    public record Name(String value) {
+        public Name(String value) {
+            this.value = value.toUpperCase();
+        }
+    }
 
     /**
      * Indicates whether the clause is either a draft or active

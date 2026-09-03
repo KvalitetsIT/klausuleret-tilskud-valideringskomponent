@@ -200,7 +200,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testDslPostPutAndGet() {
-        var input = new DslInput().name("test").dsl("ALDER = 1").error("error");
+        var input = new DslInput().name("TEST").dsl("ALDER = 1").error("error");
         api.management20250801ClausesDslPost(input, true);
         var updateInput = new DslUpdateInput().dsl("ALDER = 55").error("updated error");
         var updateOutput = api.management20250801ClausesDraftsNamePut(input.getName(), updateInput, true);
@@ -272,7 +272,7 @@ class ManagementIT extends BaseTest {
                 MockFactory.createExistingDrugMedicationCondition("atc1", "*", "adm1"),
                 MockFactory.createExistingDrugMedicationCondition("atc2", "*", "adm2"));
         var clauseInput = new ClauseInput()
-                .name("test")
+                .name("TEST")
                 .expression(expression)
                 .error("message");
 
@@ -520,7 +520,7 @@ class ManagementIT extends BaseTest {
         var drugCount = api.management20250801ClausesNameDrugCountGet(clauseName);
 
         assertNotNull(drugCount);
-        assertEquals(1, drugCount.getDrugCount());
+        assertEquals(1, drugCount);
     }
 
     @Test
@@ -528,7 +528,7 @@ class ManagementIT extends BaseTest {
         var drugCount = api.management20250801ClausesNameDrugCountGet("HEST");
 
         assertNotNull(drugCount);
-        assertEquals(0, drugCount.getDrugCount());
+        assertEquals(0, drugCount);
     }
 
     private static String setupStamdataClauseWithOneDrug() {

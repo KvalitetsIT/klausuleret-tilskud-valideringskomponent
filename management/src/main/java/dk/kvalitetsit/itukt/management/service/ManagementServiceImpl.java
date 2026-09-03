@@ -89,18 +89,18 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause inactivate(String name) throws InvalidInputException {
+    public Clause inactivate(Clause.Name name) throws InvalidInputException {
         return updateStatus(name, Clause.Status.ACTIVE, "Only ACTIVE clauses can be inactivated", Clause.Status.INACTIVE);
     }
 
     @Override
-    public Clause activate(String name) throws InvalidInputException {
+    public Clause activate(Clause.Name name) throws InvalidInputException {
         return updateStatus(name, Clause.Status.INACTIVE, "Only INACTIVE clauses can be activated", Clause.Status.ACTIVE);
     }
 
-    private Clause updateStatus(String name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) throws InvalidInputException {
+    private Clause updateStatus(Clause.Name name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) throws InvalidInputException {
         var clause = readSingle(new ClauseQuery()
-                .name(name)
+                .name(name.value())
                 .statuses(currentStatus)
                 .withoutPrimaryChildren())
                 .orElseThrow(() -> new InvalidInputException(errorMessage));
@@ -129,7 +129,7 @@ public class ManagementServiceImpl implements ManagementService {
         return draft;
     }
 
-    private void deleteDraft(String name) {
+    private void deleteDraft(Clause.Name name) {
         readCurrentDraft(name)
                 .map(draft -> {
                     try {
@@ -142,7 +142,7 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException {
+    public Clause updateDraft(Clause.Name name, ClauseUpdateInput clause) throws ManagementException {
         var currentDraft = readCurrentDraft(name)
                 .orElseThrow(() -> new NotFoundException("No current draft found with name '%s'".formatted(name)));
 
@@ -152,21 +152,21 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     @Override
-    public long getNumberOfDrugsForClause(String name) {
-        return clauseDrugCounter.getNumberOfDrugsForClause(name);
+    public long getNumberOfDrugsForClause(Clause.Name name) {
+        return clauseDrugCounter.getNumberOfDrugsForClause(name.value());
     }
 
-    private Optional<Clause> readCurrentDraft(String name) {
+    private Optional<Clause> readCurrentDraft(Clause.Name name) {
         return readSingle(new ClauseQuery()
-                .name(name)
+                .name(name.value())
                 .statuses(Clause.Status.DRAFT)
                 .withoutChildren()
         );
     }
 
-    private Optional<Clause> readCurrentNonDraft(String name) {
+    private Optional<Clause> readCurrentNonDraft(Clause.Name name) {
         return readSingle(new ClauseQuery()
-                .name(name)
+                .name(name.value())
                 .statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE)
                 .withoutPrimaryChildren()
         );

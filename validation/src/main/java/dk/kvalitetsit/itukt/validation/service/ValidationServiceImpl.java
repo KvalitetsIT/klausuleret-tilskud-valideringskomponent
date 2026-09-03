@@ -44,7 +44,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                 case ValidationFailed.ExistingDrugMedicationRequired ignored ->
                         throw new ExistingDrugMedicationRequiredException();
                 case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(
-                        new ValidationError.Clause(clause.name(), clauseText, clause.error().message()),
+                        new ValidationError.Clause(clause.name().value(), clauseText, clause.error().message()),
                         error.toErrorString(),
                         clause.error().code(),
                         validationInput.elementPath()
@@ -58,7 +58,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, DrugClause.Clause clause) {
-        return clauseCache.get(clause.code())
+        return clauseCache.get(new Clause.Name(clause.code()))
                 .flatMap(c -> validateClause(c, clause.text(), validationInput));
     }
 

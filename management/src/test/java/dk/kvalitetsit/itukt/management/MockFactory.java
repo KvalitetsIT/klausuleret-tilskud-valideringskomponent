@@ -37,7 +37,7 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_ENTITY
     );
-    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "name", Clause.Status.ACTIVE, 10800, "message", EXPRESSION_1_ENTITY, "tester", new Date(), null, null);
+    public static ClauseEntity CLAUSE_1_ENTITY = new ClauseEntity(1L, UUID.randomUUID(), "NAME", Clause.Status.ACTIVE, 10800, "message", EXPRESSION_1_ENTITY, "tester", new Date(), null, null);
     private static final AgeConditionExpression EXPRESSION_6_MODEL = new AgeConditionExpression(
             EXPRESSION_6_ENTITY.operator(),
             EXPRESSION_6_ENTITY.value()
@@ -75,7 +75,7 @@ public class MockFactory {
             dk.kvalitetsit.itukt.common.model.BinaryExpression.Operator.OR,
             EXPRESSION_7_MODEL()
     );
-    public static final Clause CLAUSE_1_MODEL = new Clause(1L, CLAUSE_1_ENTITY.name(), CLAUSE_1_ENTITY.status(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, CLAUSE_1_ENTITY.createdBy(), CLAUSE_1_ENTITY.createdTime());
+    public static final Clause CLAUSE_1_MODEL = new Clause(1L, new Clause.Name(CLAUSE_1_ENTITY.name()), CLAUSE_1_ENTITY.status(), CLAUSE_1_ENTITY.uuid(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, CLAUSE_1_ENTITY.createdBy(), CLAUSE_1_ENTITY.createdTime());
 
     private static final IndicationCondition EXPRESSION_2_DTO = new IndicationCondition()
             .type(ExpressionType.INDICATION)
@@ -93,8 +93,8 @@ public class MockFactory {
 
     // Note: This clause(CLAUSE_1_DSL) matches: clause_1_*
 
-    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput("name","message", EXPRESSION_1_DSL);
-    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput("name", "message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid(), CLAUSE_1_OUTPUT.getStatus(), CLAUSE_1_MODEL.createdBy(), CLAUSE_1_OUTPUT.getCreatedTime());
+    public static final DslInput CLAUSE_1_DSL_INPUT = new DslInput(CLAUSE_1_ENTITY.name(), "message", EXPRESSION_1_DSL);
+    public static final DslOutput CLAUSE_1_DSL_OUTPUT = new DslOutput(CLAUSE_1_ENTITY.name(), "message", CLAUSE_1_DSL_INPUT.getDsl(), CLAUSE_1_MODEL.uuid(), CLAUSE_1_OUTPUT.getStatus(), CLAUSE_1_MODEL.createdBy(), CLAUSE_1_OUTPUT.getCreatedTime());
 
     private static dk.kvalitetsit.itukt.common.model.BinaryExpression EXPRESSION_7_MODEL() {
         return new dk.kvalitetsit.itukt.common.model.BinaryExpression(

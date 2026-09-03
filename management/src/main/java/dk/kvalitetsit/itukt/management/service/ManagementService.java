@@ -25,17 +25,17 @@ public interface ManagementService {
 
     Clause approve(UUID clauseUuid, boolean skipValidation) throws ManagementException;
 
-    Clause inactivate(String name) throws ManagementException;
+    Clause inactivate(Clause.Name name) throws ManagementException;
 
-    Clause activate(String name) throws ManagementException;
+    Clause activate(Clause.Name name) throws ManagementException;
 
     Clause deleteDraft(UUID id) throws ManagementException;
 
-    Clause updateDraft(String name, ClauseUpdateInput clause) throws ManagementException;
+    Clause updateDraft(Clause.Name name, ClauseUpdateInput clause) throws ManagementException;
 
-    default Clause updateDraft(String name, ClauseUpdateInput clause, boolean skipValidation) throws ManagementException {
+    default Clause updateDraft(Clause.Name name, ClauseUpdateInput clause, boolean skipValidation) throws ManagementException {
         return updateDraft(name, clause);
     }
 
-    long getNumberOfDrugsForClause(String name);
+    long getNumberOfDrugsForClause(Clause.Name name);
 }

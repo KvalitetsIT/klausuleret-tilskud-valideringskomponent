@@ -289,7 +289,7 @@ public class ManagementServiceAdaptorTest {
 
         var result = adaptor.getNumberOfDrugsForClause(clauseName);
 
-        assertEquals(expectedDrugCount, result.getDrugCount());
+        assertEquals(expectedDrugCount, result);
     }
 
     @Test

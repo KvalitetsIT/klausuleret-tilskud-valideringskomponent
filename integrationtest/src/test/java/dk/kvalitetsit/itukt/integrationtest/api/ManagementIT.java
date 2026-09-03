@@ -520,7 +520,7 @@ class ManagementIT extends BaseTest {
         var drugCount = api.management20250801ClausesNameDrugCountGet(clauseName);
 
         assertNotNull(drugCount);
-        assertEquals(1, drugCount.getDrugCount());
+        assertEquals(1, drugCount);
     }
 
     @Test
@@ -528,7 +528,7 @@ class ManagementIT extends BaseTest {
         var drugCount = api.management20250801ClausesNameDrugCountGet("HEST");
 
         assertNotNull(drugCount);
-        assertEquals(0, drugCount.getDrugCount());
+        assertEquals(0, drugCount);
     }
 
     private static String setupStamdataClauseWithOneDrug() {

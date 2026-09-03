@@ -651,11 +651,6 @@ components:
       example: "ALDER >= 13 og EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} og LÆGESPECIALE = psyk"
 
     DrugCount:
-      type: object
-      required:
-        - drugCount
-      properties:
-        drugCount:
-          type: integer
-          format: int64
-          description: "The number of drugs associated with a clause"
+      type: integer
+      format: int64
+      description: "The number of drugs associated with a clause"

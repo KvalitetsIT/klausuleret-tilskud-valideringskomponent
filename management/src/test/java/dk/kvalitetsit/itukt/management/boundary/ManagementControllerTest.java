@@ -172,7 +172,7 @@ class ManagementControllerTest {
     @Test
     void management20250801ClausesNameDrugCountGet_ReturnsDrugCount() {
         String name = "test";
-        var drugCount = new DrugCount().drugCount(5L);
+        var drugCount = 5L;
         Mockito.when(clauseService.getNumberOfDrugsForClause(name)).thenReturn(drugCount);
 
         var response = managementController.management20250801ClausesNameDrugCountGet(name);

@@ -130,9 +130,8 @@ public class ManagementServiceAdaptor {
         }
     }
 
-    public DrugCount getNumberOfDrugsForClause(String clauseName) {
-        long drugCount = clauseService.getNumberOfDrugsForClause(new Clause.Name(clauseName));
-        return new DrugCount().drugCount(drugCount);
+    public long getNumberOfDrugsForClause(String clauseName) {
+        return clauseService.getNumberOfDrugsForClause(new Clause.Name(clauseName));
     }
 
     private Clause.Status mapStatus(ClauseStatus status) {

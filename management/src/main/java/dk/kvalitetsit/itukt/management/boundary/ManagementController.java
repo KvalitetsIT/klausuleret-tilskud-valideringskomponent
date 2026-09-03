@@ -72,7 +72,7 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<DrugCount> management20250801ClausesNameDrugCountGet(String name) {
+    public ResponseEntity<Long> management20250801ClausesNameDrugCountGet(String name) {
         var drugCount = service.getNumberOfDrugsForClause(name);
         return ResponseEntity.ok(drugCount);
     }

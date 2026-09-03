@@ -21,7 +21,7 @@ public class ClauseServiceImpl implements ClauseService {
 
     @Override
     public Optional<Clause> get(Clause.Name name) {
-        return cache.get(name.name()).map(mapper::map);
+        return cache.get(name.value()).map(mapper::map);
     }
 
     @Override

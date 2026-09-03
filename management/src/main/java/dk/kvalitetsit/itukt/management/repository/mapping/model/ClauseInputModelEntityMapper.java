@@ -17,7 +17,7 @@ public class ClauseInputModelEntityMapper implements Mapper<ClauseFullInput, Cla
     public ClauseEntityInput map(ClauseFullInput clauseInput) {
         var expressionEntity = expressionMapper.map(clauseInput.expression());
         return new ClauseEntityInput(
-                clauseInput.name().name(),
+                clauseInput.name().value(),
                 expressionEntity,
                 clauseInput.errorMessage(),
                 clauseInput.status(),

@@ -49,7 +49,7 @@ class ValidationServiceImplTest {
     void validate_WhenClauseCacheDoesNotContainClauseForDrugId_ReturnsSuccess() {
         var validationInput = new ValidationInput("1234", new ValidationInput.Actor("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty(), "");
         var name = new Clause.Name("0000");
-        var drugClause = new DrugClause(new DrugClause.Drug(1234L), Set.of(new DrugClause.Clause(name.name(), null)));
+        var drugClause = new DrugClause(new DrugClause.Drug(1234L), Set.of(new DrugClause.Clause(name.value(), null)));
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(name)).thenReturn(Optional.empty());
 
@@ -79,7 +79,7 @@ class ValidationServiceImplTest {
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationFails_ReturnsValidationError() {
         var validationInput = new ValidationInput("1234", new ValidationInput.Actor("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty(), "");
         var name = new Clause.Name("0000");
-        var drugClause = new DrugClause(new DrugClause.Drug(null), Set.of(new DrugClause.Clause(name.name(), "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(null), Set.of(new DrugClause.Clause(name.value(), "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("message", 10800), expression, "tester", new Date());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
@@ -91,7 +91,7 @@ class ValidationServiceImplTest {
         Mockito.verify(expression).validates(validationInput);
 
         assertEquals(1, result.size(), "Expected an error being returned");
-        assertEquals(clause.name().name(), result.getFirst().clause().code());
+        assertEquals(clause.name().value(), result.getFirst().clause().code());
         assertEquals(clause.error().message(), result.getFirst().clause().message());
         assertEquals(clause.error().code(), result.getFirst().code());
         assertEquals(drugClause.clauses().iterator().next().text(), result.getFirst().clause().text());
@@ -109,9 +109,9 @@ class ValidationServiceImplTest {
         var drugClause = new DrugClause(
                 new DrugClause.Drug(validationInput.drugId()),
                 Set.of(
-                        new DrugClause.Clause(name1.name(), "clauses text"),
-                        new DrugClause.Clause(name2.name(), "clauses text"),
-                        new DrugClause.Clause(name3.name(), "clauses text")
+                        new DrugClause.Clause(name1.value(), "clauses text"),
+                        new DrugClause.Clause(name2.value(), "clauses text"),
+                        new DrugClause.Clause(name3.value(), "clauses text")
                 )
         );
         var clauses = drugClause.clauses().stream().toList();
@@ -139,8 +139,8 @@ class ValidationServiceImplTest {
 
         assertEquals(2, failedClauses.size(), "Expected the validation to fail and two validation errors to be returned");
 
-        assertTrue(failedClauses.contains(name1.name()), "Expected the first failing clause");
-        assertTrue(failedClauses.contains(name3.name()), "Expected the second failing clause");
+        assertTrue(failedClauses.contains(name1.value()), "Expected the first failing clause");
+        assertTrue(failedClauses.contains(name3.value()), "Expected the second failing clause");
     }
 
     @Test
@@ -175,7 +175,7 @@ class ValidationServiceImplTest {
         var reporter = new ValidationInput.Actor("reporter");
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty(), "");
         var name = new Clause.Name("0000");
-        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause(name.name(), "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause(name.value(), "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("", 10800), expression, "tester", new Date());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
@@ -193,7 +193,7 @@ class ValidationServiceImplTest {
         var reporter = new ValidationInput.Actor("reporter");
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty(), "");
         var name = new Clause.Name("0000");
-        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause(name.name(), "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause(name.value(), "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("", 10800), expression, "tester", new Date());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
@@ -212,7 +212,7 @@ class ValidationServiceImplTest {
         var reporter = new ValidationInput.Actor("reporter");
         var validationInput = new ValidationInput("1234", creator, Optional.of(reporter), List.of(), 5, 1234, "", Optional.empty(), "");
         var name = new Clause.Name("0000");
-        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause(name.name(), "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause(name.value(), "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("", 10800), expression, "tester", new Date());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));

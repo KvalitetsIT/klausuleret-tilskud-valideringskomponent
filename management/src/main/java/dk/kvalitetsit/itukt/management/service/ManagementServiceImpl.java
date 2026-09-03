@@ -100,7 +100,7 @@ public class ManagementServiceImpl implements ManagementService {
 
     private Clause updateStatus(Clause.Name name, Clause.Status currentStatus, String errorMessage, Clause.Status nextStatus) throws InvalidInputException {
         var clause = readSingle(new ClauseQuery()
-                .name(name.name())
+                .name(name.value())
                 .statuses(currentStatus)
                 .withoutPrimaryChildren())
                 .orElseThrow(() -> new InvalidInputException(errorMessage));
@@ -153,12 +153,12 @@ public class ManagementServiceImpl implements ManagementService {
 
     @Override
     public long getNumberOfDrugsForClause(Clause.Name name) {
-        return clauseDrugCounter.getNumberOfDrugsForClause(name.name());
+        return clauseDrugCounter.getNumberOfDrugsForClause(name.value());
     }
 
     private Optional<Clause> readCurrentDraft(Clause.Name name) {
         return readSingle(new ClauseQuery()
-                .name(name.name())
+                .name(name.value())
                 .statuses(Clause.Status.DRAFT)
                 .withoutChildren()
         );
@@ -166,7 +166,7 @@ public class ManagementServiceImpl implements ManagementService {
 
     private Optional<Clause> readCurrentNonDraft(Clause.Name name) {
         return readSingle(new ClauseQuery()
-                .name(name.name())
+                .name(name.value())
                 .statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE)
                 .withoutPrimaryChildren()
         );

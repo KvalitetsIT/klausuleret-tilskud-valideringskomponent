@@ -22,9 +22,9 @@ public record Clause(
         String createdBy,
         Date createdTime
 ) {
-    public record Name(String name) {
-        public Name(String name) {
-            this.name = name.toUpperCase();
+    public record Name(String value) {
+        public Name(String value) {
+            this.value = value.toUpperCase();
         }
     }
 

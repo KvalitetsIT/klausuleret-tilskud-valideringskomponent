@@ -48,7 +48,7 @@ class ManagementServiceImplTest {
     void create_WhenDraftWithSameNameAlreadyExists_ThrowsException() {
         var clauseForCreation = new ClauseInput(new Clause.Name("test"), Mockito.mock(BinaryExpression.class), "test error");
         var existingDraftClause = mock(Clause.class);
-        var expectedQuery = new ClauseQuery().name(clauseForCreation.name().name()).statuses(Clause.Status.DRAFT).withoutChildren();
+        var expectedQuery = new ClauseQuery().name(clauseForCreation.name().value()).statuses(Clause.Status.DRAFT).withoutChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(existingDraftClause));
 
         var e = assertThrows(InvalidInputException.class, () -> service.create(clauseForCreation));
@@ -77,9 +77,9 @@ class ManagementServiceImplTest {
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
         var existingClause = mock(Clause.class);
         Mockito.when(existingClause.id()).thenReturn(1L);
-        var draftQuery = new ClauseQuery().statuses(Clause.Status.DRAFT).withoutChildren().name(clauseForCreation.name().name());
+        var draftQuery = new ClauseQuery().statuses(Clause.Status.DRAFT).withoutChildren().name(clauseForCreation.name().value());
         Mockito.when(dao.read(queryMatcher(draftQuery))).thenReturn(List.of());
-        var expectedQuery = new ClauseQuery().name(clauseForCreation.name().name()).statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE).withoutPrimaryChildren();
+        var expectedQuery = new ClauseQuery().name(clauseForCreation.name().value()).statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE).withoutPrimaryChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(existingClause));
         var expectedClauseFullInput = new ClauseFullInput(clauseForCreation.name(), clauseForCreation.expression(), clauseForCreation.errorMessage(), Clause.Status.DRAFT, userId, null, existingClause.id());
         var clause = mock(Clause.class);
@@ -108,7 +108,7 @@ class ManagementServiceImplTest {
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
         var existingDraft = mock(Clause.class);
         Mockito.when(existingDraft.id()).thenReturn(1L);
-        var expectedQuery = new ClauseQuery().name(name.name()).statuses(Clause.Status.DRAFT).withoutChildren();
+        var expectedQuery = new ClauseQuery().name(name.value()).statuses(Clause.Status.DRAFT).withoutChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(existingDraft));
         var expectedDraftOutput = mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(expectedDraftOutput);
@@ -173,7 +173,7 @@ class ManagementServiceImplTest {
         String userId = "tester";
         Mockito.when(userContextService.getUserID()).thenReturn(userId);
         Mockito.when(dao.read(queryMatcher(CURRENT_DRAFT_QUERY))).thenReturn(List.of(draft));
-        var nonDraftQuery = new ClauseQuery().name(draft.name().name()).statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE).withoutPrimaryChildren();
+        var nonDraftQuery = new ClauseQuery().name(draft.name().value()).statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE).withoutPrimaryChildren();
         Mockito.when(dao.read(queryMatcher(nonDraftQuery))).thenReturn(List.of(active));
         var createdClause = mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(createdClause);
@@ -195,7 +195,7 @@ class ManagementServiceImplTest {
         Mockito.when(draft.error()).thenReturn(Mockito.mock(Clause.Error.class));
         Mockito.when(draft.uuid()).thenReturn(UUID.randomUUID());
         Mockito.when(dao.read(queryMatcher(CURRENT_DRAFT_QUERY))).thenReturn(List.of(draft));
-        var expectedQuery = new ClauseQuery().name(draft.name().name()).statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE).withoutPrimaryChildren();
+        var expectedQuery = new ClauseQuery().name(draft.name().value()).statuses(Clause.Status.ACTIVE, Clause.Status.INACTIVE).withoutPrimaryChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(active));
 
         service.approve(draft.uuid(), true);
@@ -241,7 +241,7 @@ class ManagementServiceImplTest {
     @Test
     void givenAnActiveClause_whenInactivate_thenEnsureSkippedValidationIsCopied() throws InvalidInputException {
         var clause = new Clause(1L, new Clause.Name("test"), Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        var expectedQuery = new ClauseQuery().name(clause.name().name()).statuses(Clause.Status.ACTIVE).withoutPrimaryChildren();
+        var expectedQuery = new ClauseQuery().name(clause.name().value()).statuses(Clause.Status.ACTIVE).withoutPrimaryChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(clause));
 
         Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), "tester", new Date());
@@ -255,7 +255,7 @@ class ManagementServiceImplTest {
     @Test
     void givenAnInactiveClause_whenActivate_thenEnsureSkippedValidationIsCopied() throws InvalidInputException {
         var clause = new Clause(1L, new Clause.Name("test"), Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        var expectedQuery = new ClauseQuery().name(clause.name().name()).statuses(Clause.Status.INACTIVE).withoutPrimaryChildren();
+        var expectedQuery = new ClauseQuery().name(clause.name().value()).statuses(Clause.Status.INACTIVE).withoutPrimaryChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(clause));
 
         Clause created = new Clause(2L, clause.name(), clause.status(), UUID.randomUUID(), clause.error(), clause.expression(), "tester", new Date());
@@ -269,7 +269,7 @@ class ManagementServiceImplTest {
     @Test
     void inactivate_WhenClauseIsActive_CreatesNewClauseAndSetsInactive() throws InvalidInputException {
         var clause = new Clause(1L, new Clause.Name("test"), Clause.Status.ACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        var expectedQuery = new ClauseQuery().name(clause.name().name()).statuses(Clause.Status.ACTIVE).withoutPrimaryChildren();
+        var expectedQuery = new ClauseQuery().name(clause.name().value()).statuses(Clause.Status.ACTIVE).withoutPrimaryChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(clause));
         var inactiveClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(inactiveClause);
@@ -289,7 +289,7 @@ class ManagementServiceImplTest {
     @Test
     void activate_WhenClauseIsInactive_CreatesNewClauseAndSetsActive() throws InvalidInputException {
         var clause = new Clause(1L, new Clause.Name("test"), Clause.Status.INACTIVE, UUID.randomUUID(), new Clause.Error("message", 10800), EXPRESSION_1_MODEL, "tester", new Date());
-        var expectedQuery = new ClauseQuery().name(clause.name().name()).statuses(Clause.Status.INACTIVE).withoutPrimaryChildren();
+        var expectedQuery = new ClauseQuery().name(clause.name().value()).statuses(Clause.Status.INACTIVE).withoutPrimaryChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(clause));
         var activeClause = Mockito.mock(Clause.class);
         Mockito.when(dao.create(Mockito.any())).thenReturn(activeClause);
@@ -316,7 +316,7 @@ class ManagementServiceImplTest {
         var clause = mock(Clause.class);
         Mockito.when(clause.name()).thenReturn(new Clause.Name("test"));
         Mockito.when(dao.read(uuid)).thenReturn(Optional.of(clause));
-        var expectedQuery = new ClauseQuery().name(clause.name().name()).statuses(Clause.Status.DRAFT).withoutChildren();
+        var expectedQuery = new ClauseQuery().name(clause.name().value()).statuses(Clause.Status.DRAFT).withoutChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of());
 
         var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
@@ -332,7 +332,7 @@ class ManagementServiceImplTest {
         Mockito.when(dao.read(uuid)).thenReturn(Optional.of(clause));
         var currentDraft = mock(Clause.class);
         Mockito.when(currentDraft.uuid()).thenReturn(UUID.randomUUID());
-        var expectedQuery = new ClauseQuery().name(clause.name().name()).statuses(Clause.Status.DRAFT).withoutChildren();
+        var expectedQuery = new ClauseQuery().name(clause.name().value()).statuses(Clause.Status.DRAFT).withoutChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery))).thenReturn(List.of(currentDraft));
 
         var e = assertThrows(NotFoundException.class, () -> service.deleteDraft(uuid));
@@ -349,7 +349,7 @@ class ManagementServiceImplTest {
         var secondLatestDraft = mock(Clause.class);
         Mockito.when(secondLatestDraft.uuid()).thenReturn(UUID.randomUUID());
         Mockito.when(dao.read(uuid)).thenReturn(Optional.of(latestDraft));
-        var expectedQuery = new ClauseQuery().name(latestDraft.name().name()).statuses(Clause.Status.DRAFT).withoutChildren();
+        var expectedQuery = new ClauseQuery().name(latestDraft.name().value()).statuses(Clause.Status.DRAFT).withoutChildren();
         Mockito.when(dao.read(queryMatcher(expectedQuery)))
                 .thenReturn(List.of(latestDraft))
                 .thenReturn(List.of(latestDraft))

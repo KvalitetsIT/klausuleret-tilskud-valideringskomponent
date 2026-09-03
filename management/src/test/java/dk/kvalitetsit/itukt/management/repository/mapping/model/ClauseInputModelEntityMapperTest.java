@@ -30,7 +30,7 @@ class ClauseInputModelEntityMapperTest {
 
         var result = clauseInputMapper.map(clauseInput);
 
-        assertEquals(clauseInput.name().name(), result.name(), "Name should be mapped correctly");
+        assertEquals(clauseInput.name().value(), result.name(), "Name should be mapped correctly");
         assertEquals(expectedExpressionEntity, result.expression(), "Expression should be mapped using the expression mapper");
         assertEquals(clauseInput.errorMessage(), result.errorMessage(), "Error message should be mapped correctly");
         assertEquals(clauseInput.status(), result.status(), "Status should be mapped correctly");

@@ -338,6 +338,22 @@ paths:
                 items:
                   type: string
 
+  /management/2025/08/01/medication-form-codes:
+    get:
+      tags:
+        - management
+      description: "Retrieves all valid medication form codes"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  type: string
+
 components:
   responses:
     '400':

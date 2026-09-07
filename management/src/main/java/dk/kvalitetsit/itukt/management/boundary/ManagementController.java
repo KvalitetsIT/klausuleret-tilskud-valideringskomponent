@@ -4,6 +4,8 @@ package dk.kvalitetsit.itukt.management.boundary;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
+import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
 import org.openapitools.model.*;
@@ -29,12 +31,16 @@ public class ManagementController implements ManagementApi {
 
     private final ManagementServiceAdaptor service;
     private final StamdataCacheService<Medication.ATC> medicationATCService;
+    private final DepartmentSpecialityService departmentSpecialityService;
 
     public ManagementController(
             @Autowired ManagementServiceAdaptor service,
-            @Autowired StamdataCacheService<Medication.ATC> medicationATCService) {
+            @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
+            @Autowired DepartmentSpecialityService departmentSpecialityService
+    ) {
         this.service = service;
         this.medicationATCService = medicationATCService;
+        this.departmentSpecialityService = departmentSpecialityService;
     }
 
     @Override
@@ -127,6 +133,14 @@ public class ManagementController implements ManagementApi {
                 .map(Medication.ATC::code)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(atcCodes);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801DepartmentSpecialitiesGet() {
+        var specialities = departmentSpecialityService.getSpecialities().stream()
+                .map(Department.Speciality::name)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(specialities);
     }
 
     private URI getLocation(Function<ManagementController, Object> methodRef, UUID uuid) {

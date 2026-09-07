@@ -4,6 +4,8 @@ package dk.kvalitetsit.itukt.management.boundary;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
+import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +40,8 @@ class ManagementControllerTest {
     private ManagementServiceAdaptor clauseService;
     @Mock
     private StamdataCacheService<Medication.ATC> medicationATCService;
+    @Mock
+    private DepartmentSpecialityService departmentSpecialityService;
 
     @BeforeEach
     void setupRequestContext() {
@@ -196,5 +200,16 @@ class ManagementControllerTest {
 
         assertEquals(Set.of(atc1.code(), atc2.code()), response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801DepartmentSpecialitiesGet_ReturnsSpecialitiesFromService() {
+        var speciality1 = new Department.Speciality("S1");
+        var speciality2 = new Department.Speciality("S2");
+        Mockito.when(departmentSpecialityService.getSpecialities()).thenReturn(Set.of(speciality1, speciality2));
+
+        var response = managementController.management20250801DepartmentSpecialitiesGet();
+
+        assertEquals(Set.of(speciality1.name(), speciality2.name()), response.getBody());
     }
 }

@@ -580,6 +580,18 @@ class ManagementIT extends BaseTest {
         assertEquals(Set.of(speciality1, speciality2, speciality3), doctorSpecialities);
     }
 
+    @Test
+    void getDepartmentSpecialities() {
+        String speciality = "SPECIALITY1";
+        setupStamdataWithDepartmentSpeciality(speciality);
+        restartService();
+
+        var specialities = api.management20250801DepartmentSpecialitiesGet();
+
+        assertEquals(1, specialities.size());
+        assertTrue(specialities.contains(speciality));
+    }
+
     private static String setupStamdataClauseWithOneDrug() {
         String clauseName = "TEST";
         var stamdataDatasource = stamDatabase.getDatasource();

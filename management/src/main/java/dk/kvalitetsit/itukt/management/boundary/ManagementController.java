@@ -6,6 +6,8 @@ import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
+import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
 import org.openapitools.model.*;
@@ -34,18 +36,21 @@ public class ManagementController implements ManagementApi {
     private final StamdataCacheService<Indication> indicationService;
     private final StamdataCacheService<Medication.Route> medicationRouteService;
     private final StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
+    private final DepartmentSpecialityService departmentSpecialityService;
 
     public ManagementController(
             @Autowired ManagementServiceAdaptor service,
             @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
             @Autowired StamdataCacheService<Indication> indicationService,
             @Autowired StamdataCacheService<Medication.Route> medicationRouteService,
-            @Autowired StamdataCacheService<DoctorSpeciality> doctorSpecialityService) {
+            @Autowired StamdataCacheService<DoctorSpeciality> doctorSpecialityService,
+            @Autowired DepartmentSpecialityService departmentSpecialityService) {
         this.service = service;
         this.medicationATCService = medicationATCService;
         this.indicationService = indicationService;
         this.medicationRouteService = medicationRouteService;
         this.doctorSpecialityService = doctorSpecialityService;
+        this.departmentSpecialityService = departmentSpecialityService;
     }
 
     @Override
@@ -160,6 +165,14 @@ public class ManagementController implements ManagementApi {
     public ResponseEntity<Set<String>> management20250801DoctorSpecialitiesGet() {
         Set<String> specialities = doctorSpecialityService.getAll().stream()
                 .map(DoctorSpeciality::value)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(specialities);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801DepartmentSpecialitiesGet() {
+        var specialities = departmentSpecialityService.getSpecialities().stream()
+                .map(Department.Speciality::name)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(specialities);
     }

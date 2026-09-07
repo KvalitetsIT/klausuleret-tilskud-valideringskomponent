@@ -7,7 +7,9 @@ import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
+import dk.kvalitetsit.itukt.common.service.MedicationFormService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +49,8 @@ class ManagementControllerTest {
     private StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
     @Mock
     private DepartmentSpecialityService departmentSpecialityService;
+    @Mock
+    private MedicationFormService medicationFormService;
 
     @BeforeEach
     void setup() {
@@ -254,5 +258,16 @@ class ManagementControllerTest {
         var response = managementController.management20250801DepartmentSpecialitiesGet();
 
         assertEquals(Set.of(speciality1.name(), speciality2.name()), response.getBody());
+    }
+
+    @Test
+    void management20250801MedicationFormsGet_ReturnsFormsFromService() {
+        var form1 = new Medication.Form("F1");
+        var form2 = new Medication.Form("F2");
+        Mockito.when(medicationFormService.getForms()).thenReturn(Set.of(form1, form2));
+
+        var response = managementController.management20250801MedicationFormCodesGet();
+
+        assertEquals(Set.of(form1.code(), form2.code()), response.getBody());
     }
 }

@@ -112,7 +112,7 @@ class ManagementIT extends BaseTest {
     void postClause_WithUnknownDepartmentSpeciality_ThrowsExceptionOnlyWhenNotSkippingValidation() {
         var input = new DslInput()
                 .name("test")
-                .dsl("AFDELINGSSPECIALE = NOT_KNOWN")
+                .dsl("AFDELINGSSPECIALE = \"NOT_KNOWN\"")
                 .error("error");
         var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input, false));
         assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale 'NOT_KNOWN'"));
@@ -125,7 +125,7 @@ class ManagementIT extends BaseTest {
         restartService();
         var input = new DslInput()
                 .name("test")
-                .dsl("AFDELINGSSPECIALE = TEST")
+                .dsl("AFDELINGSSPECIALE = \"TEST\"")
                 .error("error");
         assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, false));
     }
@@ -134,7 +134,7 @@ class ManagementIT extends BaseTest {
     void postClause_WithUnknownFormCode_ThrowsExceptionOnlyWhenNotSkippingValidation() {
         var input = new DslInput()
                 .name("test")
-                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = NOT_KNOWN}")
+                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = \"NOT_KNOWN\"}")
                 .error("error");
 
         var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input, false));
@@ -148,7 +148,7 @@ class ManagementIT extends BaseTest {
         restartService();
         var input = new DslInput()
                 .name("test")
-                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = TEST}")
+                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TEST\"}")
                 .error("error");
         assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, false));
     }
@@ -161,7 +161,7 @@ class ManagementIT extends BaseTest {
                 .error("error");
         api.management20250801ClausesDslPost(input, true);
         var updateInput = new DslUpdateInput()
-                .dsl("AFDELINGSSPECIALE = not_known")
+                .dsl("AFDELINGSSPECIALE = \"not_known\"")
                 .error("error");
 
         assertThrows(HttpClientErrorException.BadRequest.class,
@@ -293,7 +293,7 @@ class ManagementIT extends BaseTest {
 
         var error = "blaah";
 
-        String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = læge eller LÆGESPECIALE i [kæbekirurg, ortopædkirurg] og ALDER >= 18))";
+        String dsl = "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = \"læge\" eller LÆGESPECIALE i [\"kæbekirurg\", \"ortopædkirurg\"] og ALDER >= 18))";
 
         ClauseInput clauseInput = new ClauseInput().name("CLAUSE").expression(new BinaryExpression()
                         .type(ExpressionType.BINARY)
@@ -382,7 +382,7 @@ class ManagementIT extends BaseTest {
     void management20250801ClausesDslPost_whenPostingAValidDSLThenRetrieveACorrectlyInterpretedClause() {
         var error = "blaah";
 
-        String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = LÆGE eller LÆGESPECIALE i [KÆBEKIRURG, ORTOPÆDKIRURG] og ALDER >= 18))";
+        String dsl = "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = \"LÆGE\" eller LÆGESPECIALE i [\"KÆBEKIRURG\", \"ORTOPÆDKIRURG\"] og ALDER >= 18))";
         DslInput dslInput = new DslInput().name("CLAUSE").dsl(dsl).error(error);
 
         var createDslResponse = api.management20250801ClausesDslPost(dslInput, true);

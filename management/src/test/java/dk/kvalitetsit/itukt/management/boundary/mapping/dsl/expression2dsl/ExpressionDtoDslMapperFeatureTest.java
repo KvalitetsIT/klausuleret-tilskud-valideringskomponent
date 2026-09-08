@@ -46,7 +46,7 @@ class ExpressionDtoDslMapperFeatureTest {
                         )
                 );
 
-        String expected = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13";
+        String expected = "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13";
         String actual = this.mapper.map(subject);
         assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
@@ -87,7 +87,7 @@ class ExpressionDtoDslMapperFeatureTest {
                         .routeOfAdministrationCode("ROUTE1")
                 );
 
-        String expected = "(INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13) og EKSISTERENDE_LÆGEMIDDEL = {ATC = ATC1, FORM = FORM1, ROUTE = ROUTE1}";
+        String expected = "(INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13) og EKSISTERENDE_LÆGEMIDDEL = {ATC = \"ATC1\", FORM = \"FORM1\", ROUTE = \"ROUTE1\"}";
         String actual = this.mapper.map(subject);
         assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
@@ -97,7 +97,7 @@ class ExpressionDtoDslMapperFeatureTest {
     void givenAnExistingDrugMedicationConditionExpression_whenMap_thenMapCorrectly() {
         ExistingDrugMedicationCondition subject = new ExistingDrugMedicationCondition().type(ExpressionType.EXISTING_DRUG_MEDICATION).atcCode("atcCode").formCode("formCode").routeOfAdministrationCode("routeOfAdministration");
 
-        var expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = atcCode, FORM = formCode, ROUTE = routeOfAdministration}";
+        var expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"atcCode\", FORM = \"formCode\", ROUTE = \"routeOfAdministration\"}";
         var actual = this.mapper.map(subject);
 
         assertEquals(expected, actual, "Unexpected mapping of: " + subject);
@@ -112,7 +112,7 @@ class ExpressionDtoDslMapperFeatureTest {
                 .right(new ExistingDrugMedicationCondition().type(ExpressionType.EXISTING_DRUG_MEDICATION).atcCode("B01AC").formCode("INJEKTION").routeOfAdministrationCode("INTRAVENØS"));
 
         String actual = mapper.map(subject);
-        String expected = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, FORM = INJEKTION, ROUTE = INTRAVENØS}]";
+        String expected = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"B01AC\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}]";
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
@@ -131,7 +131,7 @@ class ExpressionDtoDslMapperFeatureTest {
                 );
 
         String actual = mapper.map(subject);
-        String expected = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = TABLET, ROUTE = RECTAL}, {ATC = C20B, FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, FORM = INJEKTION, ROUTE = INTRAVENØS}]";
+        String expected = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"RECTAL\"}, {ATC = \"C20B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"B01AC\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}]";
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
@@ -161,7 +161,7 @@ class ExpressionDtoDslMapperFeatureTest {
                 );
 
         String actual = mapper.map(subject);
-        String expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = RECTAL} og EKSISTERENDE_LÆGEMIDDEL i [{ATC = C20B, FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, FORM = INJEKTION, ROUTE = INTRAVENØS}]";
+        String expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"RECTAL\"} og EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C20B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"B01AC\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}]";
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
@@ -183,7 +183,7 @@ class ExpressionDtoDslMapperFeatureTest {
                 );
 
         String actual = mapper.map(subject);
-        String expected = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = TABLET, ROUTE = ORAL}, {ATC = C20B, FORM = INJEKTION, ROUTE = INTRAVENØS}] og EKSISTERENDE_LÆGEMIDDEL i [{ATC = C30B, FORM = TABLET, ROUTE = ORAL}, {ATC = C40B, FORM = INJEKTION, ROUTE = INTRAVENØS}]";
+        String expected = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"C20B\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}] og EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C30B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"C40B\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}]";
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
@@ -208,7 +208,7 @@ class ExpressionDtoDslMapperFeatureTest {
                 );
 
         String actual = mapper.map(subject);
-        String expected = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = TABLET, ROUTE = ORAL}, {ATC = C20B, FORM = INJEKTION, ROUTE = INTRAVENØS}, {ATC = C30B, FORM = TABLET, ROUTE = ORAL}, {ATC = C40B, FORM = INJEKTION, ROUTE = INTRAVENØS}]";
+        String expected = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"C20B\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}, {ATC = \"C30B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"C40B\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}]";
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
@@ -263,13 +263,13 @@ class ExpressionDtoDslMapperFeatureTest {
 
         String actual = mapper.map(subject);
         String expected = "EKSISTERENDE_LÆGEMIDDEL = " +
-                "{ATC = C00B, FORM = TABLET, ROUTE = ORAL} og EKSISTERENDE_LÆGEMIDDEL i [" +
-                "{ATC = C10B, FORM = TABLET, ROUTE = ORAL}, " +
-                "{ATC = C20B, FORM = INJEKTION, ROUTE = INTRAVENØS}] og " +
+                "{ATC = \"C00B\", FORM = \"TABLET\", ROUTE = \"ORAL\"} og EKSISTERENDE_LÆGEMIDDEL i [" +
+                "{ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, " +
+                "{ATC = \"C20B\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}] og " +
                 "EKSISTERENDE_LÆGEMIDDEL i [" +
-                "{ATC = C30B, FORM = TABLET, ROUTE = ORAL}, " +
-                "{ATC = C40B, FORM = TABLET, ROUTE = ORAL}, " +
-                "{ATC = C50B, FORM = INJEKTION, ROUTE = INTRAVENØS}]";
+                "{ATC = \"C30B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, " +
+                "{ATC = \"C40B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, " +
+                "{ATC = \"C50B\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}]";
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
@@ -298,7 +298,7 @@ class ExpressionDtoDslMapperFeatureTest {
                 );
 
         String actual = mapper.map(subject);
-        String expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = RECTAL} eller EKSISTERENDE_LÆGEMIDDEL = {ATC = C20B, FORM = TABLET, ROUTE = ORAL} og EKSISTERENDE_LÆGEMIDDEL = {ATC = B01AC, FORM = INJEKTION, ROUTE = INTRAVENØS}";
+        String expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"RECTAL\"} eller EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C20B\", FORM = \"TABLET\", ROUTE = \"ORAL\"} og EKSISTERENDE_LÆGEMIDDEL = {ATC = \"B01AC\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}";
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
 
@@ -307,7 +307,7 @@ class ExpressionDtoDslMapperFeatureTest {
     void givenDslWithExistingDrugConditionIncludingWildcards_whenMap_thenParseDrugCorrectly() {
         final Expression subject = new ExistingDrugMedicationCondition().type(ExpressionType.EXISTING_DRUG_MEDICATION).atcCode("C10B").formCode("*").routeOfAdministrationCode("*");
 
-        String expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}";
+        String expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\", FORM = *, ROUTE = *}";
         String actual = mapper.map(subject);
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
@@ -379,7 +379,7 @@ class ExpressionDtoDslMapperFeatureTest {
                         .operator(BinaryOperator.OR)
                         .right(new IndicationCondition().type(ExpressionType.INDICATION).value("blaa")));
 
-        String expected = "ALDER i [10, 20] eller INDIKATION = blaa";
+        String expected = "ALDER i [10, 20] eller INDIKATION = \"blaa\"";
         String actual = mapper.map(subject);
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
@@ -414,7 +414,7 @@ class ExpressionDtoDslMapperFeatureTest {
 
         String actual = mapper.map(subject);
 
-        String expected = "(ALDER = 10 eller INDIKATION = blaa) og ALDER = 20";
+        String expected = "(ALDER = 10 eller INDIKATION = \"blaa\") og ALDER = 20";
 
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
@@ -435,7 +435,7 @@ class ExpressionDtoDslMapperFeatureTest {
 
         String actual = mapper.map(subject);
 
-        String expected = "ALDER = 10 og INDIKATION = blaa og ALDER = 20";
+        String expected = "ALDER = 10 og INDIKATION = \"blaa\" og ALDER = 20";
 
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
@@ -457,7 +457,7 @@ class ExpressionDtoDslMapperFeatureTest {
 
         String actual = mapper.map(subject);
 
-        String expected = "ALDER = 10 og INDIKATION = blaa eller ALDER = 20";
+        String expected = "ALDER = 10 og INDIKATION = \"blaa\" eller ALDER = 20";
 
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }

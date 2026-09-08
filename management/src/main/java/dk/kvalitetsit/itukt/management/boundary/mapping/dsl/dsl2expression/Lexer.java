@@ -39,7 +39,9 @@ public class Lexer {
             "\\s*(?:(og|eller)|" +                              // keywords
                     "(" + IDENTIFIER_PATTERN + ")|" +           // identifiers
                     "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
-                    "([a-z0-9_æøåÆØÅ*]+)|" +                    // values
+                    "(\"[a-z0-9_æøåÆØÅ]+\")|" +                 // string values
+                    "([0-9]+)|" +                               // number values
+                    "(\\*)|" +                                  // wildcard value
                     "([,()\\[\\]{}])|" +                        // symbols
                     "(\\S))",                                   // unknown
             Pattern.CASE_INSENSITIVE
@@ -62,11 +64,15 @@ public class Lexer {
             else if (matcher.group(3) != null)
                 tokens.add(new Token(TokenType.OPERATOR, matcher.group(3)));
             else if (matcher.group(4) != null)
-                tokens.add(new Token(TokenType.VALUE, matcher.group(4)));
+                tokens.add(new Token(TokenType.VALUE, matcher.group(4).replace("\"", "")));
             else if (matcher.group(5) != null)
-                tokens.add(new Token(TokenType.SYMBOL, matcher.group(5)));
+                tokens.add(new Token(TokenType.VALUE, matcher.group(5)));
+            else if (matcher.group(6) != null)
+                tokens.add(new Token(TokenType.VALUE, matcher.group(6)));
+            else if (matcher.group(7) != null)
+                tokens.add(new Token(TokenType.SYMBOL, matcher.group(7)));
             else
-                throw new UnexpectedValueException(matcher.group(6));
+                throw new UnexpectedValueException(matcher.group(8));
         }
         return tokens;
     }

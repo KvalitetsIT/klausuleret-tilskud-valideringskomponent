@@ -73,10 +73,10 @@ class DslParserFeatureTest {
                 );
 
         var validDSLs = List.of(
-                "(INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)",
-                "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13",
-                "INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
-                "(((INDIKATION = C10BA03) eller (((INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)))))"
+                "(INDIKATION = \"C10BA03\") eller (INDIKATION i [\"C10BA02\", \"C10BA05\"]) og (ALDER >= 13)",
+                "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13",
+                "INDIKATION = \"C10BA03\" eller (INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13)",
+                "(((INDIKATION = \"C10BA03\") eller (((INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13)))))"
         );
 
         for (String dsl : validDSLs) {
@@ -111,8 +111,8 @@ class DslParserFeatureTest {
         );
 
         var subjects = List.of(
-                "((INDIKATION = X eller INDIKATION = Y) og (INDIKATION = Z eller INDIKATION = W)) og (ALDER >= 10)",
-                "((INDIKATION = X eller INDIKATION = Y) og (INDIKATION = Z eller INDIKATION = W)) og ALDER >= 10"
+                "((INDIKATION = \"X\" eller INDIKATION = \"Y\") og (INDIKATION = \"Z\" eller INDIKATION = \"W\")) og (ALDER >= 10)",
+                "((INDIKATION = \"X\" eller INDIKATION = \"Y\") og (INDIKATION = \"Z\" eller INDIKATION = \"W\")) og ALDER >= 10"
         );
 
         for (String subject : subjects) {
@@ -144,7 +144,7 @@ class DslParserFeatureTest {
                 ),
                 ExpressionType.BINARY
         );
-        var subject = "(INDIKATION = X eller INDIKATION = Y) og ((INDIKATION = Z eller INDIKATION = W) og ALDER >= 10)";
+        var subject = "(INDIKATION = \"X\" eller INDIKATION = \"Y\") og ((INDIKATION = \"Z\" eller INDIKATION = \"W\") og ALDER >= 10)";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -163,9 +163,9 @@ class DslParserFeatureTest {
                 ExpressionType.BINARY
         );
         var validDSLs = List.of(
-                "INDIKATION i [C10BA01, C10BA02, C10BA03]",
-                "(INDIKATION i [C10BA01, C10BA02]) eller INDIKATION = C10BA03",
-                "((INDIKATION i [C10BA01, C10BA02]) eller INDIKATION = C10BA03)"
+                "INDIKATION i [\"C10BA01\", \"C10BA02\", \"C10BA03\"]",
+                "(INDIKATION i [\"C10BA01\", \"C10BA02\"]) eller INDIKATION = \"C10BA03\"",
+                "((INDIKATION i [\"C10BA01\", \"C10BA02\"]) eller INDIKATION = \"C10BA03\")"
         );
 
         for (String dsl : validDSLs) {
@@ -207,7 +207,7 @@ class DslParserFeatureTest {
 
     @Test
     void givenDslWithDepartmentSpecialityCondition_whenParse_thenItIsParsedCorrectly() throws DslParserException {
-        var subject = "AFDELINGSSPECIALE = test";
+        var subject = "AFDELINGSSPECIALE = \"test\"";
 
         var expression = parser.parse(subject);
 
@@ -218,7 +218,7 @@ class DslParserFeatureTest {
     @Test
     void givenDslWithSpecialityCondition_whenParse_thenItIsParsedCorrectly() throws DslParserException {
         var expected = new DoctorSpecialityCondition("LÆGE", ExpressionType.DOCTOR_SPECIALITY);
-        var subject = "LÆGESPECIALE = læge";
+        var subject = "LÆGESPECIALE = \"læge\"";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -229,7 +229,7 @@ class DslParserFeatureTest {
                 .left(new DoctorSpecialityCondition("LÆGE1", ExpressionType.DOCTOR_SPECIALITY))
                 .operator(BinaryOperator.OR)
                 .right(new DoctorSpecialityCondition("LÆGE2", ExpressionType.DOCTOR_SPECIALITY));
-        var subject = "LÆGESPECIALE i [læge1, læge2]";
+        var subject = "LÆGESPECIALE i [\"læge1\", \"læge2\"]";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -242,14 +242,14 @@ class DslParserFeatureTest {
                 ExpressionType.BINARY
         );
 
-        var subject = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = tablet, ROUTE = oral}, {ATC = B01AC, FORM = injektion, ROUTE = intravenøs}]";
+        var subject = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", FORM = \"tablet\", ROUTE = \"oral\"}, {ATC = \"B01AC\", FORM = \"injektion\", ROUTE = \"intravenøs\"}]";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
     void givenDslWithExistingDrugConditionIncludingWildcards_whenParse_thenParseDrugCorrectly() throws DslParserException {
         var expected = new ExistingDrugMedicationCondition("C10B", "*", "*", ExpressionType.EXISTING_DRUG_MEDICATION);
-        var subject = "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}";
+        var subject = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\", FORM = *, ROUTE = *}";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -266,8 +266,8 @@ class DslParserFeatureTest {
                 ),
                 ExpressionType.BINARY);
 
-        var subject_1 = "INDIKATION = X eller INDIKATION = Y og INDIKATION = Z";
-        var subject_2 = "INDIKATION = X eller (INDIKATION = Y og INDIKATION= Z)";
+        var subject_1 = "INDIKATION = \"X\" eller INDIKATION = \"Y\" og INDIKATION = \"Z\"";
+        var subject_2 = "INDIKATION = \"X\" eller (INDIKATION = \"Y\" og INDIKATION= \"Z\")";
 
         assertEquals(expected, parser.parse(subject_1), "Unexpected mapping of: " + subject_1);
         assertEquals(expected, parser.parse(subject_2), "Unexpected mapping of: " + subject_2);
@@ -285,7 +285,7 @@ class DslParserFeatureTest {
                 new IndicationCondition("Z", ExpressionType.INDICATION),
                 ExpressionType.BINARY);
 
-        final var subject = "(INDIKATION = X eller INDIKATION = Y) og INDIKATION = Z";
+        final var subject = "(INDIKATION = \"X\" eller INDIKATION = \"Y\") og INDIKATION = \"Z\"";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -302,7 +302,7 @@ class DslParserFeatureTest {
                 new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                 ExpressionType.BINARY);
 
-        final var subject = "INDIKATION =          C10BA03    OG ALDER >= 13 eLLer ALDER = 10";
+        final var subject = "INDIKATION =          \"C10BA03\"    OG ALDER >= 13 eLLer ALDER = 10";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -319,7 +319,7 @@ class DslParserFeatureTest {
                 new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                 ExpressionType.BINARY);
 
-        final var subject = "INDIKATION = c10ba03 og ALDER >= 13 eller ALDER = 10";
+        final var subject = "INDIKATION = \"c10ba03\" og ALDER >= 13 eller ALDER = 10";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -337,7 +337,7 @@ class DslParserFeatureTest {
                 new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                 ExpressionType.BINARY);
 
-        final var subject = "indiKaTion = C10BA03 OG ALDER >= 13 ELLER aLder = 10";
+        final var subject = "indiKaTion = \"C10BA03\" OG ALDER >= 13 ELLER aLder = 10";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -354,7 +354,7 @@ class DslParserFeatureTest {
                 new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                 ExpressionType.BINARY);
 
-        final var subject = "INDIKATION = C10BA03 eller ALDER >= 13 eller ALDER = 10";
+        final var subject = "INDIKATION = \"C10BA03\" eller ALDER >= 13 eller ALDER = 10";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -391,11 +391,11 @@ class DslParserFeatureTest {
                 );
 
         var dsls = List.of(
-                "(INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)",
-                "(INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13))",
-                "((INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)))",
-                "INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
-                "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13"
+                "(INDIKATION = \"C10BA03\") eller (INDIKATION i [\"C10BA02\", \"C10BA05\"]) og (ALDER >= 13)",
+                "(INDIKATION = \"C10BA03\") eller ((INDIKATION i [\"C10BA02\", \"C10BA05\"]) og (ALDER >= 13))",
+                "((INDIKATION = \"C10BA03\") eller ((INDIKATION i [\"C10BA02\", \"C10BA05\"]) og (ALDER >= 13)))",
+                "INDIKATION = \"C10BA03\" eller (INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13)",
+                "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13"
         );
 
         for (String dsl : dsls) {
@@ -415,10 +415,10 @@ class DslParserFeatureTest {
         );
 
         var dsls = List.of(
-                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, FORM = INJEKTION, ROUTE = INTRAVENØS}]",
-                "EKSISTERENDE_LÆGEMIDDEL i [{FORM = TABLET, ATC = C10B, ROUTE = ORAL}, {ROUTE = INTRAVENØS, ATC = B01AC, FORM = INJEKTION}]",
-                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B,FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, ROUTE = INTRAVENØS, FORM = INJEKTION}]",
-                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, ROUTE = ORAL, FORM = TABLET}, {ATC = B01AC, ROUTE = INTRAVENØS, FORM = INJEKTION}]"
+                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"B01AC\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}]",
+                "EKSISTERENDE_LÆGEMIDDEL i [{FORM = \"TABLET\", ATC = \"C10B\", ROUTE = \"ORAL\"}, {ROUTE = \"INTRAVENØS\", ATC = \"B01AC\", FORM = \"INJEKTION\"}]",
+                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\",FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"B01AC\", ROUTE = \"INTRAVENØS\", FORM = \"INJEKTION\"}]",
+                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", ROUTE = \"ORAL\", FORM = \"TABLET\"}, {ATC = \"B01AC\", ROUTE = \"INTRAVENØS\", FORM = \"INJEKTION\"}]"
         );
 
         for (String dsl : dsls) {
@@ -430,28 +430,28 @@ class DslParserFeatureTest {
     @Test
     void givenAnExistingDrugMedicationDsLWithWildcardFields_whenParse_thenMapCorrectly() throws DslParserException {
         var cases = Map.of(
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "TABLET",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = *}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\", ROUTE = *}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "TABLET",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = *, ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "*",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = \"TABLET\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "TABLET",
@@ -459,21 +459,21 @@ class DslParserFeatureTest {
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
 
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = *, ROUTE = *}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "*",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "*",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE =  *}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = \"TABLET\", ROUTE =  *}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "TABLET",
@@ -500,28 +500,28 @@ class DslParserFeatureTest {
     @Test
     void givenAnExistingDrugMedicationDsLWithIgnoredFields_whenParse_thenMapCorrectly() throws DslParserException {
         var cases = Map.of(
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "TABLET",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "TABLET",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "*",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {FORM = TABLET, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TABLET\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "TABLET",
@@ -529,21 +529,21 @@ class DslParserFeatureTest {
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
 
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "*",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ROUTE =  ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ROUTE =  \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "*",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {FORM = TABLET}",
+                "EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TABLET\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "TABLET",

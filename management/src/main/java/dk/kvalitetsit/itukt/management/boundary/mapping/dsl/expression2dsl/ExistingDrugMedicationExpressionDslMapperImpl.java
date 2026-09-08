@@ -6,15 +6,20 @@ import org.openapitools.model.ExistingDrugMedicationCondition;
 import java.util.List;
 
 class ExistingDrugMedicationExpressionDslMapperImpl implements ExpressionDslMapper<ExistingDrugMedicationCondition> {
+    private final StringToDslValueMapper stringToDslValueMapper;
 
-    private static String toString(ExistingDrugMedicationCondition expression) {
+    ExistingDrugMedicationExpressionDslMapperImpl(StringToDslValueMapper stringToDslValueMapper) {
+        this.stringToDslValueMapper = stringToDslValueMapper;
+    }
+
+    private String toString(ExistingDrugMedicationCondition expression) {
         return String.format("{%s = %s, %s = %s, %s = %s}",
                 Identifier.ATC_CODE,
-                expression.getAtcCode(),
+                stringToDslValueMapper.map(expression.getAtcCode()),
                 Identifier.FORM_CODE,
-                expression.getFormCode(),
+                stringToDslValueMapper.map(expression.getFormCode()),
                 Identifier.ROUTE,
-                expression.getRouteOfAdministrationCode()
+                stringToDslValueMapper.map(expression.getRouteOfAdministrationCode())
         );
     }
 
@@ -23,7 +28,7 @@ class ExistingDrugMedicationExpressionDslMapperImpl implements ExpressionDslMapp
         return ExpressionDtoDslMapper.mergeConditions(
                 Identifier.EXISTING_DRUG_MEDICATION,
                 expressions,
-                ExistingDrugMedicationExpressionDslMapperImpl::toString
+                this::toString
         );
     }
 

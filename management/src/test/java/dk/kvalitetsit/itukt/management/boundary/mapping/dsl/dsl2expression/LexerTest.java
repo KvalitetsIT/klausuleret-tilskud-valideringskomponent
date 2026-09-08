@@ -29,7 +29,7 @@ class LexerTest {
 
     @Test
     void getTokens_WithAllValidTokenTypes_ReturnsTokensWithUppercaseValues() throws DslParserException {
-        String input = "a æøÅ * og eller >= <= = > < i , ( ) [ ] { }";
+        String input = "alder æøÅ * og eller >= <= = > < i , ( ) [ ] { }";
 
         try (MockedStatic<TokenIterator> tokenIteratorMock = Mockito.mockStatic(TokenIterator.class)) {
             var expectedTokenIterator = Mockito.mock(TokenIterator.class);
@@ -40,7 +40,7 @@ class LexerTest {
 
             assertEquals(expectedTokenIterator, tokens);
             var expectedTokens = List.of(
-                    new Token(TokenType.VALUE, "A"),
+                    new Token(TokenType.IDENTIFIER, "ALDER"),
                     new Token(TokenType.VALUE, "ÆØÅ"),
                     new Token(TokenType.VALUE, "*"),
                     new Token(TokenType.KEYWORD, "OG"),

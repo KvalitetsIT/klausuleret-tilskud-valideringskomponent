@@ -27,14 +27,14 @@ public class ConditionTokenParser implements TokenParser<Condition> {
 
     @Override
     public boolean canParse(TokenIterator tokens) {
-        return tokens.nextHasType(TokenType.VALUE) &&
+        return tokens.nextHasType(TokenType.IDENTIFIER) &&
                 Arrays.stream(Identifier.values())
                         .anyMatch(id -> tokens.nextHasText(id.toString()));
     }
 
     @Override
     public Condition parse(TokenIterator tokens) throws DslParserException {
-        Identifier identifier = Identifier.from(tokens.nextWithType(TokenType.VALUE).text());
+        Identifier identifier = Identifier.from(tokens.nextWithType(TokenType.IDENTIFIER).text());
         Token operator = tokens.nextWithType(TokenType.OPERATOR);
 
         if (multiValueParser.canParse(tokens)) {

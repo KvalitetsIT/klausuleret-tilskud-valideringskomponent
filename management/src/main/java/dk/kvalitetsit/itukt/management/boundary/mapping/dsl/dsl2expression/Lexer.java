@@ -39,7 +39,7 @@ public class Lexer {
             "\\s*(?:(og|eller)|" +                              // keywords
                     "(" + IDENTIFIER_PATTERN + ")|" +           // identifiers
                     "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
-                    "(\"[a-z0-9_æøåÆØÅ]+\")|" +                 // string values
+                    "(\"[a-z0-9_æøåÆØÅ ]+\")|" +                 // string values
                     "([0-9]+)|" +                               // number values
                     "(\\*)|" +                                  // wildcard value
                     "([,()\\[\\]{}])|" +                        // symbols

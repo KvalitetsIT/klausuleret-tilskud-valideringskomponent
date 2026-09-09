@@ -3,13 +3,13 @@ package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.scheduled.ScheduledJob;
-import dk.kvalitetsit.itukt.common.service.MedicationFormService;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 
 import java.util.Optional;
 import java.util.Set;
 
-public class MedicationFormCache implements ScheduledJob, MedicationFormService {
+public class MedicationFormCache implements ScheduledJob, StamdataCacheService<Medication.Form> {
     private final CacheConfiguration configuration;
     private final Repository<Medication.Form> repository;
     private Set<Medication.Form> forms = Set.of();
@@ -30,12 +30,12 @@ public class MedicationFormCache implements ScheduledJob, MedicationFormService 
     }
 
     @Override
-    public Set<Medication.Form> getForms() {
+    public Set<Medication.Form> getAll() {
         return forms;
     }
 
     @Override
-    public Optional<Medication.Form> getForm(String formCode) {
+    public Optional<Medication.Form> get(String formCode) {
         return Optional.of(new Medication.Form(formCode)).filter(forms::contains);
     }
 }

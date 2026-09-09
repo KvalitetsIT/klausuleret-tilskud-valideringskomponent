@@ -3,13 +3,13 @@ package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.scheduled.ScheduledJob;
-import dk.kvalitetsit.itukt.common.service.MedicationATCService;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 
 import java.util.Optional;
 import java.util.Set;
 
-public class MedicationATCCache implements ScheduledJob, MedicationATCService {
+public class MedicationATCCache implements ScheduledJob, StamdataCacheService<Medication.ATC> {
     private final CacheConfiguration configuration;
     private final Repository<Medication.ATC> repository;
     private Set<Medication.ATC> atcs = Set.of();
@@ -30,12 +30,12 @@ public class MedicationATCCache implements ScheduledJob, MedicationATCService {
     }
 
     @Override
-    public Set<Medication.ATC> getATCs() {
+    public Set<Medication.ATC> getAll() {
         return atcs;
     }
 
     @Override
-    public Optional<Medication.ATC> getATC(String atcCode) {
+    public Optional<Medication.ATC> get(String atcCode) {
         return Optional.of(new Medication.ATC(atcCode)).filter(atcs::contains);
     }
 }

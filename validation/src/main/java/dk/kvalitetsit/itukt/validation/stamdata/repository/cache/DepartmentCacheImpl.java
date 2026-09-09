@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.scheduled.ScheduledJob;
-import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 import org.apache.logging.log4j.util.Strings;
 
@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DepartmentCacheImpl implements Cache<Department.Identifier, Department>, ScheduledJob, DepartmentSpecialityService {
+public class DepartmentCacheImpl implements Cache<Department.Identifier, Department>, ScheduledJob, StamdataCacheService<Department.Speciality> {
 
     private final CacheConfiguration configuration;
     private final Repository<Department> repository;
@@ -69,12 +69,12 @@ public class DepartmentCacheImpl implements Cache<Department.Identifier, Departm
     }
 
     @Override
-    public Set<Department.Speciality> getSpecialities() {
+    public Set<Department.Speciality> getAll() {
         return specialities;
     }
 
     @Override
-    public Optional<Department.Speciality> getSpeciality(String specialityName) {
+    public Optional<Department.Speciality> get(String specialityName) {
         return Optional.of(new Department.Speciality(specialityName)).filter(specialities::contains);
     }
 

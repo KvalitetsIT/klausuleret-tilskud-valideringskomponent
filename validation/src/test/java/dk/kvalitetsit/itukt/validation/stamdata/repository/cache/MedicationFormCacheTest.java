@@ -28,12 +28,12 @@ class MedicationFormCacheTest {
     private MedicationFormCache formCache;
 
     @Test
-    void getForms_BeforeRun_ReturnsEmptySet() {
-        assertTrue(formCache.getForms().isEmpty());
+    void getAll_BeforeRun_ReturnsEmptySet() {
+        assertTrue(formCache.getAll().isEmpty());
     }
 
     @Test
-    void getForms_AfterRun_ReturnsDistinctForms() {
+    void getAll_AfterRun_ReturnsDistinctForms() {
         var form1 = new Medication.Form("formA");
         var form2 = new Medication.Form("formB");
         var form3 = new Medication.Form("FoRmB");
@@ -41,41 +41,41 @@ class MedicationFormCacheTest {
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2, form3));
 
         formCache.run();
-        var forms = formCache.getForms();
+        var forms = formCache.getAll();
 
         var expected = Set.of(form1, form2);
         assertEquals(expected, forms);
     }
 
     @Test
-    void getForm_NotMatchingFormFromLoad_ReturnsEmpty() {
+    void get_NotMatchingFormFromLoad_ReturnsEmpty() {
         var form1 = new Medication.Form("formA");
         var form2 = new Medication.Form("formB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2));
 
         formCache.run();
-        var result = formCache.getForm("nonExistingFormCode");
+        var result = formCache.get("nonExistingFormCode");
 
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void getForm_MatchingFormFromLoad_ReturnsForm() {
+    void get_MatchingFormFromLoad_ReturnsForm() {
         var form1 = new Medication.Form("formA");
         var form2 = new Medication.Form("formB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2));
 
         formCache.run();
-        var result = formCache.getForm(form1.code());
+        var result = formCache.get(form1.code());
 
         assertTrue(result.isPresent());
         assertEquals(form1, result.get());
     }
 
     @Test
-    void getForm_BeforeRun_ReturnsEmpty() {
-        assertTrue(formCache.getForm("someFormCode").isEmpty());
+    void get_BeforeRun_ReturnsEmpty() {
+        assertTrue(formCache.get("someFormCode").isEmpty());
     }
 }

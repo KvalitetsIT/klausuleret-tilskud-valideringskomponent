@@ -28,12 +28,12 @@ class MedicationATCCacheTest {
     private MedicationATCCache atcCache;
 
     @Test
-    void getATCs_BeforeRun_ReturnsEmptySet() {
-        assertTrue(atcCache.getATCs().isEmpty());
+    void getAll_BeforeRun_ReturnsEmptySet() {
+        assertTrue(atcCache.getAll().isEmpty());
     }
 
     @Test
-    void getATCs_AfterRun_ReturnsDistinctATCs() {
+    void getAll_AfterRun_ReturnsDistinctATCs() {
         var atc1 = new Medication.ATC("atcA");
         var atc2 = new Medication.ATC("atcB");
         var atc3 = new Medication.ATC("atcB");
@@ -41,41 +41,41 @@ class MedicationATCCacheTest {
         Mockito.when(repository.fetchAll()).thenReturn(List.of(atc1, atc2, atc3));
 
         atcCache.run();
-        var atcs = atcCache.getATCs();
+        var atcs = atcCache.getAll();
 
         var expected = Set.of(atc1, atc2);
         assertEquals(expected, atcs);
     }
 
     @Test
-    void getATC_NotMatchingATCFromLoad_ReturnsEmpty() {
+    void get_NotMatchingATCFromLoad_ReturnsEmpty() {
         var atc1 = new Medication.ATC("atcA");
         var atc2 = new Medication.ATC("atcB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(atc1, atc2));
 
         atcCache.run();
-        var result = atcCache.getATC("nonExistingATCCode");
+        var result = atcCache.get("nonExistingATCCode");
 
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void getATC_MatchingATCFromLoad_ReturnsATC() {
+    void get_MatchingATCFromLoad_ReturnsATC() {
         var atc1 = new Medication.ATC("atcA");
         var atc2 = new Medication.ATC("atcB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(atc1, atc2));
 
         atcCache.run();
-        var result = atcCache.getATC(atc1.code());
+        var result = atcCache.get(atc1.code());
 
         assertTrue(result.isPresent());
         assertEquals(atc1, result.get());
     }
 
     @Test
-    void getATC_BeforeRun_ReturnsEmpty() {
-        assertTrue(atcCache.getATC("someATCCode").isEmpty());
+    void get_BeforeRun_ReturnsEmpty() {
+        assertTrue(atcCache.get("someATCCode").isEmpty());
     }
 }

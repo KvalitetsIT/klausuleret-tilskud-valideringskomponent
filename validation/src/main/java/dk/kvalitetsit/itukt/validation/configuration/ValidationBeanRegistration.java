@@ -11,10 +11,7 @@ import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImp
 import dk.kvalitetsit.itukt.validation.scheduled.SkippedValidationCleanupJob;
 import dk.kvalitetsit.itukt.validation.service.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DepartmentCacheImpl;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCacheImpl;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.MedicationFormCache;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DepartmentEntityModelMapper;
@@ -80,6 +77,12 @@ public class ValidationBeanRegistration {
     public MedicationFormCache formCache(@Qualifier("stamDataSource") DataSource dataSource) {
         var formRepository = new MedicationFormRepository(dataSource);
         return new MedicationFormCache(configuration.stamdata().cache(), formRepository);
+    }
+
+    @Bean
+    public MedicationATCCache atcCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var atcRepository = new MedicationATCRepository(dataSource);
+        return new MedicationATCCache(configuration.stamdata().cache(), atcRepository);
     }
 
     @Bean

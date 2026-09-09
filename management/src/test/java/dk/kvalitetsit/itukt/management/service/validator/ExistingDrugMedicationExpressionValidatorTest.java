@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.service.validator;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedication;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.service.MedicationATCService;
 import dk.kvalitetsit.itukt.common.service.MedicationFormService;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
@@ -24,15 +25,19 @@ import static org.mockito.Mockito.when;
 class ExistingDrugMedicationExpressionValidatorTest {
     @Mock
     private MedicationFormService medicationFormService;
+    @Mock
+    private MedicationATCService medicationATCService;
 
     @InjectMocks
     private ExistingDrugMedicationExpressionValidator validator;
 
     @Test
-    void validate_WhenFormIsKnown_ReturnsNoErrors() {
+    void validate_WhenFormAndAtcIsKnown_ReturnsNoErrors() {
         var form = new Medication.Form("knownFormCode");
         when(medicationFormService.getForm(form.code())).thenReturn(Optional.of(form));
-        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("", form.code(), ""));
+        var atc = new Medication.ATC("knownAtcCode");
+        when(medicationATCService.getATC(atc.code())).thenReturn(Optional.of(atc));
+        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(atc.code(), form.code(), ""));
 
         var result = validator.validate(expression);
 
@@ -40,9 +45,13 @@ class ExistingDrugMedicationExpressionValidatorTest {
     }
 
     @Test
-    void validate_WhenFormIsWildcard_ReturnsNoErrors() {
+    void validate_WhenFormAndAtcAreWildcards_ReturnsNoErrors() {
         when(medicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());
-        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("", ExistingDrugMedicationConditionExpression.WILDCARD, ""));
+        when(medicationATCService.getATC(Mockito.any())).thenReturn(Optional.empty());
+        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(
+                ExistingDrugMedicationConditionExpression.WILDCARD,
+                ExistingDrugMedicationConditionExpression.WILDCARD,
+                ""));
 
         var result = validator.validate(expression);
 
@@ -55,11 +64,31 @@ class ExistingDrugMedicationExpressionValidatorTest {
         when(medicationFormService.getForm(Mockito.any())).thenReturn(Optional.empty());
         when(medicationFormService.getForms()).thenReturn(Set.of(new Medication.Form(knownFormCode)));
         String formCode = "ANOTHER_FORM_CODE";
-        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication("", formCode, ""));
+        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(
+                ExistingDrugMedicationConditionExpression.WILDCARD,
+                formCode,
+                ExistingDrugMedicationConditionExpression.WILDCARD));
 
         var result = validator.validate(expression);
 
         var expected = List.of(new UnknownValueError(Identifier.FORM_CODE, formCode, Set.of(knownFormCode)));
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void validate_WhenAtcIsUnknown_ReturnsUnknownAtcCodeError() {
+        String knownAtcCode = "KNOWN_ATC_CODE";
+        when(medicationATCService.getATC(Mockito.any())).thenReturn(Optional.empty());
+        when(medicationATCService.getATCs()).thenReturn(Set.of(new Medication.ATC(knownAtcCode)));
+        String atcCode = "ANOTHER_ATC_CODE";
+        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(
+                atcCode,
+                ExistingDrugMedicationConditionExpression.WILDCARD,
+                ExistingDrugMedicationConditionExpression.WILDCARD));
+
+        var result = validator.validate(expression);
+
+        var expected = List.of(new UnknownValueError(Identifier.ATC_CODE, atcCode, Set.of(knownAtcCode)));
         assertEquals(expected, result);
     }
 }

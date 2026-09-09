@@ -5,15 +5,22 @@ import dk.kvalitetsit.itukt.common.model.DepartmentSpecialityConditionExpression
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
+import dk.kvalitetsit.itukt.common.service.MedicationATCService;
 import dk.kvalitetsit.itukt.common.service.MedicationFormService;
 
 public class ExpressionValidatorFactory {
     private final DepartmentSpecialityService departmentSpecialityService;
     private final MedicationFormService medicationFormService;
+    private final MedicationATCService medicationATCService;
 
-    public ExpressionValidatorFactory(DepartmentSpecialityService departmentSpecialityService, MedicationFormService medicationFormService) {
+    public ExpressionValidatorFactory(
+            DepartmentSpecialityService departmentSpecialityService,
+            MedicationFormService medicationFormService,
+            MedicationATCService medicationATCService
+    ) {
         this.departmentSpecialityService = departmentSpecialityService;
         this.medicationFormService = medicationFormService;
+        this.medicationATCService = medicationATCService;
     }
 
     public ExpressionValidator<Expression> createCombinedExpressionValidator() {
@@ -33,6 +40,6 @@ public class ExpressionValidatorFactory {
     }
 
     public ExpressionValidator<ExistingDrugMedicationConditionExpression> createExistingDrugMedicationExpressionValidator() {
-        return new ExistingDrugMedicationExpressionValidator(medicationFormService);
+        return new ExistingDrugMedicationExpressionValidator(medicationFormService, medicationATCService);
     }
 }

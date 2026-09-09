@@ -131,24 +131,26 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void postClause_WithUnknownFormCode_ThrowsExceptionOnlyWhenNotSkippingValidation() {
+    void postClause_WithUnknownFormCodeAndAtcCode_ThrowsExceptionOnlyWhenNotSkippingValidation() {
         var input = new DslInput()
                 .name("test")
-                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = \"NOT_KNOWN\"}")
+                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = \"NOT_KNOWN\", ATC = \"NOT_KNOWN\"}")
                 .error("error");
 
         var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input, false));
         assertTrue(e.getMessage().contains("Ukendt form 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt atc 'NOT_KNOWN'"));
         assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, true));
     }
 
     @Test
-    void postClause_WithKnownFormCode_Succeeds() {
+    void postClause_WithKnownFormAndATCCode_Succeeds() {
         setupStamdataWithFormCode("TEST");
+        setupStamdataWithATCCode("TEST");
         restartService();
         var input = new DslInput()
                 .name("test")
-                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TEST\"}")
+                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TEST\", ATC = \"TEST\"}")
                 .error("error");
         assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, false));
     }
@@ -560,6 +562,12 @@ class ManagementIT extends BaseTest {
         var formbetegnelseRepository = new FormbetegnelseRepository(stamDatabase.getDatasource());
         Medication.Form form = new Medication.Form(formCode);
         formbetegnelseRepository.insert(form, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithATCCode(String atcCode) {
+        var atcRepository = new ATCRepository(stamDatabase.getDatasource());
+        var atc = new Medication.ATC(atcCode);
+        atcRepository.insert(atc, IN_THE_PAST, IN_THE_FUTURE);
     }
 
 }

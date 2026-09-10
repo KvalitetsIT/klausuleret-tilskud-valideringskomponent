@@ -2,6 +2,8 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
 import org.openapitools.model.*;
@@ -16,17 +18,23 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @Transactional
 public class ManagementController implements ManagementApi {
 
     private final ManagementServiceAdaptor service;
+    private final StamdataCacheService<Medication.ATC> medicationATCService;
 
-    public ManagementController(@Autowired ManagementServiceAdaptor service) {
+    public ManagementController(
+            @Autowired ManagementServiceAdaptor service,
+            @Autowired StamdataCacheService<Medication.ATC> medicationATCService) {
         this.service = service;
+        this.medicationATCService = medicationATCService;
     }
 
     @Override
@@ -111,6 +119,14 @@ public class ManagementController implements ManagementApi {
         UUID uuid = created.getUuid();
         URI location = getLocation(c -> c.management20250801ClausesIdGet(uuid), uuid);
         return ResponseEntity.created(location).body(created);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801MedicationAtcCodesGet() {
+        Set<String> atcCodes = medicationATCService.getAll().stream()
+                .map(Medication.ATC::code)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(atcCodes);
     }
 
     private URI getLocation(Function<ManagementController, Object> methodRef, UUID uuid) {

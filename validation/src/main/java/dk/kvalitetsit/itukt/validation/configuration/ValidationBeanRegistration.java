@@ -69,7 +69,7 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public Cache<Department.Identifier, Department> departmentCache(DepartmentRepositoryAdaptor adaptor) {
+    public DepartmentCacheImpl departmentCache(DepartmentRepositoryAdaptor adaptor) {
         return new DepartmentCacheImpl(configuration.stamdata().cache(), adaptor);
     }
 

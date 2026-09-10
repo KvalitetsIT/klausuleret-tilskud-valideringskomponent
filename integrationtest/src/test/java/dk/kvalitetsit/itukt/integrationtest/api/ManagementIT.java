@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.*;
@@ -534,6 +535,17 @@ class ManagementIT extends BaseTest {
 
         assertNotNull(drugCount);
         assertEquals(0, drugCount);
+    }
+
+    @Test
+    void testGetAtcCodes_ReturnsAtcCodes() {
+        String atc = "TEST";
+        setupStamdataWithATCCode(atc);
+        restartService();
+
+        var atcCodes = api.management20250801MedicationAtcCodesGet();
+
+        assertEquals(Set.of(atc), atcCodes);
     }
 
     private static String setupStamdataClauseWithOneDrug() {

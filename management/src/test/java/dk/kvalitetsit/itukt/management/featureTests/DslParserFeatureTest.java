@@ -242,7 +242,9 @@ class DslParserFeatureTest {
                 ExpressionType.BINARY
         );
 
-        var subject = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", FORM = \"tablet\", ROUTE = \"oral\"}, {ATC = \"B01AC\", FORM = \"injektion\", ROUTE = \"intravenøs\"}]";
+        var subject = """
+                EKSISTERENDE_LÆGEMIDDEL i [{ATC = "C10B", FORM = "tablet", ROUTE = "oral"}, {ATC = "B01AC", FORM = "injektion", ROUTE = "intravenøs"}]
+                """;
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 

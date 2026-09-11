@@ -293,7 +293,8 @@ class ManagementIT extends BaseTest {
 
         var error = "blaah";
 
-        String dsl = "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = \"læge\" eller LÆGESPECIALE i [\"kæbekirurg\", \"ortopædkirurg\"] og ALDER >= 18))";
+        String dsl = """
+                INDIKATION = "C10BA03" eller INDIKATION i ["C10BA02", "C10BA05"] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = "læge" eller LÆGESPECIALE i ["kæbekirurg", "ortopædkirurg"] og ALDER >= 18))""";
 
         ClauseInput clauseInput = new ClauseInput().name("CLAUSE").expression(new BinaryExpression()
                         .type(ExpressionType.BINARY)
@@ -382,7 +383,9 @@ class ManagementIT extends BaseTest {
     void management20250801ClausesDslPost_whenPostingAValidDSLThenRetrieveACorrectlyInterpretedClause() {
         var error = "blaah";
 
-        String dsl = "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = \"LÆGE\" eller LÆGESPECIALE i [\"KÆBEKIRURG\", \"ORTOPÆDKIRURG\"] og ALDER >= 18))";
+        String dsl = """
+                INDIKATION = "C10BA03" eller INDIKATION i ["C10BA02", "C10BA05"] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = "LÆGE" eller LÆGESPECIALE i ["KÆBEKIRURG", "ORTOPÆDKIRURG"] og ALDER >= 18))""";
+
         DslInput dslInput = new DslInput().name("CLAUSE").dsl(dsl).error(error);
 
         var createDslResponse = api.management20250801ClausesDslPost(dslInput, true);

@@ -22,7 +22,7 @@ public class StructuredValueTokenParser implements TokenParser<Condition.Value.S
         var structuredValue = new HashMap<String, String>();
 
         do {
-            String key = tokens.nextWithType(TokenType.VALUE).text();
+            String key = tokens.nextWithType(TokenType.IDENTIFIER).text();
             tokens.nextWithText("=");
             String value = tokens.nextWithType(TokenType.VALUE).text();
             structuredValue.put(key, value);

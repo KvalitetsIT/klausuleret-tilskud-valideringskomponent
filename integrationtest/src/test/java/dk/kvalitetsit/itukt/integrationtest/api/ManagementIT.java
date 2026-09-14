@@ -541,6 +541,17 @@ class ManagementIT extends BaseTest {
         assertEquals(Set.of(atc), atcCodes);
     }
 
+    @Test
+    void testGetIndicationCodes_ReturnsIndicationCodes() {
+        long indicationCode = 1234;
+        setupStamdataWithIndicationCode(indicationCode);
+        restartService();
+
+        var indicationCodes = api.management20250801IndicationCodesGet();
+
+        assertEquals(Set.of(indicationCode), indicationCodes);
+    }
+
     private static String setupStamdataClauseWithOneDrug() {
         String clauseName = "TEST";
         var stamdataDatasource = stamDatabase.getDatasource();

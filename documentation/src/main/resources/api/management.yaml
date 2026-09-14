@@ -322,6 +322,23 @@ paths:
                 items:
                   type: string
 
+  /management/2025/08/01/indication-codes:
+    get:
+      tags:
+        - management
+      description: "Retrieves all valid indication codes"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  type: integer
+                  format: int64
+
 components:
   responses:
     '400':

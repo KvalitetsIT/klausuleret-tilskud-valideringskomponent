@@ -249,9 +249,9 @@ class DslParserFeatureTest {
     }
 
     @Test
-    void givenDslWithExistingDrugConditionIncludingWildcards_whenParse_thenParseDrugCorrectly() throws DslParserException {
+    void givenDslWithExistingDrugConditionWithOnlyATC_whenParse_thenParseDrugCorrectly() throws DslParserException {
         var expected = new ExistingDrugMedicationCondition("C10B", "*", "*", ExpressionType.EXISTING_DRUG_MEDICATION);
-        var subject = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\", FORM = *, ROUTE = *}";
+        var subject = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\"}";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
@@ -430,7 +430,7 @@ class DslParserFeatureTest {
 
 
     @Test
-    void givenAnExistingDrugMedicationDsLWithWildcardFields_whenParse_thenMapCorrectly() throws DslParserException {
+    void givenAnExistingDrugMedicationDsl_whenParse_thenMapCorrectly() throws DslParserException {
         var cases = Map.of(
                 "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
@@ -439,21 +439,21 @@ class DslParserFeatureTest {
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\", ROUTE = *}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "TABLET",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = *, ROUTE = \"ORAL\"}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "*",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = \"TABLET\", ROUTE = \"ORAL\"}",
+                "EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TABLET\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "TABLET",
@@ -461,31 +461,24 @@ class DslParserFeatureTest {
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
 
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = *, ROUTE = *}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "*",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  \"ORAL\"}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ROUTE =  \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "*",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = \"TABLET\", ROUTE =  *}",
+                "EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TABLET\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "TABLET",
-                        "*",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  *}",
-                new ExistingDrugMedicationCondition(
-                        "*",
-                        "*",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 )

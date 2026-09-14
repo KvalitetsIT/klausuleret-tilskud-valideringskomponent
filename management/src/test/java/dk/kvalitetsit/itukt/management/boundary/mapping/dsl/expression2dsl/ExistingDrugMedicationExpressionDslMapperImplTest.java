@@ -72,4 +72,52 @@ class ExistingDrugMedicationExpressionDslMapperImplTest {
 
         assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }
+
+    @Test
+    void map_WithWildcardsExceptForm_returnsCorrectlyMappedDsl() {
+        String formCode = "formCode";
+        var subject = new ExistingDrugMedicationCondition().type(ExpressionType.EXISTING_DRUG_MEDICATION)
+                .atcCode("*")
+                .formCode(formCode)
+                .routeOfAdministrationCode("*");
+        String mappedFormCode = "mappedFormCode";
+        Mockito.when(stringToDslValueMapper.map(formCode)).thenReturn(mappedFormCode);
+
+        var expected = new Dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = mappedFormCode}", Dsl.Type.CONDITION);
+        var actual = this.mapper.map(subject);
+
+        assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+    }
+
+    @Test
+    void map_WithWildcardsExceptAtc_returnsCorrectlyMappedDsl() {
+        String atcCode = "atcCode";
+        var subject = new ExistingDrugMedicationCondition().type(ExpressionType.EXISTING_DRUG_MEDICATION)
+                .atcCode(atcCode)
+                .formCode("*")
+                .routeOfAdministrationCode("*");
+        String mappedAtcCode = "mappedAtcCode";
+        Mockito.when(stringToDslValueMapper.map(atcCode)).thenReturn(mappedAtcCode);
+
+        var expected = new Dsl("EKSISTERENDE_LÆGEMIDDEL = {ATC = mappedAtcCode}", Dsl.Type.CONDITION);
+        var actual = this.mapper.map(subject);
+
+        assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+    }
+
+    @Test
+    void map_WithWildcardsExceptRoute_returnsCorrectlyMappedDsl() {
+        String route = "routeOfAdministration";
+        var subject = new ExistingDrugMedicationCondition().type(ExpressionType.EXISTING_DRUG_MEDICATION)
+                .atcCode("*")
+                .formCode("*")
+                .routeOfAdministrationCode(route);
+        String mappedRoute = "mappedRoute";
+        Mockito.when(stringToDslValueMapper.map(route)).thenReturn(mappedRoute);
+
+        var expected = new Dsl("EKSISTERENDE_LÆGEMIDDEL = {ROUTE = mappedRoute}", Dsl.Type.CONDITION);
+        var actual = this.mapper.map(subject);
+
+        assertEquals(expected, actual, "Unexpected mapping of: " + subject);
+    }
 }

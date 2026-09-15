@@ -2,6 +2,8 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.management.MockFactory.*;
@@ -33,6 +36,8 @@ class ManagementControllerTest {
     private ManagementController managementController;
     @Mock
     private ManagementServiceAdaptor clauseService;
+    @Mock
+    private StamdataCacheService<Medication.ATC> medicationATCService;
 
     @BeforeEach
     void setupRequestContext() {
@@ -178,6 +183,18 @@ class ManagementControllerTest {
         var response = managementController.management20250801ClausesNameDrugCountGet(name);
 
         assertEquals(drugCount, response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801MedicationAtcCodesGet_ReturnsAtcCodesFromService() {
+        var atc1 = new Medication.ATC("A1");
+        var atc2 = new Medication.ATC("A2");
+        Mockito.when(medicationATCService.getAll()).thenReturn(Set.of(atc1, atc2));
+
+        var response = managementController.management20250801MedicationAtcCodesGet();
+
+        assertEquals(Set.of(atc1.code(), atc2.code()), response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

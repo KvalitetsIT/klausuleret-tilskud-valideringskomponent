@@ -9,12 +9,12 @@ import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
 import java.util.Optional;
 import java.util.Set;
 
-public class MedicationFormCache implements ScheduledJob, StamdataCacheService<Medication.Form> {
+public class MedicationATCCache implements ScheduledJob, StamdataCacheService<Medication.ATC> {
     private final CacheConfiguration configuration;
-    private final Repository<Medication.Form> repository;
-    private Set<Medication.Form> forms = Set.of();
+    private final Repository<Medication.ATC> repository;
+    private Set<Medication.ATC> atcs = Set.of();
 
-    public MedicationFormCache(CacheConfiguration configuration, Repository<Medication.Form> repository) {
+    public MedicationATCCache(CacheConfiguration configuration, Repository<Medication.ATC> repository) {
         this.configuration = configuration;
         this.repository = repository;
     }
@@ -26,16 +26,16 @@ public class MedicationFormCache implements ScheduledJob, StamdataCacheService<M
 
     @Override
     public void run() {
-        forms = Set.copyOf(repository.fetchAll());
+        atcs = Set.copyOf(repository.fetchAll());
     }
 
     @Override
-    public Set<Medication.Form> getAll() {
-        return forms;
+    public Set<Medication.ATC> getAll() {
+        return atcs;
     }
 
     @Override
-    public Optional<Medication.Form> get(String formCode) {
-        return Optional.of(new Medication.Form(formCode)).filter(forms::contains);
+    public Optional<Medication.ATC> get(String atcCode) {
+        return Optional.of(new Medication.ATC(atcCode)).filter(atcs::contains);
     }
 }

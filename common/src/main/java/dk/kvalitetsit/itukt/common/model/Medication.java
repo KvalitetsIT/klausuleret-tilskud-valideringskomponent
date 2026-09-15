@@ -6,4 +6,10 @@ public record Medication() {
             this.code = code.toUpperCase();
         }
     }
+
+    public record ATC(String code) {
+        public ATC(String code) {
+            this.code = code.toUpperCase();
+        }
+    }
 }

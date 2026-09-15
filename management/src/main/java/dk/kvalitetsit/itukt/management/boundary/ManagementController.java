@@ -4,12 +4,9 @@ package dk.kvalitetsit.itukt.management.boundary;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
-import dk.kvalitetsit.itukt.common.model.Medication;
-import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.Medication;
-import dk.kvalitetsit.itukt.common.service.DepartmentSpecialityService;
-import dk.kvalitetsit.itukt.common.service.MedicationFormService;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
 import org.openapitools.model.*;
@@ -38,8 +35,8 @@ public class ManagementController implements ManagementApi {
     private final StamdataCacheService<Indication> indicationService;
     private final StamdataCacheService<Medication.Route> medicationRouteService;
     private final StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
-    private final DepartmentSpecialityService departmentSpecialityService;
-    private final MedicationFormService medicationFormService;
+    private final StamdataCacheService<Department.Speciality> departmentSpecialityService;
+    private final StamdataCacheService<Medication.Form> medicationFormService;
 
     public ManagementController(
             @Autowired ManagementServiceAdaptor service,
@@ -47,8 +44,8 @@ public class ManagementController implements ManagementApi {
             @Autowired StamdataCacheService<Indication> indicationService,
             @Autowired StamdataCacheService<Medication.Route> medicationRouteService,
             @Autowired StamdataCacheService<DoctorSpeciality> doctorSpecialityService,
-            @Autowired DepartmentSpecialityService departmentSpecialityService,
-            @Autowired MedicationFormService medicationFormService) {
+            @Autowired StamdataCacheService<Department.Speciality> departmentSpecialityService,
+            @Autowired StamdataCacheService<Medication.Form> medicationFormService) {
         this.service = service;
         this.medicationATCService = medicationATCService;
         this.indicationService = indicationService;
@@ -176,7 +173,7 @@ public class ManagementController implements ManagementApi {
 
     @Override
     public ResponseEntity<Set<String>> management20250801DepartmentSpecialitiesGet() {
-        var specialities = departmentSpecialityService.getSpecialities().stream()
+        var specialities = departmentSpecialityService.getAll().stream()
                 .map(Department.Speciality::name)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(specialities);
@@ -184,7 +181,7 @@ public class ManagementController implements ManagementApi {
 
     @Override
     public ResponseEntity<Set<String>> management20250801MedicationFormCodesGet() {
-        var formCodes = medicationFormService.getForms().stream()
+        var formCodes = medicationFormService.getAll().stream()
                 .map(Medication.Form::code)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(formCodes);

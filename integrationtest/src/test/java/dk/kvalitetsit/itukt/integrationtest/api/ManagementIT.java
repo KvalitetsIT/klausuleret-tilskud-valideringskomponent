@@ -297,7 +297,7 @@ class ManagementIT extends BaseTest {
         var error = "blaah";
 
         String dsl = """
-                INDIKATION = "C10BA03" eller INDIKATION i ["C10BA02", "C10BA05"] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = "læge" eller LÆGESPECIALE i ["kæbekirurg", "ortopædkirurg"] og ALDER >= 18))""";
+                INDIKATION = "C10BA03" eller INDIKATION i ["C10BA02", "C10BA05"] og (EKSISTERENDE_LÆGEMIDDEL = {ROUTE = "TEST"} eller ALDER >= 13 og (LÆGESPECIALE = "læge" eller LÆGESPECIALE i ["kæbekirurg", "ortopædkirurg"] og ALDER >= 18))""";
 
         ClauseInput clauseInput = new ClauseInput().name("CLAUSE").expression(new BinaryExpression()
                         .type(ExpressionType.BINARY)
@@ -326,7 +326,7 @@ class ManagementIT extends BaseTest {
                                         .left(new ExistingDrugMedicationCondition()
                                                 .type(ExpressionType.EXISTING_DRUG_MEDICATION)
                                                 .formCode("*")
-                                                .routeOfAdministrationCode("*")
+                                                .routeOfAdministrationCode("TEST")
                                                 .atcCode("*")
                                         )
                                         .operator(BinaryOperator.OR)
@@ -387,7 +387,7 @@ class ManagementIT extends BaseTest {
         var error = "blaah";
 
         String dsl = """
-                INDIKATION = "C10BA03" eller INDIKATION i ["C10BA02", "C10BA05"] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = "LÆGE" eller LÆGESPECIALE i ["KÆBEKIRURG", "ORTOPÆDKIRURG"] og ALDER >= 18))""";
+                INDIKATION = "C10BA03" eller INDIKATION i ["C10BA02", "C10BA05"] og (EKSISTERENDE_LÆGEMIDDEL = {FORM = "TEST"} eller ALDER >= 13 og (LÆGESPECIALE = "LÆGE" eller LÆGESPECIALE i ["KÆBEKIRURG", "ORTOPÆDKIRURG"] og ALDER >= 18))""";
 
         DslInput dslInput = new DslInput().name("CLAUSE").dsl(dsl).error(error);
 
@@ -424,7 +424,7 @@ class ManagementIT extends BaseTest {
                                         .type(ExpressionType.BINARY)
                                         .left(new ExistingDrugMedicationCondition()
                                                 .type(ExpressionType.EXISTING_DRUG_MEDICATION)
-                                                .formCode("*")
+                                                .formCode("TEST")
                                                 .routeOfAdministrationCode("*")
                                                 .atcCode("*")
                                         )

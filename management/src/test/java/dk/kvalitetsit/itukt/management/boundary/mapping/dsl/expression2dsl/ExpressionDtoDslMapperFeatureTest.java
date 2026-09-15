@@ -307,7 +307,7 @@ class ExpressionDtoDslMapperFeatureTest {
     void givenDslWithExistingDrugConditionIncludingWildcards_whenMap_thenParseDrugCorrectly() {
         final Expression subject = new ExistingDrugMedicationCondition().type(ExpressionType.EXISTING_DRUG_MEDICATION).atcCode("C10B").formCode("*").routeOfAdministrationCode("*");
 
-        String expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\", FORM = *, ROUTE = *}";
+        String expected = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\"}";
         String actual = mapper.map(subject);
         Assertions.assertEquals(expected, actual, "Unexpected mapping of: " + subject);
     }

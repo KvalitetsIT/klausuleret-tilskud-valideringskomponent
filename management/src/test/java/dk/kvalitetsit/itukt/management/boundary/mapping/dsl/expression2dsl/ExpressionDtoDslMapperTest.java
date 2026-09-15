@@ -34,7 +34,10 @@ class ExpressionDtoDslMapperTest {
     private ExpressionDslMapper<IndicationCondition> indicationConditionExpressionDslMapper;
 
     @Mock
-    private ExpressionDslMapper<DoctorSpecialityCondition> specialityConditionExpressionDslMapper;
+    private ExpressionDslMapper<DoctorSpecialityCondition> doctorSpecialityConditionExpressionDslMapper;
+
+    @Mock
+    private ExpressionDslMapper<DepartmentSpecialityCondition> departmentSpecialityConditionExpressionDslMapper;
 
     @Mock
     private ExpressionDslMapper<ExistingDrugMedicationCondition> existingDrugMedicationConditionExpressionDslMapper;
@@ -44,7 +47,8 @@ class ExpressionDtoDslMapperTest {
         Mockito.when(factory.getBinaryExpressionExpressionDslMapper(Mockito.any())).thenReturn(binaryExpressionExpressionDslMapper);
         Mockito.when(factory.getAgeConditionExpressionDslMapper()).thenReturn(ageConditionExpressionDslMapper);
         Mockito.when(factory.getIndicationConditionExpressionDslMapper()).thenReturn(indicationConditionExpressionDslMapper);
-        Mockito.when(factory.getDoctorSpecialityConditionExpressionDslMapper()).thenReturn(specialityConditionExpressionDslMapper);
+        Mockito.when(factory.getDoctorSpecialityConditionExpressionDslMapper()).thenReturn(doctorSpecialityConditionExpressionDslMapper);
+        Mockito.when(factory.getDepartmentSpecialityExpressionDslMapper()).thenReturn(departmentSpecialityConditionExpressionDslMapper);
         Mockito.when(factory.getExistingDrugMedicationConditionExpressionDslMapper()).thenReturn(existingDrugMedicationConditionExpressionDslMapper);
         mapper = new ExpressionDtoDslMapper(factory);
     }
@@ -84,9 +88,9 @@ class ExpressionDtoDslMapperTest {
     @Test
     void givenASpecialityCondition_whenMap_thenInvokeCorrectMapper() {
         var subject = mock(DoctorSpecialityCondition.class);
-        Mockito.when(specialityConditionExpressionDslMapper.map(subject)).thenReturn(mock(Dsl.class));
+        Mockito.when(doctorSpecialityConditionExpressionDslMapper.map(subject)).thenReturn(mock(Dsl.class));
         this.mapper.map(subject);
-        Mockito.verify(specialityConditionExpressionDslMapper, Mockito.times(1)).map(subject);
+        Mockito.verify(doctorSpecialityConditionExpressionDslMapper, Mockito.times(1)).map(subject);
     }
 
 
@@ -100,7 +104,7 @@ class ExpressionDtoDslMapperTest {
 
         Assertions.assertEquals("blaah", result);
         verify(spyMapper).map(single);
-        verifyNoInteractions(ageConditionExpressionDslMapper, indicationConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, specialityConditionExpressionDslMapper);
+        verifyNoInteractions(ageConditionExpressionDslMapper, indicationConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, doctorSpecialityConditionExpressionDslMapper);
     }
 
     @Test
@@ -113,7 +117,7 @@ class ExpressionDtoDslMapperTest {
 
         Assertions.assertEquals("blaah", result);
         verify(ageConditionExpressionDslMapper).merge(anyList());
-        verifyNoInteractions(indicationConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, specialityConditionExpressionDslMapper);
+        verifyNoInteractions(indicationConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, doctorSpecialityConditionExpressionDslMapper);
     }
 
     @Test
@@ -126,20 +130,34 @@ class ExpressionDtoDslMapperTest {
 
         Assertions.assertEquals("blaah", result);
         verify(indicationConditionExpressionDslMapper).merge(anyList());
-        verifyNoInteractions(ageConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, specialityConditionExpressionDslMapper);
+        verifyNoInteractions(ageConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, doctorSpecialityConditionExpressionDslMapper);
     }
 
     @Test
-    void givenTwoSpecialityConditions_whenMergeConditions_thenInvokeCorrespondingMapper() {
+    void givenTwoDoctorSpecialityConditions_whenMergeConditions_thenInvokeCorrespondingMapper() {
         var c1 = mock(DoctorSpecialityCondition.class);
         var c2 = mock(DoctorSpecialityCondition.class);
-        when(specialityConditionExpressionDslMapper.merge(anyList())).thenReturn("blaah");
+        when(doctorSpecialityConditionExpressionDslMapper.merge(anyList())).thenReturn("blaah");
 
         String result = mapper.mergeConditions(List.of(c1, c2));
 
         Assertions.assertEquals("blaah", result);
-        verify(specialityConditionExpressionDslMapper).merge(anyList());
+        verify(doctorSpecialityConditionExpressionDslMapper).merge(anyList());
         verifyNoInteractions(ageConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, indicationConditionExpressionDslMapper);
+    }
+
+    @Test
+    void givenTwoDepartmentSpecialityConditions_whenMergeConditions_thenInvokeCorrespondingMapper() {
+        var c1 = mock(DepartmentSpecialityCondition.class);
+        var c2 = mock(DepartmentSpecialityCondition.class);
+        var conditions = List.of(c1, c2);
+        when(departmentSpecialityConditionExpressionDslMapper.merge(anyList())).thenReturn("blaah");
+
+        String result = mapper.mergeConditions(conditions);
+
+        Assertions.assertEquals("blaah", result);
+        verify(departmentSpecialityConditionExpressionDslMapper).merge(conditions);
+        verifyNoInteractions(ageConditionExpressionDslMapper, existingDrugMedicationConditionExpressionDslMapper, indicationConditionExpressionDslMapper, doctorSpecialityConditionExpressionDslMapper);
     }
 
     @Test
@@ -152,7 +170,7 @@ class ExpressionDtoDslMapperTest {
 
         Assertions.assertEquals("blaah", result);
         verify(existingDrugMedicationConditionExpressionDslMapper).merge(anyList());
-        verifyNoInteractions(ageConditionExpressionDslMapper, indicationConditionExpressionDslMapper, specialityConditionExpressionDslMapper);
+        verifyNoInteractions(ageConditionExpressionDslMapper, indicationConditionExpressionDslMapper, doctorSpecialityConditionExpressionDslMapper);
     }
 
     @Test

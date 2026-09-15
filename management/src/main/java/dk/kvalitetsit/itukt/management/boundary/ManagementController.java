@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
@@ -29,12 +30,19 @@ public class ManagementController implements ManagementApi {
 
     private final ManagementServiceAdaptor service;
     private final StamdataCacheService<Medication.ATC> medicationATCService;
+    private final StamdataCacheService<Department.Speciality> departmentSpecialityService;
+    private final StamdataCacheService<Medication.Form> medicationFormService;
 
     public ManagementController(
             @Autowired ManagementServiceAdaptor service,
-            @Autowired StamdataCacheService<Medication.ATC> medicationATCService) {
+            @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
+            @Autowired StamdataCacheService<Department.Speciality> departmentSpecialityService,
+            @Autowired StamdataCacheService<Medication.Form> medicationFormService
+    ) {
         this.service = service;
         this.medicationATCService = medicationATCService;
+        this.departmentSpecialityService = departmentSpecialityService;
+        this.medicationFormService = medicationFormService;
     }
 
     @Override
@@ -127,6 +135,22 @@ public class ManagementController implements ManagementApi {
                 .map(Medication.ATC::code)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(atcCodes);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801DepartmentSpecialitiesGet() {
+        var specialities = departmentSpecialityService.getAll().stream()
+                .map(Department.Speciality::name)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(specialities);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801MedicationFormCodesGet() {
+        var formCodes = medicationFormService.getAll().stream()
+                .map(Medication.Form::code)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(formCodes);
     }
 
     private URI getLocation(Function<ManagementController, Object> methodRef, UUID uuid) {

@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,19 +31,21 @@ import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class ManagementControllerTest {
-
-    @InjectMocks
     private ManagementController managementController;
     @Mock
     private ManagementServiceAdaptor clauseService;
     @Mock
     private StamdataCacheService<Medication.ATC> medicationATCService;
+    @Mock
+    private StamdataCacheService<Indication> indicationService;
 
     @BeforeEach
-    void setupRequestContext() {
+    void setup() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         ServletRequestAttributes attrs = new ServletRequestAttributes(request);
         RequestContextHolder.setRequestAttributes(attrs);
+
+        managementController = new  ManagementController(clauseService, medicationATCService, indicationService);
     }
 
     @AfterEach
@@ -195,6 +197,18 @@ class ManagementControllerTest {
         var response = managementController.management20250801MedicationAtcCodesGet();
 
         assertEquals(Set.of(atc1.code(), atc2.code()), response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801IndicationCodesGet_ReturnsIndicationCodesFromService() {
+        var indication1 = new Indication(1);
+        var indication2 = new Indication(2);
+        Mockito.when(indicationService.getAll()).thenReturn(Set.of(indication1, indication2));
+
+        var response = managementController.management20250801IndicationCodesGet();
+
+        assertEquals(Set.of(indication1.code(), indication2.code()), response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

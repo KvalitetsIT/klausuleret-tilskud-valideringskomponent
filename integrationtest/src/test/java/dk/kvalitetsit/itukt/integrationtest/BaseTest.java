@@ -69,6 +69,7 @@ public abstract class BaseTest {
         stamdataJdbcTemplate.execute("DELETE FROM Klausulering");
         stamdataJdbcTemplate.execute("DELETE FROM Formbetegnelse");
         stamdataJdbcTemplate.execute("DELETE FROM ATC");
+        stamdataJdbcTemplate.execute("DELETE FROM Indikation");
     }
 
     public static File getComposeFile(String fileName) {

@@ -12,4 +12,10 @@ public record Medication() {
             this.code = code.toUpperCase();
         }
     }
+
+    public record Route(String code) {
+        public Route(String code) {
+            this.code = code.toUpperCase();
+        }
+    }
 }

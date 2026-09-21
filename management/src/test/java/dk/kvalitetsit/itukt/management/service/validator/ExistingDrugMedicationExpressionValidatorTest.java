@@ -25,21 +25,25 @@ class ExistingDrugMedicationExpressionValidatorTest {
     private StamdataCacheService<Medication.Form> medicationFormService;
     @Mock
     private StamdataCacheService<Medication.ATC> medicationATCService;
+    @Mock
+    private StamdataCacheService<Medication.Route> medicationRouteService;
 
     private ExistingDrugMedicationExpressionValidator validator;
 
     @BeforeEach
     void setUp() {
-        validator = new ExistingDrugMedicationExpressionValidator(medicationFormService, medicationATCService);
+        validator = new ExistingDrugMedicationExpressionValidator(medicationFormService, medicationATCService, medicationRouteService);
     }
 
     @Test
-    void validate_WhenFormAndAtcIsKnown_ReturnsNoErrors() {
+    void validate_WhenFormAtcAndRouteIsKnown_ReturnsNoErrors() {
         var form = new Medication.Form("knownFormCode");
         when(medicationFormService.get(form.code())).thenReturn(Optional.of(form));
         var atc = new Medication.ATC("knownAtcCode");
         when(medicationATCService.get(atc.code())).thenReturn(Optional.of(atc));
-        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(atc.code(), form.code(), ""));
+        var route = new Medication.Route("knownRouteCode");
+        when(medicationRouteService.get(route.code())).thenReturn(Optional.of(route));
+        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(atc.code(), form.code(), route.code()));
 
         var result = validator.validate(expression);
 
@@ -47,13 +51,14 @@ class ExistingDrugMedicationExpressionValidatorTest {
     }
 
     @Test
-    void validate_WhenFormAndAtcAreWildcards_ReturnsNoErrors() {
+    void validate_WhenFormAtcAndRouteAreWildcards_ReturnsNoErrors() {
         when(medicationFormService.get(Mockito.any())).thenReturn(Optional.empty());
         when(medicationATCService.get(Mockito.any())).thenReturn(Optional.empty());
+        when(medicationRouteService.get(Mockito.any())).thenReturn(Optional.empty());
         var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(
                 ExistingDrugMedicationConditionExpression.WILDCARD,
                 ExistingDrugMedicationConditionExpression.WILDCARD,
-                ""));
+                ExistingDrugMedicationConditionExpression.WILDCARD));
 
         var result = validator.validate(expression);
 
@@ -87,6 +92,21 @@ class ExistingDrugMedicationExpressionValidatorTest {
         var result = validator.validate(expression);
 
         var expected = List.of(new UnknownValueError(Identifier.ATC_CODE, atcCode));
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void validate_WhenRouteIsUnknown_ReturnsUnknownRouteCodeError() {
+        when(medicationRouteService.get(Mockito.any())).thenReturn(Optional.empty());
+        String routeCode = "ANOTHER_ROUTE_CODE";
+        var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(
+                ExistingDrugMedicationConditionExpression.WILDCARD,
+                ExistingDrugMedicationConditionExpression.WILDCARD,
+                routeCode));
+
+        var result = validator.validate(expression);
+
+        var expected = List.of(new UnknownValueError(Identifier.ROUTE, routeCode));
         assertEquals(expected, result);
     }
 }

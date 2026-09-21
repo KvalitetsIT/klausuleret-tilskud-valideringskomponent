@@ -14,17 +14,20 @@ import java.util.stream.Stream;
 public class ExistingDrugMedicationExpressionValidator implements ExpressionValidator<ExistingDrugMedicationConditionExpression> {
     private final StamdataCacheService<Medication.Form> medicationFormService;
     private final StamdataCacheService<Medication.ATC> medicationATCService;
+    private final StamdataCacheService<Medication.Route> medicationRouteService;
 
-    public ExistingDrugMedicationExpressionValidator(StamdataCacheService<Medication.Form> medicationFormService, StamdataCacheService<Medication.ATC> medicationATCService) {
+    public ExistingDrugMedicationExpressionValidator(StamdataCacheService<Medication.Form> medicationFormService, StamdataCacheService<Medication.ATC> medicationATCService, StamdataCacheService<Medication.Route> medicationRouteService) {
         this.medicationFormService = medicationFormService;
         this.medicationATCService = medicationATCService;
+        this.medicationRouteService = medicationRouteService;
     }
 
     @Override
     public List<ExpressionValidationError> validate(ExistingDrugMedicationConditionExpression expression) {
         return Stream.of(
                         validate(Identifier.FORM_CODE, medicationFormService, expression.existingDrugMedication().formCode()),
-                        validate(Identifier.ATC_CODE, medicationATCService, expression.existingDrugMedication().atcCode()))
+                        validate(Identifier.ATC_CODE, medicationATCService, expression.existingDrugMedication().atcCode()),
+                        validate(Identifier.ROUTE, medicationRouteService, expression.existingDrugMedication().routeOfAdministrationCode()))
                 .flatMap(Optional::stream).toList();
     }
 

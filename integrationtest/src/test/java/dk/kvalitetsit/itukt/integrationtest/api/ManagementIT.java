@@ -113,7 +113,7 @@ class ManagementIT extends BaseTest {
     @Test
     void postClause_WithUnknownValues_ThrowsExceptionOnlyWhenNotSkippingValidation() {
         String dsl = """
-                EKSISTERENDE_LÆGEMIDDEL = {FORM = "NOT_KNOWN", ATC = "NOT_KNOWN"} eller
+                EKSISTERENDE_LÆGEMIDDEL = {FORM = "NOT_KNOWN", ATC = "NOT_KNOWN", ROUTE = "NOT_KNOWN"} eller
                 AFDELINGSSPECIALE = "NOT_KNOWN" eller
                 INDIKATION = "NOT_KNOWN"
                 """;
@@ -125,6 +125,7 @@ class ManagementIT extends BaseTest {
         var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input, false));
         assertTrue(e.getMessage().contains("Ukendt form 'NOT_KNOWN'"));
         assertTrue(e.getMessage().contains("Ukendt atc 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt route 'NOT_KNOWN'"));
         assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale 'NOT_KNOWN'"));
         assertTrue(e.getMessage().contains("Ukendt indikation 'NOT_KNOWN'"));
         assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, true));
@@ -134,11 +135,12 @@ class ManagementIT extends BaseTest {
     void postClause_WithKnownValues_Succeeds() {
         setupStamdataWithFormCode("TEST");
         setupStamdataWithATCCode("TEST");
+        setupStamdataWithRouteCode("R0");
         setupStamdataWithDepartmentSpeciality("TEST");
         setupStamdataWithIndicationCode(5);
         restartService();
         String dsl = """
-                EKSISTERENDE_LÆGEMIDDEL = {FORM = "TEST", ATC = "TEST"} eller
+                EKSISTERENDE_LÆGEMIDDEL = {FORM = "TEST", ATC = "TEST", ROUTE = "R0"} eller
                 AFDELINGSSPECIALE = "TEST" eller
                 INDIKATION = "5"
                 """;
@@ -590,6 +592,12 @@ class ManagementIT extends BaseTest {
         var indicationRepository = new IndikationRepository(stamDatabase.getDatasource());
         var indication = new Indication(indicationCode);
         indicationRepository.insert(indication, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithRouteCode(String routeCode) {
+        var administrationsvejRepository = new AdministrationsvejRepository(stamDatabase.getDatasource());
+        var route = new Medication.Route(routeCode);
+        administrationsvejRepository.insert(route, IN_THE_PAST, IN_THE_FUTURE);
     }
 
 }

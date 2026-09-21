@@ -92,6 +92,12 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
+    public MedicationRouteCache routeCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var routeRepository = new MedicationRouteRepository(dataSource);
+        return new MedicationRouteCache(configuration.stamdata().cache(), routeRepository);
+    }
+
+    @Bean
     public SkippedValidationRepository skippedValidationRepository(@Qualifier("appDataSource") DataSource dataSource) {
         return new SkippedValidationRepositoryImpl(dataSource);
     }

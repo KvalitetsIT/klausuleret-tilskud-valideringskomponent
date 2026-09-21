@@ -554,6 +554,17 @@ class ManagementIT extends BaseTest {
         assertEquals(Set.of(indicationCode), indicationCodes);
     }
 
+    @Test
+    void testGetRouteCodes_ReturnsRouteCodes() {
+        String route = "R1";
+        setupStamdataWithRouteCode(route);
+        restartService();
+
+        var routeCodes = api.management20250801MedicationRouteCodesGet();
+
+        assertEquals(Set.of(route), routeCodes);
+    }
+
     private static String setupStamdataClauseWithOneDrug() {
         String clauseName = "TEST";
         var stamdataDatasource = stamDatabase.getDatasource();

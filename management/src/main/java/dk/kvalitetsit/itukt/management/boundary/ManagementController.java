@@ -31,14 +31,17 @@ public class ManagementController implements ManagementApi {
     private final ManagementServiceAdaptor service;
     private final StamdataCacheService<Medication.ATC> medicationATCService;
     private final StamdataCacheService<Indication> indicationService;
+    private final StamdataCacheService<Medication.Route> medicationRouteService;
 
     public ManagementController(
             @Autowired ManagementServiceAdaptor service,
             @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
-            @Autowired StamdataCacheService<Indication> indicationService) {
+            @Autowired StamdataCacheService<Indication> indicationService,
+            @Autowired StamdataCacheService<Medication.Route> medicationRouteService) {
         this.service = service;
         this.medicationATCService = medicationATCService;
         this.indicationService = indicationService;
+        this.medicationRouteService = medicationRouteService;
     }
 
     @Override
@@ -131,6 +134,14 @@ public class ManagementController implements ManagementApi {
                 .map(Medication.ATC::code)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(atcCodes);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801MedicationRouteCodesGet() {
+        Set<String> routeCodes = medicationRouteService.getAll().stream()
+                .map(Medication.Route::code)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(routeCodes);
     }
 
     @Override

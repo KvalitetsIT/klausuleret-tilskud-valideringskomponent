@@ -98,6 +98,12 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
+    public DoctorSpecialityCache doctorSpecialityCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var repository = new DoctorSpecialityRepository(dataSource);
+        return new DoctorSpecialityCache(configuration.stamdata().cache(), repository);
+    }
+
+    @Bean
     public SkippedValidationRepository skippedValidationRepository(@Qualifier("appDataSource") DataSource dataSource) {
         return new SkippedValidationRepositoryImpl(dataSource);
     }

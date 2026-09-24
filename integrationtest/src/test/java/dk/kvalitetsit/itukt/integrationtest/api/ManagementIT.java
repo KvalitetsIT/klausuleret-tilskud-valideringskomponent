@@ -1,7 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
-import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
+import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
@@ -138,7 +138,7 @@ class ManagementIT extends BaseTest {
         setupStamdataWithRouteCode("R0");
         setupStamdataWithDepartmentSpeciality("TEST");
         setupStamdataWithIndicationCode(5);
-        setupStamdataWithDoctorSpeciality("TEST");
+        setupStamdataWithDoctorSpecialities("TEST", "", "");
         restartService();
         String dsl = """
                 EKSISTERENDE_LÆGEMIDDEL = {FORM = "TEST", ATC = "TEST", ROUTE = "R0"} eller
@@ -567,6 +567,19 @@ class ManagementIT extends BaseTest {
         assertEquals(Set.of(route), routeCodes);
     }
 
+    @Test
+    void testGetDoctorSpecialities_ReturnsDoctorSpecialities() {
+        String speciality1 = "TEST1";
+        String speciality2 = "TEST2";
+        String speciality3 = "TEST3";
+        setupStamdataWithDoctorSpecialities(speciality1, speciality2, speciality3);
+        restartService();
+
+        var doctorSpecialities = api.management20250801DoctorSpecialitiesGet();
+
+        assertEquals(Set.of(speciality1, speciality2, speciality3), doctorSpecialities);
+    }
+
     private static String setupStamdataClauseWithOneDrug() {
         String clauseName = "TEST";
         var stamdataDatasource = stamDatabase.getDatasource();
@@ -589,10 +602,12 @@ class ManagementIT extends BaseTest {
         sorEntityRepository.insert(department, IN_THE_PAST, IN_THE_FUTURE, IN_THE_PAST, IN_THE_FUTURE);
     }
 
-    private static void setupStamdataWithDoctorSpeciality(String speciality) {
+    private static void setupStamdataWithDoctorSpecialities(String speciality1, String speciality2, String speciality3) {
         var autorisationRepository = new Autorisation3Repository(stamDatabase.getDatasource());
-        var doctorSpeciality = new DoctorSpeciality(speciality);
-        autorisationRepository.insert(Optional.empty(), Optional.of(doctorSpeciality), Optional.empty(), IN_THE_PAST, IN_THE_FUTURE);
+        var doctorSpeciality1 = new DoctorSpeciality(speciality1);
+        var doctorSpeciality2 = new DoctorSpeciality(speciality2);
+        var doctorSpeciality3 = new DoctorSpeciality(speciality3);
+        autorisationRepository.insert(Optional.of(doctorSpeciality1), Optional.of(doctorSpeciality2), Optional.of(doctorSpeciality3), IN_THE_PAST, IN_THE_FUTURE);
     }
 
     private static void setupStamdataWithFormCode(String formCode) {

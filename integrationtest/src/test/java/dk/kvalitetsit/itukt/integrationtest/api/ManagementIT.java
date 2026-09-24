@@ -1,6 +1,7 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
 import dk.kvalitetsit.itukt.common.model.Indication;
+import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
@@ -25,10 +26,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,7 +113,8 @@ class ManagementIT extends BaseTest {
         String dsl = """
                 EKSISTERENDE_LÆGEMIDDEL = {FORM = "NOT_KNOWN", ATC = "NOT_KNOWN", ROUTE = "NOT_KNOWN"} eller
                 AFDELINGSSPECIALE = "NOT_KNOWN" eller
-                INDIKATION = "NOT_KNOWN"
+                INDIKATION = "NOT_KNOWN" eller
+                LÆGESPECIALE = "NOT_KNOWN"
                 """;
         var input = new DslInput()
                 .name("test")
@@ -128,6 +127,7 @@ class ManagementIT extends BaseTest {
         assertTrue(e.getMessage().contains("Ukendt route 'NOT_KNOWN'"));
         assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale 'NOT_KNOWN'"));
         assertTrue(e.getMessage().contains("Ukendt indikation 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt lægespeciale 'NOT_KNOWN'"));
         assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, true));
     }
 
@@ -138,11 +138,13 @@ class ManagementIT extends BaseTest {
         setupStamdataWithRouteCode("R0");
         setupStamdataWithDepartmentSpeciality("TEST");
         setupStamdataWithIndicationCode(5);
+        setupStamdataWithDoctorSpeciality("TEST");
         restartService();
         String dsl = """
                 EKSISTERENDE_LÆGEMIDDEL = {FORM = "TEST", ATC = "TEST", ROUTE = "R0"} eller
                 AFDELINGSSPECIALE = "TEST" eller
-                INDIKATION = "5"
+                INDIKATION = "5" eller
+                LÆGESPECIALE = "TEST"
                 """;
         var input = new DslInput()
                 .name("test")
@@ -585,6 +587,12 @@ class ManagementIT extends BaseTest {
         var sorEntityRepository = new SorEntityRepository(stamDatabase.getDatasource());
         var department = new DepartmentEntity("1", "2", speciality, "", "", "", "", "", "", "");
         sorEntityRepository.insert(department, IN_THE_PAST, IN_THE_FUTURE, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithDoctorSpeciality(String speciality) {
+        var autorisationRepository = new Autorisation3Repository(stamDatabase.getDatasource());
+        var doctorSpeciality = new DoctorSpeciality(speciality);
+        autorisationRepository.insert(Optional.empty(), Optional.of(doctorSpeciality), Optional.empty(), IN_THE_PAST, IN_THE_FUTURE);
     }
 
     private static void setupStamdataWithFormCode(String formCode) {

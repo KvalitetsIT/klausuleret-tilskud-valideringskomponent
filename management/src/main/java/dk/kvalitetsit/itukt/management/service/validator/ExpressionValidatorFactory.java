@@ -9,19 +9,22 @@ public class ExpressionValidatorFactory {
     private final StamdataCacheService<Medication.ATC> medicationATCService;
     private final StamdataCacheService<Indication> indicationService;
     private final StamdataCacheService<Medication.Route> medicationRouteService;
+    private final StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
 
     public ExpressionValidatorFactory(
             StamdataCacheService<Department.Speciality> departmentSpecialityService,
             StamdataCacheService<Medication.Form> medicationFormService,
             StamdataCacheService<Medication.ATC> medicationATCService,
             StamdataCacheService<Indication> indicationService,
-            StamdataCacheService<Medication.Route> medicationRouteService
+            StamdataCacheService<Medication.Route> medicationRouteService,
+            StamdataCacheService<DoctorSpeciality> doctorSpecialityService
     ) {
         this.departmentSpecialityService = departmentSpecialityService;
         this.medicationFormService = medicationFormService;
         this.medicationATCService = medicationATCService;
         this.indicationService = indicationService;
         this.medicationRouteService = medicationRouteService;
+        this.doctorSpecialityService = doctorSpecialityService;
     }
 
     public ExpressionValidator<Expression> createCombinedExpressionValidator() {
@@ -46,5 +49,9 @@ public class ExpressionValidatorFactory {
 
     public ExpressionValidator<IndicationConditionExpression> createIndicationExpressionValidator() {
         return new IndicationExpressionValidator(indicationService);
+    }
+
+    public ExpressionValidator<DoctorSpecialityConditionExpression> createDoctorSpecialityExpressionValidator() {
+        return new DoctorSpecialityExpressionValidator(doctorSpecialityService);
     }
 }

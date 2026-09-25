@@ -41,7 +41,6 @@ public class Lexer {
                     "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
                     "(\"[a-z0-9_æøåÆØÅ ]+\")|" +                 // string values
                     "([0-9]+)|" +                               // number values
-                    "(\\*)|" +                                  // wildcard value
                     "([,()\\[\\]{}])|" +                        // symbols
                     "(\\S))",                                   // unknown
             Pattern.CASE_INSENSITIVE
@@ -68,11 +67,9 @@ public class Lexer {
             else if (matcher.group(5) != null)
                 tokens.add(new Token(TokenType.VALUE, matcher.group(5)));
             else if (matcher.group(6) != null)
-                tokens.add(new Token(TokenType.VALUE, matcher.group(6)));
-            else if (matcher.group(7) != null)
-                tokens.add(new Token(TokenType.SYMBOL, matcher.group(7)));
+                tokens.add(new Token(TokenType.SYMBOL, matcher.group(6)));
             else
-                throw new UnexpectedValueException(matcher.group(8));
+                throw new UnexpectedValueException(matcher.group(7));
         }
         return tokens;
     }

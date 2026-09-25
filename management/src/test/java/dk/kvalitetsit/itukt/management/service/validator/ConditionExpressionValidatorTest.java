@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.service.validator;
 
 import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
 import dk.kvalitetsit.itukt.common.model.DepartmentSpecialityConditionExpression;
+import dk.kvalitetsit.itukt.common.model.DoctorSpecialityConditionExpression;
 import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
 import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
 import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
@@ -33,6 +34,9 @@ class ConditionExpressionValidatorTest {
     @Mock
     private ExpressionValidator<IndicationConditionExpression> indicationValidator;
 
+    @Mock
+    private ExpressionValidator<DoctorSpecialityConditionExpression> doctorSpecialityValidator;
+
     private ConditionExpressionValidator validator;
 
     @BeforeEach
@@ -40,6 +44,7 @@ class ConditionExpressionValidatorTest {
         when(expressionValidatorFactory.createDepartmentSpecialityExpressionValidator()).thenReturn(departmentSpecialityExpressionValidator);
         when(expressionValidatorFactory.createExistingDrugMedicationExpressionValidator()).thenReturn(existingDrugMedicationValidator);
         when(expressionValidatorFactory.createIndicationExpressionValidator()).thenReturn(indicationValidator);
+        when(expressionValidatorFactory.createDoctorSpecialityExpressionValidator()).thenReturn(doctorSpecialityValidator);
         validator = new ConditionExpressionValidator(expressionValidatorFactory);
     }
 
@@ -70,6 +75,17 @@ class ConditionExpressionValidatorTest {
         var condition = Mockito.mock(IndicationConditionExpression.class);
         var error = Mockito.mock(UnknownValueError.class);
         Mockito.when(indicationValidator.validate(condition)).thenReturn(List.of(error));
+
+        var result = validator.validate(condition);
+
+        assertEquals(List.of(error), result);
+    }
+
+    @Test
+    void validate_WhenExpressionIsDoctorSpeciality_DelegatesToDoctorSpecialityValidator() {
+        var condition = Mockito.mock(DoctorSpecialityConditionExpression.class);
+        var error = Mockito.mock(UnknownValueError.class);
+        Mockito.when(doctorSpecialityValidator.validate(condition)).thenReturn(List.of(error));
 
         var result = validator.validate(condition);
 

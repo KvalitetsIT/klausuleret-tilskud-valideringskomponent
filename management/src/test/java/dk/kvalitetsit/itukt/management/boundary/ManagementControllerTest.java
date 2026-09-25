@@ -38,6 +38,8 @@ class ManagementControllerTest {
     private StamdataCacheService<Medication.ATC> medicationATCService;
     @Mock
     private StamdataCacheService<Indication> indicationService;
+    @Mock
+    private StamdataCacheService<Medication.Route> medicationRouteService;
 
     @BeforeEach
     void setup() {
@@ -45,7 +47,7 @@ class ManagementControllerTest {
         ServletRequestAttributes attrs = new ServletRequestAttributes(request);
         RequestContextHolder.setRequestAttributes(attrs);
 
-        managementController = new  ManagementController(clauseService, medicationATCService, indicationService);
+        managementController = new  ManagementController(clauseService, medicationATCService, indicationService, medicationRouteService);
     }
 
     @AfterEach
@@ -209,6 +211,18 @@ class ManagementControllerTest {
         var response = managementController.management20250801IndicationCodesGet();
 
         assertEquals(Set.of(indication1.code(), indication2.code()), response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801MedicationRouteCodesGet_ReturnsRouteCodesFromService() {
+        var route1 = new Medication.Route("R1");
+        var route2 = new Medication.Route("R2");
+        Mockito.when(medicationRouteService.getAll()).thenReturn(Set.of(route1, route2));
+
+        var response = managementController.management20250801MedicationRouteCodesGet();
+
+        assertEquals(Set.of(route1.code(), route2.code()), response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

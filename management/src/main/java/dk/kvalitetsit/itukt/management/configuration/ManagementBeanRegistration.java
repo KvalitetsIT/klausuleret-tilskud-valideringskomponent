@@ -1,10 +1,7 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.model.Clause;
-import dk.kvalitetsit.itukt.common.model.Department;
-import dk.kvalitetsit.itukt.common.model.Expression;
-import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
@@ -158,9 +155,10 @@ public class ManagementBeanRegistration {
     public ExpressionValidator<Expression> expressionValidator(
             @Autowired StamdataCacheService<Department.Speciality> departmentSpecialityService,
             @Autowired StamdataCacheService<Medication.Form> medicationFormService,
-            @Autowired StamdataCacheService<Medication.ATC> medicationATCService
+            @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
+            @Autowired StamdataCacheService<Indication> indicationService
     ) {
-        var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService, medicationFormService, medicationATCService);
+        var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService, medicationFormService, medicationATCService, indicationService);
         return expressionValidatorFactory.createCombinedExpressionValidator();
     }
 }

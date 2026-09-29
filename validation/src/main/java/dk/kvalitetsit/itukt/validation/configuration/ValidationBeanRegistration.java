@@ -86,6 +86,12 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
+    public IndicationCache indicationCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var indicationRepository = new IndicationRepository(dataSource);
+        return new IndicationCache(configuration.stamdata().cache(), indicationRepository);
+    }
+
+    @Bean
     public SkippedValidationRepository skippedValidationRepository(@Qualifier("appDataSource") DataSource dataSource) {
         return new SkippedValidationRepositoryImpl(dataSource);
     }

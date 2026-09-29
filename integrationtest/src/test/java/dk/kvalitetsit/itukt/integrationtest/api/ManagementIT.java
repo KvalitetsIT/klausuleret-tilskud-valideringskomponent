@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
+import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
@@ -110,48 +111,40 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void postClause_WithUnknownDepartmentSpeciality_ThrowsExceptionOnlyWhenNotSkippingValidation() {
+    void postClause_WithUnknownValues_ThrowsExceptionOnlyWhenNotSkippingValidation() {
+        String dsl = """
+                EKSISTERENDE_LÆGEMIDDEL = {FORM = "NOT_KNOWN", ATC = "NOT_KNOWN"} eller
+                AFDELINGSSPECIALE = "NOT_KNOWN" eller
+                INDIKATION = "NOT_KNOWN"
+                """;
         var input = new DslInput()
                 .name("test")
-                .dsl("AFDELINGSSPECIALE = \"NOT_KNOWN\"")
-                .error("error");
-        var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input, false));
-        assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale 'NOT_KNOWN'"));
-        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, true));
-    }
-
-    @Test
-    void postClause_WithKnownDepartmentSpeciality_Succeeds() {
-        setupStamdataWithDepartmentSpeciality("TEST");
-        restartService();
-        var input = new DslInput()
-                .name("test")
-                .dsl("AFDELINGSSPECIALE = \"TEST\"")
-                .error("error");
-        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, false));
-    }
-
-    @Test
-    void postClause_WithUnknownFormCodeAndAtcCode_ThrowsExceptionOnlyWhenNotSkippingValidation() {
-        var input = new DslInput()
-                .name("test")
-                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = \"NOT_KNOWN\", ATC = \"NOT_KNOWN\"}")
+                .dsl(dsl)
                 .error("error");
 
         var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input, false));
         assertTrue(e.getMessage().contains("Ukendt form 'NOT_KNOWN'"));
         assertTrue(e.getMessage().contains("Ukendt atc 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt indikation 'NOT_KNOWN'"));
         assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, true));
     }
 
     @Test
-    void postClause_WithKnownFormAndATCCode_Succeeds() {
+    void postClause_WithKnownValues_Succeeds() {
         setupStamdataWithFormCode("TEST");
         setupStamdataWithATCCode("TEST");
+        setupStamdataWithDepartmentSpeciality("TEST");
+        setupStamdataWithIndicationCode(5);
         restartService();
+        String dsl = """
+                EKSISTERENDE_LÆGEMIDDEL = {FORM = "TEST", ATC = "TEST"} eller
+                AFDELINGSSPECIALE = "TEST" eller
+                INDIKATION = "5"
+                """;
         var input = new DslInput()
                 .name("test")
-                .dsl("EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TEST\", ATC = \"TEST\"}")
+                .dsl(dsl)
                 .error("error");
         assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, false));
     }
@@ -548,6 +541,17 @@ class ManagementIT extends BaseTest {
         assertEquals(Set.of(atc), atcCodes);
     }
 
+    @Test
+    void testGetIndicationCodes_ReturnsIndicationCodes() {
+        long indicationCode = 1234;
+        setupStamdataWithIndicationCode(indicationCode);
+        restartService();
+
+        var indicationCodes = api.management20250801IndicationCodesGet();
+
+        assertEquals(Set.of(indicationCode), indicationCodes);
+    }
+
     private static String setupStamdataClauseWithOneDrug() {
         String clauseName = "TEST";
         var stamdataDatasource = stamDatabase.getDatasource();
@@ -580,6 +584,12 @@ class ManagementIT extends BaseTest {
         var atcRepository = new ATCRepository(stamDatabase.getDatasource());
         var atc = new Medication.ATC(atcCode);
         atcRepository.insert(atc, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithIndicationCode(long indicationCode) {
+        var indicationRepository = new IndikationRepository(stamDatabase.getDatasource());
+        var indication = new Indication(indicationCode);
+        indicationRepository.insert(indication, IN_THE_PAST, IN_THE_FUTURE);
     }
 
 }

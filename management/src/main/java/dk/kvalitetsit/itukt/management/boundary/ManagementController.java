@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
@@ -29,12 +30,15 @@ public class ManagementController implements ManagementApi {
 
     private final ManagementServiceAdaptor service;
     private final StamdataCacheService<Medication.ATC> medicationATCService;
+    private final StamdataCacheService<Indication> indicationService;
 
     public ManagementController(
             @Autowired ManagementServiceAdaptor service,
-            @Autowired StamdataCacheService<Medication.ATC> medicationATCService) {
+            @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
+            @Autowired StamdataCacheService<Indication> indicationService) {
         this.service = service;
         this.medicationATCService = medicationATCService;
+        this.indicationService = indicationService;
     }
 
     @Override
@@ -127,6 +131,14 @@ public class ManagementController implements ManagementApi {
                 .map(Medication.ATC::code)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(atcCodes);
+    }
+
+    @Override
+    public ResponseEntity<Set<Long>> management20250801IndicationCodesGet() {
+        Set<Long> indicationCodes = indicationService.getAll().stream()
+                .map(Indication::code)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(indicationCodes);
     }
 
     private URI getLocation(Function<ManagementController, Object> methodRef, UUID uuid) {

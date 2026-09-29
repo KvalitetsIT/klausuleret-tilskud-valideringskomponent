@@ -8,16 +8,7 @@ class StringToDslValueMapperTest {
     private final StringToDslValueMapper stringToDslValueMapper = new StringToDslValueMapper();
 
     @Test
-    void map_WithWildcard_ReturnsWildcard() {
-        String wildcard = "*";
-
-        String mappedValue = stringToDslValueMapper.map(wildcard);
-
-        assertEquals(wildcard, mappedValue);
-    }
-
-    @Test
-    void map_WithNonWildcard_ReturnsValueWithQuotes() {
+    void map_ReturnsValueWithQuotes() {
         String value = "testValue";
 
         String mappedValue = stringToDslValueMapper.map(value);

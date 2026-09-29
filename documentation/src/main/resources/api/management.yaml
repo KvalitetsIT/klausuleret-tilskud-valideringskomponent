@@ -355,6 +355,22 @@ paths:
                   type: integer
                   format: int64
 
+  /management/2025/08/01/doctor-specialities:
+    get:
+      tags:
+        - management
+      description: "Retrieves all valid doctor specialities"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  type: string
+
 components:
   responses:
     '400':

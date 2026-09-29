@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.Indication;
+import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
@@ -32,16 +33,19 @@ public class ManagementController implements ManagementApi {
     private final StamdataCacheService<Medication.ATC> medicationATCService;
     private final StamdataCacheService<Indication> indicationService;
     private final StamdataCacheService<Medication.Route> medicationRouteService;
+    private final StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
 
     public ManagementController(
             @Autowired ManagementServiceAdaptor service,
             @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
             @Autowired StamdataCacheService<Indication> indicationService,
-            @Autowired StamdataCacheService<Medication.Route> medicationRouteService) {
+            @Autowired StamdataCacheService<Medication.Route> medicationRouteService,
+            @Autowired StamdataCacheService<DoctorSpeciality> doctorSpecialityService) {
         this.service = service;
         this.medicationATCService = medicationATCService;
         this.indicationService = indicationService;
         this.medicationRouteService = medicationRouteService;
+        this.doctorSpecialityService = doctorSpecialityService;
     }
 
     @Override
@@ -150,6 +154,14 @@ public class ManagementController implements ManagementApi {
                 .map(Indication::code)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(indicationCodes);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801DoctorSpecialitiesGet() {
+        Set<String> specialities = doctorSpecialityService.getAll().stream()
+                .map(DoctorSpeciality::value)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(specialities);
     }
 
     private URI getLocation(Function<ManagementController, Object> methodRef, UUID uuid) {

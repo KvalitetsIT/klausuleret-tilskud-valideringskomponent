@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
 import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
@@ -40,6 +41,8 @@ class ManagementControllerTest {
     private StamdataCacheService<Indication> indicationService;
     @Mock
     private StamdataCacheService<Medication.Route> medicationRouteService;
+    @Mock
+    private StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
 
     @BeforeEach
     void setup() {
@@ -47,7 +50,7 @@ class ManagementControllerTest {
         ServletRequestAttributes attrs = new ServletRequestAttributes(request);
         RequestContextHolder.setRequestAttributes(attrs);
 
-        managementController = new  ManagementController(clauseService, medicationATCService, indicationService, medicationRouteService);
+        managementController = new  ManagementController(clauseService, medicationATCService, indicationService, medicationRouteService, doctorSpecialityService);
     }
 
     @AfterEach
@@ -223,6 +226,18 @@ class ManagementControllerTest {
         var response = managementController.management20250801MedicationRouteCodesGet();
 
         assertEquals(Set.of(route1.code(), route2.code()), response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801DoctorSpecialitiesGet_ReturnsSpecialityCodesFromService() {
+        var speciality1 = new DoctorSpeciality("S1");
+        var speciality2 = new DoctorSpeciality("S2");
+        Mockito.when(doctorSpecialityService.getAll()).thenReturn(Set.of(speciality1, speciality2));
+
+        var response = managementController.management20250801DoctorSpecialitiesGet();
+
+        assertEquals(Set.of(speciality1.value(), speciality2.value()), response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

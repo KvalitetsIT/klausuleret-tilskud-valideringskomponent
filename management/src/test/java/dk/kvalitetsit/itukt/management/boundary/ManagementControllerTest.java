@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
 import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +44,10 @@ class ManagementControllerTest {
     private StamdataCacheService<Medication.Route> medicationRouteService;
     @Mock
     private StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
+    @Mock
+    private StamdataCacheService<Department.Speciality> departmentSpecialityService;
+    @Mock
+    private StamdataCacheService<Medication.Form> medicationFormService;
 
     @BeforeEach
     void setup() {
@@ -50,7 +55,7 @@ class ManagementControllerTest {
         ServletRequestAttributes attrs = new ServletRequestAttributes(request);
         RequestContextHolder.setRequestAttributes(attrs);
 
-        managementController = new  ManagementController(clauseService, medicationATCService, indicationService, medicationRouteService, doctorSpecialityService);
+        managementController = new  ManagementController(clauseService, medicationATCService, indicationService, medicationRouteService, doctorSpecialityService, departmentSpecialityService, medicationFormService);
     }
 
     @AfterEach
@@ -239,5 +244,27 @@ class ManagementControllerTest {
 
         assertEquals(Set.of(speciality1.value(), speciality2.value()), response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801DepartmentSpecialitiesGet_ReturnsSpecialitiesFromService() {
+        var speciality1 = new Department.Speciality("S1");
+        var speciality2 = new Department.Speciality("S2");
+        Mockito.when(departmentSpecialityService.getAll()).thenReturn(Set.of(speciality1, speciality2));
+
+        var response = managementController.management20250801DepartmentSpecialitiesGet();
+
+        assertEquals(Set.of(speciality1.name(), speciality2.name()), response.getBody());
+    }
+
+    @Test
+    void management20250801MedicationFormsGet_ReturnsFormsFromService() {
+        var form1 = new Medication.Form("F1");
+        var form2 = new Medication.Form("F2");
+        Mockito.when(medicationFormService.getAll()).thenReturn(Set.of(form1, form2));
+
+        var response = managementController.management20250801MedicationFormCodesGet();
+
+        assertEquals(Set.of(form1.code(), form2.code()), response.getBody());
     }
 }

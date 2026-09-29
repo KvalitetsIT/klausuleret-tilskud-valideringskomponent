@@ -322,6 +322,22 @@ paths:
                 items:
                   type: string
 
+  /management/2025/08/01/medication-route-codes:
+    get:
+      tags:
+        - management
+      description: "Retrieves all valid medication route of administration codes"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  type: string
+
   /management/2025/08/01/indication-codes:
     get:
       tags:

@@ -156,9 +156,10 @@ public class ManagementBeanRegistration {
             @Autowired StamdataCacheService<Department.Speciality> departmentSpecialityService,
             @Autowired StamdataCacheService<Medication.Form> medicationFormService,
             @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
-            @Autowired StamdataCacheService<Indication> indicationService
+            @Autowired StamdataCacheService<Indication> indicationService,
+            @Autowired StamdataCacheService<Medication.Route> medicationRouteService
     ) {
-        var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService, medicationFormService, medicationATCService, indicationService);
+        var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService, medicationFormService, medicationATCService, indicationService, medicationRouteService);
         return expressionValidatorFactory.createCombinedExpressionValidator();
     }
 }

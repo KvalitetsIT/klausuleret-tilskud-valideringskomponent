@@ -123,12 +123,13 @@ public class ValidationBeanRegistration {
             @Autowired SkippedValidationService skippedValidationService,
             @Autowired Cache<Department.Identifier, Department> departmentCache
     ) {
+        var validationService = new ValidationServiceImpl(
+                clauseService,
+                drugClauseCache,
+                skippedValidationService
+        );
         return new ValidationServiceAdaptor(
-                new ValidationServiceImpl(
-                        clauseService,
-                        drugClauseCache,
-                        skippedValidationService
-                ),
+                new ErrorLoggingValidationService(validationService),
                 new ValidationRequestInputMapper(new ActorDtoModelMapper(departmentCache)),
                 new ErrorMapper()
         );

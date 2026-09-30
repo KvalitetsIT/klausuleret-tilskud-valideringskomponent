@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Transactional
 public class ValidationController implements ValidationApi {
-
     private final ValidationService<ValidationRequest, ValidationResponse> service;
 
     public ValidationController(@Autowired ValidationService<ValidationRequest, ValidationResponse> service) {

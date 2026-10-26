@@ -9,12 +9,14 @@ import dk.kvalitetsit.itukt.validation.service.exceptions.ExistingDrugMedication
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
-
+    private final Logger logger = LoggerFactory.getLogger(ValidationServiceImpl.class);
     private final ClauseService clauseCache;
     private final Cache<Long, DrugClause> drugClauseCache;
     private final SkippedValidationService skippedValidationService;
@@ -27,6 +29,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
 
     @Override
     public List<ValidationError> validate(ValidationInput validationInput) {
+        logger.debug("Validation input: {}", validationInput);
         createSkippedValidations(validationInput);
 
         Optional<DrugClause> drugClauseByDrugId = drugClauseCache.get(validationInput.drugId());

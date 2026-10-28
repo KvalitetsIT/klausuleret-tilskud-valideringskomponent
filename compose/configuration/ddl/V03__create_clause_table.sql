@@ -3,7 +3,7 @@ CREATE TABLE clause (
     uuid VARCHAR(36) NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     expression_id INT NOT NULL UNIQUE,
-    error_message VARCHAR(255) NOT NULL,
+    error_message VARCHAR(1000) NOT NULL,
     status ENUM('DRAFT','ACTIVE', 'INACTIVE') NOT NULL,
     created_time DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     created_by VARCHAR(255) NOT NULL,

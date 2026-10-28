@@ -1,5 +1,9 @@
 package dk.kvalitetsit.itukt.common.model;
 
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static dk.kvalitetsit.itukt.common.model.ValidationError.*;
 import static java.lang.String.join;
 
@@ -40,10 +44,20 @@ sealed public interface ValidationError extends ValidationFailed permits AndErro
     record ExistingDrugMedicationError(ExistingDrugMedication existingDrugMedication) implements ValidationError {
         @Override
         public String toErrorString() {
-            return "tidligere medicinsk behandling med følgende påkrævet:" +
-                    " ATC = " + existingDrugMedication.atcCode() +
-                    ", Formkode = " + existingDrugMedication.formCode() +
-                    ", Administrationsrutekode = " + existingDrugMedication.routeOfAdministrationCode();
+            String requiredValues = Stream.of(
+                            toErrorString("ATC", existingDrugMedication.atcCode()),
+                            toErrorString("Formkode", existingDrugMedication.formCode()),
+                            toErrorString("Administrationsvejkode", existingDrugMedication.routeOfAdministrationCode())
+                    )
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.joining(", "));
+            return "tidligere medicinsk behandling med følgende påkrævet: " + requiredValues;
+        }
+
+        private Optional<String> toErrorString(String key, String value) {
+            return value.equals(ExistingDrugMedicationConditionExpression.WILDCARD)
+                    ? Optional.empty()
+                    : Optional.of(key + " = " + value);
         }
     }
 

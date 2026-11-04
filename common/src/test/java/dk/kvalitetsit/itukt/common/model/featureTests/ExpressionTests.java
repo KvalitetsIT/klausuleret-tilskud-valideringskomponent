@@ -327,7 +327,7 @@ public class ExpressionTests {
         assertErrorMessage(
                 "tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
                         ", Formkode = " + formCode +
-                        ", Administrationsrutekode = " + route,
+                        ", Administrationsvejkode = " + route,
                 result
         );
     }
@@ -344,7 +344,7 @@ public class ExpressionTests {
         assertErrorMessage(
                 "tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
                         ", Formkode = " + formCode +
-                        ", Administrationsrutekode = " + route,
+                        ", Administrationsvejkode = " + route,
                 result
         );
     }
@@ -361,7 +361,7 @@ public class ExpressionTests {
         assertErrorMessage(
                 "tidligere medicinsk behandling med følgende påkrævet: ATC = " + atcCode +
                         ", Formkode = " + formCode +
-                        ", Administrationsrutekode = " + route,
+                        ", Administrationsvejkode = " + route,
                 result
         );
     }
@@ -382,7 +382,7 @@ public class ExpressionTests {
 
         assertErrorMessage(
                 "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
-                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
                         " eller indikation skal være input-indication-no-match)",
                 result
         );
@@ -404,7 +404,7 @@ public class ExpressionTests {
 
         assertErrorMessage(
                 "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
-                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
                         " eller indikation skal være input-indication-no-match)",
                 result
         );
@@ -426,7 +426,7 @@ public class ExpressionTests {
 
         assertErrorMessage(
                 "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
-                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route +
+                        atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
                         " eller indikation skal være input-indication-no-match)",
                 result
         );
@@ -448,7 +448,7 @@ public class ExpressionTests {
 
         assertErrorMessage(
                 "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
-                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
+                        atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route,
                 result
         );
     }
@@ -469,7 +469,7 @@ public class ExpressionTests {
 
         assertErrorMessage(
                 "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
-                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
+                        atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route,
                 result
         );
     }
@@ -490,7 +490,7 @@ public class ExpressionTests {
 
         assertErrorMessage(
                 "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
-                        atcCode + ", Formkode = " + formCode + ", Administrationsrutekode = " + route,
+                        atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route,
                 result
         );
     }

@@ -60,7 +60,7 @@ class ValidationServiceImplTest {
 
     @Test
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationSucceeds_ReturnsSuccess() {
-        var validationInput = new ValidationInput("1234", new ValidationInput.Actor("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty(), "");
+        var validationInput = new ValidationInput("1234", new ValidationInput.Actor("creator", Optional.of("test"), Optional.of(new Department(new Department.Identifier.SHAK("123"), Set.of(new Department.Speciality("s"))))), Optional.empty(), List.of(), 5, 1234, "", Optional.empty(), "");
         var drugClause = new DrugClause(new DrugClause.Drug(1234L), Set.of(new DrugClause.Clause("0000", null)));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, new Clause.Name(drugClause.clauses().iterator().next().code()), Clause.Status.ACTIVE, null, null, expression, "tester", new Date());

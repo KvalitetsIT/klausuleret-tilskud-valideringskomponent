@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.common.model;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ValidationErrorTest {
 
@@ -94,6 +94,26 @@ class ValidationErrorTest {
 
         String errorString = conditionError.toErrorString();
 
-        assertEquals("tidligere medicinsk behandling med følgende påkrævet: ATC = atc, Formkode = form, Administrationsrutekode = adm", errorString);
+        assertEquals("tidligere medicinsk behandling med følgende påkrævet: ATC = atc, Formkode = form, Administrationsvejkode = adm", errorString);
+    }
+
+    @Test
+    void existingDrugMedicationErrorToErrorString_WithAtcAndRouteWildcards_ReturnsCorrespondingErrorString() {
+        ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication(ExistingDrugMedicationConditionExpression.WILDCARD, "form", ExistingDrugMedicationConditionExpression.WILDCARD);
+        var conditionError = new ValidationError.ExistingDrugMedicationError(existingDrugMedication);
+
+        String errorString = conditionError.toErrorString();
+
+        assertEquals("tidligere medicinsk behandling med følgende påkrævet: Formkode = form", errorString);
+    }
+
+    @Test
+    void existingDrugMedicationErrorToErrorString_WithFormWildcard_ReturnsCorrespondingErrorString() {
+        ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication("atc", ExistingDrugMedicationConditionExpression.WILDCARD, "adm");
+        var conditionError = new ValidationError.ExistingDrugMedicationError(existingDrugMedication);
+
+        String errorString = conditionError.toErrorString();
+
+        assertEquals("tidligere medicinsk behandling med følgende påkrævet: ATC = atc, Administrationsvejkode = adm", errorString);
     }
 }

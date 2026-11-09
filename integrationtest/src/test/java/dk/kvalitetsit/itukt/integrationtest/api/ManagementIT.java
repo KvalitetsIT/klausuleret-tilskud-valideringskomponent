@@ -24,7 +24,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
@@ -192,7 +192,9 @@ class ManagementIT extends BaseTest {
         Resource csv = api.management20250801ClausesDslCsvGet(ClauseStatus.DRAFT);
 
         assertTrue(csv.exists());
-        String[] lines = csv.getContentAsString(Charset.defaultCharset()).split("\n");
+        String content = csv.getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(content.startsWith("\uFEFF"), "CSV should start with UTF-8 BOM");
+        String[] lines = content.substring(1).split("\n");
         assertEquals(2, lines.length);
         assertEquals("name;status;dsl;error;createdBy;createdTime", lines[0]);
         assertTrue(lines[1].contains("TEST;DRAFT;ALDER = 1;error;" + USER_ID));

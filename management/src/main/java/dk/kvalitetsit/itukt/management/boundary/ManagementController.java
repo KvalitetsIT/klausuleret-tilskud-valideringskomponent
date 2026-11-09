@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -119,7 +120,8 @@ public class ManagementController implements ManagementApi {
     @Override
     public ResponseEntity<Resource> management20250801ClausesDslCsvGet(ClauseStatus status) {
         String csvString = service.readDslCsvByStatus(status);
-        return ResponseEntity.ok(new ByteArrayResource(csvString.getBytes()));
+        // BOM so Excel detects UTF-8
+        return ResponseEntity.ok(new ByteArrayResource(("\uFEFF" + csvString).getBytes(StandardCharsets.UTF_8)));
     }
 
     @Override

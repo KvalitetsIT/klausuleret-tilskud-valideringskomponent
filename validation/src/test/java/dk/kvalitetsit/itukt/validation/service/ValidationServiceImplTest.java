@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ValidationErrorMapper;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class ValidationServiceImplTest {
 
-    private final Optional<ValidationFailed> someError = Optional.of(new ConditionError(ValidationError.ConditionError.Field.AGE, Operator.EQUAL, "20"));
+    private final ValidationError someError = new ConditionError(ValidationError.ConditionError.Field.AGE, Operator.EQUAL, "20");
 
     @InjectMocks
     private ValidationServiceImpl service;
@@ -34,6 +35,8 @@ class ValidationServiceImplTest {
     private Cache<Long, DrugClause> drugClauseCache;
     @Mock
     private SkippedValidationService skippedValidationService;
+    @Mock
+    private ValidationErrorMapper<ValidationError> validationErrorMapper;
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {
@@ -84,7 +87,9 @@ class ValidationServiceImplTest {
         var clause = new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("message", 10800), expression, "tester", new Date());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
-        Mockito.when(expression.validates(validationInput)).thenReturn(someError);
+        Mockito.when(expression.validates(validationInput)).thenReturn(Optional.of(someError));
+        String mappedError = "mapped error";
+        Mockito.when(validationErrorMapper.map(someError)).thenReturn(mappedError);
 
         var result = service.validate(validationInput);
 
@@ -95,6 +100,7 @@ class ValidationServiceImplTest {
         assertEquals(clause.error().message(), result.getFirst().clause().message());
         assertEquals(clause.error().code(), result.getFirst().code());
         assertEquals(drugClause.clauses().iterator().next().text(), result.getFirst().clause().text());
+        assertEquals(mappedError, result.getFirst().message());
     }
 
     @Test
@@ -120,7 +126,7 @@ class ValidationServiceImplTest {
         Mockito.when(succeedingExpression.validates(validationInput)).thenReturn(Optional.empty());
 
         var failingExpression = Mockito.mock(BinaryExpression.class);
-        Mockito.when(failingExpression.validates(validationInput)).thenReturn(someError);
+        Mockito.when(failingExpression.validates(validationInput)).thenReturn(Optional.of(someError));
 
 
         var clause_1 = new Clause(1L, name1, Clause.Status.ACTIVE, null, new Clause.Error(null, 10800), failingExpression, "tester", new Date());

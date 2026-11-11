@@ -6,6 +6,7 @@ import dk.kvalitetsit.itukt.common.model.ValidationFailed;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.service.exceptions.ExistingDrugMedicationRequiredException;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ValidationErrorMapper;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
@@ -20,11 +21,13 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     private final ClauseService clauseCache;
     private final Cache<Long, DrugClause> drugClauseCache;
     private final SkippedValidationService skippedValidationService;
+    private final ValidationErrorMapper<dk.kvalitetsit.itukt.common.model.ValidationError> validationErrorMapper;
 
-    public ValidationServiceImpl(ClauseService clauseCache, Cache<Long, DrugClause> drugClauseCache, SkippedValidationService skippedValidationService) {
+    public ValidationServiceImpl(ClauseService clauseCache, Cache<Long, DrugClause> drugClauseCache, SkippedValidationService skippedValidationService, ValidationErrorMapper<dk.kvalitetsit.itukt.common.model.ValidationError> validationErrorMapper) {
         this.clauseCache = clauseCache;
         this.drugClauseCache = drugClauseCache;
         this.skippedValidationService = skippedValidationService;
+        this.validationErrorMapper = validationErrorMapper;
     }
 
     @Override
@@ -48,7 +51,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                         throw new ExistingDrugMedicationRequiredException();
                 case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(
                         new ValidationError.Clause(clause.name().value(), clauseText, clause.error().message()),
-                        error.toErrorString(),
+                        validationErrorMapper.map(error),
                         clause.error().code(),
                         validationInput.elementPath()
                 );

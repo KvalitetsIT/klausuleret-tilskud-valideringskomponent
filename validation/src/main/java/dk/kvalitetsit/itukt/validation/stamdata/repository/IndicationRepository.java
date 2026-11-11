@@ -22,7 +22,7 @@ public class IndicationRepository implements Repository<Indication> {
     public List<Indication> fetchAll() {
         try {
             String sql = """
-                    SELECT DISTINCT IndikationKode as code
+                    SELECT DISTINCT IndikationKode as code, IndikationTekst as text
                     FROM Indikation
                     WHERE ValidTo > NOW() AND ValidFrom < NOW()
                     """;
@@ -30,7 +30,7 @@ public class IndicationRepository implements Repository<Indication> {
             return template.query(sql, rowMapper);
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch all indication codes", e);
+            throw new RuntimeException("Failed to fetch all indications", e);
         }
     }
 }

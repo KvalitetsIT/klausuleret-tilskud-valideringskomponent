@@ -37,10 +37,10 @@ public class IndicationRepositoryIT extends BaseTest {
 
     @Test
     void fetchAll_WithBothValidAndInvalidIndicationInDB_ReturnsValidIndication() {
-        var valid1 = new Indication(1);
-        var valid2 = new Indication(2);
-        var invalid1 = new Indication(3);
-        var invalid2 = new Indication(4);
+        var valid1 = new Indication(1, "text1");
+        var valid2 = new Indication(2, "text2");
+        var invalid1 = new Indication(3, "text3");
+        var invalid2 = new Indication(4, "text4");
         indikationRepository.insert(valid1, inThePast, inTheFuture);
         indikationRepository.insert(valid2, inThePast, inTheFuture);
         indikationRepository.insert(invalid1, inThePast, inThePast);

@@ -22,7 +22,7 @@ public class IndikationRepository {
 
         var params = Map.of(
                 "indikationKode", indication.code(),
-                "tekst", "test",
+                "tekst", indication.text(),
                 "validFrom", validFrom,
                 "validTo", validTo
         );

@@ -1,12 +1,14 @@
 package dk.kvalitetsit.itukt.validation.featureTests;
 
 import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.ValidationErrorMapper;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.ValidationErrorMapperFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,10 +26,25 @@ public class ExpressionTests {
             List.of(new ExistingDrugMedication(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode));
     final ValidationInput validationInputWithHistory =
             new ValidationInput("", new ValidationInput.Actor("speciale"), empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications), "path");
-    final ValidationErrorMapper<ValidationError> validationErrorMapper = new ValidationErrorMapperFactory().createCombinedValidationErrorMapper();
+    final StamdataCacheService<Indication> indicationCache = new StamdataCacheService<Indication>(){
+        @Override
+        public Set<Indication> getAll() {
+            return Set.of();
+        }
+
+        @Override
+        public Optional<Indication> get(String identifier) {
+            return Optional.of(new Indication(1L, identifier + "mapped"));
+        }
+    };
+    final ValidationErrorMapper<ValidationError> validationErrorMapper = new ValidationErrorMapperFactory(indicationCache).createCombinedValidationErrorMapper();
 
     void assertErrorMessage(String v, Optional<ValidationFailed> o) {
         assertEquals(Optional.of(v), o.map(failed -> validationErrorMapper.map(assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed))));
+    }
+    
+    private String mapIndication(String indication) {
+        return indicationCache.get(indication).map(Indication::text).orElseThrow();
     }
 
     @Test
@@ -112,7 +129,7 @@ public class ExpressionTests {
     void validateString_error() {
         var requiredValue = inputIndication + "-no-match";
         var validates = new IndicationConditionExpression(requiredValue).validates(validationInput);
-        assertErrorMessage("indikation skal være " + requiredValue, validates);
+        assertErrorMessage("indikation skal være " + mapIndication(requiredValue), validates);
     }
 
     @Test
@@ -171,13 +188,14 @@ public class ExpressionTests {
         var combined1 = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
 
         var exp3 = new AgeConditionExpression(Operator.EQUAL, inputAge);
-        var exp4 = new IndicationConditionExpression(inputIndication + "-no-match");
+        String nonMatchingIndication = inputIndication + "-no-match";
+        var exp4 = new IndicationConditionExpression(nonMatchingIndication);
         var combined2 = new BinaryExpression(exp3, BinaryExpression.Operator.AND, exp4);
 
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined2);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 39 eller indikation skal være input-indication-no-match", result);
+        assertErrorMessage("alder skal være 39 eller indikation skal være " + mapIndication(nonMatchingIndication), result);
     }
 
     @Test
@@ -187,13 +205,14 @@ public class ExpressionTests {
         var combined1 = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
 
         var exp3 = new AgeConditionExpression(Operator.EQUAL, inputAge - 1);
-        var exp4 = new IndicationConditionExpression(inputIndication + "-no-match");
+        var nonMatchingIndication = inputIndication + "-no-match";
+        var exp4 = new IndicationConditionExpression(nonMatchingIndication);
         var combined2 = new BinaryExpression(exp3, BinaryExpression.Operator.AND, exp4);
 
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined2);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 39 eller alder skal være 39 og indikation skal være input-indication-no-match", result);
+        assertErrorMessage("alder skal være 39 eller alder skal være 39 og indikation skal være " + mapIndication(nonMatchingIndication), result);
     }
 
     @Test
@@ -203,15 +222,21 @@ public class ExpressionTests {
         var combined1 = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
 
         var exp3 = new AgeConditionExpression(Operator.EQUAL, inputAge - 1);
-        var exp4 = new IndicationConditionExpression(inputIndication + "-no-match");
-        var exp5 = new IndicationConditionExpression(inputIndication + "-no-match2");
+        var nonMatchingIndication1 = inputIndication + "-no-match";
+        var nonMatchingIndication2 = inputIndication + "-no-match2";
+        var exp4 = new IndicationConditionExpression(nonMatchingIndication1);
+        var exp5 = new IndicationConditionExpression(nonMatchingIndication2);
         var combined2 = new BinaryExpression(exp4, BinaryExpression.Operator.OR, exp5);
         var combined3 = new BinaryExpression(exp3, BinaryExpression.Operator.AND, combined2);
 
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined3);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 38 eller alder skal være 39 og (indikation skal være input-indication-no-match eller indikation skal være input-indication-no-match2)", result);
+        assertErrorMessage(
+                "alder skal være 38 eller alder skal være 39 og (indikation skal være " + mapIndication(nonMatchingIndication1) +
+                        " eller indikation skal være " + mapIndication(nonMatchingIndication2) + ")",
+                result
+        );
     }
 
     @Test
@@ -239,15 +264,21 @@ public class ExpressionTests {
         var combined1 = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
 
         var exp3 = new AgeConditionExpression(Operator.EQUAL, inputAge);
-        var exp4 = new IndicationConditionExpression(inputIndication + "-no-match");
-        var exp5 = new IndicationConditionExpression(inputIndication + "-no-match2");
+        var nonMatchingIndication1 = inputIndication + "-no-match";
+        var nonMatchingIndication2 = inputIndication + "-no-match2";
+        var exp4 = new IndicationConditionExpression(nonMatchingIndication1);
+        var exp5 = new IndicationConditionExpression(nonMatchingIndication2);
         var combined2 = new BinaryExpression(exp4, BinaryExpression.Operator.OR, exp5);
         var combined3 = new BinaryExpression(exp3, BinaryExpression.Operator.AND, combined2);
 
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined3);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 38 eller indikation skal være input-indication-no-match eller indikation skal være input-indication-no-match2", result);
+        assertErrorMessage(
+                "alder skal være 38 eller indikation skal være " + mapIndication(nonMatchingIndication1) +
+                        " eller indikation skal være " + mapIndication(nonMatchingIndication2),
+                result
+        );
     }
 
     @Test
@@ -297,7 +328,7 @@ public class ExpressionTests {
         var exp2 = new IndicationConditionExpression(indication);
         var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
         var result = combined.validates(validationInput);
-        assertErrorMessage("indikation skal være " + indication, result);
+        assertErrorMessage("indikation skal være " + mapIndication(indication), result);
     }
 
     @Test
@@ -308,7 +339,7 @@ public class ExpressionTests {
         var exp2 = new IndicationConditionExpression(indication);
         var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være " + age + " og indikation skal være " + indication, result);
+        assertErrorMessage("alder skal være " + age + " og indikation skal være " + mapIndication(indication), result);
     }
 
     @Test
@@ -377,7 +408,8 @@ public class ExpressionTests {
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
         var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
         var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
-        var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
+        var nonMatchingIndication = inputIndication + "-no-match";
+        var exp3 = new IndicationConditionExpression(nonMatchingIndication);
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
 
@@ -386,7 +418,7 @@ public class ExpressionTests {
         assertErrorMessage(
                 "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
-                        " eller indikation skal være input-indication-no-match)",
+                        " eller indikation skal være " + mapIndication(nonMatchingIndication) + ")",
                 result
         );
     }
@@ -399,7 +431,8 @@ public class ExpressionTests {
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
         var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
         var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
-        var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
+        var nonMatchingIndication = inputIndication + "-no-match";
+        var exp3 = new IndicationConditionExpression(nonMatchingIndication);
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
 
@@ -408,7 +441,7 @@ public class ExpressionTests {
         assertErrorMessage(
                 "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
-                        " eller indikation skal være input-indication-no-match)",
+                        " eller indikation skal være " + mapIndication(nonMatchingIndication) + ")",
                 result
         );
     }
@@ -421,7 +454,8 @@ public class ExpressionTests {
         var exp1 = new AgeConditionExpression(Operator.EQUAL, 18);
         var existingDrugMedication = new ExistingDrugMedication(atcCode, formCode, route);
         var exp2 = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
-        var exp3 = new IndicationConditionExpression(inputIndication + "-no-match");
+        var nonMatchingIndication = inputIndication + "-no-match";
+        var exp3 = new IndicationConditionExpression(nonMatchingIndication);
         var orExp = new BinaryExpression(exp2, BinaryExpression.Operator.OR, exp3);
         var andExp = new BinaryExpression(exp1, BinaryExpression.Operator.AND, orExp);
 
@@ -430,7 +464,7 @@ public class ExpressionTests {
         assertErrorMessage(
                 "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
-                        " eller indikation skal være input-indication-no-match)",
+                        " eller indikation skal være " + mapIndication(nonMatchingIndication) + ")",
                 result
         );
     }

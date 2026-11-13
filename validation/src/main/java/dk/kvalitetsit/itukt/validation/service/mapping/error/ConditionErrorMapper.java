@@ -1,17 +1,25 @@
 package dk.kvalitetsit.itukt.validation.service.mapping.error;
 
+import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.common.model.ValidationError;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 
 import static java.lang.String.join;
 
 public class ConditionErrorMapper implements ValidationErrorMapper<ValidationError.ConditionError> {
+    private final StamdataCacheService<Indication> indicationCache;
+
+    public ConditionErrorMapper(StamdataCacheService<Indication> indicationCache) {
+        this.indicationCache = indicationCache;
+    }
+
     @Override
     public String map(ValidationError.ConditionError error) {
         return join(" ",
                 toErrorString(error.field()),
                 toErrorString(error.operator()),
-                error.value()
+                mapValue(error.field(), error.value())
         );
     }
 
@@ -32,5 +40,13 @@ public class ConditionErrorMapper implements ValidationErrorMapper<ValidationErr
             case DOCTOR_SPECIALITY -> "lægespeciale";
             case DEPARTMENT_SPECIALITY -> "afdelingens speciale";
         };
+    }
+
+    private String mapValue(ValidationError.ConditionError.Field field, String value) {
+        if (field == ValidationError.ConditionError.Field.INDICATION) {
+            return indicationCache.get(value).map(Indication::text).orElse(value);
+        } else {
+            return value;
+        }
     }
 }

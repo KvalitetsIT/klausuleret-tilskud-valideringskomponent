@@ -2,9 +2,11 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.ValidationError;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ErrorMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
@@ -148,7 +150,8 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public ValidationErrorMapper<ValidationError> validationErrorMapper() {
-        return new ValidationErrorMapperFactory().createCombinedValidationErrorMapper();
+    public ValidationErrorMapper<ValidationError> validationErrorMapper(
+            @Autowired StamdataCacheService<Indication> indicationCache) {
+        return new ValidationErrorMapperFactory(indicationCache).createCombinedValidationErrorMapper();
     }
 }

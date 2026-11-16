@@ -11,10 +11,6 @@ public class ErrorMessageAssemblerFactory {
         this.indicationCache = indicationCache;
     }
 
-    public ErrorMessageAssembler<ValidationError> createCombinedAssembler() {
-        return new CombinedErrorMessageAssembler(this);
-    }
-
     public ErrorMessageAssembler<ValidationError.ConditionError> createConditionAssembler() {
         return new ConditionErrorMessageAssembler(indicationCache);
     }

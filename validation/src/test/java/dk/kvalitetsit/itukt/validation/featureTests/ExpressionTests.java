@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.validation.featureTests;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.CombinedErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssemblerFactory;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,8 @@ public class ExpressionTests {
             return Optional.of(new Indication(1L, identifier + "mapped"));
         }
     };
-    final ErrorMessageAssembler<ValidationError> errorMessageAssembler = new ErrorMessageAssemblerFactory(indicationCache).createCombinedAssembler();
+    final ErrorMessageAssemblerFactory assemblerFactory = new ErrorMessageAssemblerFactory(indicationCache);
+    final ErrorMessageAssembler<ValidationError> errorMessageAssembler = new CombinedErrorMessageAssembler(assemblerFactory);
 
     void assertErrorMessage(String v, Optional<ValidationFailed> o) {
         assertEquals(Optional.of(v), o.map(failed -> errorMessageAssembler.assemble(assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed))));

@@ -11,22 +11,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
-class OrErrorMapperTest {
+class OrErrorMessageAssemblerTest {
     @Mock
-    private ValidationErrorMapper<ValidationError> validationErrorMapper;
+    private ErrorMessageAssembler<ValidationError> combinedErrorMessageAssembler;
 
     @InjectMocks
-    private OrErrorMapper orErrorMapper;
+    private OrErrorMessageAssembler orErrorMessageAssembler;
 
     @Test
-    void map_ReturnsCorrespondingErrorString() {
+    void assemble_ReturnsCorrespondingErrorString() {
         var leftError = Mockito.mock(ValidationError.ConditionError.class);
-        Mockito.when(validationErrorMapper.map(leftError)).thenReturn("left error");
+        Mockito.when(combinedErrorMessageAssembler.assemble(leftError)).thenReturn("left error");
         var rightError = Mockito.mock(ValidationError.ConditionError.class);
-        Mockito.when(validationErrorMapper.map(rightError)).thenReturn("right error");
+        Mockito.when(combinedErrorMessageAssembler.assemble(rightError)).thenReturn("right error");
         var orError = new ValidationError.OrError(leftError, rightError);
 
-        String errorString = orErrorMapper.map(orError);
+        String errorString = orErrorMessageAssembler.assemble(orError);
 
         assertEquals("left error eller right error", errorString);
     }

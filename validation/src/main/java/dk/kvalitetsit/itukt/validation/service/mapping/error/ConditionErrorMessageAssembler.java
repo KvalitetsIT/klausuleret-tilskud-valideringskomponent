@@ -5,9 +5,9 @@ import dk.kvalitetsit.itukt.common.model.ValidationError;
 
 import static java.lang.String.join;
 
-public class ConditionErrorMapper implements ValidationErrorMapper<ValidationError.ConditionError> {
+public class ConditionErrorMessageAssembler implements ErrorMessageAssembler<ValidationError.ConditionError> {
     @Override
-    public String map(ValidationError.ConditionError error) {
+    public String assemble(ValidationError.ConditionError error) {
         return join(" ",
                 toErrorString(error.field()),
                 toErrorString(error.operator()),

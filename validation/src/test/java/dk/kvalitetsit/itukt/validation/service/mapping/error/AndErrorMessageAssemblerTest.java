@@ -11,35 +11,35 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
-class AndErrorMapperTest {
+class AndErrorMessageAssemblerTest {
     @Mock
-    private ValidationErrorMapper<ValidationError> validationErrorMapper;
+    private ErrorMessageAssembler<ValidationError> combinedErrorMessageAssembler;
 
     @InjectMocks
-    private AndErrorMapper andErrorMapper;
+    private AndErrorMessageAssembler andErrorMessageAssembler;
 
     @Test
-    void map_WithConditionErrors_ReturnsCorrespondingErrorString() {
+    void assemble_WithConditionErrors_ReturnsCorrespondingErrorString() {
         var leftError = Mockito.mock(ValidationError.ConditionError.class);
-        Mockito.when(validationErrorMapper.map(leftError)).thenReturn("left error");
+        Mockito.when(combinedErrorMessageAssembler.assemble(leftError)).thenReturn("left error");
         var rightError = Mockito.mock(ValidationError.ConditionError.class);
-        Mockito.when(validationErrorMapper.map(rightError)).thenReturn("right error");
+        Mockito.when(combinedErrorMessageAssembler.assemble(rightError)).thenReturn("right error");
         var andError = new ValidationError.AndError(leftError, rightError);
 
-        String errorString = andErrorMapper.map(andError);
+        String errorString = andErrorMessageAssembler.assemble(andError);
 
         assertEquals("left error og right error", errorString);
     }
 
     @Test
-    void map_WithOrErrors_ReturnsErrorStringWithParentheses() {
+    void assemble_WithOrErrors_ReturnsErrorStringWithParentheses() {
         var leftError = Mockito.mock(ValidationError.OrError.class);
-        Mockito.when(validationErrorMapper.map(leftError)).thenReturn("left error");
+        Mockito.when(combinedErrorMessageAssembler.assemble(leftError)).thenReturn("left error");
         var rightError = Mockito.mock(ValidationError.OrError.class);
-        Mockito.when(validationErrorMapper.map(rightError)).thenReturn("right error");
+        Mockito.when(combinedErrorMessageAssembler.assemble(rightError)).thenReturn("right error");
         var andError = new ValidationError.AndError(leftError, rightError);
 
-        String errorString = andErrorMapper.map(andError);
+        String errorString = andErrorMessageAssembler.assemble(andError);
 
         assertEquals("(left error) og (right error)", errorString);
     }

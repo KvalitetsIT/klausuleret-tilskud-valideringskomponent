@@ -7,9 +7,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ExistingDrugMedicationErrorMapper implements ValidationErrorMapper<ValidationError.ExistingDrugMedicationError> {
+public class ExistingDrugMedicationErrorMessageAssembler implements ErrorMessageAssembler<ValidationError.ExistingDrugMedicationError> {
     @Override
-    public String map(ValidationError.ExistingDrugMedicationError error) {
+    public String assemble(ValidationError.ExistingDrugMedicationError error) {
         String requiredValues = Stream.of(
                         toErrorString("ATC", error.existingDrugMedication().atcCode()),
                         toErrorString("Formkode", error.existingDrugMedication().formCode()),

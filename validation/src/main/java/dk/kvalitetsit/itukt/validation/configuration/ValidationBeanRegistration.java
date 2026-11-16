@@ -13,8 +13,8 @@ import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.scheduled.SkippedValidationCleanupJob;
 import dk.kvalitetsit.itukt.validation.service.*;
-import dk.kvalitetsit.itukt.validation.service.mapping.error.ValidationErrorMapper;
-import dk.kvalitetsit.itukt.validation.service.mapping.error.ValidationErrorMapperFactory;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssemblerFactory;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
@@ -127,13 +127,13 @@ public class ValidationBeanRegistration {
             @Autowired Cache<Long, DrugClause> drugClauseCache,
             @Autowired SkippedValidationService skippedValidationService,
             @Autowired Cache<Department.Identifier, Department> departmentCache,
-            @Autowired ValidationErrorMapper<ValidationError> validationErrorMapper
+            @Autowired ErrorMessageAssembler<ValidationError> errorMessageAssembler
     ) {
         var validationService = new ValidationServiceImpl(
                 clauseService,
                 drugClauseCache,
                 skippedValidationService,
-                validationErrorMapper
+                errorMessageAssembler
         );
         return new ValidationServiceAdaptor(
                 new ErrorLoggingValidationService(validationService),
@@ -150,8 +150,8 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public ValidationErrorMapper<ValidationError> validationErrorMapper(
+    public ErrorMessageAssembler<ValidationError> validationErrorAssembler(
             @Autowired StamdataCacheService<Indication> indicationCache) {
-        return new ValidationErrorMapperFactory(indicationCache).createCombinedValidationErrorMapper();
+        return new ErrorMessageAssemblerFactory(indicationCache).createCombinedAssembler();
     }
 }

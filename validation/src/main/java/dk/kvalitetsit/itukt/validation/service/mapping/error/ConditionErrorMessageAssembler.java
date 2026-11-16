@@ -7,15 +7,15 @@ import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 
 import static java.lang.String.join;
 
-public class ConditionErrorMapper implements ValidationErrorMapper<ValidationError.ConditionError> {
+public class ConditionErrorMessageAssembler implements ErrorMessageAssembler<ValidationError.ConditionError> {
     private final StamdataCacheService<Indication> indicationCache;
 
-    public ConditionErrorMapper(StamdataCacheService<Indication> indicationCache) {
+    public ConditionErrorMessageAssembler(StamdataCacheService<Indication> indicationCache) {
         this.indicationCache = indicationCache;
     }
 
     @Override
-    public String map(ValidationError.ConditionError error) {
+    public String assemble(ValidationError.ConditionError error) {
         return join(" ",
                 toErrorString(error.field()),
                 toErrorString(error.operator()),

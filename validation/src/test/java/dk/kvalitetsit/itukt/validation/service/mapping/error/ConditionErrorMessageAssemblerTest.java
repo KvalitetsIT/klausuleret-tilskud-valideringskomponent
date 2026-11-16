@@ -16,66 +16,66 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
-class ConditionErrorMapperTest {
+class ConditionErrorMessageAssemblerTest {
     @Mock
     private StamdataCacheService<Indication> indicationCache;
 
     @InjectMocks
-    private ConditionErrorMapper conditionErrorMapper;
+    private ConditionErrorMessageAssembler assembler;
 
     @Test
-    void map_WithEqualsOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithEqualsOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.EQUAL, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være 0", errorString);
     }
 
     @Test
-    void map_WithGreaterThanOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithGreaterThanOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.GREATER_THAN, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være større end 0", errorString);
     }
 
     @Test
-    void map_WithGreaterOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithGreaterOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.GREATER_THAN_OR_EQUAL_TO, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være større end eller lig 0", errorString);
     }
 
     @Test
-    void map_WithLessThanOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithLessThanOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.LESS_THAN, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være mindre end 0", errorString);
     }
 
     @Test
-    void map_WithLessOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithLessOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.LESS_THAN_OR_EQUAL_TO, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være mindre end eller lig 0", errorString);
     }
 
     @Test
-    void map_WithIndicationEqualsOperator_ReturnsErrorStringWithMappedValue() {
+    void assemble_WithIndicationEqualsOperator_ReturnsErrorStringWithMappedValue() {
         String indicationCode = "1234";
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.INDICATION, Operator.EQUAL, indicationCode);
         Indication indication = new Indication(1L, "mapped indication");
         Mockito.when(indicationCache.get(indicationCode)).thenReturn(Optional.of(indication));
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("indikation skal være " + indication.text(), errorString);
     }

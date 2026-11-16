@@ -4,10 +4,6 @@ import dk.kvalitetsit.itukt.common.model.ValidationError;
 
 public class ErrorMessageAssemblerFactory {
 
-    public ErrorMessageAssembler<ValidationError> createCombinedAssembler() {
-        return new CombinedErrorMessageAssembler(this);
-    }
-
     public ErrorMessageAssembler<ValidationError.ConditionError> createConditionAssembler() {
         return new ConditionErrorMessageAssembler();
     }

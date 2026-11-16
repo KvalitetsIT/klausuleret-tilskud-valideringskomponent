@@ -11,6 +11,7 @@ import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.scheduled.SkippedValidationCleanupJob;
 import dk.kvalitetsit.itukt.validation.service.*;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.CombinedErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssemblerFactory;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
@@ -149,6 +150,7 @@ public class ValidationBeanRegistration {
 
     @Bean
     public ErrorMessageAssembler<ValidationError> validationErrorAssembler() {
-        return new ErrorMessageAssemblerFactory().createCombinedAssembler();
+        var assemblerFactory = new ErrorMessageAssemblerFactory();
+        return new CombinedErrorMessageAssembler(assemblerFactory);
     }
 }

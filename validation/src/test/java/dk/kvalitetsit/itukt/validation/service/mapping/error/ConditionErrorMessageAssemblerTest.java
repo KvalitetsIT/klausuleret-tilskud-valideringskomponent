@@ -6,59 +6,58 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ConditionErrorMapperTest {
-    private final ConditionErrorMapper conditionErrorMapper = new ConditionErrorMapper();
-
+class ConditionErrorMessageAssemblerTest {
+    private final ConditionErrorMessageAssembler assembler = new ConditionErrorMessageAssembler();
     @Test
-    void map_WithEqualsOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithEqualsOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.EQUAL, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være 0", errorString);
     }
 
     @Test
-    void map_WithGreaterThanOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithGreaterThanOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.GREATER_THAN, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være større end 0", errorString);
     }
 
     @Test
-    void map_WithGreaterOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithGreaterOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.GREATER_THAN_OR_EQUAL_TO, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være større end eller lig 0", errorString);
     }
 
     @Test
-    void map_WithLessThanOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithLessThanOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.LESS_THAN, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være mindre end 0", errorString);
     }
 
     @Test
-    void map_WithLessOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithLessOrEqualsThanOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.AGE, Operator.LESS_THAN_OR_EQUAL_TO, "0");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("alder skal være mindre end eller lig 0", errorString);
     }
 
     @Test
-    void map_WithIndicationEqualsOperator_ReturnsCorrespondingErrorString() {
+    void assemble_WithIndicationEqualsOperator_ReturnsCorrespondingErrorString() {
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.INDICATION, Operator.EQUAL, "indication");
 
-        String errorString = conditionErrorMapper.map(conditionError);
+        String errorString = assembler.assemble(conditionError);
 
         assertEquals("indikation skal være indication", errorString);
     }

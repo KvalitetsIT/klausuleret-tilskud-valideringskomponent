@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.service.mapping.error.ValidationErrorMapper;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class ValidationServiceImplTest {
     @Mock
     private SkippedValidationService skippedValidationService;
     @Mock
-    private ValidationErrorMapper<ValidationError> validationErrorMapper;
+    private ErrorMessageAssembler<ValidationError> errorMessageAssembler;
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {
@@ -89,7 +89,7 @@ class ValidationServiceImplTest {
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(Optional.of(someError));
         String mappedError = "mapped error";
-        Mockito.when(validationErrorMapper.map(someError)).thenReturn(mappedError);
+        Mockito.when(errorMessageAssembler.assemble(someError)).thenReturn(mappedError);
 
         var result = service.validate(validationInput);
 

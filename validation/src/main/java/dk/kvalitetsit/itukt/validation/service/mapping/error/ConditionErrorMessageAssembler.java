@@ -43,10 +43,10 @@ public class ConditionErrorMessageAssembler implements ErrorMessageAssembler<Val
     }
 
     private String mapValue(ValidationError.ConditionError.Field field, String value) {
+        String mappedValue = value;
         if (field == ValidationError.ConditionError.Field.INDICATION) {
-            return indicationCache.get(value).map(Indication::text).orElse(value);
-        } else {
-            return value;
+            mappedValue = indicationCache.get(value).map(Indication::text).orElse(value);
         }
+        return "'" + mappedValue + "'";
     }
 }

@@ -46,7 +46,7 @@ public class ExpressionTests {
     }
 
     private String mapIndication(String indication) {
-        return indicationCache.get(indication).map(Indication::text).orElseThrow();
+        return "'" + indicationCache.get(indication).map(Indication::text).orElseThrow() + "'";
     }
 
     @Test
@@ -94,31 +94,31 @@ public class ExpressionTests {
     @Test
     void validateNumber_equal_error() {
         var expr = new AgeConditionExpression(Operator.EQUAL, inputAge + 1);
-        assertErrorMessage("alder skal være " + (inputAge + 1), expr.validates(validationInput));
+        assertErrorMessage("alder skal være '" + (inputAge + 1) + "'", expr.validates(validationInput));
     }
 
     @Test
     void validateNumber_greaterThan_error() {
         var expr = new AgeConditionExpression(Operator.GREATER_THAN, inputAge + 1);
-        assertErrorMessage("alder skal være større end " + (inputAge + 1), expr.validates(validationInput));
+        assertErrorMessage("alder skal være større end '" + (inputAge + 1) + "'", expr.validates(validationInput));
     }
 
     @Test
     void validateNumber_lessThanOrEqual_error() {
         var expr = new AgeConditionExpression(Operator.LESS_THAN_OR_EQUAL_TO, inputAge - 1);
-        assertErrorMessage("alder skal være mindre end eller lig " + (inputAge - 1), expr.validates(validationInput));
+        assertErrorMessage("alder skal være mindre end eller lig '" + (inputAge - 1) + "'", expr.validates(validationInput));
     }
 
     @Test
     void validateNumber_greaterThanOrEqual_error() {
         var expr = new AgeConditionExpression(Operator.GREATER_THAN_OR_EQUAL_TO, inputAge + 1);
-        assertErrorMessage("alder skal være større end eller lig " + (inputAge + 1), expr.validates(validationInput));
+        assertErrorMessage("alder skal være større end eller lig '" + (inputAge + 1) + "'", expr.validates(validationInput));
     }
 
     @Test
     void validateNumber_lessThan_error() {
         var expr = new AgeConditionExpression(Operator.LESS_THAN, inputAge - 1);
-        assertErrorMessage("alder skal være mindre end " + (inputAge - 1), expr.validates(validationInput));
+        assertErrorMessage("alder skal være mindre end '" + (inputAge - 1) + "'", expr.validates(validationInput));
     }
 
     @Test
@@ -148,14 +148,14 @@ public class ExpressionTests {
     void validate_errorShouldBeReturned() {
         var expression = new AgeConditionExpression(Operator.EQUAL, inputAge + 1);
         var result = expression.validates(validationInput);
-        assertErrorMessage("alder skal være 41", result);
+        assertErrorMessage("alder skal være '41'", result);
     }
 
     @Test
     void validate_errorShouldBeReturned2() {
         var expression = new AgeConditionExpression(Operator.GREATER_THAN, inputAge);
         var result = expression.validates(validationInput);
-        assertErrorMessage("alder skal være større end 40", result);
+        assertErrorMessage("alder skal være større end '40'", result);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class ExpressionTests {
         var exp2 = new AgeConditionExpression(Operator.GREATER_THAN, inputAge);
         var combined = new BinaryExpression(exp1, BinaryExpression.Operator.OR, exp2);
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 38 eller alder skal være større end 40", result);
+        assertErrorMessage("alder skal være '38' eller alder skal være større end '40'", result);
     }
 
     @Test
@@ -180,7 +180,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined2);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 39 eller alder skal være 38 eller alder skal være 37 eller alder skal være 36", result);
+        assertErrorMessage("alder skal være '39' eller alder skal være '38' eller alder skal være '37' eller alder skal være '36'", result);
     }
 
     @Test
@@ -197,7 +197,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined2);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 39 eller indikation skal være " + mapIndication(nonMatchingIndication), result);
+        assertErrorMessage("alder skal være '39' eller indikation skal være " + mapIndication(nonMatchingIndication), result);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined2);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 39 eller alder skal være 39 og indikation skal være " + mapIndication(nonMatchingIndication), result);
+        assertErrorMessage("alder skal være '39' eller alder skal være '39' og indikation skal være " + mapIndication(nonMatchingIndication), result);
     }
 
     @Test
@@ -235,7 +235,7 @@ public class ExpressionTests {
 
         var result = combined.validates(validationInput);
         assertErrorMessage(
-                "alder skal være 38 eller alder skal være 39 og (indikation skal være " + mapIndication(nonMatchingIndication1) +
+                "alder skal være '38' eller alder skal være '39' og (indikation skal være " + mapIndication(nonMatchingIndication1) +
                         " eller indikation skal være " + mapIndication(nonMatchingIndication2) + ")",
                 result
         );
@@ -256,7 +256,7 @@ public class ExpressionTests {
         var combined = new BinaryExpression(combined1, BinaryExpression.Operator.OR, combined3);
 
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være 38 eller alder skal være 39", result);
+        assertErrorMessage("alder skal være '38' eller alder skal være '39'", result);
     }
 
     @Test
@@ -277,7 +277,7 @@ public class ExpressionTests {
 
         var result = combined.validates(validationInput);
         assertErrorMessage(
-                "alder skal være 38 eller indikation skal være " + mapIndication(nonMatchingIndication1) +
+                "alder skal være '38' eller indikation skal være " + mapIndication(nonMatchingIndication1) +
                         " eller indikation skal være " + mapIndication(nonMatchingIndication2),
                 result
         );
@@ -301,7 +301,7 @@ public class ExpressionTests {
     void validate_errorShouldBeReturned11() {
         var expression = new DoctorSpecialityConditionExpression("speciale-no-match");
         var result = expression.validates(validationInput);
-        assertErrorMessage("lægespeciale skal være speciale-no-match", result);
+        assertErrorMessage("lægespeciale skal være 'speciale-no-match'", result);
     }
 
     @Test
@@ -320,7 +320,7 @@ public class ExpressionTests {
         var exp2 = new IndicationConditionExpression(inputIndication);
         var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være " + age, result);
+        assertErrorMessage("alder skal være '" + age + "'", result);
     }
 
     @Test
@@ -341,7 +341,7 @@ public class ExpressionTests {
         var exp2 = new IndicationConditionExpression(indication);
         var combined = new BinaryExpression(exp1, BinaryExpression.Operator.AND, exp2);
         var result = combined.validates(validationInput);
-        assertErrorMessage("alder skal være " + age + " og indikation skal være " + mapIndication(indication), result);
+        assertErrorMessage("alder skal være '" + age + "' og indikation skal være " + mapIndication(indication), result);
     }
 
     @Test
@@ -418,7 +418,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være '18' og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
                         " eller indikation skal være " + mapIndication(nonMatchingIndication) + ")",
                 result
@@ -441,7 +441,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være '18' og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
                         " eller indikation skal være " + mapIndication(nonMatchingIndication) + ")",
                 result
@@ -464,7 +464,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være '18' og (tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route +
                         " eller indikation skal være " + mapIndication(nonMatchingIndication) + ")",
                 result
@@ -486,7 +486,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være '18' eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route,
                 result
         );
@@ -507,7 +507,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være '18' eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route,
                 result
         );
@@ -528,7 +528,7 @@ public class ExpressionTests {
         var result = andExp.validates(validationInputWithHistory);
 
         assertErrorMessage(
-                "alder skal være 18 eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
+                "alder skal være '18' eller tidligere medicinsk behandling med følgende påkrævet: ATC = " +
                         atcCode + ", Formkode = " + formCode + ", Administrationsvejkode = " + route,
                 result
         );

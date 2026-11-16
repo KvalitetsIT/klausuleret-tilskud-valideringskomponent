@@ -29,7 +29,7 @@ class ConditionErrorMessageAssemblerTest {
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("alder skal være 0", errorString);
+        assertEquals("alder skal være '0'", errorString);
     }
 
     @Test
@@ -38,7 +38,7 @@ class ConditionErrorMessageAssemblerTest {
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("alder skal være større end 0", errorString);
+        assertEquals("alder skal være større end '0'", errorString);
     }
 
     @Test
@@ -47,7 +47,7 @@ class ConditionErrorMessageAssemblerTest {
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("alder skal være større end eller lig 0", errorString);
+        assertEquals("alder skal være større end eller lig '0'", errorString);
     }
 
     @Test
@@ -56,7 +56,7 @@ class ConditionErrorMessageAssemblerTest {
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("alder skal være mindre end 0", errorString);
+        assertEquals("alder skal være mindre end '0'", errorString);
     }
 
     @Test
@@ -65,7 +65,7 @@ class ConditionErrorMessageAssemblerTest {
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("alder skal være mindre end eller lig 0", errorString);
+        assertEquals("alder skal være mindre end eller lig '0'", errorString);
     }
 
     @Test
@@ -77,6 +77,6 @@ class ConditionErrorMessageAssemblerTest {
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("indikation skal være " + indication.text(), errorString);
+        assertEquals("indikation skal være '" + indication.text() + "'", errorString);
     }
 }

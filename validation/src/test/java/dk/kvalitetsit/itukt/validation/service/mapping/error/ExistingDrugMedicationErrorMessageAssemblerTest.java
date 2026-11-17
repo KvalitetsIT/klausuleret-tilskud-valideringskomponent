@@ -5,9 +5,9 @@ import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpressi
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.model.ValidationError;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,25 +20,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ExistingDrugMedicationErrorMessageAssemblerTest {
     @Mock
     private StamdataCacheService<Medication.ATC> atcCache;
+    @Mock
+    private StamdataCacheService<Medication.Form> formCache;
 
-    @InjectMocks
     private ExistingDrugMedicationErrorMessageAssembler assembler;
 
+    @BeforeEach
+    void setUp() {
+        assembler = new ExistingDrugMedicationErrorMessageAssembler(atcCache, formCache);
+    }
 
     @Test
     void assemble_WithKnownAtc_ReturnsErrorStringWithTextAndCode() {
         var atc = new Medication.ATC("ATC", "mapped atc");
+        var form = new Medication.Form("FORM", "mapped form");
         Mockito.when(atcCache.get("atc")).thenReturn(Optional.of(atc));
+        Mockito.when(formCache.get("form")).thenReturn(Optional.of(form));
         ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication("atc", "form", "adm");
         var conditionError = new ValidationError.ExistingDrugMedicationError(existingDrugMedication);
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("tidligere medicinsk behandling med følgende påkrævet: ATC = 'mapped atc' (atc), Formkode = 'form', Administrationsvejkode = 'adm'", errorString);
+        assertEquals("tidligere medicinsk behandling med følgende påkrævet: ATC = 'mapped atc' (atc), Formkode = 'mapped form' (form), Administrationsvejkode = 'adm'", errorString);
     }
 
     @Test
     void assemble_WithAtcAndRouteWildcards_ReturnsCorrespondingErrorString() {
+        Mockito.when(formCache.get("form")).thenReturn(Optional.empty());
         ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication(ExistingDrugMedicationConditionExpression.WILDCARD, "form", ExistingDrugMedicationConditionExpression.WILDCARD);
         var conditionError = new ValidationError.ExistingDrugMedicationError(existingDrugMedication);
 

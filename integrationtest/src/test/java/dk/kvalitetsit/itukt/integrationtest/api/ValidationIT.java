@@ -168,7 +168,7 @@ public class ValidationIT extends BaseTest {
         var request = createValidationRequest(age, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response,
-                "alder skal være større end '50' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s), Administrationsvejkode = '%s' (%s)"
+                "Alder skal være større end '50' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s), Administrationsvejkode = '%s' (%s)"
                         .formatted(VALID_ATC.text(), VALID_ATC.code(), VALID_FORM.text(), VALID_FORM.code(), VALID_ROUTE.text(), VALID_ROUTE.code()));
     }
 
@@ -177,7 +177,7 @@ public class ValidationIT extends BaseTest {
         var request = createValidationRequest(VALID_AGE, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response,
-                "indikation skal være '%s' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s), Administrationsvejkode = '%s' (%s)"
+                "Indikation skal være '%s' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s), Administrationsvejkode = '%s' (%s)"
                         .formatted(VALID_INDICATION.text(), VALID_ATC.text(), VALID_ATC.code(), VALID_FORM.text(), VALID_FORM.code(), VALID_ROUTE.text(), VALID_ROUTE.code()));
     }
 
@@ -185,7 +185,7 @@ public class ValidationIT extends BaseTest {
     void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsDoctorSpecialityValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), "invalid speciale", VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "lægespeciale skal være '" + VALID_DOCTOR_SPECIALITY + "'");
+        assertValidationError(response, "Lægespeciale skal være '" + VALID_DOCTOR_SPECIALITY + "'");
     }
 
     @Test
@@ -221,7 +221,7 @@ public class ValidationIT extends BaseTest {
     void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsDepartmentSpecialityValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, INVALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "afdelingens speciale skal være '" + VALID_DEPARTMENT_SPECIALITY + "'");
+        assertValidationError(response, "Afdelingens speciale skal være '" + VALID_DEPARTMENT_SPECIALITY + "'");
     }
 
     private static void assertValidationError(ValidationResponse response, String expectedErrorMessage) {

@@ -7,9 +7,10 @@ public record Medication() {
         }
     }
 
-    public record ATC(String code) {
-        public ATC(String code) {
+    public record ATC(String code, String text) {
+        public ATC(String code, String text) {
             this.code = code.toUpperCase();
+            this.text = text;
         }
     }
 

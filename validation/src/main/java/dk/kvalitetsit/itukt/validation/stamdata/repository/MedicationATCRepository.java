@@ -22,7 +22,7 @@ public class MedicationATCRepository implements Repository<Medication.ATC> {
     public List<Medication.ATC> fetchAll() {
         try {
             String sql = """
-                    SELECT DISTINCT ATC as code
+                    SELECT DISTINCT ATC as code, ATCTekst as text
                     FROM ATC
                     WHERE ValidTo > NOW() AND ValidFrom < NOW()
                     """;
@@ -30,7 +30,7 @@ public class MedicationATCRepository implements Repository<Medication.ATC> {
             return template.query(sql, rowMapper);
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch all atc codes", e);
+            throw new RuntimeException("Failed to fetch all atc", e);
         }
     }
 }

@@ -134,7 +134,7 @@ class ManagementIT extends BaseTest {
     @Test
     void postClause_WithKnownValues_Succeeds() {
         setupStamdataWithFormCode("TEST");
-        setupStamdataWithATCCode("TEST");
+        setupStamdataWithATCCode("TEST", "TEST");
         setupStamdataWithRouteCode("R0");
         setupStamdataWithDepartmentSpeciality("TEST");
         setupStamdataWithIndicationCode(5, "TEST");
@@ -539,7 +539,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testGetAtcCodes_ReturnsAtcCodes() {
         String atc = "TEST";
-        setupStamdataWithATCCode(atc);
+        setupStamdataWithATCCode(atc, "TEST");
         restartService();
 
         var atcCodes = api.management20250801MedicationAtcCodesGet();
@@ -642,9 +642,9 @@ class ManagementIT extends BaseTest {
         formbetegnelseRepository.insert(form, IN_THE_PAST, IN_THE_FUTURE);
     }
 
-    private static void setupStamdataWithATCCode(String atcCode) {
+    private static void setupStamdataWithATCCode(String code, String text) {
         var atcRepository = new ATCRepository(stamDatabase.getDatasource());
-        var atc = new Medication.ATC(atcCode);
+        var atc = new Medication.ATC(code, text);
         atcRepository.insert(atc, IN_THE_PAST, IN_THE_FUTURE);
     }
 

@@ -155,8 +155,9 @@ public class ValidationBeanRegistration {
     public ErrorMessageAssembler<ValidationError> validationErrorAssembler(
             @Autowired StamdataCacheService<Indication> indicationCache,
             @Autowired StamdataCacheService<Medication.ATC> atcCache,
-            @Autowired StamdataCacheService<Medication.Form> formCache) {
-        var assemblerFactory = new ErrorMessageAssemblerFactory(indicationCache, atcCache, formCache);
+            @Autowired StamdataCacheService<Medication.Form> formCache,
+            @Autowired StamdataCacheService<Medication.Route> routeCache) {
+        var assemblerFactory = new ErrorMessageAssemblerFactory(indicationCache, atcCache, formCache, routeCache);
         return new CombinedErrorMessageAssembler(assemblerFactory);
     }
 }

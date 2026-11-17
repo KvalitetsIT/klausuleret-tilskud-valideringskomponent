@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.validation.configuration;
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.Indication;
+import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.model.ValidationError;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
@@ -152,8 +153,9 @@ public class ValidationBeanRegistration {
 
     @Bean
     public ErrorMessageAssembler<ValidationError> validationErrorAssembler(
-            @Autowired StamdataCacheService<Indication> indicationCache) {
-        var assemblerFactory = new ErrorMessageAssemblerFactory(indicationCache);
+            @Autowired StamdataCacheService<Indication> indicationCache,
+            @Autowired StamdataCacheService<Medication.ATC> atcCache) {
+        var assemblerFactory = new ErrorMessageAssemblerFactory(indicationCache, atcCache);
         return new CombinedErrorMessageAssembler(assemblerFactory);
     }
 }

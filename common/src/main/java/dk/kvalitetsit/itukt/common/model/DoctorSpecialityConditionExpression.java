@@ -10,9 +10,10 @@ import static java.util.Optional.empty;
 public record DoctorSpecialityConditionExpression(String speciality) implements Expression.Condition {
     @Override
     public Optional<ValidationFailed> validates(ValidationInput validationInput) {
-        boolean createdByMatchesCondition = validationInput.createdBy().specialityCode().stream()
+        boolean createdByMatchesCondition = validationInput.createdBy().specialityCodes().stream()
                 .anyMatch(speciality::equalsIgnoreCase);
-        boolean reportedByMatchesCondition = validationInput.reportedBy().flatMap(ValidationInput.Actor::specialityCode).stream()
+        boolean reportedByMatchesCondition = validationInput.reportedBy().stream()
+                .flatMap(actor -> actor.specialityCodes().stream())
                 .anyMatch(speciality::equalsIgnoreCase);
 
         return createdByMatchesCondition || reportedByMatchesCondition

@@ -133,7 +133,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void postClause_WithKnownValues_Succeeds() {
-        setupStamdataWithFormCode("TEST");
+        setupStamdataWithFormCode("TEST", "TEST");
         setupStamdataWithATCCode("TEST", "TEST");
         setupStamdataWithRouteCode("R0");
         setupStamdataWithDepartmentSpeciality("TEST");
@@ -597,7 +597,7 @@ class ManagementIT extends BaseTest {
     @Test
     void getFormCodes() {
         String formCode = "FORM1";
-        setupStamdataWithFormCode(formCode);
+        setupStamdataWithFormCode(formCode, "TEST");
         restartService();
 
         var formCodes = api.management20250801MedicationFormCodesGet();
@@ -636,9 +636,9 @@ class ManagementIT extends BaseTest {
         autorisationRepository.insert(Optional.of(doctorSpeciality1), Optional.of(doctorSpeciality2), Optional.of(doctorSpeciality3), IN_THE_PAST, IN_THE_FUTURE);
     }
 
-    private static void setupStamdataWithFormCode(String formCode) {
+    private static void setupStamdataWithFormCode(String code, String text) {
         var formbetegnelseRepository = new FormbetegnelseRepository(stamDatabase.getDatasource());
-        Medication.Form form = new Medication.Form(formCode);
+        Medication.Form form = new Medication.Form(code, text);
         formbetegnelseRepository.insert(form, IN_THE_PAST, IN_THE_FUTURE);
     }
 

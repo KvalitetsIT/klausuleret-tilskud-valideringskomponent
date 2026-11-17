@@ -34,9 +34,9 @@ class MedicationFormCacheTest {
 
     @Test
     void getAll_AfterRun_ReturnsDistinctForms() {
-        var form1 = new Medication.Form("formA");
-        var form2 = new Medication.Form("formB");
-        var form3 = new Medication.Form("FoRmB");
+        var form1 = new Medication.Form("formA", "textA");
+        var form2 = new Medication.Form("formB", "textB");
+        var form3 = new Medication.Form("FoRmB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2, form3));
 
@@ -49,8 +49,8 @@ class MedicationFormCacheTest {
 
     @Test
     void get_NotMatchingFormFromLoad_ReturnsEmpty() {
-        var form1 = new Medication.Form("formA");
-        var form2 = new Medication.Form("formB");
+        var form1 = new Medication.Form("formA", "textA");
+        var form2 = new Medication.Form("formB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2));
 
@@ -61,14 +61,14 @@ class MedicationFormCacheTest {
     }
 
     @Test
-    void get_MatchingFormFromLoad_ReturnsForm() {
-        var form1 = new Medication.Form("formA");
-        var form2 = new Medication.Form("formB");
+    void get_MatchingFormFromLoadButDifferentCasing_ReturnsForm() {
+        var form1 = new Medication.Form("formA", "textA");
+        var form2 = new Medication.Form("formB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(form1, form2));
 
         formCache.run();
-        var result = formCache.get(form1.code());
+        var result = formCache.get("FoRmA");
 
         assertTrue(result.isPresent());
         assertEquals(form1, result.get());

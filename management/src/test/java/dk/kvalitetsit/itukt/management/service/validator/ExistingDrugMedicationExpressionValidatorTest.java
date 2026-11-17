@@ -37,7 +37,7 @@ class ExistingDrugMedicationExpressionValidatorTest {
 
     @Test
     void validate_WhenFormAtcAndRouteIsKnown_ReturnsNoErrors() {
-        var form = new Medication.Form("knownFormCode");
+        var form = new Medication.Form("knownFormCode", "Known form text");
         when(medicationFormService.get(form.code())).thenReturn(Optional.of(form));
         var atc = new Medication.ATC("knownAtcCode", "Known ATC text");
         when(medicationATCService.get(atc.code())).thenReturn(Optional.of(atc));

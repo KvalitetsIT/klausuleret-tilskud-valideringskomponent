@@ -46,11 +46,11 @@ class ValidationRequestInputMapperTest {
                 existingDrugMedication.getRouteOfAdministrationCode()
         );
 
-        ValidationInput.Actor createdBy1 = new ValidationInput.Actor(creator1, Optional.empty(), Optional.empty());
-        ValidationInput.Actor reportedBy1 = new ValidationInput.Actor(reporter1, Optional.empty(), Optional.empty());
+        ValidationInput.Actor createdBy1 = new ValidationInput.Actor(creator1, List.of(), Optional.empty());
+        ValidationInput.Actor reportedBy1 = new ValidationInput.Actor(reporter1, List.of(), Optional.empty());
 
-        ValidationInput.Actor createdBy2 = new ValidationInput.Actor(creator2, Optional.empty(), Optional.empty());
-        ValidationInput.Actor reportedBy2 = new ValidationInput.Actor(reporter2, Optional.empty(), Optional.empty());
+        ValidationInput.Actor createdBy2 = new ValidationInput.Actor(creator2, List.of(), Optional.empty());
+        ValidationInput.Actor reportedBy2 = new ValidationInput.Actor(reporter2, List.of(), Optional.empty());
 
         Mockito.when(actorMapper.map(new Actor().identifier(creator1))).thenReturn(createdBy1);
         Mockito.when(actorMapper.map(new Actor().identifier(reporter1))).thenReturn(reportedBy1);

@@ -72,11 +72,11 @@ class ConditionErrorMessageAssemblerTest {
     void assemble_WithIndicationEqualsOperator_ReturnsErrorStringWithMappedValue() {
         String indicationCode = "1234";
         var conditionError = new ValidationError.ConditionError(ValidationError.ConditionError.Field.INDICATION, Operator.EQUAL, indicationCode);
-        Indication indication = new Indication(1L, "mapped indication");
+        Indication indication = new Indication(1234L, "mapped indication");
         Mockito.when(indicationCache.get(indicationCode)).thenReturn(Optional.of(indication));
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("indikation skal være '" + indication.text() + "'", errorString);
+        assertEquals("indikation skal være '%s' (%s)".formatted(indication.text(), indicationCode), errorString);
     }
 }

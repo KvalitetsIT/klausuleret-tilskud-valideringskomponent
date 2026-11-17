@@ -34,9 +34,9 @@ class MedicationATCCacheTest {
 
     @Test
     void getAll_AfterRun_ReturnsDistinctATCs() {
-        var atc1 = new Medication.ATC("atcA");
-        var atc2 = new Medication.ATC("atcB");
-        var atc3 = new Medication.ATC("atcB");
+        var atc1 = new Medication.ATC("atcA", "textA");
+        var atc2 = new Medication.ATC("atcB", "textB");
+        var atc3 = new Medication.ATC("atcB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(atc1, atc2, atc3));
 
@@ -49,8 +49,8 @@ class MedicationATCCacheTest {
 
     @Test
     void get_NotMatchingATCFromLoad_ReturnsEmpty() {
-        var atc1 = new Medication.ATC("atcA");
-        var atc2 = new Medication.ATC("atcB");
+        var atc1 = new Medication.ATC("atcA", "textA");
+        var atc2 = new Medication.ATC("atcB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(atc1, atc2));
 
@@ -61,14 +61,14 @@ class MedicationATCCacheTest {
     }
 
     @Test
-    void get_MatchingATCFromLoad_ReturnsATC() {
-        var atc1 = new Medication.ATC("atcA");
-        var atc2 = new Medication.ATC("atcB");
+    void get_MatchingATCFromLoadButDifferentCasing_ReturnsATC() {
+        var atc1 = new Medication.ATC("atcA", "textA");
+        var atc2 = new Medication.ATC("atcB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(atc1, atc2));
 
         atcCache.run();
-        var result = atcCache.get(atc1.code());
+        var result = atcCache.get("AtCa");
 
         assertTrue(result.isPresent());
         assertEquals(atc1, result.get());

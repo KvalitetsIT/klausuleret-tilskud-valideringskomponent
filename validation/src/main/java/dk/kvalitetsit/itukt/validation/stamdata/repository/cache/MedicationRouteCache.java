@@ -36,6 +36,8 @@ public class MedicationRouteCache implements ScheduledJob, StamdataCacheService<
 
     @Override
     public Optional<Medication.Route> get(String routeCode) {
-        return Optional.of(new Medication.Route(routeCode)).filter(routes::contains);
+        return routes.stream()
+                .filter(route -> routeCode.equalsIgnoreCase(route.code()))
+                .findFirst();
     }
 }

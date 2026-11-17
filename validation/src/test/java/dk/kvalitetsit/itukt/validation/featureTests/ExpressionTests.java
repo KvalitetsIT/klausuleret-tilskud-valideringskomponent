@@ -46,7 +46,7 @@ public class ExpressionTests {
     }
 
     private String mapIndication(String indication) {
-        return "'" + indicationCache.get(indication).map(Indication::text).orElseThrow() + "'";
+        return "'" + indicationCache.get(indication).map(Indication::text).orElseThrow() + "' (" + indication + ")";
     }
 
     @Test

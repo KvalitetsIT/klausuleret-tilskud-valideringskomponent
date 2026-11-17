@@ -5,6 +5,8 @@ import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.common.model.ValidationError;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 
+import java.util.Optional;
+
 import static java.lang.String.join;
 
 public class ConditionErrorMessageAssembler implements ErrorMessageAssembler<ValidationError.ConditionError> {
@@ -43,10 +45,13 @@ public class ConditionErrorMessageAssembler implements ErrorMessageAssembler<Val
     }
 
     private String mapValue(ValidationError.ConditionError.Field field, String value) {
-        String mappedValue = value;
-        if (field == ValidationError.ConditionError.Field.INDICATION) {
-            mappedValue = indicationCache.get(value).map(Indication::text).orElse(value);
-        }
-        return "'" + mappedValue + "'";
+        Optional<String> mappedValue = switch (field) {
+            case INDICATION -> indicationCache.get(value).map(Indication::text);
+            default -> Optional.empty();
+        };
+
+        return mappedValue
+                .map(mv -> "'%s' (%s)".formatted(mv, value))
+                .orElse("'%s'".formatted(value));
     }
 }

@@ -37,10 +37,10 @@ public class MedicationFormRepositoryIT extends BaseTest {
 
     @Test
     void fetchAll_WithBothValidAndInvalidFormCodesInDB_ReturnsValidFormCodes() {
-        var valid1 = new Medication.Form("VALID1");
-        var valid2 = new Medication.Form("VALID2");
-        var invalid1 = new Medication.Form("INVALID1");
-        var invalid2 = new Medication.Form("INVALID2");
+        var valid1 = new Medication.Form("VALID1", "valid 1");
+        var valid2 = new Medication.Form("VALID2", "valid 2");
+        var invalid1 = new Medication.Form("INVALID1", "invalid 1");
+        var invalid2 = new Medication.Form("INVALID2", "invalid 2");
         formbetegnelseRepository.insert(valid1, inThePast, inTheFuture);
         formbetegnelseRepository.insert(valid2, inThePast, inTheFuture);
         formbetegnelseRepository.insert(invalid1, inThePast, inThePast);

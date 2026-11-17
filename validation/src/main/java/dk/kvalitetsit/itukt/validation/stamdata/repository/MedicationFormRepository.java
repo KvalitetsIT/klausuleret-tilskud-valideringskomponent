@@ -22,7 +22,7 @@ public class MedicationFormRepository implements Repository<Medication.Form> {
     public List<Medication.Form> fetchAll() {
         try {
             String sql = """
-                    SELECT DISTINCT Kode as code
+                    SELECT DISTINCT Kode as code, Tekst as text
                     FROM Formbetegnelse
                     WHERE ValidTo > NOW() AND ValidFrom < NOW()
                     """;

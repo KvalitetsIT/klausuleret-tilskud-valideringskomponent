@@ -1,6 +1,6 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -27,7 +27,7 @@ class TokenIteratorTest {
     }
 
     @Test
-    void nextWithType_ThriceWhenTokensHaveExpectedTypes_ReturnsTokens() {
+    void nextWithType_ThriceWhenTokensHaveExpectedTypes_ReturnsTokens() throws DslParserException {
         var token1 = new Token(TokenType.KEYWORD, "test1");
         var token2 = new Token(TokenType.OPERATOR, "test2");
         var token3 = new Token(TokenType.KEYWORD, "test3");
@@ -60,7 +60,7 @@ class TokenIteratorTest {
     }
 
     @Test
-    void nextWithText_ThriceWhenTokensHaveExpectedTextButDifferentCasing_ReturnsTokens() {
+    void nextWithText_ThriceWhenTokensHaveExpectedTextButDifferentCasing_ReturnsTokens() throws DslParserException {
         var token1 = new Token(TokenType.KEYWORD, "test1");
         var token2 = new Token(TokenType.OPERATOR, "TEST2");
         var token3 = new Token(TokenType.SYMBOL, "tEsT3!");
@@ -143,7 +143,7 @@ class TokenIteratorTest {
     }
 
     @Test
-    void expectNoMoreTokens_WithOneTokenAfterNextIsCalled_DoesNotThrow() {
+    void expectNoMoreTokens_WithOneTokenAfterNextIsCalled_DoesNotThrow() throws DslParserException {
         var tokenIterator = TokenIterator.fromTokens(List.of(new Token(TokenType.VALUE, "test")));
         tokenIterator.nextWithType(TokenType.VALUE);
 
@@ -151,7 +151,7 @@ class TokenIteratorTest {
     }
 
     @Test
-    void expectNoMoreTokens_WithTwoTokenAfterNextIsCalledOnce_ThrowsException() {
+    void expectNoMoreTokens_WithTwoTokenAfterNextIsCalledOnce_ThrowsException() throws DslParserException {
         var tokenIterator = TokenIterator.fromTokens(List.of(
                 new Token(TokenType.VALUE, "test1"),
                 new Token(TokenType.VALUE, "test2")

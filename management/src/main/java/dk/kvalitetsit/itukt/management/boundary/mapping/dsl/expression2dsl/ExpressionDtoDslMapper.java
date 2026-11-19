@@ -72,7 +72,9 @@ public class ExpressionDtoDslMapper implements Mapper<Expression, String> {
                     indicationConditionExpressionDslMapper.merge(castList(conditions, IndicationCondition.class));
             case DoctorSpecialityCondition ignored ->
                     doctorSpecialityConditionExpressionDslMapper.merge(castList(conditions, DoctorSpecialityCondition.class));
-            default -> throw new IllegalStateException("Unexpected value: " + conditions.getFirst());
+            case DepartmentSpecialityCondition ignored ->
+                    departmentSpecialityExpressionDslMapper.merge(castList(conditions, DepartmentSpecialityCondition.class));
+            case BinaryExpression ignored -> throw new IllegalStateException("Unexpected value: " + conditions.getFirst());
         };
     }
 }

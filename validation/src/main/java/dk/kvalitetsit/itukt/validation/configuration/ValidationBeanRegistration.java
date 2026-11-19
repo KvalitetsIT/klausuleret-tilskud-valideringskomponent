@@ -2,17 +2,16 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ErrorMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
-import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.scheduled.SkippedValidationCleanupJob;
 import dk.kvalitetsit.itukt.validation.service.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DepartmentCacheImpl;
-import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.DrugClauseCacheImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.mapping.DepartmentEntityModelMapper;
@@ -70,8 +69,38 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public Cache<Department.Identifier, Department> departmentCache(DepartmentRepositoryAdaptor adaptor) {
+    public DepartmentCacheImpl departmentCache(DepartmentRepositoryAdaptor adaptor) {
         return new DepartmentCacheImpl(configuration.stamdata().cache(), adaptor);
+    }
+
+    @Bean
+    public MedicationFormCache formCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var formRepository = new MedicationFormRepository(dataSource);
+        return new MedicationFormCache(configuration.stamdata().cache(), formRepository);
+    }
+
+    @Bean
+    public MedicationATCCache atcCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var atcRepository = new MedicationATCRepository(dataSource);
+        return new MedicationATCCache(configuration.stamdata().cache(), atcRepository);
+    }
+
+    @Bean
+    public IndicationCache indicationCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var indicationRepository = new IndicationRepository(dataSource);
+        return new IndicationCache(configuration.stamdata().cache(), indicationRepository);
+    }
+
+    @Bean
+    public MedicationRouteCache routeCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var routeRepository = new MedicationRouteRepository(dataSource);
+        return new MedicationRouteCache(configuration.stamdata().cache(), routeRepository);
+    }
+
+    @Bean
+    public DoctorSpecialityCache doctorSpecialityCache(@Qualifier("stamDataSource") DataSource dataSource) {
+        var repository = new DoctorSpecialityRepository(dataSource);
+        return new DoctorSpecialityCache(configuration.stamdata().cache(), repository);
     }
 
     @Bean
@@ -94,14 +123,22 @@ public class ValidationBeanRegistration {
             @Autowired SkippedValidationService skippedValidationService,
             @Autowired Cache<Department.Identifier, Department> departmentCache
     ) {
+        var validationService = new ValidationServiceImpl(
+                clauseService,
+                drugClauseCache,
+                skippedValidationService
+        );
         return new ValidationServiceAdaptor(
-                new ValidationServiceImpl(
-                        clauseService,
-                        drugClauseCache,
-                        skippedValidationService
-                ),
+                new ErrorLoggingValidationService(validationService),
                 new ValidationRequestInputMapper(new ActorDtoModelMapper(departmentCache)),
                 new ErrorMapper()
         );
+    }
+
+    @Bean
+    public SkippedValidationCleanupJob skippedValidationCleanupJob(
+            @Autowired SkippedValidationRepository skippedValidationRepository
+    ) {
+        return new SkippedValidationCleanupJob(configuration.skippedValidation().cleanupJob(), skippedValidationRepository);
     }
 }

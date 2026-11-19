@@ -2,14 +2,17 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedExistingDrugMedicationKeysException;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.Condition;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedExistingDrugMedicationKeysException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.openapitools.model.ExistingDrugMedicationCondition;
 import org.openapitools.model.Operator;
 
 import java.util.Map;
 import java.util.Set;
+
+import static dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression.WILDCARD;
 
 public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder {
     private static final Set<String> IDENTIFIERS = Set.of(
@@ -24,7 +27,7 @@ public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder 
     }
 
     @Override
-    public ExistingDrugMedicationCondition build(Operator operator, Condition.Value value) {
+    public ExistingDrugMedicationCondition build(Operator operator, Condition.Value value) throws DslParserException {
         if (operator != Operator.EQUAL) {
             throw new UnexpectedValueException(operator.getValue());
         }
@@ -34,9 +37,9 @@ public class ExistingDrugMedicationConditionBuilder implements ConditionBuilder 
         }
 
         return new ExistingDrugMedicationCondition(
-                values.getOrDefault(Identifier.ATC_CODE.toString(), "*"),
-                values.getOrDefault(Identifier.FORM_CODE.toString(), "*"),
-                values.getOrDefault(Identifier.ROUTE.toString(), "*"),
+                values.getOrDefault(Identifier.ATC_CODE.toString(), WILDCARD),
+                values.getOrDefault(Identifier.FORM_CODE.toString(), WILDCARD),
+                values.getOrDefault(Identifier.ROUTE.toString(), WILDCARD),
                 ExpressionType.EXISTING_DRUG_MEDICATION
         );
     }

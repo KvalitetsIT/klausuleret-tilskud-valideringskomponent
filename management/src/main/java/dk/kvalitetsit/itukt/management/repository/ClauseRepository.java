@@ -1,34 +1,25 @@
 package dk.kvalitetsit.itukt.management.repository;
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseQuery;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ClauseRepository {
-    ClauseEntity create(ClauseEntityInput clauseInput) throws ServiceException;
-    Optional<ClauseEntity> read(UUID uuid) throws ServiceException;
-    /**
-     * Retrieves the current version of a clause. Excluding drafts.
-     */
-    Optional<ClauseEntity> readCurrentClause(String name) throws ServiceException;
-    /**
-     * Retrieves the current version of each clause. Excluding drafts.
-     */
-    List<ClauseEntity> readCurrentClauses() throws ServiceException;
-    List<ClauseEntity> readAllDrafts() throws ServiceException;
-
-    List<ClauseEntity> readHistory(String name);
+    ClauseEntity create(ClauseEntityInput clauseInput);
+    Optional<ClauseEntity> read(UUID uuid);
+    List<ClauseEntity> read(ClauseQuery query);
 
     /**
      * @param id the id associated with the clause which is to be deleted
      * @return The deleted clause
      * @throws NotFoundException if the provided id does not match any known clauses
-     * @throws ServiceException if the deletion of the clause failed due to any other reason
      */
-    ClauseEntity deleteDraft(UUID id) throws NotFoundException, ServiceException;
+    ClauseEntity deleteDraft(UUID id) throws NotFoundException;
+
+    Optional<ClauseEntity> readParent(UUID uuid);
 }

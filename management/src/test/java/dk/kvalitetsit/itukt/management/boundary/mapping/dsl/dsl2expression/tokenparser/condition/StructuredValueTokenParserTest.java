@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,16 +40,17 @@ class StructuredValueTokenParserTest {
     }
 
     @Test
-    void parse_WithMultipleStructuredValues_ReturnsParsedValues() {
+    void parse_WithMultipleStructuredValues_ReturnsParsedValues() throws DslParserException {
         Mockito.when(tokenIterator.nextWithText("{")).thenReturn(null);
         Mockito.when(tokenIterator.nextWithText("=")).thenReturn(null);
         Mockito.when(tokenIterator.nextWithText("}", ","))
                         .thenReturn(new Token(TokenType.SYMBOL, ","))
                         .thenReturn(new Token(TokenType.SYMBOL, "}"));
-        Mockito.when(tokenIterator.nextWithType(TokenType.VALUE))
+        Mockito.when(tokenIterator.nextWithType(TokenType.IDENTIFIER))
                 .thenReturn(new Token(TokenType.VALUE, "a"))
+                .thenReturn(new Token(TokenType.VALUE, "b"));
+        Mockito.when(tokenIterator.nextWithType(TokenType.VALUE))
                 .thenReturn(new Token(TokenType.VALUE, "1"))
-                .thenReturn(new Token(TokenType.VALUE, "b"))
                 .thenReturn(new Token(TokenType.VALUE, "2"));
 
         var structuredValue = structuredValueTokenParser.parse(tokenIterator);
@@ -58,11 +60,11 @@ class StructuredValueTokenParserTest {
         assertEquals("2", structuredValue.values().get("b"));
         var inOrder = Mockito.inOrder(tokenIterator);
         inOrder.verify(tokenIterator).nextWithText("{");
-        inOrder.verify(tokenIterator).nextWithType(TokenType.VALUE);
+        inOrder.verify(tokenIterator).nextWithType(TokenType.IDENTIFIER);
         inOrder.verify(tokenIterator).nextWithText("=");
         inOrder.verify(tokenIterator).nextWithType(TokenType.VALUE);
         inOrder.verify(tokenIterator).nextWithText("}", ",");
-        inOrder.verify(tokenIterator).nextWithType(TokenType.VALUE);
+        inOrder.verify(tokenIterator).nextWithType(TokenType.IDENTIFIER);
         inOrder.verify(tokenIterator).nextWithText("=");
         inOrder.verify(tokenIterator).nextWithType(TokenType.VALUE);
         inOrder.verify(tokenIterator).nextWithText("}", ",");

@@ -1,0 +1,10 @@
+package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl;
+
+import dk.kvalitetsit.itukt.common.Mapper;
+
+public class StringToDslValueMapper implements Mapper<String, String> {
+    @Override
+    public String map(String value) {
+        return "\"" + value + "\"";
+    }
+}

@@ -1,14 +1,17 @@
 package dk.kvalitetsit.itukt.management.boundary;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
+import dk.kvalitetsit.itukt.common.model.Indication;
+import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,6 +23,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static dk.kvalitetsit.itukt.management.MockFactory.*;
@@ -29,17 +33,29 @@ import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class ManagementControllerTest {
-
-    @InjectMocks
     private ManagementController managementController;
     @Mock
     private ManagementServiceAdaptor clauseService;
+    @Mock
+    private StamdataCacheService<Medication.ATC> medicationATCService;
+    @Mock
+    private StamdataCacheService<Indication> indicationService;
+    @Mock
+    private StamdataCacheService<Medication.Route> medicationRouteService;
+    @Mock
+    private StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
+    @Mock
+    private StamdataCacheService<Department.Speciality> departmentSpecialityService;
+    @Mock
+    private StamdataCacheService<Medication.Form> medicationFormService;
 
     @BeforeEach
-    void setupRequestContext() {
+    void setup() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         ServletRequestAttributes attrs = new ServletRequestAttributes(request);
         RequestContextHolder.setRequestAttributes(attrs);
+
+        managementController = new  ManagementController(clauseService, medicationATCService, indicationService, medicationRouteService, doctorSpecialityService, departmentSpecialityService, medicationFormService);
     }
 
     @AfterEach
@@ -49,21 +65,23 @@ class ManagementControllerTest {
 
     @Test
     void management20250801ClausesPost_CreatesClause() {
-        Mockito.when(clauseService.create(Mockito.any(ClauseInput.class))).thenReturn(CLAUSE_1_OUTPUT);
+        Mockito.when(clauseService.create(Mockito.any(), Mockito.any())).thenReturn(CLAUSE_1_OUTPUT);
+        var skipValidation = Mockito.mock(Optional.class);
 
-        managementController.management20250801ClausesPost(CLAUSE_1_INPUT);
+        managementController.management20250801ClausesPost(CLAUSE_1_INPUT, skipValidation);
 
-        Mockito.verify(clauseService, times(1)).create(CLAUSE_1_INPUT);
+        Mockito.verify(clauseService, times(1)).create(CLAUSE_1_INPUT, skipValidation);
     }
 
     @Test
     void management20250801ClausesDslPost_CreatesClause() {
-        Mockito.when(clauseService.createDSL(Mockito.any(DslInput.class))).thenReturn(CLAUSE_1_DSL_OUTPUT);
+        Mockito.when(clauseService.createDSL(Mockito.any(), Mockito.any())).thenReturn(CLAUSE_1_DSL_OUTPUT);
+        var skipValidation = Mockito.mock(Optional.class);
 
         DslInput dslInput = CLAUSE_1_DSL_INPUT;
-        managementController.management20250801ClausesDslPost(dslInput);
+        managementController.management20250801ClausesDslPost(dslInput, skipValidation);
 
-        Mockito.verify(clauseService, times(1)).createDSL(dslInput);
+        Mockito.verify(clauseService, times(1)).createDSL(dslInput, skipValidation);
     }
 
     @Test
@@ -81,7 +99,7 @@ class ManagementControllerTest {
         UUID uuid = UUID.randomUUID();
         Mockito.when(clauseService.read(uuid)).thenReturn(Optional.empty());
 
-        var e = assertThrows(NotFoundException.class, () -> managementController.management20250801ClausesIdGet(uuid));
+        var e = assertThrows(NotFoundApiException.class, () -> managementController.management20250801ClausesIdGet(uuid));
         assertEquals("Clause was not found", e.getDetailedError());
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
@@ -91,7 +109,7 @@ class ManagementControllerTest {
         UUID uuid = UUID.randomUUID();
         Mockito.when(clauseService.readDsl(uuid)).thenReturn(Optional.empty());
 
-        var e = assertThrows(NotFoundException.class, () -> managementController.management20250801ClausesDslIdGet(uuid));
+        var e = assertThrows(NotFoundApiException.class, () -> managementController.management20250801ClausesDslIdGet(uuid));
         assertEquals("Clause was not found", e.getDetailedError());
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
@@ -164,19 +182,89 @@ class ManagementControllerTest {
     @Test
     void management20250801ClausesIdDelete_whenError() {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(ServiceException.class);
-        assertThrows(ServiceException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
+        Mockito.when(clauseService.deleteDraft(uuid)).thenThrow(RuntimeException.class);
+        assertThrows(RuntimeException.class, () -> managementController.management20250801ClausesIdDelete(uuid));
     }
 
     @Test
     void management20250801ClausesNameDrugCountGet_ReturnsDrugCount() {
         String name = "test";
-        var drugCount = new DrugCount().drugCount(5L);
+        var drugCount = 5L;
         Mockito.when(clauseService.getNumberOfDrugsForClause(name)).thenReturn(drugCount);
 
         var response = managementController.management20250801ClausesNameDrugCountGet(name);
 
         assertEquals(drugCount, response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801MedicationAtcCodesGet_ReturnsAtcCodesFromService() {
+        var atc1 = new Medication.ATC("A1");
+        var atc2 = new Medication.ATC("A2");
+        Mockito.when(medicationATCService.getAll()).thenReturn(Set.of(atc1, atc2));
+
+        var response = managementController.management20250801MedicationAtcCodesGet();
+
+        assertEquals(Set.of(atc1.code(), atc2.code()), response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801IndicationCodesGet_ReturnsIndicationCodesFromService() {
+        var indication1 = new Indication(1);
+        var indication2 = new Indication(2);
+        Mockito.when(indicationService.getAll()).thenReturn(Set.of(indication1, indication2));
+
+        var response = managementController.management20250801IndicationCodesGet();
+
+        assertEquals(Set.of(indication1.code(), indication2.code()), response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801MedicationRouteCodesGet_ReturnsRouteCodesFromService() {
+        var route1 = new Medication.Route("R1");
+        var route2 = new Medication.Route("R2");
+        Mockito.when(medicationRouteService.getAll()).thenReturn(Set.of(route1, route2));
+
+        var response = managementController.management20250801MedicationRouteCodesGet();
+
+        assertEquals(Set.of(route1.code(), route2.code()), response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801DoctorSpecialitiesGet_ReturnsSpecialityCodesFromService() {
+        var speciality1 = new DoctorSpeciality("S1");
+        var speciality2 = new DoctorSpeciality("S2");
+        Mockito.when(doctorSpecialityService.getAll()).thenReturn(Set.of(speciality1, speciality2));
+
+        var response = managementController.management20250801DoctorSpecialitiesGet();
+
+        assertEquals(Set.of(speciality1.value(), speciality2.value()), response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void management20250801DepartmentSpecialitiesGet_ReturnsSpecialitiesFromService() {
+        var speciality1 = new Department.Speciality("S1");
+        var speciality2 = new Department.Speciality("S2");
+        Mockito.when(departmentSpecialityService.getAll()).thenReturn(Set.of(speciality1, speciality2));
+
+        var response = managementController.management20250801DepartmentSpecialitiesGet();
+
+        assertEquals(Set.of(speciality1.name(), speciality2.name()), response.getBody());
+    }
+
+    @Test
+    void management20250801MedicationFormsGet_ReturnsFormsFromService() {
+        var form1 = new Medication.Form("F1");
+        var form2 = new Medication.Form("F2");
+        Mockito.when(medicationFormService.getAll()).thenReturn(Set.of(form1, form2));
+
+        var response = managementController.management20250801MedicationFormCodesGet();
+
+        assertEquals(Set.of(form1.code(), form2.code()), response.getBody());
     }
 }

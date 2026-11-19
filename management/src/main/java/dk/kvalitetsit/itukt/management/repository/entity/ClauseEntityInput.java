@@ -7,7 +7,9 @@ public record ClauseEntityInput(
         ExpressionEntity expression,
         String errorMessage,
         Clause.Status status,
-        String createdBy
+        String createdBy,
+        Long primaryParentId,
+        Long secondaryParentId
 ) {
 
 }

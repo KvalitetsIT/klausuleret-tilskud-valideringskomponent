@@ -5,6 +5,7 @@ import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseQuery;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +19,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dk.kvalitetsit.itukt.management.TestUtils.queryMatcher;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ActiveClauseCacheImplTest {
 
+    private static final ClauseQuery ACTIVE_CLAUSES_QUERY = new ClauseQuery().statuses(Clause.Status.ACTIVE).withoutPrimaryChildren();
     @InjectMocks
     private ActiveClauseCacheImpl cache;
 
@@ -44,7 +47,7 @@ class ActiveClauseCacheImplTest {
     }
 
     @Test
-    void givenAnActiveAndInactiveClauseFromRepository_whenLoad_thenReturnActiveClause() {
+    void givenAnActiveClauseFromRepository_whenRun_thenReturnActiveClause() {
         var activeClause = new ClauseEntity(
                 1L,
                 UUID.randomUUID(),
@@ -57,29 +60,16 @@ class ActiveClauseCacheImplTest {
                         "value"
                 ),
                 "user1",
-                new Date()
+                new Date(),
+                null,
+                null
         );
-        var inactiveClause = new ClauseEntity(
-                2L,
-                UUID.randomUUID(),
-                "CLAUSE2",
-                Clause.Status.INACTIVE,
-                2,
-                "Message",
-                new ExpressionEntity.StringConditionEntity(
-                        Field.AGE,
-                        "value"
-                ),
-                "user2",
-                new Date()
-        );
-        Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(activeClause, inactiveClause));
+        Mockito.when(concreteRepository.read(queryMatcher(ACTIVE_CLAUSES_QUERY))).thenReturn(List.of(activeClause));
 
-        cache.load();
+        cache.run();
 
-        Mockito.verify(concreteRepository, Mockito.times(1)).readCurrentClauses();
+        Mockito.verify(concreteRepository, Mockito.times(1)).read(Mockito.any(ClauseQuery.class));
         assertEquals(Optional.of(activeClause), cache.get(activeClause.name()));
-        assertEquals(Optional.empty(), cache.get(inactiveClause.name()));
     }
 
     @Test
@@ -91,10 +81,10 @@ class ActiveClauseCacheImplTest {
 
     @Test
     void getByErrorCode_WhenClauseMatchesErrorCode_ReturnsClause() {
-        var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, "user1", new Date());
-        var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, "user2",  new Date());
-        Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(existingClause1, existingClause2));
-        cache.load();
+        var existingClause1 = new ClauseEntity(null, null, "test1", Clause.Status.ACTIVE, 111, "message1", null, "user1", new Date(), null, null);
+        var existingClause2 = new ClauseEntity(null, null, "test2", Clause.Status.ACTIVE, 222, "message2", null, "user2",  new Date(), null, null);
+        Mockito.when(concreteRepository.read(queryMatcher(ACTIVE_CLAUSES_QUERY))).thenReturn(List.of(existingClause1, existingClause2));
+        cache.run();
 
         var result = cache.getByErrorCode(existingClause2.errorCode());
 

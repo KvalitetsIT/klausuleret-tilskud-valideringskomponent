@@ -1,11 +1,11 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
+import dk.kvalitetsit.itukt.management.repository.entity.ClauseQuery;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +14,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class ClauseRepositoryImpl implements ClauseRepository {
 
@@ -33,14 +30,14 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public ClauseEntity create(ClauseEntityInput clauseInput) throws ServiceException {
+    public ClauseEntity create(ClauseEntityInput clauseInput) {
         try {
             UUID uuid = UUID.randomUUID();
 
             ExpressionEntity createdExpression = expressionRepository.create(clauseInput.expression());
 
-            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, created_by) " +
-                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :created_by) " +
+            String sql = "INSERT INTO clause (uuid, name, expression_id, error_message, status, created_by, primary_parent_id, secondary_parent_id) " +
+                    "VALUES (:uuid, :name, :expression_id, :error_message, :status, :created_by, :primary_parent_id, :secondary_parent_id) " +
                     "RETURNING id, created_time";
 
             MapSqlParameterSource params = new MapSqlParameterSource()
@@ -49,7 +46,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .addValue("expression_id", createdExpression.id())
                     .addValue("error_message", clauseInput.errorMessage())
                     .addValue("status", clauseInput.status().name())
-                    .addValue("created_by", clauseInput.createdBy());
+                    .addValue("created_by", clauseInput.createdBy())
+                    .addValue("primary_parent_id", clauseInput.primaryParentId())
+                    .addValue("secondary_parent_id", clauseInput.secondaryParentId());
 
 
             return template.queryForObject(sql, params, (rs, rowNum) -> {
@@ -65,13 +64,14 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                         clauseInput.errorMessage(),
                         createdExpression,
                         clauseInput.createdBy(),
-                        rs.getTimestamp("created_time")
+                        rs.getTimestamp("created_time"),
+                        clauseInput.primaryParentId(),
+                        clauseInput.secondaryParentId()
                 );
             });
 
         } catch (Exception e) {
-            logger.error("Failed to create clause", e);
-            throw new ServiceException("Failed to create clause", e);
+            throw new RuntimeException("Failed to create clause", e);
         }
     }
 
@@ -113,10 +113,10 @@ public class ClauseRepositoryImpl implements ClauseRepository {
     }
 
     @Override
-    public Optional<ClauseEntity> read(UUID uuid) throws ServiceException {
+    public Optional<ClauseEntity> read(UUID uuid) {
         try {
             String sql = """
-                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.created_by, c.created_time
+                        SELECT c.id, c.name, c.status, c.expression_id, error_code.error_code, c.error_message, c.created_by, c.created_time, c.primary_parent_id, c.secondary_parent_id
                         FROM clause c
                         JOIN error_code ON c.name = error_code.clause_name
                         WHERE c.uuid = :uuid
@@ -127,7 +127,7 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     Map.of("uuid", uuid.toString()),
                     (rs, rowNum) -> {
                         long expressionId = rs.getLong("expression_id");
-                        var expression = expressionRepository.read(expressionId).orElseThrow(() -> new ServiceException(String.format("Expected to find an expression with id '%s', but nothing was found", expressionId)));
+                        var expression = expressionRepository.read(expressionId).orElseThrow(() -> new RuntimeException(String.format("Expected to find an expression with id '%s', but nothing was found", expressionId)));
 
                         return new ClauseEntity(
                                 rs.getLong("id"),
@@ -138,7 +138,9 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                                 rs.getString("error_message"),
                                 expression,
                                 rs.getString("created_by"),
-                                rs.getTimestamp("created_time")
+                                rs.getTimestamp("created_time"),
+                                rs.getObject("primary_parent_id", Long.class),
+                                rs.getObject("secondary_parent_id", Long.class)
                         );
                     });
 
@@ -147,56 +149,55 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (Exception e) {
-            logger.error("Failed to read clause {}", uuid, e);
-            throw new ServiceException("Failed to read clause", e);
+            throw new RuntimeException("Failed to read clause %s".formatted(uuid), e);
         }
     }
 
     @Override
-    public Optional<ClauseEntity> readCurrentClause(String name) throws ServiceException {
+    public List<ClauseEntity> read(ClauseQuery query) {
         try {
-            String sql = """
-                        SELECT c.uuid
-                        FROM clause c
-                        WHERE status != 'DRAFT' AND name = :name
-                        ORDER BY c.created_time DESC
-                        LIMIT 1
-                    """;
+            StringBuilder sql = new StringBuilder("""
+                    SELECT c.uuid
+                    FROM clause c
+                    WHERE 1=1
+                    """);
 
-            UUID latestClauseUuid = template.queryForObject(
-                    sql,
-                    Map.of("name", name),
-                    UUID.class);
+            Map<String, Object> params = new HashMap<>();
 
-            return read(latestClauseUuid);
+            query.getName().ifPresent(name -> {
+                sql.append(" AND c.name = :name");
+                params.put("name", name);
+            });
 
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        } catch (Exception e) {
-            logger.error("Failed to read latest clause", e);
-            throw new ServiceException("Failed to read latest clause", e);
-        }
-    }
+            if (!query.getStatuses().isEmpty()) {
+                sql.append(" AND c.status IN (:statuses)");
+                params.put("statuses", query.getStatuses().stream().map(Clause.Status::name).toList());
+            }
 
-    @Override
-    public List<ClauseEntity> readCurrentClauses() throws ServiceException {
-        try {
-            String sql = """
-                        SELECT c.uuid
-                        FROM clause c
-                        JOIN (
-                            SELECT name, MAX(created_time) AS max_created_time
-                            FROM clause
-                            WHERE status != 'DRAFT'
-                            GROUP BY name
-                        ) latest
-                          ON c.name = latest.name
-                            AND c.created_time = latest.max_created_time
-                        ORDER BY c.id
-                    """;
+            if (query.isWithoutChildren()) {
+                sql.append("""
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM clause child
+                            WHERE child.primary_parent_id = c.id OR child.secondary_parent_id = c.id
+                        )
+                    """);
+            }
 
-            List<UUID> uuids = template.query(sql,
-                    (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
+            if (query.isWithoutPrimaryChildren()) {
+                sql.append("""
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM clause child
+                            WHERE child.primary_parent_id = c.id
+                        )
+                    """);
+            }
+
+            List<UUID> uuids = template.queryForList(
+                    sql.toString(),
+                    params,
+                    UUID.class
             );
 
             return uuids.stream()
@@ -205,64 +206,12 @@ public class ClauseRepositoryImpl implements ClauseRepository {
                     .toList();
 
         } catch (Exception e) {
-            logger.error("Failed to read latest clauses", e);
-            throw new ServiceException("Failed to read latest clauses", e);
+            throw new RuntimeException("Failed to read clauses with query %s".formatted(query), e);
         }
     }
 
     @Override
-    public List<ClauseEntity> readAllDrafts() throws ServiceException {
-        try {
-            String sql = """
-                        SELECT c.uuid
-                        FROM clause c
-                        WHERE status = :status
-                        ORDER BY c.id
-                    """;
-
-            List<UUID> uuids = template.query(sql,
-                    Map.of("status", Clause.Status.DRAFT.name()),
-                    (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
-            );
-
-            return uuids.stream()
-                    .map(this::read)
-                    .flatMap(Optional::stream)
-                    .toList();
-
-        } catch (Exception e) {
-            logger.error("Failed to read draft clauses", e);
-            throw new ServiceException("Failed to read draft clauses", e);
-        }
-    }
-
-    @Override
-    public List<ClauseEntity> readHistory(String name) {
-        try {
-            String sql = """
-                        SELECT uuid
-                        FROM clause
-                        WHERE name = :name AND status != 'DRAFT'
-                        ORDER BY created_time DESC
-                    """;
-
-            List<UUID> uuids = template.queryForList(sql, Map.of("name", name), UUID.class);
-
-            return uuids.stream()
-                    .map(this::read)
-                    .flatMap(Optional::stream)
-                    .toList();
-
-        } catch (Exception e) {
-            var message = String.format("Failed to read the history of clause '%s'", name);
-            logger.error(message, e);
-            throw new ServiceException(message, e);
-        }
-
-    }
-
-    @Override
-    public ClauseEntity deleteDraft(UUID id) throws NotFoundException, ServiceException {
+    public ClauseEntity deleteDraft(UUID id) throws NotFoundException {
         var clause = read(id).filter(c -> c.status() == Clause.Status.DRAFT)
                 .orElseThrow(() -> new NotFoundException("No clause found with uuid %s and status DRAFT".formatted(id)));
         template.update(
@@ -272,6 +221,22 @@ public class ClauseRepositoryImpl implements ClauseRepository {
         expressionRepository.delete(clause.expression().id());
         return clause;
 
+    }
+
+    @Override
+    public Optional<ClauseEntity> readParent(UUID uuid) {
+        try {
+            var sql = """
+                    SELECT parent.uuid
+                    FROM clause
+                    LEFT JOIN clause parent ON clause.primary_parent_id = parent.id
+                    WHERE clause.uuid = :uuid
+                    """;
+            UUID parentUuid = template.queryForObject(sql, Map.of("uuid", uuid.toString()), UUID.class);
+            return Optional.ofNullable(parentUuid).flatMap(this::read);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
 }

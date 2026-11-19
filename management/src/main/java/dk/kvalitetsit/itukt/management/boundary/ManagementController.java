@@ -1,29 +1,59 @@
 package dk.kvalitetsit.itukt.management.boundary;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
+import dk.kvalitetsit.itukt.common.model.Indication;
+import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
+import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
 import org.openapitools.api.ManagementApi;
 import org.openapitools.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @Transactional
 public class ManagementController implements ManagementApi {
 
     private final ManagementServiceAdaptor service;
+    private final StamdataCacheService<Medication.ATC> medicationATCService;
+    private final StamdataCacheService<Indication> indicationService;
+    private final StamdataCacheService<Medication.Route> medicationRouteService;
+    private final StamdataCacheService<DoctorSpeciality> doctorSpecialityService;
+    private final StamdataCacheService<Department.Speciality> departmentSpecialityService;
+    private final StamdataCacheService<Medication.Form> medicationFormService;
 
-    public ManagementController(@Autowired ManagementServiceAdaptor service) {
+    public ManagementController(
+            @Autowired ManagementServiceAdaptor service,
+            @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
+            @Autowired StamdataCacheService<Indication> indicationService,
+            @Autowired StamdataCacheService<Medication.Route> medicationRouteService,
+            @Autowired StamdataCacheService<DoctorSpeciality> doctorSpecialityService,
+            @Autowired StamdataCacheService<Department.Speciality> departmentSpecialityService,
+            @Autowired StamdataCacheService<Medication.Form> medicationFormService) {
         this.service = service;
+        this.medicationATCService = medicationATCService;
+        this.indicationService = indicationService;
+        this.medicationRouteService = medicationRouteService;
+        this.doctorSpecialityService = doctorSpecialityService;
+        this.departmentSpecialityService = departmentSpecialityService;
+        this.medicationFormService = medicationFormService;
     }
 
     @Override
@@ -35,17 +65,17 @@ public class ManagementController implements ManagementApi {
     public ResponseEntity<DslOutput> management20250801ClausesDslIdGet(UUID id) {
         return service.readDsl(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new NotFoundException("Clause was not found"));
+                .orElseThrow(() -> new NotFoundApiException("Clause was not found"));
     }
 
     @Override
-    public ResponseEntity<List<DslOutput>> management20250801ClausesDslNameHistoryGet(String name) {
-        return ResponseEntity.ok(service.readHistoryDsl(name));
+    public ResponseEntity<List<DslOutput>> management20250801ClausesDslIdHistoryGet(UUID uuid) {
+        return ResponseEntity.ok(service.readHistoryDsl(uuid));
     }
 
     @Override
-    public ResponseEntity<DslOutput> management20250801ClausesDslPost(DslInput dslInput) {
-        DslOutput created = service.createDSL(dslInput);
+    public ResponseEntity<DslOutput> management20250801ClausesDslPost(DslInput dslInput, Optional<Boolean> skipValidation) {
+        DslOutput created = service.createDSL(dslInput, skipValidation);
         UUID uuid = created.getUuid();
         URI location = getLocation(c -> c.management20250801ClausesDslIdGet(uuid), uuid);
         return ResponseEntity.created(location).body(created);
@@ -65,11 +95,11 @@ public class ManagementController implements ManagementApi {
     public ResponseEntity<ClauseOutput> management20250801ClausesIdGet(UUID id) {
         return service.read(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new NotFoundException("Clause was not found"));
+                .orElseThrow(() -> new NotFoundApiException("Clause was not found"));
     }
 
     @Override
-    public ResponseEntity<DrugCount> management20250801ClausesNameDrugCountGet(String name) {
+    public ResponseEntity<Long> management20250801ClausesNameDrugCountGet(String name) {
         var drugCount = service.getNumberOfDrugsForClause(name);
         return ResponseEntity.ok(drugCount);
     }
@@ -83,6 +113,18 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
+    public ResponseEntity<DslOutput> management20250801ClausesDraftsNamePut(String name, DslUpdateInput dslUpdateInput, Optional<Boolean> skipValidation) {
+        return ResponseEntity.ok(service.update(name, dslUpdateInput, skipValidation));
+    }
+
+    @Override
+    public ResponseEntity<Resource> management20250801ClausesDslCsvGet(ClauseStatus status) {
+        String csvString = service.readDslCsvByStatus(status);
+        // BOM so Excel detects UTF-8
+        return ResponseEntity.ok(new ByteArrayResource(("\uFEFF" + csvString).getBytes(StandardCharsets.UTF_8)));
+    }
+
+    @Override
     public ResponseEntity<DslOutput> management20250801ClausesNameStatusPut(String name, ClauseStatusInput clauseStatusInput) {
         var clause = switch (clauseStatusInput.getStatus()) {
             case INACTIVE -> service.inactivateClause(name);
@@ -92,11 +134,59 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<ClauseOutput> management20250801ClausesPost(ClauseInput clause) {
-        var created = service.create(clause);
+    public ResponseEntity<ClauseOutput> management20250801ClausesPost(ClauseInput clause, Optional<Boolean> skipValidation) {
+        var created = service.create(clause, skipValidation);
         UUID uuid = created.getUuid();
         URI location = getLocation(c -> c.management20250801ClausesIdGet(uuid), uuid);
         return ResponseEntity.created(location).body(created);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801MedicationAtcCodesGet() {
+        Set<String> atcCodes = medicationATCService.getAll().stream()
+                .map(Medication.ATC::code)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(atcCodes);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801MedicationRouteCodesGet() {
+        Set<String> routeCodes = medicationRouteService.getAll().stream()
+                .map(Medication.Route::code)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(routeCodes);
+    }
+
+    @Override
+    public ResponseEntity<Set<Long>> management20250801IndicationCodesGet() {
+        Set<Long> indicationCodes = indicationService.getAll().stream()
+                .map(Indication::code)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(indicationCodes);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801DoctorSpecialitiesGet() {
+        Set<String> specialities = doctorSpecialityService.getAll().stream()
+                .map(DoctorSpeciality::value)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(specialities);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801DepartmentSpecialitiesGet() {
+        var specialities = departmentSpecialityService.getAll().stream()
+                .map(Department.Speciality::name)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(specialities);
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> management20250801MedicationFormCodesGet() {
+        var formCodes = medicationFormService.getAll().stream()
+                .map(Medication.Form::code)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(formCodes);
     }
 
     private URI getLocation(Function<ManagementController, Object> methodRef, UUID uuid) {
@@ -107,3 +197,4 @@ public class ManagementController implements ManagementApi {
     }
 
 }
+

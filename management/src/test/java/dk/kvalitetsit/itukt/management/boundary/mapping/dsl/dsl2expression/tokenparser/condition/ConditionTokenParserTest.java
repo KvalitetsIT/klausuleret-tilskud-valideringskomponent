@@ -4,7 +4,8 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,8 +35,8 @@ class ConditionTokenParserTest {
     private ConditionTokenParser conditionTokenParser;
 
     @Test
-    void canParse_WhenNextTokenIsNotAValue_ReturnsFalse() {
-        Mockito.when(tokenIterator.nextHasType(TokenType.VALUE)).thenReturn(false);
+    void canParse_WhenNextTokenIsNotAnIdentifier_ReturnsFalse() {
+        Mockito.when(tokenIterator.nextHasType(TokenType.IDENTIFIER)).thenReturn(false);
 
         boolean canParse = conditionTokenParser.canParse(tokenIterator);
 
@@ -44,7 +45,7 @@ class ConditionTokenParserTest {
 
     @Test
     void canParse_WhenNextTokenDoesNotHaveIdentifierText_ReturnsFalse() {
-        Mockito.when(tokenIterator.nextHasType(TokenType.VALUE)).thenReturn(true);
+        Mockito.when(tokenIterator.nextHasType(TokenType.IDENTIFIER)).thenReturn(true);
         Mockito.when(tokenIterator.nextHasText(Mockito.anyString())).thenReturn(false);
 
         boolean canParse = conditionTokenParser.canParse(tokenIterator);
@@ -54,8 +55,8 @@ class ConditionTokenParserTest {
 
     @ParameterizedTest
     @EnumSource(Identifier.class)
-    void canParse_WhenNextTokenValueHasIdentifier_ReturnsTrue(Identifier identifier) {
-        Mockito.when(tokenIterator.nextHasType(TokenType.VALUE)).thenReturn(true);
+    void canParse_WhenNextTokenHasIdentifier_ReturnsTrue(Identifier identifier) {
+        Mockito.when(tokenIterator.nextHasType(TokenType.IDENTIFIER)).thenReturn(true);
         Mockito.lenient().when(tokenIterator.nextHasText(Mockito.argThat(text -> !text.equals(identifier.toString()))))
                 .thenReturn(false);
         Mockito.when(tokenIterator.nextHasText(identifier.toString())).thenReturn(true);
@@ -66,10 +67,10 @@ class ConditionTokenParserTest {
     }
 
     @Test
-    void parse_WithMultiValueTokenButUnexpectedOperator_ThrowsException() {
+    void parse_WithMultiValueTokenButUnexpectedOperator_ThrowsException() throws DslParserException {
         Mockito.when(multiValueTokenParser.canParse(tokenIterator)).thenReturn(true);
-        Mockito.when(tokenIterator.nextWithType(TokenType.VALUE))
-                .thenReturn(new Token(TokenType.VALUE, Identifier.INDICATION.toString()));
+        Mockito.when(tokenIterator.nextWithType(TokenType.IDENTIFIER))
+                .thenReturn(new Token(TokenType.IDENTIFIER, Identifier.INDICATION.toString()));
         Mockito.when(tokenIterator.nextWithType(TokenType.OPERATOR))
                 .thenReturn(new Token(TokenType.OPERATOR, "unexpectedOperator"));
 
@@ -79,14 +80,14 @@ class ConditionTokenParserTest {
     }
 
     @Test
-    void parse_WithMultiValueTokenAndExpectedOperator_ReturnsParsedMultiValueCondition() {
+    void parse_WithMultiValueTokenAndExpectedOperator_ReturnsParsedMultiValueCondition() throws DslParserException {
         Mockito.when(multiValueTokenParser.canParse(tokenIterator)).thenReturn(true);
         List<Condition.Value> values = List.of(Mockito.mock(Condition.Value.Simple.class));
         Mockito.when(multiValueTokenParser.parse(tokenIterator))
                 .thenReturn(values);
         Identifier identifier = Identifier.INDICATION;
-        Mockito.when(tokenIterator.nextWithType(TokenType.VALUE))
-                .thenReturn(new Token(TokenType.VALUE, identifier.toString()));
+        Mockito.when(tokenIterator.nextWithType(TokenType.IDENTIFIER))
+                .thenReturn(new Token(TokenType.IDENTIFIER, identifier.toString()));
         Mockito.when(tokenIterator.nextWithType(TokenType.OPERATOR))
                 .thenReturn(new Token(TokenType.OPERATOR, "i"));
 
@@ -97,14 +98,15 @@ class ConditionTokenParserTest {
     }
 
     @Test
-    void parse_WithSimpleValueToken_ReturnsParsedSimpleValueCondition() {
+    void parse_WithSimpleValueToken_ReturnsParsedSimpleValueCondition() throws DslParserException {
         Mockito.when(multiValueTokenParser.canParse(tokenIterator)).thenReturn(false);
         Mockito.when(structuredValueTokenParser.canParse(tokenIterator)).thenReturn(false);
         Identifier identifier = Identifier.AGE;
         Operator operator = Operator.GREATER_THAN;
         String value = "test";
+        Mockito.when(tokenIterator.nextWithType(TokenType.IDENTIFIER))
+                .thenReturn(new Token(TokenType.IDENTIFIER, identifier.toString()));
         Mockito.when(tokenIterator.nextWithType(TokenType.VALUE))
-                .thenReturn(new Token(TokenType.VALUE, identifier.toString()))
                 .thenReturn(new Token(TokenType.VALUE, value));
         Mockito.when(tokenIterator.nextWithType(TokenType.OPERATOR))
                 .thenReturn(new Token(TokenType.OPERATOR, operator.getValue()));
@@ -116,13 +118,13 @@ class ConditionTokenParserTest {
     }
 
     @Test
-    void parse_WithStructuredValueToken_ReturnsParsedStructuredValueCondition() {
+    void parse_WithStructuredValueToken_ReturnsParsedStructuredValueCondition() throws DslParserException {
         Mockito.when(multiValueTokenParser.canParse(tokenIterator)).thenReturn(false);
         Mockito.when(structuredValueTokenParser.canParse(tokenIterator)).thenReturn(true);
         Identifier identifier = Identifier.AGE;
         Operator operator = Operator.GREATER_THAN;
-        Mockito.when(tokenIterator.nextWithType(TokenType.VALUE))
-                .thenReturn(new Token(TokenType.VALUE, identifier.toString()));
+        Mockito.when(tokenIterator.nextWithType(TokenType.IDENTIFIER))
+                .thenReturn(new Token(TokenType.IDENTIFIER, identifier.toString()));
         Mockito.when(tokenIterator.nextWithType(TokenType.OPERATOR))
                 .thenReturn(new Token(TokenType.OPERATOR, operator.getValue()));
         var structuredValue = Mockito.mock(Condition.Value.Structured.class);

@@ -1,106 +1,103 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
+import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
+import dk.kvalitetsit.itukt.common.model.Indication;
+import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
 import dk.kvalitetsit.itukt.integrationtest.MockFactory;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.KlausuleringRepository;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.LaegemiddelRepository;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.PakningRepository;
+import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.*;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.entity.Pakning;
 import dk.kvalitetsit.itukt.management.boundary.ExpressionType;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
+import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ManagementApi;
 import org.openapitools.client.model.*;
+import org.springframework.core.io.Resource;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static dk.kvalitetsit.itukt.integrationtest.MockFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ManagementIT extends BaseTest {
-    private static final String CLAUSE_WITH_ONE_DRUG = "TEST";
-    private static ManagementApi api;
+    private static final ManagementApi api = new ManagementApi(client);
 
-    private static ClauseRepository clauseRepository;
-    private static SkippedValidationRepository skippedValidationRepository;
+    private static final ClauseRepository clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
+    private static final SkippedValidationRepository skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
+    private static final Date IN_THE_PAST = Date.from(Instant.now().minusSeconds(1));
+    private static final Date IN_THE_FUTURE = Date.from(Instant.now().plusSeconds(1000));
 
+    @Test
+    void testGetClauseHistory_ForNonDraft() {
+        var expression = new AgeCondition().type("AgeCondition").operator(Operator.EQUAL).value(20);
+        var draftClause = api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression), true);
+        var clause1 = api.management20250801ClausesDraftsIdStatusPut(
+                draftClause.getUuid(),
+                new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
+        var clause2 = api.management20250801ClausesNameStatusPut(
+                draftClause.getName(),
+                new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
+        var clause3 = api.management20250801ClausesNameStatusPut(
+                draftClause.getName(),
+                new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.ACTIVE));
 
-    @BeforeEach
-    void setup() {
-        clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
-        skippedValidationRepository = new SkippedValidationRepositoryImpl(appDatabase.getDatasource());
+        List<DslOutput> clauses = api.management20250801ClausesDslIdHistoryGet(clause3.getUuid());
 
-        api = new ManagementApi(client);
-    }
-
-    @Override
-    protected void load(ClauseRepository repository) {
-        setupStamdata();
+        assertEquals(3, clauses.size());
+        assertEquals(clause3, clauses.get(0));
+        assertEquals(clause2, clauses.get(1));
+        assertEquals(clause1, clauses.get(2));
     }
 
     @Test
-    void testGetClauseHistory() {
-        AgeCondition expression = new AgeCondition().type("AgeCondition").operator(Operator.EQUAL).value(20);
+    void testGetClauseHistory_ForDraft() {
+        var input = new DslInput().name("blaaaaah").dsl("ALDER = 1").error("error1");
+        var draft1 = api.management20250801ClausesDslPost(input, true);
+        var draft2 = api.management20250801ClausesDraftsNamePut(
+                input.getName(),
+                new DslUpdateInput().dsl("ALDER = 2").error("error2"),
+                true);
+        var draft3 = api.management20250801ClausesDraftsNamePut(
+                input.getName(),
+                new DslUpdateInput().dsl("ALDER = 3").error("error3"),
+                true);
+        var draft4 = api.management20250801ClausesDraftsNamePut(
+                input.getName(),
+                new DslUpdateInput().dsl("ALDER = 4").error("error4"),
+                true);
 
-        var created = List.of(
-                api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error1").expression(expression)),
-                api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error2").expression(expression)),
-                api.management20250801ClausesPost(new ClauseInput().name("blaaaaah").error("error3").expression(expression))
-        );
-        created.forEach(clause ->
-                api.management20250801ClausesDraftsIdStatusPut(
-                        clause.getUuid(),
-                        new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false)));
+        List<DslOutput> clauses = api.management20250801ClausesDslIdHistoryGet(draft4.getUuid());
 
-        List<DslOutput> clauses = api.management20250801ClausesDslNameHistoryGet("blaaaaah");
-
-        assertEquals(created.size(), clauses.size());
-
-        for (int i = 0; i < created.size(); i++) {
-            var x = created.reversed().get(i);
-            var y = clauses.get(i);
-            assertEquals(x.getError(), y.getError());
-            if (i != 0) {
-                // Assert that the timestamp is less than the previous
-                DslOutput prev_y = clauses.get(i - 1);
-
-                assertTrue(
-                        y.getCreatedTime().isBefore(prev_y.getCreatedTime()),
-                        "The timestamp is expected to be less than the previous version"
-                );
-            }
-        }
+        assertEquals(4, clauses.size());
+        assertEquals(draft4, clauses.get(0));
+        assertEquals(draft3, clauses.get(1));
+        assertEquals(draft2, clauses.get(2));
+        assertEquals(draft1, clauses.get(3));
     }
 
-
     @Test
-    void testGetHistoryThrowsNotFoundIfClauseDoesNotExist() {
-        var e = assertThrows(
-                HttpClientErrorException.NotFound.class,
-                () -> api.management20250801ClausesDslNameHistoryGet("UNKNOWN_CLAUSE")
-        );
+    void testGetHistoryReturnsEmptyListIfClauseDoesNotExist() {
+        var history = api.management20250801ClausesDslIdHistoryGet(UUID.randomUUID());
 
-        String body = e.getResponseBodyAsString();
-
-        assertTrue(body.contains("\"detailed_error\":\"clause with name 'UNKNOWN_CLAUSE' was not found\""));
+        assertTrue(history.isEmpty(), "Expected history to be empty for a non-existent clause");
     }
 
     @Test
     void testPostAndGetClauseDsl() {
-        api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT);
+        api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT, true);
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
@@ -112,8 +109,69 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
+    void postClause_WithUnknownValues_ThrowsExceptionOnlyWhenNotSkippingValidation() {
+        String dsl = """
+                EKSISTERENDE_LÆGEMIDDEL = {FORM = "NOT_KNOWN", ATC = "NOT_KNOWN", ROUTE = "NOT_KNOWN"} eller
+                AFDELINGSSPECIALE = "NOT_KNOWN" eller
+                INDIKATION = "NOT_KNOWN" eller
+                LÆGESPECIALE = "NOT_KNOWN"
+                """;
+        var input = new DslInput()
+                .name("test")
+                .dsl(dsl)
+                .error("error");
+
+        var e = assertThrows(HttpClientErrorException.BadRequest.class, () -> api.management20250801ClausesDslPost(input, false));
+        assertTrue(e.getMessage().contains("Ukendt form 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt atc 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt route 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt afdelingsspeciale 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt indikation 'NOT_KNOWN'"));
+        assertTrue(e.getMessage().contains("Ukendt lægespeciale 'NOT_KNOWN'"));
+        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, true));
+    }
+
+    @Test
+    void postClause_WithKnownValues_Succeeds() {
+        setupStamdataWithFormCode("TEST");
+        setupStamdataWithATCCode("TEST");
+        setupStamdataWithRouteCode("R0");
+        setupStamdataWithDepartmentSpeciality("TEST");
+        setupStamdataWithIndicationCode(5);
+        setupStamdataWithDoctorSpecialities("TEST", "", "");
+        restartService();
+        String dsl = """
+                EKSISTERENDE_LÆGEMIDDEL = {FORM = "TEST", ATC = "TEST", ROUTE = "R0"} eller
+                AFDELINGSSPECIALE = "TEST" eller
+                INDIKATION = "5" eller
+                LÆGESPECIALE = "TEST"
+                """;
+        var input = new DslInput()
+                .name("test")
+                .dsl(dsl)
+                .error("error");
+        assertDoesNotThrow(() -> api.management20250801ClausesDslPost(input, false));
+    }
+
+    @Test
+    void updateClause_WithUnknownDepartmentSpeciality_ThrowsExceptionOnlyWhenNotSkippingValidation() {
+        var input = new DslInput()
+                .name("test")
+                .dsl("ALDER = 5")
+                .error("error");
+        api.management20250801ClausesDslPost(input, true);
+        var updateInput = new DslUpdateInput()
+                .dsl("AFDELINGSSPECIALE = \"not_known\"")
+                .error("error");
+
+        assertThrows(HttpClientErrorException.BadRequest.class,
+                () -> api.management20250801ClausesDraftsNamePut(input.getName(), updateInput, false));
+        assertDoesNotThrow(() -> api.management20250801ClausesDraftsNamePut(input.getName(), updateInput, true));
+    }
+
+    @Test
     void testPostAndGetClause() {
-        api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size());
@@ -127,13 +185,51 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
+    void testDslPostGetCsv() throws IOException {
+        var input = new DslInput().name("TEST").dsl("ALDER = 1").error("error");
+        api.management20250801ClausesDslPost(input, true);
+
+        Resource csv = api.management20250801ClausesDslCsvGet(ClauseStatus.DRAFT);
+
+        assertTrue(csv.exists());
+        String content = csv.getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(content.startsWith("\uFEFF"), "CSV should start with UTF-8 BOM");
+        String[] lines = content.substring(1).split("\n");
+        assertEquals(2, lines.length);
+        assertEquals("name;status;dsl;error;createdBy;createdTime", lines[0]);
+        assertTrue(lines[1].contains("TEST;DRAFT;ALDER = 1;error;" + USER_ID));
+    }
+
+    @Test
+    void testDslPostPutAndGet() {
+        var input = new DslInput().name("TEST").dsl("ALDER = 1").error("error");
+        api.management20250801ClausesDslPost(input, true);
+        var updateInput = new DslUpdateInput().dsl("ALDER = 55").error("updated error");
+        var updateOutput = api.management20250801ClausesDraftsNamePut(input.getName(), updateInput, true);
+        var drafts = api.management20250801ClausesDslGet(ClauseStatus.DRAFT);
+
+        var expected = new DslOutput()
+                .name(input.getName())
+                .dsl(updateInput.getDsl())
+                .error(updateInput.getError())
+                .status(ClauseStatus.DRAFT)
+                .createdBy(USER_ID);
+        assertThat(updateOutput)
+                .usingRecursiveComparison()
+                .ignoringFields("uuid", "createdTime")
+                .isEqualTo(expected);
+        assertEquals(1, drafts.size());
+        assertEquals(updateOutput, drafts.getFirst());
+    }
+
+    @Test
     void testDraftAndApproveExistingClause() {
         var postInput1 = CLAUSE_1_INPUT;
         var postInput2 = postInput1.error("updated error");
 
-        var clause = api.management20250801ClausesPost(postInput1);
+        var clause = api.management20250801ClausesPost(postInput1, true);
         api.management20250801ClausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
-        var updatedClause = api.management20250801ClausesPost(postInput2);
+        var updatedClause = api.management20250801ClausesPost(postInput2, true);
         api.management20250801ClausesDraftsIdStatusPut(updatedClause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
         var drafts = api.management20250801ClausesGet(ClauseStatus.DRAFT);
         var activeClauses = api.management20250801ClausesGet(ClauseStatus.ACTIVE);
@@ -148,7 +244,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testInactivateAndActivate() {
-        var clause = api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT);
+        var clause = api.management20250801ClausesDslPost(CLAUSE_1_DSL_INPUT, true);
         api.management20250801ClausesDraftsIdStatusPut(clause.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false));
         var inactiveClause = api.management20250801ClausesNameStatusPut(clause.getName(), new ClauseStatusInput().status(ClauseStatusInput.StatusEnum.INACTIVE));
         var inactiveClauses = api.management20250801ClausesDslGet(ClauseStatus.INACTIVE);
@@ -175,14 +271,14 @@ class ManagementIT extends BaseTest {
     @Test
     void testPostAndGetClauseWithExistingDrugMedicationConditions() {
         var expression = MockFactory.createBinaryAndExpression(
-                MockFactory.createExistingDrugMedicationCondition("atc1", "form1", "adm1"),
-                MockFactory.createExistingDrugMedicationCondition("atc2", "form2", "adm2"));
+                MockFactory.createExistingDrugMedicationCondition("atc1", "*", "adm1"),
+                MockFactory.createExistingDrugMedicationCondition("atc2", "*", "adm2"));
         var clauseInput = new ClauseInput()
-                .name("test")
+                .name("TEST")
                 .expression(expression)
                 .error("message");
 
-        api.management20250801ClausesPost(clauseInput);
+        api.management20250801ClausesPost(clauseInput, true);
         var clauses = api.management20250801ClausesGet(ClauseStatus.DRAFT);
 
         assertEquals(1, clauses.size(), "Expected the same number of clauses as were created");
@@ -199,7 +295,8 @@ class ManagementIT extends BaseTest {
 
         var error = "blaah";
 
-        String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = læge eller LÆGESPECIALE i [kæbekirurg, ortopædkirurg] og ALDER >= 18))";
+        String dsl = """
+                INDIKATION = "C10BA03" eller INDIKATION i ["C10BA02", "C10BA05"] og (EKSISTERENDE_LÆGEMIDDEL = {ROUTE = "TEST"} eller ALDER >= 13 og (LÆGESPECIALE = "læge" eller LÆGESPECIALE i ["kæbekirurg", "ortopædkirurg"] og ALDER >= 18))""";
 
         ClauseInput clauseInput = new ClauseInput().name("CLAUSE").expression(new BinaryExpression()
                         .type(ExpressionType.BINARY)
@@ -227,8 +324,8 @@ class ManagementIT extends BaseTest {
                                         .type(ExpressionType.BINARY)
                                         .left(new ExistingDrugMedicationCondition()
                                                 .type(ExpressionType.EXISTING_DRUG_MEDICATION)
-                                                .formCode("TABLET")
-                                                .routeOfAdministrationCode("*")
+                                                .formCode("*")
+                                                .routeOfAdministrationCode("TEST")
                                                 .atcCode("*")
                                         )
                                         .operator(BinaryOperator.OR)
@@ -268,7 +365,7 @@ class ManagementIT extends BaseTest {
                         ))
                 .error(error);
 
-        ClauseOutput createClauseResponse = api.management20250801ClausesPost(clauseInput);
+        ClauseOutput createClauseResponse = api.management20250801ClausesPost(clauseInput, true);
 
         DslOutput dslOutput = new DslOutput()
                 .name("CLAUSE")
@@ -288,10 +385,12 @@ class ManagementIT extends BaseTest {
     void management20250801ClausesDslPost_whenPostingAValidDSLThenRetrieveACorrectlyInterpretedClause() {
         var error = "blaah";
 
-        String dsl = "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og (EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = *} eller ALDER >= 13 og (LÆGESPECIALE = LÆGE eller LÆGESPECIALE i [KÆBEKIRURG, ORTOPÆDKIRURG] og ALDER >= 18))";
+        String dsl = """
+                INDIKATION = "C10BA03" eller INDIKATION i ["C10BA02", "C10BA05"] og (EKSISTERENDE_LÆGEMIDDEL = {FORM = "TEST"} eller ALDER >= 13 og (LÆGESPECIALE = "LÆGE" eller LÆGESPECIALE i ["KÆBEKIRURG", "ORTOPÆDKIRURG"] og ALDER >= 18))""";
+
         DslInput dslInput = new DslInput().name("CLAUSE").dsl(dsl).error(error);
 
-        var createDslResponse = api.management20250801ClausesDslPost(dslInput);
+        var createDslResponse = api.management20250801ClausesDslPost(dslInput, true);
 
         DslOutput dslOutput = new DslOutput().dsl(dsl).error(error).uuid(createDslResponse.getUuid());
         assertEquals(dslOutput.getDsl(), createDslResponse.getDsl(), "Expected the input dsl to match the dsl in the response");
@@ -324,7 +423,7 @@ class ManagementIT extends BaseTest {
                                         .type(ExpressionType.BINARY)
                                         .left(new ExistingDrugMedicationCondition()
                                                 .type(ExpressionType.EXISTING_DRUG_MEDICATION)
-                                                .formCode("TABLET")
+                                                .formCode("TEST")
                                                 .routeOfAdministrationCode("*")
                                                 .atcCode("*")
                                         )
@@ -371,7 +470,7 @@ class ManagementIT extends BaseTest {
 
     @Test
     void testApproveAndResetSkippedValidationOfExistingClause() {
-        var clauseCreated1 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        var clauseCreated1 = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var draftRead1 = clauseRepository.read(clauseCreated1.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead1.status());
         UUID approvedUuid1 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated1.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false)).getUuid();
@@ -381,7 +480,7 @@ class ManagementIT extends BaseTest {
         skippedValidationRepository.create(List.of(skippedValidation1));
         Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation1));
 
-        var clauseCreated2 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        var clauseCreated2 = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var draftRead2 = clauseRepository.read(clauseCreated2.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead2.status());
         UUID approvedUuid2 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated2.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(false)).getUuid();
@@ -390,7 +489,7 @@ class ManagementIT extends BaseTest {
         SkippedValidationEntity skippedValidation2 = new SkippedValidationEntity(activeClause2.id(), skippedValidation1.actorId(), skippedValidation1.personId());
         Assertions.assertTrue(skippedValidationRepository.exists(skippedValidation2), "The entry is expected to exist since the 'resetSKippedValidations' flag was set to false and therefore the entries are supposed to be copied from the original clause");
 
-        var clauseCreated3 = api.management20250801ClausesPost(CLAUSE_1_INPUT);
+        var clauseCreated3 = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
         var draftRead3 = clauseRepository.read(clauseCreated3.getUuid()).orElseThrow();
         Assertions.assertEquals(dk.kvalitetsit.itukt.common.model.Clause.Status.DRAFT, draftRead3.status());
         UUID approvedUuid3 = api.management20250801ClausesDraftsIdStatusPut(clauseCreated3.getUuid(), new DraftClauseStatusInput().status(DraftClauseStatusInput.StatusEnum.ACTIVE).resetSkippedValidations(true)).getUuid();
@@ -402,21 +501,31 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void testDeleteClause(){
-        var clauseCreated = api.management20250801ClausesPost(CLAUSE_1_INPUT);
-        var clauseDeleted = api.management20250801ClausesIdDelete(clauseCreated.getUuid());
-        var noClause = clauseRepository.read(clauseCreated.getUuid());
+    void testDeleteClause() {
+        var clauseCreated = api.management20250801ClausesPost(CLAUSE_1_INPUT, true);
+        var updateInput = new DslUpdateInput().dsl("alder=0").error("updated error");
+        var updatedClause = api.management20250801ClausesDraftsNamePut(clauseCreated.getName(), updateInput, true);
 
-        assertEquals(clauseCreated, clauseDeleted, "Expected the created clause to be deleted");
-        assertTrue(noClause.isEmpty(), "Expected the created clause to be deleted");
+        api.management20250801ClausesIdDelete(updatedClause.getUuid());
+
+        var initialClauseAfterDeletion = clauseRepository.read(clauseCreated.getUuid());
+        var updatedClauseAfterDeletion = clauseRepository.read(updatedClause.getUuid());
+        var draftsAfterDeletion = api.management20250801ClausesDslGet(ClauseStatus.DRAFT);
+
+        assertTrue(initialClauseAfterDeletion.isEmpty(), "Expected the created clause to be deleted");
+        assertTrue(updatedClauseAfterDeletion.isEmpty(), "Expected the updated clause to be deleted");
+        assertTrue(draftsAfterDeletion.isEmpty(), "Expected no more drafts after deletion");
     }
 
     @Test
     void testGetDrugCount_ForClauseWithOneDrug_Returns1() {
-        var drugCount = api.management20250801ClausesNameDrugCountGet(CLAUSE_WITH_ONE_DRUG);
+        String clauseName = setupStamdataClauseWithOneDrug();
+        restartService();
+
+        var drugCount = api.management20250801ClausesNameDrugCountGet(clauseName);
 
         assertNotNull(drugCount);
-        assertEquals(1, drugCount.getDrugCount());
+        assertEquals(1, drugCount);
     }
 
     @Test
@@ -424,23 +533,131 @@ class ManagementIT extends BaseTest {
         var drugCount = api.management20250801ClausesNameDrugCountGet("HEST");
 
         assertNotNull(drugCount);
-        assertEquals(0, drugCount.getDrugCount());
+        assertEquals(0, drugCount);
     }
 
-    private static void setupStamdata() {
+    @Test
+    void testGetAtcCodes_ReturnsAtcCodes() {
+        String atc = "TEST";
+        setupStamdataWithATCCode(atc);
+        restartService();
+
+        var atcCodes = api.management20250801MedicationAtcCodesGet();
+
+        assertEquals(Set.of(atc), atcCodes);
+    }
+
+    @Test
+    void testGetIndicationCodes_ReturnsIndicationCodes() {
+        long indicationCode = 1234;
+        setupStamdataWithIndicationCode(indicationCode);
+        restartService();
+
+        var indicationCodes = api.management20250801IndicationCodesGet();
+
+        assertEquals(Set.of(indicationCode), indicationCodes);
+    }
+
+    @Test
+    void testGetRouteCodes_ReturnsRouteCodes() {
+        String route = "R1";
+        setupStamdataWithRouteCode(route);
+        restartService();
+
+        var routeCodes = api.management20250801MedicationRouteCodesGet();
+
+        assertEquals(Set.of(route), routeCodes);
+    }
+
+    @Test
+    void testGetDoctorSpecialities_ReturnsDoctorSpecialities() {
+        String speciality1 = "TEST1";
+        String speciality2 = "TEST2";
+        String speciality3 = "TEST3";
+        setupStamdataWithDoctorSpecialities(speciality1, speciality2, speciality3);
+        restartService();
+
+        var doctorSpecialities = api.management20250801DoctorSpecialitiesGet();
+
+        assertEquals(Set.of(speciality1, speciality2, speciality3), doctorSpecialities);
+    }
+
+    @Test
+    void getDepartmentSpecialities() {
+        String speciality = "SPECIALITY1";
+        setupStamdataWithDepartmentSpeciality(speciality);
+        restartService();
+
+        var specialities = api.management20250801DepartmentSpecialitiesGet();
+
+        assertEquals(1, specialities.size());
+        assertTrue(specialities.contains(speciality));
+    }
+
+    @Test
+    void getFormCodes() {
+        String formCode = "FORM1";
+        setupStamdataWithFormCode(formCode);
+        restartService();
+
+        var formCodes = api.management20250801MedicationFormCodesGet();
+
+        assertEquals(1, formCodes.size());
+        assertTrue(formCodes.contains(formCode));
+    }
+
+    private static String setupStamdataClauseWithOneDrug() {
+        String clauseName = "TEST";
         var stamdataDatasource = stamDatabase.getDatasource();
         var laegemiddelRepository = new LaegemiddelRepository(stamdataDatasource);
         var pakningRepository = new PakningRepository(stamdataDatasource);
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
 
-        var inThePast = Date.from(Instant.now().minusSeconds(1));
-        var inTheFuture = Date.from(Instant.now().plusSeconds(1000));
         var laegemiddel = new DrugClauseView.Laegemiddel(1L);
-        var pakning = new Pakning(laegemiddel.DrugId(), CLAUSE_WITH_ONE_DRUG, 1L);
-        var klausulering = new DrugClauseView.Klausulering(CLAUSE_WITH_ONE_DRUG, "test");
-        laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
-        pakningRepository.insert(pakning, inThePast, inTheFuture);
-        klausuleringRepository.insert(klausulering, inThePast, inTheFuture);
+        var pakning = new Pakning(laegemiddel.DrugId(), clauseName, 1L);
+        var klausulering = new DrugClauseView.Klausulering(clauseName, "test");
+        laegemiddelRepository.insert(laegemiddel, IN_THE_PAST, IN_THE_FUTURE);
+        pakningRepository.insert(pakning, IN_THE_PAST, IN_THE_FUTURE);
+        klausuleringRepository.insert(klausulering, IN_THE_PAST, IN_THE_FUTURE);
+        return clauseName;
+    }
+
+    private static void setupStamdataWithDepartmentSpeciality(String speciality) {
+        var sorEntityRepository = new SorEntityRepository(stamDatabase.getDatasource());
+        var department = new DepartmentEntity("1", "2", speciality, "", "", "", "", "", "", "");
+        sorEntityRepository.insert(department, IN_THE_PAST, IN_THE_FUTURE, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithDoctorSpecialities(String speciality1, String speciality2, String speciality3) {
+        var autorisationRepository = new Autorisation3Repository(stamDatabase.getDatasource());
+        var doctorSpeciality1 = new DoctorSpeciality(speciality1);
+        var doctorSpeciality2 = new DoctorSpeciality(speciality2);
+        var doctorSpeciality3 = new DoctorSpeciality(speciality3);
+        autorisationRepository.insert(Optional.of(doctorSpeciality1), Optional.of(doctorSpeciality2), Optional.of(doctorSpeciality3), IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithFormCode(String formCode) {
+        var formbetegnelseRepository = new FormbetegnelseRepository(stamDatabase.getDatasource());
+        Medication.Form form = new Medication.Form(formCode);
+        formbetegnelseRepository.insert(form, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithATCCode(String atcCode) {
+        var atcRepository = new ATCRepository(stamDatabase.getDatasource());
+        var atc = new Medication.ATC(atcCode);
+        atcRepository.insert(atc, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithIndicationCode(long indicationCode) {
+        var indicationRepository = new IndikationRepository(stamDatabase.getDatasource());
+        var indication = new Indication(indicationCode);
+        indicationRepository.insert(indication, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithRouteCode(String routeCode) {
+        var administrationsvejRepository = new AdministrationsvejRepository(stamDatabase.getDatasource());
+        var route = new Medication.Route(routeCode);
+        administrationsvejRepository.insert(route, IN_THE_PAST, IN_THE_FUTURE);
     }
 
 }

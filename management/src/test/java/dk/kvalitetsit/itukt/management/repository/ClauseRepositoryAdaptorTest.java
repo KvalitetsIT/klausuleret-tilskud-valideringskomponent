@@ -1,9 +1,9 @@
 package dk.kvalitetsit.itukt.management.repository;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.NotFoundException;
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
+import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.exceptions.NotFoundException;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntity;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.mapping.entity.ClauseEntityModelMapper;
@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -81,48 +80,7 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void testReadCurrentClauses() {
-
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-
-        Mockito.when(concreteRepository.readCurrentClauses()).thenReturn(List.of(clauseEntity));
-
-        Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
-
-        var result = adaptor.readCurrentClauses();
-        assertEquals(List.of(clause), result);
-    }
-
-    @Test
-    void testReadCurrentClause() {
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-        String name = "test";
-        Mockito.when(concreteRepository.readCurrentClause(name)).thenReturn(Optional.of(clauseEntity));
-        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
-
-        var result = adaptor.readCurrentClause(name);
-
-        assertEquals(Optional.of(clause), result);
-    }
-
-    @Test
-    void testReadAllDrafts() {
-
-        var clauseEntity = Mockito.mock(ClauseEntity.class);
-        var clause = Mockito.mock(Clause.class);
-
-        Mockito.when(concreteRepository.readAllDrafts()).thenReturn(List.of(clauseEntity));
-
-        Mockito.when(clauseEntityModelMapper.map(List.of(clauseEntity))).thenReturn(List.of(clause));
-
-        var result = adaptor.readAllDrafts();
-        assertEquals(List.of(clause), result);
-    }
-
-    @Test
-    void deleteDraft_whenSuccess_thenReturnDeletedClause() {
+    void deleteDraft_whenSuccess_thenReturnDeletedClause() throws NotFoundException {
         var clauseEntity = Mockito.mock(ClauseEntity.class);
         var expected = Mockito.mock(Clause.class);
 
@@ -137,20 +95,33 @@ public class ClauseRepositoryAdaptorTest {
     }
 
     @Test
-    void deleteDraft_whenThrowsNotFoundException_thenThrow() {
+    void deleteDraft_whenThrowsNotFoundException_thenThrow() throws NotFoundException {
         UUID uuid = UUID.randomUUID();
-        Mockito.when(concreteRepository.deleteDraft(uuid)).thenThrow(NotFoundException.class);
-        Assertions.assertThrows(NotFoundException.class, () -> adaptor.deleteDraft(uuid));
+        Mockito.when(concreteRepository.deleteDraft(uuid)).thenThrow(NotFoundApiException.class);
+        Assertions.assertThrows(NotFoundApiException.class, () -> adaptor.deleteDraft(uuid));
     }
 
     @Test
-    void deleteDraft_whenThrowsServiceException_ThrowsException() {
+    void deleteDraft_whenThrowsException_ThrowsException() throws NotFoundException {
         UUID uuid = UUID.randomUUID();
-        var expectedException = new ServiceException("test");
+        var expectedException = new RuntimeException("test");
         Mockito.when(concreteRepository.deleteDraft(uuid)).thenThrow(expectedException);
 
-        var e = assertThrows(ServiceException.class, () -> adaptor.deleteDraft(uuid));
+        var e = assertThrows(RuntimeException.class, () -> adaptor.deleteDraft(uuid));
         assertEquals(expectedException, e);
+    }
+
+    @Test
+    void readParent() {
+        var clauseEntity = Mockito.mock(ClauseEntity.class);
+        var clause = Mockito.mock(Clause.class);
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(concreteRepository.readParent(uuid)).thenReturn(Optional.of(clauseEntity));
+        Mockito.when(clauseEntityModelMapper.map(clauseEntity)).thenReturn(clause);
+
+        var result = adaptor.readParent(uuid);
+
+        assertEquals(Optional.of(clause), result);
     }
 }
 

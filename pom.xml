@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.6</version>
+		<version>4.1.2</version>
 	</parent>
 	<groupId>dk.kvalitetsit.klausuleret-tilskud-valideringskomponent</groupId>
 	<artifactId>klausuleret-tilskud-valideringskomponent</artifactId>
@@ -87,7 +87,7 @@
 			<dependency>
 				<groupId>io.swagger.core.v3</groupId>
 				<artifactId>swagger-annotations</artifactId>
-				<version>2.2.43</version>
+				<version>3.0.0</version>
 			</dependency>
 
 			<!-- Test dependencies - test containers -->
@@ -134,7 +134,7 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-mysql</artifactId>
-				<version>12.0.3</version>
+				<version>12.5.0</version>
 				<scope>test</scope>
 			</dependency>
 
@@ -149,14 +149,14 @@
 			<dependency>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs</artifactId>
-				<version>4.9.8</version>
+				<version>4.10.5</version>
 				<type>pom</type>
 			</dependency>
 
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>5.3.2</version>
+				<version>5.5.1</version>
 				<scope>test</scope>
 			</dependency>
 
@@ -273,7 +273,7 @@
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>4.9.8.2</version>
+				<version>4.10.5.0</version>
 			</plugin>
 		</plugins>
 	</build>

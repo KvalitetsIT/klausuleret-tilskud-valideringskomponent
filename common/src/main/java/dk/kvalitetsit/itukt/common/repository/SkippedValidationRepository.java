@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.common.repository;
 
 import dk.kvalitetsit.itukt.common.repository.entity.SkippedValidationEntity;
 
+import java.time.Period;
 import java.util.List;
 
 public interface SkippedValidationRepository {
@@ -11,4 +12,5 @@ public interface SkippedValidationRepository {
 
     void copySkippedValidation(long currentClauseId, long newClauseId);
 
+    long deleteOlderThan(Period retentionPeriod);
 }

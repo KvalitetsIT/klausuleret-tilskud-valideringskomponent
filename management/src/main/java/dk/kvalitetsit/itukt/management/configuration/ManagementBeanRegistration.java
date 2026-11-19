@@ -1,11 +1,14 @@
 package dk.kvalitetsit.itukt.management.configuration;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseDrugCounter;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
+import dk.kvalitetsit.itukt.management.boundary.mapping.csv.ClauseDslToCsvMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDslUpdateModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.ClauseDtoDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.DslParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Lexer;
@@ -18,8 +21,13 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.token
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl.ExpressionDtoDslMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.expression2dsl.MapperFactory;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dto.ExpressionDtoModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.DslParserExceptionMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.ExpressionValidationExceptionMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.ManagementExceptionMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.validation.ExpressionValidationErrorMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
 import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCache;
 import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCacheImpl;
@@ -29,6 +37,8 @@ import dk.kvalitetsit.itukt.management.repository.mapping.entity.ExpressionEntit
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ClauseInputModelEntityMapper;
 import dk.kvalitetsit.itukt.management.repository.mapping.model.ExpressionModelEntityMapper;
 import dk.kvalitetsit.itukt.management.service.*;
+import dk.kvalitetsit.itukt.management.service.validator.ExpressionValidator;
+import dk.kvalitetsit.itukt.management.service.validator.ExpressionValidatorFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -90,8 +100,10 @@ public class ManagementBeanRegistration {
             @Autowired ClauseRepositoryAdaptor clauseRepository,
             @Autowired SkippedValidationRepository skippedValidationRepository,
             @Autowired UserContextService userContextService,
-            @Autowired ClauseDrugCounter clauseDrugCounter) {
-        return new ManagementServiceImpl(clauseRepository, skippedValidationRepository, userContextService, clauseDrugCounter);
+            @Autowired ClauseDrugCounter clauseDrugCounter,
+            @Autowired ExpressionValidator<Expression> expressionValidator) {
+        var managementService = new ManagementServiceImpl(clauseRepository, skippedValidationRepository, userContextService, clauseDrugCounter);
+        return new ValidatingManagementService(managementService, expressionValidator);
     }
 
     @Bean
@@ -121,15 +133,34 @@ public class ManagementBeanRegistration {
             @Autowired ManagementService managementService,
             @Autowired MapperFactory mapperFactory,
             @Autowired DslParser dslParser) {
+        var dslParserExceptionMapper = new DslParserExceptionMapper();
+        var expressionDtoModelMapper = new ExpressionDtoModelMapper();
+        var expressionValidationErrorMapper = new ExpressionValidationErrorMapper();
+        var expressionValidationExceptionMapper = new ExpressionValidationExceptionMapper(expressionValidationErrorMapper);
         return new ManagementServiceAdaptor(
                 managementService,
-                new dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper(
+                new ClauseModelDtoMapper(
                         new ExpressionModelDtoMapper()
                 ),
                 new ClauseDslDtoMapper(dslParser),
                 new ClauseDtoDslMapper(new ExpressionDtoDslMapper(mapperFactory)),
-                new ClauseInputDtoModelMapper(new ExpressionDtoModelMapper())
+                new ClauseInputDtoModelMapper(expressionDtoModelMapper),
+                new ManagementExceptionMapper(dslParserExceptionMapper, expressionValidationExceptionMapper),
+                new ClauseDslUpdateModelMapper(dslParser, expressionDtoModelMapper),
+                new ClauseDslToCsvMapper()
         );
     }
 
+    @Bean
+    public ExpressionValidator<Expression> expressionValidator(
+            @Autowired StamdataCacheService<Department.Speciality> departmentSpecialityService,
+            @Autowired StamdataCacheService<Medication.Form> medicationFormService,
+            @Autowired StamdataCacheService<Medication.ATC> medicationATCService,
+            @Autowired StamdataCacheService<Indication> indicationService,
+            @Autowired StamdataCacheService<Medication.Route> medicationRouteService,
+            @Autowired StamdataCacheService<DoctorSpeciality> doctorSpecialityService
+    ) {
+        var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService, medicationFormService, medicationATCService, indicationService, medicationRouteService, doctorSpecialityService);
+        return expressionValidatorFactory.createCombinedExpressionValidator();
+    }
 }

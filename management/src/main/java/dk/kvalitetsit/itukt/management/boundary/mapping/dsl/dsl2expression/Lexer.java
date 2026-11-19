@@ -1,12 +1,16 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
+import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * The {@code Lexer} class is responsible for lexical analysis (tokenization)
@@ -29,10 +33,14 @@ public class Lexer {
     /**
      * Regular expression pattern for matching different kinds of tokens.
      */
+    private static final String IDENTIFIER_PATTERN = Arrays.stream(Identifier.values()).map(Identifier::toString)
+            .collect(Collectors.joining("|"));
     private static final Pattern TOKEN_PATTERNS = Pattern.compile(
             "\\s*(?:(og|eller)|" +                              // keywords
+                    "(" + IDENTIFIER_PATTERN + ")|" +           // identifiers
                     "(>=|<=|=|>|<|\\bi\\b)|" +                  // operators (with word-boundary for "i")
-                    "([a-z0-9_æøåÆØÅ*]+)|" +                    // values
+                    "(\"[a-z0-9_æøåÆØÅ ]+\")|" +                 // string values
+                    "([0-9]+)|" +                               // number values
                     "([,()\\[\\]{}])|" +                        // symbols
                     "(\\S))",                                   // unknown
             Pattern.CASE_INSENSITIVE
@@ -44,25 +52,29 @@ public class Lexer {
      * <p>
      * If an unrecognized token is encountered, it throws a {@code RuntimeException}.
      */
-    private List<Token> tokenize(String input) {
+    private List<Token> tokenize(String input) throws DslParserException {
         Matcher matcher = TOKEN_PATTERNS.matcher(input);
         ArrayList<Token> tokens = new ArrayList<>();
         while (matcher.find()) {
             if (matcher.group(1) != null)
                 tokens.add(new Token(TokenType.KEYWORD, matcher.group(1)));
             else if (matcher.group(2) != null)
-                tokens.add(new Token(TokenType.OPERATOR, matcher.group(2)));
+                tokens.add(new Token(TokenType.IDENTIFIER, matcher.group(2)));
             else if (matcher.group(3) != null)
-                tokens.add(new Token(TokenType.VALUE, matcher.group(3)));
+                tokens.add(new Token(TokenType.OPERATOR, matcher.group(3)));
             else if (matcher.group(4) != null)
-                tokens.add(new Token(TokenType.SYMBOL, matcher.group(4)));
+                tokens.add(new Token(TokenType.VALUE, matcher.group(4).replace("\"", "")));
+            else if (matcher.group(5) != null)
+                tokens.add(new Token(TokenType.VALUE, matcher.group(5)));
+            else if (matcher.group(6) != null)
+                tokens.add(new Token(TokenType.SYMBOL, matcher.group(6)));
             else
-                throw new UnexpectedValueException(matcher.group(5));
+                throw new UnexpectedValueException(matcher.group(7));
         }
         return tokens;
     }
 
-    public TokenIterator getTokens(String input) {
+    public TokenIterator getTokens(String input) throws DslParserException {
         List<Token> tokens = tokenize(input).stream()
                 .map(x -> new Token(x.type(), x.text().toUpperCase())).toList();
         return TokenIterator.fromTokens(tokens);

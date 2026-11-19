@@ -17,10 +17,12 @@ public class ClauseInputModelEntityMapper implements Mapper<ClauseFullInput, Cla
     public ClauseEntityInput map(ClauseFullInput clauseInput) {
         var expressionEntity = expressionMapper.map(clauseInput.expression());
         return new ClauseEntityInput(
-                clauseInput.name(),
+                clauseInput.name().value(),
                 expressionEntity,
                 clauseInput.errorMessage(),
                 clauseInput.status(),
-                clauseInput.createdBy());
+                clauseInput.createdBy(),
+                clauseInput.primaryParentId(),
+                clauseInput.secondaryParentId());
     }
 }

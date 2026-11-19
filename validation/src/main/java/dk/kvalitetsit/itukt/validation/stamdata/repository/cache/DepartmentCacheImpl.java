@@ -2,21 +2,24 @@ package dk.kvalitetsit.itukt.validation.stamdata.repository.cache;
 
 import dk.kvalitetsit.itukt.common.configuration.CacheConfiguration;
 import dk.kvalitetsit.itukt.common.model.Department;
-import dk.kvalitetsit.itukt.common.repository.cache.CacheLoader;
+import dk.kvalitetsit.itukt.common.scheduled.ScheduledJob;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.Repository;
+import org.apache.logging.log4j.util.Strings;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DepartmentCacheImpl implements Cache<Department.Identifier, Department>, CacheLoader {
+public class DepartmentCacheImpl implements Cache<Department.Identifier, Department>, ScheduledJob, StamdataCacheService<Department.Speciality> {
 
     private final CacheConfiguration configuration;
     private final Repository<Department> repository;
 
     private volatile Map<Department.Identifier.SHAK, Department> shakEntries = Map.of();
     private volatile Map<Department.Identifier.SOR, Department> sorEntries = Map.of();
+    private Set<Department.Speciality> specialities = Set.of();
 
     public DepartmentCacheImpl(CacheConfiguration configuration, Repository<Department> repository) {
         this.configuration = configuration;
@@ -38,17 +41,23 @@ public class DepartmentCacheImpl implements Cache<Department.Identifier, Departm
                 ));
     }
 
+    private Set<Department.Speciality> getSpecialities(List<Department> response) {
+        return response.stream().flatMap(d -> d.specialities().stream())
+                .filter(s -> Strings.isNotBlank(s.name()))
+                .collect(Collectors.toSet());
+    }
 
     public String getCron() {
         return configuration.cron();
     }
 
     @Override
-    public void load() {
+    public void run() {
         var response = repository.fetchAll();
 
         sorEntries = toMap(response, Department::sor);
         shakEntries = toMap(response, Department::shak);
+        specialities = getSpecialities(response);
     }
 
     @Override
@@ -59,5 +68,14 @@ public class DepartmentCacheImpl implements Cache<Department.Identifier, Departm
         };
     }
 
+    @Override
+    public Set<Department.Speciality> getAll() {
+        return specialities;
+    }
+
+    @Override
+    public Optional<Department.Speciality> get(String specialityName) {
+        return Optional.of(new Department.Speciality(specialityName)).filter(specialities::contains);
+    }
 
 }

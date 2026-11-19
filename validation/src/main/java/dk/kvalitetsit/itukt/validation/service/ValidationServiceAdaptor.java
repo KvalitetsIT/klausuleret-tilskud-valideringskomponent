@@ -1,8 +1,8 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.Mapper;
-import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
+import dk.kvalitetsit.itukt.validation.service.exceptions.ExistingDrugMedicationRequiredException;
 import org.openapitools.model.*;
 
 import java.util.List;

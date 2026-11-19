@@ -2,6 +2,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.model;
 
 import dk.kvalitetsit.itukt.common.Mapper;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
+import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.Expression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ class ClauseInputDtoModelMapperTest {
 
         var mappedClause = clauseInputDtoModelMapper.map(clauseInput);
 
-        assertEquals(clauseInput.getName(), mappedClause.name(), "Clause name should be mapped directly");
+        assertEquals(new Clause.Name(clauseInput.getName()), mappedClause.name(), "Clause name should be mapped directly");
         assertEquals(expression, mappedClause.expression(), "Mapped expression should be returned from expression mapper");
         assertEquals(clauseInput.getError(), mappedClause.errorMessage(), "Mapped error message should be mapped directly");
     }

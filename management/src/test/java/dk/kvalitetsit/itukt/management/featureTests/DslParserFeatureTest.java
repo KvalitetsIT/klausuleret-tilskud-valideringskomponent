@@ -9,6 +9,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.token
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.MultiValueTokenParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.StructuredValueTokenParser;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.condition.builder.*;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ class DslParserFeatureTest {
     }
 
     @Test
-    void givenTwoValidDslWithAndWithoutParenthesis_whenParse_thenAssertAndHasHigherPrecedence() {
+    void givenTwoValidDslWithAndWithoutParenthesis_whenParse_thenAssertAndHasHigherPrecedence() throws DslParserException {
 
         var expected = new BinaryExpression()
                 .type(ExpressionType.BINARY)
@@ -72,18 +73,20 @@ class DslParserFeatureTest {
                 );
 
         var validDSLs = List.of(
-                "(INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)",
-                "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13",
-                "INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
-                "(((INDIKATION = C10BA03) eller (((INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)))))"
+                "(INDIKATION = \"C10BA03\") eller (INDIKATION i [\"C10BA02\", \"C10BA05\"]) og (ALDER >= 13)",
+                "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13",
+                "INDIKATION = \"C10BA03\" eller (INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13)",
+                "(((INDIKATION = \"C10BA03\") eller (((INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13)))))"
         );
 
-        validDSLs.forEach(dsl -> assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl + " - The AND operator is expected to have higher precedence"));
+        for (String dsl : validDSLs) {
+            assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl + " - The AND operator is expected to have higher precedence");
+        }
     }
 
 
     @Test
-    void givenDeeplyNestedDsl_whenParse_thenCorrectExpressionTree() {
+    void givenDeeplyNestedDsl_whenParse_thenCorrectExpressionTree() throws DslParserException {
         var expected = new BinaryExpression(
                 new BinaryExpression(
                         new BinaryExpression(
@@ -108,17 +111,18 @@ class DslParserFeatureTest {
         );
 
         var subjects = List.of(
-                "((INDIKATION = X eller INDIKATION = Y) og (INDIKATION = Z eller INDIKATION = W)) og (ALDER >= 10)",
-                "((INDIKATION = X eller INDIKATION = Y) og (INDIKATION = Z eller INDIKATION = W)) og ALDER >= 10"
+                "((INDIKATION = \"X\" eller INDIKATION = \"Y\") og (INDIKATION = \"Z\" eller INDIKATION = \"W\")) og (ALDER >= 10)",
+                "((INDIKATION = \"X\" eller INDIKATION = \"Y\") og (INDIKATION = \"Z\" eller INDIKATION = \"W\")) og ALDER >= 10"
         );
 
-
-        subjects.forEach(subject -> assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject));
+        for (String subject : subjects) {
+            assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
+        }
 
     }
 
     @Test
-    void givenDeeplyNestedDsl_whenParse_thenCorrectExpressionTree_2() {
+    void givenDeeplyNestedDsl_whenParse_thenCorrectExpressionTree_2() throws DslParserException {
         var expected = new BinaryExpression(new BinaryExpression(
                 new IndicationCondition("X", ExpressionType.INDICATION),
                 BinaryOperator.OR,
@@ -140,13 +144,13 @@ class DslParserFeatureTest {
                 ),
                 ExpressionType.BINARY
         );
-        var subject = "(INDIKATION = X eller INDIKATION = Y) og ((INDIKATION = Z eller INDIKATION = W) og ALDER >= 10)";
+        var subject = "(INDIKATION = \"X\" eller INDIKATION = \"Y\") og ((INDIKATION = \"Z\" eller INDIKATION = \"W\") og ALDER >= 10)";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
 
     @Test
-    void givenDslWithLists_whenParse_thenExpandListCorrectly() {
+    void givenDslWithLists_whenParse_thenExpandListCorrectly() throws DslParserException {
         var expected = new BinaryExpression(
                 new BinaryExpression(
                         new IndicationCondition("C10BA01", ExpressionType.INDICATION),
@@ -159,15 +163,18 @@ class DslParserFeatureTest {
                 ExpressionType.BINARY
         );
         var validDSLs = List.of(
-                "INDIKATION i [C10BA01, C10BA02, C10BA03]",
-                "(INDIKATION i [C10BA01, C10BA02]) eller INDIKATION = C10BA03",
-                "((INDIKATION i [C10BA01, C10BA02]) eller INDIKATION = C10BA03)"
+                "INDIKATION i [\"C10BA01\", \"C10BA02\", \"C10BA03\"]",
+                "(INDIKATION i [\"C10BA01\", \"C10BA02\"]) eller INDIKATION = \"C10BA03\"",
+                "((INDIKATION i [\"C10BA01\", \"C10BA02\"]) eller INDIKATION = \"C10BA03\")"
         );
-        validDSLs.forEach(dsl -> assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl));
+
+        for (String dsl : validDSLs) {
+            assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl);
+        }
     }
 
     @Test
-    void givenDslWithNumericConditions_whenParse_thenOperatorsParsedCorrectly() {
+    void givenDslWithNumericConditions_whenParse_thenOperatorsParsedCorrectly() throws DslParserException {
         var expected = new BinaryExpression(
                 new AgeCondition(Operator.GREATER_THAN_OR_EQUAL_TO, 18, ExpressionType.AGE),
                 BinaryOperator.AND,
@@ -180,7 +187,7 @@ class DslParserFeatureTest {
 
 
     @Test
-    void givenABinaryExpressionWithTwoNumericConditions_whenParse_thenOperatorsParsedCorrectly() {
+    void givenABinaryExpressionWithTwoNumericConditions_whenParse_thenOperatorsParsedCorrectly() throws DslParserException {
         var expected = new BinaryExpression(
                 new AgeCondition(Operator.GREATER_THAN, 0, ExpressionType.AGE),
                 BinaryOperator.OR,
@@ -192,15 +199,15 @@ class DslParserFeatureTest {
     }
 
     @Test
-    void givenDslWithNumericCondition_whenParse_thenEqualIsParsedCorrectly() {
+    void givenDslWithNumericCondition_whenParse_thenEqualIsParsedCorrectly() throws DslParserException {
         var expected = new AgeCondition(Operator.EQUAL, 42, ExpressionType.AGE);
         var subject = "ALDER = 42";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenDslWithDepartmentSpecialityCondition_whenParse_thenItIsParsedCorrectly() {
-        var subject = "AFDELINGSSPECIALE = test";
+    void givenDslWithDepartmentSpecialityCondition_whenParse_thenItIsParsedCorrectly() throws DslParserException {
+        var subject = "AFDELINGSSPECIALE = \"test\"";
 
         var expression = parser.parse(subject);
 
@@ -209,25 +216,25 @@ class DslParserFeatureTest {
     }
 
     @Test
-    void givenDslWithSpecialityCondition_whenParse_thenItIsParsedCorrectly() {
+    void givenDslWithSpecialityCondition_whenParse_thenItIsParsedCorrectly() throws DslParserException {
         var expected = new DoctorSpecialityCondition("LÆGE", ExpressionType.DOCTOR_SPECIALITY);
-        var subject = "LÆGESPECIALE = læge";
+        var subject = "LÆGESPECIALE = \"læge\"";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenDslWithOrSpecialityCondition_whenParse_thenItIsParsedCorrectly() {
+    void givenDslWithOrSpecialityCondition_whenParse_thenItIsParsedCorrectly() throws DslParserException {
         var expected = new BinaryExpression()
                 .type(ExpressionType.BINARY)
                 .left(new DoctorSpecialityCondition("LÆGE1", ExpressionType.DOCTOR_SPECIALITY))
                 .operator(BinaryOperator.OR)
                 .right(new DoctorSpecialityCondition("LÆGE2", ExpressionType.DOCTOR_SPECIALITY));
-        var subject = "LÆGESPECIALE i [læge1, læge2]";
+        var subject = "LÆGESPECIALE i [\"læge1\", \"læge2\"]";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenDslWithMultipleExistingDrugConditions_whenParse_thenParseDrugCorrectly() {
+    void givenDslWithMultipleExistingDrugConditions_whenParse_thenParseDrugCorrectly() throws DslParserException {
         var expected = new BinaryExpression(
                 new ExistingDrugMedicationCondition("C10B", "TABLET", "ORAL", ExpressionType.EXISTING_DRUG_MEDICATION),
                 BinaryOperator.OR,
@@ -235,19 +242,21 @@ class DslParserFeatureTest {
                 ExpressionType.BINARY
         );
 
-        var subject = "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = tablet, ROUTE = oral}, {ATC = B01AC, FORM = injektion, ROUTE = intravenøs}]";
+        var subject = """
+                EKSISTERENDE_LÆGEMIDDEL i [{ATC = "C10B", FORM = "tablet", ROUTE = "oral"}, {ATC = "B01AC", FORM = "injektion", ROUTE = "intravenøs"}]
+                """;
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenDslWithExistingDrugConditionIncludingWildcards_whenParse_thenParseDrugCorrectly() {
+    void givenDslWithExistingDrugConditionWithOnlyATC_whenParse_thenParseDrugCorrectly() throws DslParserException {
         var expected = new ExistingDrugMedicationCondition("C10B", "*", "*", ExpressionType.EXISTING_DRUG_MEDICATION);
-        var subject = "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}";
+        var subject = "EKSISTERENDE_LÆGEMIDDEL = {ATC = \"C10B\"}";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenDslWithoutParentheses_whenParse_thenAndHasHigherPrecedence() {
+    void givenDslWithoutParentheses_whenParse_thenAndHasHigherPrecedence() throws DslParserException {
         var expected = new BinaryExpression(
                 new IndicationCondition("X", ExpressionType.INDICATION),
                 BinaryOperator.OR,
@@ -259,15 +268,15 @@ class DslParserFeatureTest {
                 ),
                 ExpressionType.BINARY);
 
-        var subject_1 = "INDIKATION = X eller INDIKATION = Y og INDIKATION = Z";
-        var subject_2 = "INDIKATION = X eller (INDIKATION = Y og INDIKATION= Z)";
+        var subject_1 = "INDIKATION = \"X\" eller INDIKATION = \"Y\" og INDIKATION = \"Z\"";
+        var subject_2 = "INDIKATION = \"X\" eller (INDIKATION = \"Y\" og INDIKATION= \"Z\")";
 
         assertEquals(expected, parser.parse(subject_1), "Unexpected mapping of: " + subject_1);
         assertEquals(expected, parser.parse(subject_2), "Unexpected mapping of: " + subject_2);
     }
 
     @Test
-    void givenDslWithParentheses_whenParse_thenParenthesesHaveHigherPrecedence() {
+    void givenDslWithParentheses_whenParse_thenParenthesesHaveHigherPrecedence() throws DslParserException {
         var expected = new BinaryExpression(
                 new BinaryExpression(
                         new IndicationCondition("X", ExpressionType.INDICATION),
@@ -278,12 +287,12 @@ class DslParserFeatureTest {
                 new IndicationCondition("Z", ExpressionType.INDICATION),
                 ExpressionType.BINARY);
 
-        final var subject = "(INDIKATION = X eller INDIKATION = Y) og INDIKATION = Z";
+        final var subject = "(INDIKATION = \"X\" eller INDIKATION = \"Y\") og INDIKATION = \"Z\"";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenDslWithMultipleBinaryOperationsAndAndWhitespace_whenParse_thenParseCorrectly() {
+    void givenDslWithMultipleBinaryOperationsAndAndWhitespace_whenParse_thenParseCorrectly() throws DslParserException {
         var expected = new BinaryExpression(
                 new BinaryExpression(
                         new IndicationCondition("C10BA03", ExpressionType.INDICATION),
@@ -295,12 +304,12 @@ class DslParserFeatureTest {
                 new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                 ExpressionType.BINARY);
 
-        final var subject = "INDIKATION =          C10BA03    OG ALDER >= 13 eLLer ALDER = 10";
+        final var subject = "INDIKATION =          \"C10BA03\"    OG ALDER >= 13 eLLer ALDER = 10";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenDslWithMultipleBinaryOperationsAndAllLowercase_whenParse_thenParseCorrectly() {
+    void givenDslWithMultipleBinaryOperationsAndAllLowercase_whenParse_thenParseCorrectly() throws DslParserException {
         var expected = new BinaryExpression(
                 new BinaryExpression(
                         new IndicationCondition("C10BA03", ExpressionType.INDICATION),
@@ -312,13 +321,13 @@ class DslParserFeatureTest {
                 new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                 ExpressionType.BINARY);
 
-        final var subject = "INDIKATION = c10ba03 og ALDER >= 13 eller ALDER = 10";
+        final var subject = "INDIKATION = \"c10ba03\" og ALDER >= 13 eller ALDER = 10";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
 
     @Test
-    void givenDslWithMultipleBinaryOperationsAndRandomCasing_whenParse_thenParseCorrectly() {
+    void givenDslWithMultipleBinaryOperationsAndRandomCasing_whenParse_thenParseCorrectly() throws DslParserException {
         var expected = new BinaryExpression(
                 new BinaryExpression(
                         new IndicationCondition("C10BA03", ExpressionType.INDICATION),
@@ -330,12 +339,12 @@ class DslParserFeatureTest {
                 new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                 ExpressionType.BINARY);
 
-        final var subject = "indiKaTion = C10BA03 OG ALDER >= 13 ELLER aLder = 10";
+        final var subject = "indiKaTion = \"C10BA03\" OG ALDER >= 13 ELLER aLder = 10";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenDslWithMultipleOrOperations_whenParse_thenParseCorrectly() {
+    void givenDslWithMultipleOrOperations_whenParse_thenParseCorrectly() throws DslParserException {
         var expected = new BinaryExpression(
                 new BinaryExpression(
                         new IndicationCondition("C10BA03", ExpressionType.INDICATION),
@@ -347,12 +356,12 @@ class DslParserFeatureTest {
                 new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),
                 ExpressionType.BINARY);
 
-        final var subject = "INDIKATION = C10BA03 eller ALDER >= 13 eller ALDER = 10";
+        final var subject = "INDIKATION = \"C10BA03\" eller ALDER >= 13 eller ALDER = 10";
         assertEquals(expected, parser.parse(subject), "Unexpected mapping of: " + subject);
     }
 
     @Test
-    void givenSeveralValidDslWithParenthesesPositionedDifferently_whenParse_thenReturnSameClause() {
+    void givenSeveralValidDslWithParenthesesPositionedDifferently_whenParse_thenReturnSameClause() throws DslParserException {
 
         var expected = new BinaryExpression()
                 .type(ExpressionType.BINARY)
@@ -384,19 +393,21 @@ class DslParserFeatureTest {
                 );
 
         var dsls = List.of(
-                "(INDIKATION = C10BA03) eller (INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)",
-                "(INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13))",
-                "((INDIKATION = C10BA03) eller ((INDIKATION i [C10BA02, C10BA05]) og (ALDER >= 13)))",
-                "INDIKATION = C10BA03 eller (INDIKATION i [C10BA02, C10BA05] og ALDER >= 13)",
-                "INDIKATION = C10BA03 eller INDIKATION i [C10BA02, C10BA05] og ALDER >= 13"
+                "(INDIKATION = \"C10BA03\") eller (INDIKATION i [\"C10BA02\", \"C10BA05\"]) og (ALDER >= 13)",
+                "(INDIKATION = \"C10BA03\") eller ((INDIKATION i [\"C10BA02\", \"C10BA05\"]) og (ALDER >= 13))",
+                "((INDIKATION = \"C10BA03\") eller ((INDIKATION i [\"C10BA02\", \"C10BA05\"]) og (ALDER >= 13)))",
+                "INDIKATION = \"C10BA03\" eller (INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13)",
+                "INDIKATION = \"C10BA03\" eller INDIKATION i [\"C10BA02\", \"C10BA05\"] og ALDER >= 13"
         );
 
-        dsls.forEach(dsl -> assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl));
+        for (String dsl : dsls) {
+            assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl);
+        }
     }
 
 
     @Test
-    void givenAnExistingDrugMedicationDsL_whenParse_thenIgnoreOrderOfFields() {
+    void givenAnExistingDrugMedicationDsL_whenParse_thenIgnoreOrderOfFields() throws DslParserException {
         var expected = new BinaryExpression(
                 new ExistingDrugMedicationCondition("C10B", "TABLET", "ORAL", ExpressionType.EXISTING_DRUG_MEDICATION),
                 BinaryOperator.OR,
@@ -406,107 +417,43 @@ class DslParserFeatureTest {
         );
 
         var dsls = List.of(
-                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, FORM = INJEKTION, ROUTE = INTRAVENØS}]",
-                "EKSISTERENDE_LÆGEMIDDEL i [{FORM = TABLET, ATC = C10B, ROUTE = ORAL}, {ROUTE = INTRAVENØS, ATC = B01AC, FORM = INJEKTION}]",
-                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B,FORM = TABLET, ROUTE = ORAL}, {ATC = B01AC, ROUTE = INTRAVENØS, FORM = INJEKTION}]",
-                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = C10B, ROUTE = ORAL, FORM = TABLET}, {ATC = B01AC, ROUTE = INTRAVENØS, FORM = INJEKTION}]"
+                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"B01AC\", FORM = \"INJEKTION\", ROUTE = \"INTRAVENØS\"}]",
+                "EKSISTERENDE_LÆGEMIDDEL i [{FORM = \"TABLET\", ATC = \"C10B\", ROUTE = \"ORAL\"}, {ROUTE = \"INTRAVENØS\", ATC = \"B01AC\", FORM = \"INJEKTION\"}]",
+                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\",FORM = \"TABLET\", ROUTE = \"ORAL\"}, {ATC = \"B01AC\", ROUTE = \"INTRAVENØS\", FORM = \"INJEKTION\"}]",
+                "EKSISTERENDE_LÆGEMIDDEL i [{ATC = \"C10B\", ROUTE = \"ORAL\", FORM = \"TABLET\"}, {ATC = \"B01AC\", ROUTE = \"INTRAVENØS\", FORM = \"INJEKTION\"}]"
         );
 
-        dsls.forEach(dsl -> assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl));
+        for (String dsl : dsls) {
+            assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl);
+        }
     }
 
 
     @Test
-    void givenAnExistingDrugMedicationDsLWithWildcardFields_whenParse_thenMapCorrectly() {
+    void givenAnExistingDrugMedicationDsl_whenParse_thenMapCorrectly() throws DslParserException {
         var cases = Map.of(
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "TABLET",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = *}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "TABLET",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "*",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE = ORAL}",
-                new ExistingDrugMedicationCondition(
-                        "*",
-                        "TABLET",
-                        "ORAL",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                ),
-
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = *, ROUTE = *}",
-                new ExistingDrugMedicationCondition(
-                        "C10B",
-                        "*",
-                        "*",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  ORAL}",
-                new ExistingDrugMedicationCondition(
-                        "*",
-                        "*",
-                        "ORAL",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = TABLET, ROUTE =  *}",
-                new ExistingDrugMedicationCondition(
-                        "*",
-                        "TABLET",
-                        "*",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = *, FORM = *, ROUTE =  *}",
-                new ExistingDrugMedicationCondition(
-                        "*",
-                        "*",
-                        "*",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                )
-        );
-
-        cases.forEach((dsl, expected) -> assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl));
-    }
-
-
-    @Test
-    void givenAnExistingDrugMedicationDsLWithIgnoredFields_whenParse_thenMapCorrectly() {
-        var cases = Map.of(
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET, ROUTE = ORAL}",
-                new ExistingDrugMedicationCondition(
-                        "C10B",
-                        "TABLET",
-                        "ORAL",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, FORM = TABLET}",
-                new ExistingDrugMedicationCondition(
-                        "C10B",
-                        "TABLET",
-                        "*",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B, ROUTE = ORAL}",
-                new ExistingDrugMedicationCondition(
-                        "C10B",
-                        "*",
-                        "ORAL",
-                        ExpressionType.EXISTING_DRUG_MEDICATION
-                ),
-                "EKSISTERENDE_LÆGEMIDDEL = {FORM = TABLET, ROUTE = ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TABLET\", ROUTE = \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "TABLET",
@@ -514,21 +461,21 @@ class DslParserFeatureTest {
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
 
-                "EKSISTERENDE_LÆGEMIDDEL = {ATC = C10B}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\"}",
                 new ExistingDrugMedicationCondition(
                         "C10B",
                         "*",
                         "*",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {ROUTE =  ORAL}",
+                "EKSISTERENDE_LÆGEMIDDEL = {ROUTE =  \"ORAL\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "*",
                         "ORAL",
                         ExpressionType.EXISTING_DRUG_MEDICATION
                 ),
-                "EKSISTERENDE_LÆGEMIDDEL = {FORM = TABLET}",
+                "EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TABLET\"}",
                 new ExistingDrugMedicationCondition(
                         "*",
                         "TABLET",
@@ -537,12 +484,79 @@ class DslParserFeatureTest {
                 )
         );
 
-        cases.forEach((dsl, expected) -> assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl));
+        for (Map.Entry<String, ExistingDrugMedicationCondition> entry : cases.entrySet()) {
+            var dsl = entry.getKey();
+            var expected = entry.getValue();
+            assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl);
+        }
     }
 
 
     @Test
-    void givenADsLWithMultipleMergedAgeConditions_whenParse_thenCorrectlySetOperatorToEquals() {
+    void givenAnExistingDrugMedicationDsLWithIgnoredFields_whenParse_thenMapCorrectly() throws DslParserException {
+        var cases = Map.of(
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\", ROUTE = \"ORAL\"}",
+                new ExistingDrugMedicationCondition(
+                        "C10B",
+                        "TABLET",
+                        "ORAL",
+                        ExpressionType.EXISTING_DRUG_MEDICATION
+                ),
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", FORM = \"TABLET\"}",
+                new ExistingDrugMedicationCondition(
+                        "C10B",
+                        "TABLET",
+                        "*",
+                        ExpressionType.EXISTING_DRUG_MEDICATION
+                ),
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\", ROUTE = \"ORAL\"}",
+                new ExistingDrugMedicationCondition(
+                        "C10B",
+                        "*",
+                        "ORAL",
+                        ExpressionType.EXISTING_DRUG_MEDICATION
+                ),
+                "EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TABLET\", ROUTE = \"ORAL\"}",
+                new ExistingDrugMedicationCondition(
+                        "*",
+                        "TABLET",
+                        "ORAL",
+                        ExpressionType.EXISTING_DRUG_MEDICATION
+                ),
+
+                "EKSISTERENDE_LÆGEMIDDEL = {ATC =\"C10B\"}",
+                new ExistingDrugMedicationCondition(
+                        "C10B",
+                        "*",
+                        "*",
+                        ExpressionType.EXISTING_DRUG_MEDICATION
+                ),
+                "EKSISTERENDE_LÆGEMIDDEL = {ROUTE =  \"ORAL\"}",
+                new ExistingDrugMedicationCondition(
+                        "*",
+                        "*",
+                        "ORAL",
+                        ExpressionType.EXISTING_DRUG_MEDICATION
+                ),
+                "EKSISTERENDE_LÆGEMIDDEL = {FORM = \"TABLET\"}",
+                new ExistingDrugMedicationCondition(
+                        "*",
+                        "TABLET",
+                        "*",
+                        ExpressionType.EXISTING_DRUG_MEDICATION
+                )
+        );
+
+        for (Map.Entry<String, ExistingDrugMedicationCondition> entry : cases.entrySet()) {
+            var dsl = entry.getKey();
+            var expected = entry.getValue();
+            assertEquals(expected, parser.parse(dsl), "Unexpected mapping of: " + dsl);
+        }
+    }
+
+
+    @Test
+    void givenADsLWithMultipleMergedAgeConditions_whenParse_thenCorrectlySetOperatorToEquals() throws DslParserException {
 
         var expected = new BinaryExpression(
                         new BinaryExpression(
@@ -563,7 +577,7 @@ class DslParserFeatureTest {
 
 
     @Test
-    void givenADsLWithMultipleAgeConditionsWithVaryingOperators_whenParse_thenMapCorrectly() {
+    void givenADsLWithMultipleAgeConditionsWithVaryingOperators_whenParse_thenMapCorrectly() throws DslParserException {
 
         var expected = new BinaryExpression(
                         new BinaryExpression(
@@ -584,7 +598,7 @@ class DslParserFeatureTest {
 
 
     @Test
-    void givenADsLWithMultipleAgeConditionsWithVaryingOperators_whenParse_thenHandlePrecedenceCorrectly() {
+    void givenADsLWithMultipleAgeConditionsWithVaryingOperators_whenParse_thenHandlePrecedenceCorrectly() throws DslParserException {
 
         var expected = new BinaryExpression(
                         new BinaryExpression(
@@ -605,7 +619,7 @@ class DslParserFeatureTest {
     }
 
     @Test
-    void givenADsLWithMultipleAgeConditions_whenParse_thenHandlePrecedenceCorrectly() {
+    void givenADsLWithMultipleAgeConditions_whenParse_thenHandlePrecedenceCorrectly() throws DslParserException {
 
         var expected = new BinaryExpression(
                         new BinaryExpression(
@@ -626,7 +640,7 @@ class DslParserFeatureTest {
     }
 
     @Test
-    void givenADsLWithMultipleNonMergedAgeConditions_whenParse_thenMapCorrectly() {
+    void givenADsLWithMultipleNonMergedAgeConditions_whenParse_thenMapCorrectly() throws DslParserException {
 
         var expected = new BinaryExpression(
                         new AgeCondition(Operator.EQUAL, 10, ExpressionType.AGE),

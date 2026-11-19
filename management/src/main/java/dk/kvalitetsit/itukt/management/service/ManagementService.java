@@ -1,30 +1,41 @@
 package dk.kvalitetsit.itukt.management.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.management.exceptions.ManagementException;
 import dk.kvalitetsit.itukt.management.service.model.ClauseInput;
+import dk.kvalitetsit.itukt.management.service.model.ClauseUpdateInput;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ManagementService {
-    Clause create(ClauseInput clause) throws ServiceException;
+    Clause create(ClauseInput clause) throws ManagementException;
 
-    Optional<Clause> read(UUID id) throws ServiceException;
+    default Clause create(ClauseInput clause, boolean skipValidation) throws ManagementException {
+        return create(clause);
+    }
 
-    List<Clause> readByStatus(Clause.Status status) throws ServiceException;
+    Optional<Clause> read(UUID id);
 
-    List<Clause> readHistory(String name) throws ServiceException;
+    List<Clause> readByStatus(Clause.Status status);
 
-    Clause approve(UUID clauseUuid, boolean skipValidation) throws ServiceException;
+    List<Clause> readHistory(UUID uuid);
 
-    Clause inactivate(String name) throws ServiceException;
+    Clause approve(UUID clauseUuid, boolean skipValidation) throws ManagementException;
 
-    Clause activate(String name) throws ServiceException;
+    Clause inactivate(Clause.Name name) throws ManagementException;
 
-    Clause deleteDraft(UUID id);
+    Clause activate(Clause.Name name) throws ManagementException;
 
-    long getNumberOfDrugsForClause(String name) throws ServiceException;
+    Clause deleteDraft(UUID id) throws ManagementException;
+
+    Clause updateDraft(Clause.Name name, ClauseUpdateInput clause) throws ManagementException;
+
+    default Clause updateDraft(Clause.Name name, ClauseUpdateInput clause, boolean skipValidation) throws ManagementException {
+        return updateDraft(name, clause);
+    }
+
+    long getNumberOfDrugsForClause(Clause.Name name);
 }

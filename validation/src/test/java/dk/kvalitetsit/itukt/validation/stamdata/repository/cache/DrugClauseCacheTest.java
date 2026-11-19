@@ -26,7 +26,7 @@ class DrugClauseCacheTest {
         DrugClause data = new DrugClause(new DrugClause.Drug(drugId), Set.of(new DrugClause.Clause("code", "long clause text")));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(data));
         DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
-        stamDataCache.load();
+        stamDataCache.run();
 
         var result = stamDataCache.get(2L);
 
@@ -40,7 +40,7 @@ class DrugClauseCacheTest {
 
         Mockito.when(mock.fetchAll()).thenReturn(List.of(data));
         DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
-        stamDataCache.load();
+        stamDataCache.run();
 
         var result = stamDataCache.get(drugId);
 
@@ -54,7 +54,7 @@ class DrugClauseCacheTest {
         DrugClause data = new DrugClause(new DrugClause.Drug(drugId), Set.of(new DrugClause.Clause("code", "long clause text")));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(data));
         DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
-        stamDataCache.load();
+        stamDataCache.run();
 
         Mockito.verify(mock, Mockito.times(1)).fetchAll();
         var result1 = stamDataCache.get(drugId);
@@ -68,7 +68,7 @@ class DrugClauseCacheTest {
     }
 
     @Test
-    void getNumberOfDrugsForClause_BeforeLoadIsCalled_Returns0() {
+    void getNumberOfDrugsForClause_BeforeRunIsCalled_Returns0() {
         var stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
 
         var result = stamDataCache.getNumberOfDrugsForClause("test");
@@ -81,7 +81,7 @@ class DrugClauseCacheTest {
         var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("code", "")));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(drugClause));
         var stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
-        stamDataCache.load();
+        stamDataCache.run();
 
         var result = stamDataCache.getNumberOfDrugsForClause("non-existing-code");
 
@@ -97,7 +97,7 @@ class DrugClauseCacheTest {
         var drugClause4 = new DrugClause(new DrugClause.Drug(2L), Set.of(clause));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(drugClause1, drugClause2, drugClause3, drugClause4));
         var stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
-        stamDataCache.load();
+        stamDataCache.run();
 
         var result = stamDataCache.getNumberOfDrugsForClause(clause.code());
 

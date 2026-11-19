@@ -1,0 +1,103 @@
+package dk.kvalitetsit.itukt.management.service.validator;
+
+import dk.kvalitetsit.itukt.common.model.AgeConditionExpression;
+import dk.kvalitetsit.itukt.common.model.DepartmentSpecialityConditionExpression;
+import dk.kvalitetsit.itukt.common.model.DoctorSpecialityConditionExpression;
+import dk.kvalitetsit.itukt.common.model.ExistingDrugMedicationConditionExpression;
+import dk.kvalitetsit.itukt.common.model.IndicationConditionExpression;
+import dk.kvalitetsit.itukt.management.service.model.validation.UnknownValueError;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class ConditionExpressionValidatorTest {
+
+    @Mock
+    private ExpressionValidatorFactory expressionValidatorFactory;
+
+    @Mock
+    private ExpressionValidator<DepartmentSpecialityConditionExpression> departmentSpecialityExpressionValidator;
+
+    @Mock
+    private ExpressionValidator<ExistingDrugMedicationConditionExpression> existingDrugMedicationValidator;
+
+    @Mock
+    private ExpressionValidator<IndicationConditionExpression> indicationValidator;
+
+    @Mock
+    private ExpressionValidator<DoctorSpecialityConditionExpression> doctorSpecialityValidator;
+
+    private ConditionExpressionValidator validator;
+
+    @BeforeEach
+    void setUp() {
+        when(expressionValidatorFactory.createDepartmentSpecialityExpressionValidator()).thenReturn(departmentSpecialityExpressionValidator);
+        when(expressionValidatorFactory.createExistingDrugMedicationExpressionValidator()).thenReturn(existingDrugMedicationValidator);
+        when(expressionValidatorFactory.createIndicationExpressionValidator()).thenReturn(indicationValidator);
+        when(expressionValidatorFactory.createDoctorSpecialityExpressionValidator()).thenReturn(doctorSpecialityValidator);
+        validator = new ConditionExpressionValidator(expressionValidatorFactory);
+    }
+
+    @Test
+    void validate_WhenExpressionIsDepartmentSpeciality_DelegatesToDepartmentSpecialityValidator() {
+        var condition = Mockito.mock(DepartmentSpecialityConditionExpression.class);
+        var error = Mockito.mock(UnknownValueError.class);
+        Mockito.when(departmentSpecialityExpressionValidator.validate(condition)).thenReturn(List.of(error));
+
+        var result = validator.validate(condition);
+
+        assertEquals(List.of(error), result);
+    }
+
+    @Test
+    void validate_WhenExpressionIsExistingDrugMedication_DelegatesToExistingDrugMedicationValidator() {
+        var condition = Mockito.mock(ExistingDrugMedicationConditionExpression.class);
+        var error = Mockito.mock(UnknownValueError.class);
+        Mockito.when(existingDrugMedicationValidator.validate(condition)).thenReturn(List.of(error));
+
+        var result = validator.validate(condition);
+
+        assertEquals(List.of(error), result);
+    }
+
+    @Test
+    void validate_WhenExpressionIsIndication_DelegatesToIndicationValidator() {
+        var condition = Mockito.mock(IndicationConditionExpression.class);
+        var error = Mockito.mock(UnknownValueError.class);
+        Mockito.when(indicationValidator.validate(condition)).thenReturn(List.of(error));
+
+        var result = validator.validate(condition);
+
+        assertEquals(List.of(error), result);
+    }
+
+    @Test
+    void validate_WhenExpressionIsDoctorSpeciality_DelegatesToDoctorSpecialityValidator() {
+        var condition = Mockito.mock(DoctorSpecialityConditionExpression.class);
+        var error = Mockito.mock(UnknownValueError.class);
+        Mockito.when(doctorSpecialityValidator.validate(condition)).thenReturn(List.of(error));
+
+        var result = validator.validate(condition);
+
+        assertEquals(List.of(error), result);
+    }
+
+    @Test
+    void validate_WhenExpressionIsNotHandledByValidator_ReturnsNoErrors() {
+        var result = validator.validate(Mockito.mock(AgeConditionExpression.class));
+
+        assertEquals(List.of(), result);
+        verifyNoInteractions(departmentSpecialityExpressionValidator);
+    }
+}
+

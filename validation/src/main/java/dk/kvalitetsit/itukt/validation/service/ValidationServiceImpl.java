@@ -1,20 +1,22 @@
 package dk.kvalitetsit.itukt.validation.service;
 
 
-import dk.kvalitetsit.itukt.common.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.common.model.Clause;
 import dk.kvalitetsit.itukt.common.model.ValidationFailed;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.validation.service.exceptions.ExistingDrugMedicationRequiredException;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 public class ValidationServiceImpl implements ValidationService<ValidationInput, List<ValidationError>> {
-
+    private final Logger logger = LoggerFactory.getLogger(ValidationServiceImpl.class);
     private final ClauseService clauseCache;
     private final Cache<Long, DrugClause> drugClauseCache;
     private final SkippedValidationService skippedValidationService;
@@ -27,6 +29,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
 
     @Override
     public List<ValidationError> validate(ValidationInput validationInput) {
+        logger.debug("Validation input: {}", validationInput);
         createSkippedValidations(validationInput);
 
         Optional<DrugClause> drugClauseByDrugId = drugClauseCache.get(validationInput.drugId());
@@ -44,7 +47,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                 case ValidationFailed.ExistingDrugMedicationRequired ignored ->
                         throw new ExistingDrugMedicationRequiredException();
                 case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(
-                        new ValidationError.Clause(clause.name(), clauseText, clause.error().message()),
+                        new ValidationError.Clause(clause.name().value(), clauseText, clause.error().message()),
                         error.toErrorString(),
                         clause.error().code(),
                         validationInput.elementPath()
@@ -58,7 +61,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     }
 
     private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, DrugClause.Clause clause) {
-        return clauseCache.get(clause.code())
+        return clauseCache.get(new Clause.Name(clause.code()))
                 .flatMap(c -> validateClause(c, clause.text(), validationInput));
     }
 

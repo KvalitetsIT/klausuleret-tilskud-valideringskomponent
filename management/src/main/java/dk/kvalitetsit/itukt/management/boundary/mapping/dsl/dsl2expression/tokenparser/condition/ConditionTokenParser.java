@@ -4,8 +4,9 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.Identifier;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.Token;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.TokenParser;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.openapitools.model.Operator;
 
 import java.util.Arrays;
@@ -26,14 +27,14 @@ public class ConditionTokenParser implements TokenParser<Condition> {
 
     @Override
     public boolean canParse(TokenIterator tokens) {
-        return tokens.nextHasType(TokenType.VALUE) &&
+        return tokens.nextHasType(TokenType.IDENTIFIER) &&
                 Arrays.stream(Identifier.values())
                         .anyMatch(id -> tokens.nextHasText(id.toString()));
     }
 
     @Override
-    public Condition parse(TokenIterator tokens) {
-        Identifier identifier = Identifier.from(tokens.nextWithType(TokenType.VALUE).text());
+    public Condition parse(TokenIterator tokens) throws DslParserException {
+        Identifier identifier = Identifier.from(tokens.nextWithType(TokenType.IDENTIFIER).text());
         Token operator = tokens.nextWithType(TokenType.OPERATOR);
 
         if (multiValueParser.canParse(tokens)) {
@@ -45,13 +46,13 @@ public class ConditionTokenParser implements TokenParser<Condition> {
         }
     }
 
-    private Condition.Value parseSingleValue(TokenIterator tokens) {
+    private Condition.Value parseSingleValue(TokenIterator tokens) throws DslParserException {
         return structuredValueTokenParser.canParse(tokens) ?
                 structuredValueTokenParser.parse(tokens) :
                 new Condition.Value.Simple(tokens.nextWithType(TokenType.VALUE).text());
     }
 
-    private static Condition createMultiValueCondition(Identifier identifier, Token operator, List<Condition.Value> values) {
+    private static Condition createMultiValueCondition(Identifier identifier, Token operator, List<Condition.Value> values) throws DslParserException {
         if (!operator.text().equalsIgnoreCase("i")) {
             throw new UnexpectedValueException(operator.text());
         }

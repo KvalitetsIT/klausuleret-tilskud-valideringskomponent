@@ -1,0 +1,10 @@
+package dk.kvalitetsit.itukt.common.exceptions;
+
+import org.openapitools.model.DetailedError;
+import org.springframework.http.HttpStatus;
+
+public class BadRequestApiException extends ApiException {
+    public BadRequestApiException(String errorText) {
+        super(HttpStatus.BAD_REQUEST, DetailedError.DetailedErrorCodeEnum.ERROR, errorText);
+    }
+}

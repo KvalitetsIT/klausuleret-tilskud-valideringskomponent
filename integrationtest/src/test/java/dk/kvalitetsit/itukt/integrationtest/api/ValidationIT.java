@@ -9,7 +9,8 @@ import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.LaegemiddelRepos
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.PakningRepository;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.SorEntityRepository;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.entity.Pakning;
-import dk.kvalitetsit.itukt.management.repository.ClauseRepository;
+import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
+import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.entity.ClauseEntityInput;
 import dk.kvalitetsit.itukt.management.repository.entity.ExpressionEntity;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
@@ -43,15 +44,10 @@ public class ValidationIT extends BaseTest {
     private static final String VALID_DEPARTMENT_SPECIALITY = "infektionsmedicin";
     private static final String VALID_DOCTOR_SPECIALITY = "ortopædkirurg";
     private static final String VALID_ATC = "ATC123";
-    private static ValidationApi validationApi;
+    private static final ValidationApi validationApi = new ValidationApi(client);
+    private static final ClauseRepositoryImpl clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
 
-    @Override
-    protected void load(ClauseRepository repository) {
-        setupStamdata();
-        setupClauses(repository);
-    }
-
-    private static void setupClauses(ClauseRepository repository) {
+    private static void setupClauses() {
         var ageAndIndication = new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 50),
                 AND,
@@ -69,9 +65,9 @@ public class ValidationIT extends BaseTest {
         var createdByExpression = new ExpressionEntity.StringConditionEntity(Field.DOCTOR_SPECIALITY, VALID_DOCTOR_SPECIALITY);
         ExpressionEntity.BinaryExpressionEntity specialityConditions = new ExpressionEntity.BinaryExpressionEntity(2L, createdByExpression, AND, departmentSpecialityRequirement);
         var expression = new ExpressionEntity.BinaryExpressionEntity(orExpression, AND, specialityConditions);
-        var clauseInput = new ClauseEntityInput(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE, dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, "tester");
+        var clauseInput = new ClauseEntityInput(CLAUSE_NAME, expression, CLAUSE_ERROR_MESSAGE, dk.kvalitetsit.itukt.common.model.Clause.Status.ACTIVE, "tester", null, null);
 
-        repository.create(clauseInput);
+        clauseRepository.create(clauseInput);
     }
 
     private static void setupStamdata() {
@@ -96,8 +92,10 @@ public class ValidationIT extends BaseTest {
     }
 
     @BeforeEach
-    void setup() {
-        validationApi = new ValidationApi(client);
+    void setUp() {
+        setupStamdata();
+        setupClauses();
+        restartService();
     }
 
     @Test
@@ -142,14 +140,14 @@ public class ValidationIT extends BaseTest {
         int age = 50;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(age, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "alder skal være større end 50 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *");
+        assertValidationError(response, "alder skal være større end 50 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123");
     }
 
     @Test
     void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "indikation skal være 313 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123, Formkode = *, Administrationsrutekode = *");
+        assertValidationError(response, "indikation skal være 313 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123");
     }
 
     @Test

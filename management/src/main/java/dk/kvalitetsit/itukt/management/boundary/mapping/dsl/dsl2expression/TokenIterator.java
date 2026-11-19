@@ -1,7 +1,8 @@
 package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression;
 
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.IncompleteDslException;
-import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.exceptions.UnexpectedValueException;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
+import dk.kvalitetsit.itukt.management.exceptions.IncompleteDslException;
+import dk.kvalitetsit.itukt.management.exceptions.UnexpectedValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class TokenIterator {
     /**
      * Returns the next token if it matches the expected type, otherwise throws an exception.
      */
-    public Token nextWithType(TokenType expectedType) {
+    public Token nextWithType(TokenType expectedType) throws DslParserException {
         validateHasNext();
         var token = tokens.pop();
         if (token.type() != expectedType) {
@@ -37,7 +38,7 @@ public class TokenIterator {
     /**
      * Returns the next token if its text matches one of the expected values, otherwise throws an exception.
      */
-    public Token nextWithText(String ... expectedText) {
+    public Token nextWithText(String ... expectedText) throws DslParserException {
         validateHasNext();
         var token = tokens.pop();
         if (Arrays.stream(expectedText).noneMatch(expected -> expected.equalsIgnoreCase(token.text()))) {
@@ -58,13 +59,13 @@ public class TokenIterator {
     /**
      * Expects that there are no more tokens, otherwise throws an exception.
      */
-    public void expectNoMoreTokens() {
+    public void expectNoMoreTokens() throws DslParserException {
         if (!tokens.isEmpty()) {
             throw new UnexpectedValueException(tokens.peek().text());
         }
     }
 
-    private void validateHasNext() {
+    private void validateHasNext() throws DslParserException {
         if (tokens.isEmpty()) {
             throw new IncompleteDslException();
         }

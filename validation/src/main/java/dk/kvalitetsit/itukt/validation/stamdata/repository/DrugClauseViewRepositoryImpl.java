@@ -1,6 +1,5 @@
 package dk.kvalitetsit.itukt.validation.stamdata.repository;
 
-import dk.kvalitetsit.itukt.common.exceptions.ServiceException;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DrugClauseView;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -25,7 +24,7 @@ public class DrugClauseViewRepositoryImpl implements Repository<DrugClauseView> 
     }
 
     @Override
-    public List<DrugClauseView> fetchAll() throws ServiceException {
+    public List<DrugClauseView> fetchAll() {
         try {
             String sql = """
                     SELECT DISTINCT d.DrugId, k.Kode, k.Tekst
@@ -41,7 +40,7 @@ public class DrugClauseViewRepositoryImpl implements Repository<DrugClauseView> 
             return template.query(sql, clauseRowMapper);
 
         } catch (Exception e) {
-            throw new ServiceException("Failed to fetch all StamdataEntities", e);
+            throw new RuntimeException("Failed to fetch all StamdataEntities", e);
         }
     }
 }

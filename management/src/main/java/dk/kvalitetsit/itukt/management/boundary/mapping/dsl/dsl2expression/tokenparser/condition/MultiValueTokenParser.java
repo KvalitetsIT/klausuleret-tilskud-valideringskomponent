@@ -3,6 +3,7 @@ package dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.toke
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenIterator;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.TokenType;
 import dk.kvalitetsit.itukt.management.boundary.mapping.dsl.dsl2expression.tokenparser.TokenParser;
+import dk.kvalitetsit.itukt.management.exceptions.DslParserException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ public class MultiValueTokenParser implements TokenParser<List<Condition.Value>>
     }
 
     @Override
-    public List<Condition.Value> parse(TokenIterator tokens) {
+    public List<Condition.Value> parse(TokenIterator tokens) throws DslParserException {
         tokens.nextWithText("[");
         var values = new ArrayList<Condition.Value>();
         do {

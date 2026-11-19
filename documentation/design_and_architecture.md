@@ -40,7 +40,8 @@ Datamodellen er bygget op omkring klausuler (clauses), der udgør kernen i proje
 Hver klausul indeholder et rekursivt udtryk (expression), som kan tage to former: et binært udtryk (binary_expression) eller en betingelse (string_condition_expression, number_condition_expression, existing_drug_medication_condition_expression).
 
 En klausul oprettes først som kladde, hvorefter den skal godkendes for at blive aktiv.
-For at bevare historiske data er der implementeret en versioneringsmekanisme, hvor hver ændring i en klausul resulterer i en ny version, mens tidligere versioner bevares uændret.
-Den aktive version af en klausul vil her være den med det nyeste tidsstempel i feltet valid_from, som sættes ved godkendelse.
+For at bevare historiske data er der implementeret en versioneringsmekanisme, hvor hver ændring i en klausul resulterer i en ny version, der refererer til den tidligere version (primary_parent).
+Den gældende version af en klausul vil derfor være den der ikke refereres til af andre versioner.
+Ved godkendelse af en kladde, vil den nye version både referere til den tidligere gældende version (primary_parent) og til kladden (secondary_parent).
 
 ![ER-Diagram](./src/main/resources/images/data_model.svg)

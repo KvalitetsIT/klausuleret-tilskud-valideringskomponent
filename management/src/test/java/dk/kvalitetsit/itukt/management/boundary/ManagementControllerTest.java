@@ -200,8 +200,8 @@ class ManagementControllerTest {
 
     @Test
     void management20250801MedicationAtcCodesGet_ReturnsAtcCodesFromService() {
-        var atc1 = new Medication.ATC("A1");
-        var atc2 = new Medication.ATC("A2");
+        var atc1 = new Medication.ATC("A1", "Text A1");
+        var atc2 = new Medication.ATC("A2", "Text A2");
         Mockito.when(medicationATCService.getAll()).thenReturn(Set.of(atc1, atc2));
 
         var response = managementController.management20250801MedicationAtcCodesGet();

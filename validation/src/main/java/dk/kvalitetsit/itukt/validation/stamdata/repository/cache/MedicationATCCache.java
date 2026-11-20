@@ -36,6 +36,8 @@ public class MedicationATCCache implements ScheduledJob, StamdataCacheService<Me
 
     @Override
     public Optional<Medication.ATC> get(String atcCode) {
-        return Optional.of(new Medication.ATC(atcCode)).filter(atcs::contains);
+        return atcs.stream()
+                .filter(atc -> atcCode.equalsIgnoreCase(atc.code()))
+                .findFirst();
     }
 }

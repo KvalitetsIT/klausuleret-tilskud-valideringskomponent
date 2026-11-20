@@ -135,7 +135,7 @@ class ManagementIT extends BaseTest {
     void postClause_WithKnownValues_Succeeds() {
         setupStamdataWithFormCode("TEST", "TEST");
         setupStamdataWithATCCode("TEST", "TEST");
-        setupStamdataWithRouteCode("R0");
+        setupStamdataWithRouteCode("R0", "R0");
         setupStamdataWithDepartmentSpeciality("TEST");
         setupStamdataWithIndicationCode(5, "TEST");
         setupStamdataWithDoctorSpecialities("TEST", "", "");
@@ -561,7 +561,7 @@ class ManagementIT extends BaseTest {
     @Test
     void testGetRouteCodes_ReturnsRouteCodes() {
         String route = "R1";
-        setupStamdataWithRouteCode(route);
+        setupStamdataWithRouteCode(route, "TEST");
         restartService();
 
         var routeCodes = api.management20250801MedicationRouteCodesGet();
@@ -654,9 +654,9 @@ class ManagementIT extends BaseTest {
         indicationRepository.insert(indication, IN_THE_PAST, IN_THE_FUTURE);
     }
 
-    private static void setupStamdataWithRouteCode(String routeCode) {
+    private static void setupStamdataWithRouteCode(String code, String text) {
         var administrationsvejRepository = new AdministrationsvejRepository(stamDatabase.getDatasource());
-        var route = new Medication.Route(routeCode);
+        var route = new Medication.Route(code, text);
         administrationsvejRepository.insert(route, IN_THE_PAST, IN_THE_FUTURE);
     }
 

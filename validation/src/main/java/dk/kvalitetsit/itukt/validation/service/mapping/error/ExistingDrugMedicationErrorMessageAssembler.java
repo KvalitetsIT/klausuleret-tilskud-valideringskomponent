@@ -13,18 +13,26 @@ import java.util.stream.Stream;
 public class ExistingDrugMedicationErrorMessageAssembler implements ErrorMessageAssembler<ValidationError.ExistingDrugMedicationError> {
     private final StamdataCacheService<Medication.ATC> atcCache;
     private final StamdataCacheService<Medication.Form> formCache;
+    private final StamdataCacheService<Medication.Route> routeCache;
 
-    public ExistingDrugMedicationErrorMessageAssembler(StamdataCacheService<Medication.ATC> atcCache, StamdataCacheService<Medication.Form> formCache) {
+    public ExistingDrugMedicationErrorMessageAssembler(
+            StamdataCacheService<Medication.ATC> atcCache,
+            StamdataCacheService<Medication.Form> formCache,
+            StamdataCacheService<Medication.Route> routeCache) {
         this.atcCache = atcCache;
         this.formCache = formCache;
+        this.routeCache = routeCache;
     }
 
     @Override
     public String assemble(ValidationError.ExistingDrugMedicationError error) {
         String requiredValues = Stream.of(
-                        toErrorString("ATC", error.existingDrugMedication().atcCode(), code -> atcCache.get(code).map(Medication.ATC::text)),
-                        toErrorString("Formkode", error.existingDrugMedication().formCode(), code -> formCache.get(code).map(Medication.Form::text)),
-                        toErrorString("Administrationsvejkode", error.existingDrugMedication().routeOfAdministrationCode())
+                        toErrorString("ATC", error.existingDrugMedication().atcCode(),
+                                code -> atcCache.get(code).map(Medication.ATC::text)),
+                        toErrorString("Formkode", error.existingDrugMedication().formCode(),
+                                code -> formCache.get(code).map(Medication.Form::text)),
+                        toErrorString("Administrationsvejkode", error.existingDrugMedication().routeOfAdministrationCode(),
+                                code -> routeCache.get(code).map(Medication.Route::text))
                 )
                 .flatMap(Optional::stream)
                 .collect(Collectors.joining(", "));
@@ -37,10 +45,6 @@ public class ExistingDrugMedicationErrorMessageAssembler implements ErrorMessage
                 .map(mappedValue -> mappedValue
                         .map(mv -> "%s = '%s' (%s)".formatted(key, mv, value))
                         .orElse("%s = '%s'".formatted(key, value)));
-    }
-
-    private Optional<String> toErrorString(String key, String value) {
-        return nonWildcard(value).map(v -> "%s = '%s'".formatted(key, v));
     }
 
     private Optional<String> nonWildcard(String value) {

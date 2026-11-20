@@ -224,8 +224,8 @@ class ManagementControllerTest {
 
     @Test
     void management20250801MedicationRouteCodesGet_ReturnsRouteCodesFromService() {
-        var route1 = new Medication.Route("R1");
-        var route2 = new Medication.Route("R2");
+        var route1 = new Medication.Route("R1", "Text R1");
+        var route2 = new Medication.Route("R2", "Text R2");
         Mockito.when(medicationRouteService.getAll()).thenReturn(Set.of(route1, route2));
 
         var response = managementController.management20250801MedicationRouteCodesGet();

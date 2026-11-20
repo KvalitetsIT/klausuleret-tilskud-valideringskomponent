@@ -22,7 +22,7 @@ public class AdministrationsvejRepository {
 
         var params = Map.of(
                 "code", route.code(),
-                "text", "test",
+                "text", route.text(),
                 "validFrom", validFrom,
                 "validTo", validTo
         );

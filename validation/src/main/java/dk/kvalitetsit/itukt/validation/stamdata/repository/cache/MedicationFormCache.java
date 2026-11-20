@@ -36,6 +36,8 @@ public class MedicationFormCache implements ScheduledJob, StamdataCacheService<M
 
     @Override
     public Optional<Medication.Form> get(String formCode) {
-        return Optional.of(new Medication.Form(formCode)).filter(forms::contains);
+        return forms.stream()
+                .filter(form -> formCode.equalsIgnoreCase(form.code()))
+                .findFirst();
     }
 }

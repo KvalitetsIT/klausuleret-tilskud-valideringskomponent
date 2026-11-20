@@ -259,8 +259,8 @@ class ManagementControllerTest {
 
     @Test
     void management20250801MedicationFormsGet_ReturnsFormsFromService() {
-        var form1 = new Medication.Form("F1");
-        var form2 = new Medication.Form("F2");
+        var form1 = new Medication.Form("F1", "Text F1");
+        var form2 = new Medication.Form("F2", "Text F2");
         Mockito.when(medicationFormService.getAll()).thenReturn(Set.of(form1, form2));
 
         var response = managementController.management20250801MedicationFormCodesGet();

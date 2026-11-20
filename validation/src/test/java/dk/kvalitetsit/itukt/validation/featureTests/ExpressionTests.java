@@ -1,6 +1,9 @@
-package dk.kvalitetsit.itukt.common.model.featureTests;
+package dk.kvalitetsit.itukt.validation.featureTests;
 
 import dk.kvalitetsit.itukt.common.model.*;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.CombinedErrorMessageAssembler;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssemblerFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,9 +25,11 @@ public class ExpressionTests {
             List.of(new ExistingDrugMedication(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode));
     final ValidationInput validationInputWithHistory =
             new ValidationInput("", new ValidationInput.Actor("speciale"), empty(), List.of(), inputAge, 0, inputIndication, Optional.of(existingMedications), "path");
+    final ErrorMessageAssemblerFactory assemblerFactory = new ErrorMessageAssemblerFactory();
+    final ErrorMessageAssembler<ValidationError> errorMessageAssembler = new CombinedErrorMessageAssembler(assemblerFactory);
 
-    static void assertErrorMessage(String v, Optional<ValidationFailed> o) {
-        assertEquals(Optional.of(v), o.map(failed -> assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed).toErrorString()));
+    void assertErrorMessage(String v, Optional<ValidationFailed> o) {
+        assertEquals(Optional.of(v), o.map(failed -> errorMessageAssembler.assemble(assertInstanceOf(dk.kvalitetsit.itukt.common.model.ValidationError.class, failed))));
     }
 
     @Test

@@ -22,7 +22,7 @@ public class ActorDtoModelMapper implements Mapper<Actor, ValidationInput.Actor>
         Optional<Department> department = actor.getDepartmentIdentifier()
                 .map(this::map)
                 .map(this::getDepartment);
-        return new ValidationInput.Actor(actor.getIdentifier(), actor.getSpecialityCode(), department);
+        return new ValidationInput.Actor(actor.getIdentifier(), actor.getSpecialityCodes(), department);
     }
 
     private Department getDepartment(Department.Identifier id) {

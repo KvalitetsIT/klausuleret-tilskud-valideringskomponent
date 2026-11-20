@@ -131,11 +131,11 @@ curl -X 'POST' \
       "elementPath": "CreateDrugMedicationRequest.DrugMedication[2]",
       "newDrugMedication": {
         "createdBy": {
-          "specialityCode": "PSYK",
+          "specialityCodes": ["PSYK"],
           "organisationSpeciality": "psykiatri"
         },
         "reportedBy": {
-          "specialityCode": "PSYK",
+          "specialityCodes": ["PSYK"],
           "organisationSpeciality": "psykiatri"
         },
         "createdDateTime": "2025-06-13T14:24:03+02:00",

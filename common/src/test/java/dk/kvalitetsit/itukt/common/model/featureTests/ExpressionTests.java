@@ -17,7 +17,7 @@ public class ExpressionTests {
             inputAtcCode = "atcCode",
             inputFormCode = "formCode",
             inputRouteOfAdministrationCode = "routeOfAdministrationCode";
-    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.Actor("", Optional.of("speciale"), Optional.empty()), Optional.of(new ValidationInput.Actor("", Optional.of("reported by speciale"), Optional.empty())), List.of(), inputAge, 0, inputIndication, empty(), "path");
+    final ValidationInput validationInput = new ValidationInput("", new ValidationInput.Actor("", List.of("speciale"), Optional.empty()), Optional.of(new ValidationInput.Actor("", List.of("reported by speciale"), Optional.empty())), List.of(), inputAge, 0, inputIndication, empty(), "path");
     final List<ExistingDrugMedication> existingMedications =
             List.of(new ExistingDrugMedication(inputAtcCode, inputFormCode, inputRouteOfAdministrationCode));
     final ValidationInput validationInputWithHistory =

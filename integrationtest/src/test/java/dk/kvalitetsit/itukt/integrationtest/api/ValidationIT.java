@@ -153,8 +153,8 @@ public class ValidationIT extends BaseTest {
         var request = createValidationRequest(VALID_AGE, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response,
-                "indikation skal være '%s' (%s) eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123"
-                        .formatted(VALID_INDICATION.text(), VALID_INDICATION.code()));
+                "indikation skal være '%s' eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123"
+                        .formatted(VALID_INDICATION.text()));
     }
 
     @Test

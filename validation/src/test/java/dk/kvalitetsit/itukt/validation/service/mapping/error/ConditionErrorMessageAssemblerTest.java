@@ -77,6 +77,6 @@ class ConditionErrorMessageAssemblerTest {
 
         String errorString = assembler.assemble(conditionError);
 
-        assertEquals("indikation skal være '%s' (%s)".formatted(indication.text(), indicationCode), errorString);
+        assertEquals("indikation skal være '%s'".formatted(indication.text()), errorString);
     }
 }

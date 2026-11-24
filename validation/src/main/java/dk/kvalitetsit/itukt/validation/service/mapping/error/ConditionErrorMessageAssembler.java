@@ -49,9 +49,6 @@ public class ConditionErrorMessageAssembler implements ErrorMessageAssembler<Val
             case INDICATION -> indicationCache.get(value).map(Indication::text);
             default -> Optional.empty();
         };
-
-        return mappedValue
-                .map(mv -> "'%s' (%s)".formatted(mv, value))
-                .orElse("'%s'".formatted(value));
+        return "'%s'".formatted(mappedValue.orElse(value));
     }
 }

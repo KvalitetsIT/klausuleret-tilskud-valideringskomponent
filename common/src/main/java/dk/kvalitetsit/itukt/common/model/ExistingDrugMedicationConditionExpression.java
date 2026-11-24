@@ -33,12 +33,16 @@ public record ExistingDrugMedicationConditionExpression(ExistingDrugMedication e
     }
 
     private boolean itemMatches(ExistingDrugMedication value) {
-        return valueMatchesCondition(value.atcCode(), this.existingDrugMedication.atcCode()) &&
+        return atcMatches(value.atcCode(), this.existingDrugMedication.atcCode()) &&
                 valueMatchesCondition(value.formCode(), this.existingDrugMedication.formCode()) &&
                 valueMatchesCondition(value.routeOfAdministrationCode(), this.existingDrugMedication.routeOfAdministrationCode());
     }
 
     private boolean valueMatchesCondition(String value, String condition) {
         return condition.equalsIgnoreCase(value) || condition.equals(WILDCARD);
+    }
+
+    private boolean atcMatches(String atcCode, String requiredAtcCode) {
+        return atcCode.toLowerCase().startsWith(requiredAtcCode.toLowerCase()) || requiredAtcCode.equals(WILDCARD);
     }
 }

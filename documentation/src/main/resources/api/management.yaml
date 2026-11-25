@@ -207,8 +207,6 @@ paths:
         '400':
           $ref: '#/components/responses/400'
 
-
-
   /management/2025/08/01/clauses/drafts/{id}/status:
     put:
       tags:
@@ -338,11 +336,11 @@ paths:
                 items:
                   type: string
 
-  /management/2025/08/01/indication-codes:
+  /management/2025/08/01/indications:
     get:
       tags:
         - management
-      description: "Retrieves all valid indication codes"
+      description: "Retrieves all valid indications"
       responses:
         '200':
           description: Ok
@@ -352,8 +350,7 @@ paths:
                 type: array
                 uniqueItems: true
                 items:
-                  type: integer
-                  format: int64
+                  $ref: '#/components/schemas/Indication'
 
   /management/2025/08/01/doctor-specialities:
     get:
@@ -751,3 +748,16 @@ components:
       type: integer
       format: int64
       description: "The number of drugs associated with a clause"
+
+    Indication:
+      type: object
+      required:
+        - code
+        - text
+      properties:
+        code:
+          type: integer
+          format: int64
+        text:
+          type: string
+          example: "mod kalkmangel"

@@ -4,7 +4,6 @@ package dk.kvalitetsit.itukt.management.boundary;
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
-import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
@@ -211,14 +210,15 @@ class ManagementControllerTest {
     }
 
     @Test
-    void management20250801IndicationCodesGet_ReturnsIndicationCodesFromService() {
-        var indication1 = new Indication(1, "text1");
-        var indication2 = new Indication(2, "text2");
-        Mockito.when(indicationService.getAll()).thenReturn(Set.of(indication1, indication2));
+    void management20250801IndicationsGet_ReturnsIndicationsFromService() {
+        Set<Indication> indications = Set.of(
+                new Indication(1L, "text1"),
+                new Indication(2L, "text2"));
+        Mockito.when(indicationService.getAll()).thenReturn(indications);
 
-        var response = managementController.management20250801IndicationCodesGet();
+        var response = managementController.management20250801IndicationsGet();
 
-        assertEquals(Set.of(indication1.code(), indication2.code()), response.getBody());
+        assertEquals(indications, response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 

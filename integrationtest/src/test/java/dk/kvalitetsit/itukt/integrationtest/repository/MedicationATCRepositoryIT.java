@@ -37,10 +37,10 @@ public class MedicationATCRepositoryIT extends BaseTest {
 
     @Test
     void fetchAll_WithBothValidAndInvalidATCInDB_ReturnsValidATC() {
-        var valid1 = new Medication.ATC("VALID1");
-        var valid2 = new Medication.ATC("VALID2");
-        var invalid1 = new Medication.ATC("INVALID1");
-        var invalid2 = new Medication.ATC("INVALID2");
+        var valid1 = new Medication.ATC("VALID1", "valid 1");
+        var valid2 = new Medication.ATC("VALID2", "valid 2");
+        var invalid1 = new Medication.ATC("INVALID1", "invalid 1");
+        var invalid2 = new Medication.ATC("INVALID2", "invalid 2");
         atcRepository.insert(valid1, inThePast, inTheFuture);
         atcRepository.insert(valid2, inThePast, inTheFuture);
         atcRepository.insert(invalid1, inThePast, inThePast);

@@ -22,7 +22,7 @@ public class ATCRepository {
 
         var params = Map.of(
                 "atc", atc.code(),
-                "tekst", "test",
+                "tekst", atc.text(),
                 "validFrom", validFrom,
                 "validTo", validTo
         );

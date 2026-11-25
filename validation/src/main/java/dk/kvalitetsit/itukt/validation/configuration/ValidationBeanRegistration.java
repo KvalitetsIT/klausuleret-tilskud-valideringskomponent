@@ -2,14 +2,21 @@ package dk.kvalitetsit.itukt.validation.configuration;
 
 import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.model.Indication;
+import dk.kvalitetsit.itukt.common.model.Medication;
+import dk.kvalitetsit.itukt.common.model.ValidationError;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
+import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.validation.mapping.ActorDtoModelMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ErrorMapper;
 import dk.kvalitetsit.itukt.validation.mapping.ValidationRequestInputMapper;
 import dk.kvalitetsit.itukt.validation.repository.SkippedValidationRepositoryImpl;
 import dk.kvalitetsit.itukt.validation.scheduled.SkippedValidationCleanupJob;
 import dk.kvalitetsit.itukt.validation.service.*;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.CombinedErrorMessageAssembler;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssemblerFactory;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
@@ -121,12 +128,14 @@ public class ValidationBeanRegistration {
             @Autowired ClauseService clauseService,
             @Autowired Cache<Long, DrugClause> drugClauseCache,
             @Autowired SkippedValidationService skippedValidationService,
-            @Autowired Cache<Department.Identifier, Department> departmentCache
+            @Autowired Cache<Department.Identifier, Department> departmentCache,
+            @Autowired ErrorMessageAssembler<ValidationError> errorMessageAssembler
     ) {
         var validationService = new ValidationServiceImpl(
                 clauseService,
                 drugClauseCache,
-                skippedValidationService
+                skippedValidationService,
+                errorMessageAssembler
         );
         return new ValidationServiceAdaptor(
                 new ErrorLoggingValidationService(validationService),
@@ -140,5 +149,13 @@ public class ValidationBeanRegistration {
             @Autowired SkippedValidationRepository skippedValidationRepository
     ) {
         return new SkippedValidationCleanupJob(configuration.skippedValidation().cleanupJob(), skippedValidationRepository);
+    }
+
+    @Bean
+    public ErrorMessageAssembler<ValidationError> validationErrorAssembler(
+            @Autowired StamdataCacheService<Indication> indicationCache,
+            @Autowired StamdataCacheService<Medication.ATC> atcCache) {
+        var assemblerFactory = new ErrorMessageAssemblerFactory(indicationCache, atcCache);
+        return new CombinedErrorMessageAssembler(assemblerFactory);
     }
 }

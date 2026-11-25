@@ -1,13 +1,10 @@
 package dk.kvalitetsit.itukt.integrationtest.api;
 
+import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.model.BinaryExpression;
-import dk.kvalitetsit.itukt.common.model.Field;
 import dk.kvalitetsit.itukt.common.model.Operator;
 import dk.kvalitetsit.itukt.integrationtest.BaseTest;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.KlausuleringRepository;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.LaegemiddelRepository;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.PakningRepository;
-import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.SorEntityRepository;
+import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.*;
 import dk.kvalitetsit.itukt.integrationtest.repository.stamdata.entity.Pakning;
 import dk.kvalitetsit.itukt.management.repository.ClauseRepositoryImpl;
 import dk.kvalitetsit.itukt.management.repository.ExpressionRepositoryImpl;
@@ -19,6 +16,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.api.ValidationApi;
 import org.openapitools.client.model.*;
+import org.openapitools.client.model.Clause;
+import org.openapitools.client.model.ValidationError;
+import org.openapitools.client.model.ValidationFailed;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -38,12 +38,15 @@ public class ValidationIT extends BaseTest {
     private static final String ELEMENT_PATH = "path";
 
     private static final int VALID_AGE = 51;
-    private static final String VALID_INDICATION = "313", INVALID_INDICATION = "390";
+    private static final Indication VALID_INDICATION = new Indication(313, "Valid indication");
+    private static final Indication INVALID_INDICATION = new Indication(390, "Invalid indication");
     private static final String VALID_DEPARTMENT_SOR = "1111";
     private static final String INVALID_DEPARTMENT_SOR = "2222";
     private static final String VALID_DEPARTMENT_SPECIALITY = "infektionsmedicin";
     private static final String VALID_DOCTOR_SPECIALITY = "ortopædkirurg";
-    private static final String VALID_ATC = "ATC123";
+    private static final Medication.ATC VALID_ATC = new Medication.ATC("ATC123", "Valid ATC");
+    private static final Date IN_THE_PAST = Date.from(Instant.now().minusSeconds(1));
+    private static final Date IN_THE_FUTURE = Date.from(Instant.now().plusSeconds(1000));
     private static final ValidationApi validationApi = new ValidationApi(client);
     private static final ClauseRepositoryImpl clauseRepository = new ClauseRepositoryImpl(appDatabase.getDatasource(), new ExpressionRepositoryImpl(appDatabase.getDatasource()));
 
@@ -51,11 +54,11 @@ public class ValidationIT extends BaseTest {
         var ageAndIndication = new ExpressionEntity.BinaryExpressionEntity(
                 new ExpressionEntity.NumberConditionEntity(Field.AGE, Operator.GREATER_THAN, 50),
                 AND,
-                new ExpressionEntity.StringConditionEntity(Field.INDICATION, VALID_INDICATION));
+                new ExpressionEntity.StringConditionEntity(Field.INDICATION, VALID_INDICATION.code() + ""));
 
         var departmentSpecialityRequirement = new ExpressionEntity.StringConditionEntity(Field.DEPARTMENT_SPECIALITY, VALID_DEPARTMENT_SPECIALITY);
 
-        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, VALID_ATC, "*", "*");
+        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, VALID_ATC.code(), "*", "*");
         var orExpression = new ExpressionEntity.BinaryExpressionEntity(
                 ageAndIndication,
                 BinaryExpression.Operator.OR,
@@ -77,23 +80,33 @@ public class ValidationIT extends BaseTest {
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
         var sorEntityRepository = new SorEntityRepository(stamdataDatasource);
 
-        var inThePast = Date.from(Instant.now().minusSeconds(1));
-        var inTheFuture = Date.from(Instant.now().plusSeconds(1000));
         var laegemiddel = new DrugClauseView.Laegemiddel(DRUG_ID);
         var pakning = new Pakning(laegemiddel.DrugId(), CLAUSE_NAME, 1L);
         var klausulering = new DrugClauseView.Klausulering(CLAUSE_NAME, CLAUSE_TEXT);
-        laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
-        pakningRepository.insert(pakning, inThePast, inTheFuture);
-        klausuleringRepository.insert(klausulering, inThePast, inTheFuture);
+        laegemiddelRepository.insert(laegemiddel, IN_THE_PAST, IN_THE_FUTURE);
+        pakningRepository.insert(pakning, IN_THE_PAST, IN_THE_FUTURE);
+        klausuleringRepository.insert(klausulering, IN_THE_PAST, IN_THE_FUTURE);
         var sorEntity1 = new DepartmentEntity(VALID_DEPARTMENT_SOR, null, VALID_DEPARTMENT_SPECIALITY, null, null, null, null, null, null, null);
         var sorEntity2 = new DepartmentEntity(INVALID_DEPARTMENT_SOR, null, null, null, null, null, "some other speciality", null, null, null);
-        sorEntityRepository.insert(sorEntity1, inThePast, inTheFuture, inThePast, inTheFuture);
-        sorEntityRepository.insert(sorEntity2, inThePast, inTheFuture, inThePast, inTheFuture);
+        sorEntityRepository.insert(sorEntity1, IN_THE_PAST, IN_THE_FUTURE, IN_THE_PAST, IN_THE_FUTURE);
+        sorEntityRepository.insert(sorEntity2, IN_THE_PAST, IN_THE_FUTURE, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithIndication() {
+        var indicationRepository = new IndikationRepository(stamDatabase.getDatasource());
+        indicationRepository.insert(VALID_INDICATION, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
+    private static void setupStamdataWithAtc() {
+        var atcRepository = new ATCRepository(stamDatabase.getDatasource());
+        atcRepository.insert(VALID_ATC, IN_THE_PAST, IN_THE_FUTURE);
     }
 
     @BeforeEach
     void setUp() {
         setupStamdata();
+        setupStamdataWithIndication();
+        setupStamdataWithAtc();
         setupClauses();
         restartService();
     }
@@ -125,7 +138,7 @@ public class ValidationIT extends BaseTest {
         int age = 1;  // Hardcoded clause in cache requires age > 50
         var existingDrugMedication = new ExistingDrugMedicationInput()
                 .drugIdentifier(0L)
-                .atcCode(VALID_ATC)
+                .atcCode(VALID_ATC.code())
                 .formCode("anything") // Hardcoded clause has wildcard for form
                 .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
         var request = createValidationRequest(age, VALID_INDICATION, List.of(existingDrugMedication), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
@@ -140,21 +153,24 @@ public class ValidationIT extends BaseTest {
         int age = 50;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(age, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "alder skal være større end 50 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123");
+        assertValidationError(response, "alder skal være større end '50' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s)"
+                .formatted(VALID_ATC.text(), VALID_ATC.code()));
     }
 
     @Test
     void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsIndicationValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "indikation skal være 313 eller tidligere medicinsk behandling med følgende påkrævet: ATC = ATC123");
+        assertValidationError(response,
+                "indikation skal være '%s' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s)"
+                        .formatted(VALID_INDICATION.text(), VALID_ATC.text(), VALID_ATC.code()));
     }
 
     @Test
     void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsDoctorSpecialityValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), "invalid speciale", VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "lægespeciale skal være " + VALID_DOCTOR_SPECIALITY);
+        assertValidationError(response, "lægespeciale skal være '" + VALID_DOCTOR_SPECIALITY + "'");
     }
 
     @Test
@@ -190,7 +206,7 @@ public class ValidationIT extends BaseTest {
     void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsDepartmentSpecialityValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, INVALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "afdelingens speciale skal være " + VALID_DEPARTMENT_SPECIALITY);
+        assertValidationError(response, "afdelingens speciale skal være '" + VALID_DEPARTMENT_SPECIALITY + "'");
     }
 
     private static void assertValidationError(ValidationResponse response, String expectedErrorMessage) {
@@ -208,11 +224,11 @@ public class ValidationIT extends BaseTest {
         assertEquals(expectedValidationError, validationError);
     }
 
-    private ValidationRequest createValidationRequest(int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality, String departmentSorId) {
+    private ValidationRequest createValidationRequest(int age, Indication indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality, String departmentSorId) {
         return createValidationRequest(age, indication, existingDrugMedication, doctorSpeciality, "", departmentSorId);
     }
 
-    private ValidationRequest createValidationRequest(int age, String indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
+    private ValidationRequest createValidationRequest(int age, Indication indication, List<ExistingDrugMedicationInput> existingDrugMedication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
         Validate validate = createValidateElement(indication, doctorSpeciality, reportedByDoctorSpeciality, departmentSorId);
         return new ValidationRequest()
                 .age(age)
@@ -221,7 +237,7 @@ public class ValidationIT extends BaseTest {
                 .existingDrugMedications(existingDrugMedication);
     }
 
-    private Validate createValidateElement(String indication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
+    private Validate createValidateElement(Indication indication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
         NewDrugMedication newDrugMedication = createNewDrugMedication(indication, doctorSpeciality, reportedByDoctorSpeciality, departmentSorId);
         return new Validate()
                 .action(Validate.ActionEnum.CREATE_DRUG_MEDICATION)
@@ -229,10 +245,10 @@ public class ValidationIT extends BaseTest {
                 .newDrugMedication(newDrugMedication);
     }
 
-    private NewDrugMedication createNewDrugMedication(String indication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
+    private NewDrugMedication createNewDrugMedication(Indication indication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
         return new NewDrugMedication()
                 .drugIdentifier(DRUG_ID)
-                .indicationCode(indication)
+                .indicationCode(indication.code() + "")
                 .createdBy(createActor(doctorSpeciality, departmentSorId))
                 .reportedBy(createActor(reportedByDoctorSpeciality, departmentSorId))
                 .createdDateTime(OffsetDateTime.now());

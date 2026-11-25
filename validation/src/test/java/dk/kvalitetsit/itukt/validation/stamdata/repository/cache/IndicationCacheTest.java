@@ -34,9 +34,9 @@ class IndicationCacheTest {
 
     @Test
     void getAll_AfterRun_ReturnsDistinctIndications() {
-        var indication1 = new Indication(1);
-        var indication2 = new Indication(2);
-        var indication3 = new Indication(2);
+        var indication1 = new Indication(1, "text1");
+        var indication2 = new Indication(2, "text2");
+        var indication3 = new Indication(2, "text2");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(indication1, indication2, indication3));
 
@@ -49,8 +49,8 @@ class IndicationCacheTest {
 
     @Test
     void get_NotMatchingIndicationFromLoad_ReturnsEmpty() {
-        var indication1 = new Indication(1);
-        var indication2 = new Indication(2);
+        var indication1 = new Indication(1, "text1");
+        var indication2 = new Indication(2, "text2");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(indication1, indication2));
 
@@ -62,8 +62,8 @@ class IndicationCacheTest {
 
     @Test
     void get_MatchingIndicationFromLoad_ReturnsIndication() {
-        var indication1 = new Indication(1);
-        var indication2 = new Indication(2);
+        var indication1 = new Indication(1, "text1");
+        var indication2 = new Indication(2, "text2");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(indication1, indication2));
 

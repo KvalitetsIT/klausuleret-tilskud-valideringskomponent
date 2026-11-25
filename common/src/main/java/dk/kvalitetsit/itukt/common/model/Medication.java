@@ -1,6 +1,9 @@
 package dk.kvalitetsit.itukt.common.model;
 
-public record Medication() {
+public final class Medication {
+    private Medication() {
+    }
+
     public record Form(String code, String text) {
         public Form(String code, String text) {
             this.code = code.toUpperCase();

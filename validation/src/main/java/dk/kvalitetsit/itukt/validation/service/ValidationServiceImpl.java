@@ -6,7 +6,7 @@ import dk.kvalitetsit.itukt.common.model.ValidationFailed;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.service.exceptions.ExistingDrugMedicationRequiredException;
-import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.PrefixedErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
@@ -21,9 +21,9 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     private final ClauseService clauseCache;
     private final Cache<Long, DrugClause> drugClauseCache;
     private final SkippedValidationService skippedValidationService;
-    private final ErrorMessageAssembler<dk.kvalitetsit.itukt.common.model.ValidationError> errorMessageAssembler;
+    private final PrefixedErrorMessageAssembler errorMessageAssembler;
 
-    public ValidationServiceImpl(ClauseService clauseCache, Cache<Long, DrugClause> drugClauseCache, SkippedValidationService skippedValidationService, ErrorMessageAssembler<dk.kvalitetsit.itukt.common.model.ValidationError> errorMessageAssembler) {
+    public ValidationServiceImpl(ClauseService clauseCache, Cache<Long, DrugClause> drugClauseCache, SkippedValidationService skippedValidationService, PrefixedErrorMessageAssembler errorMessageAssembler) {
         this.clauseCache = clauseCache;
         this.drugClauseCache = drugClauseCache;
         this.skippedValidationService = skippedValidationService;
@@ -38,11 +38,11 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
         Optional<DrugClause> drugClauseByDrugId = drugClauseCache.get(validationInput.drugId());
 
         return drugClauseByDrugId.map(stamData -> stamData.clauses().stream()
-                .flatMap(sc -> validateStamDataClause(validationInput, sc).stream())
+                .flatMap(sc -> validateStamDataClause(stamData.drug().name(), validationInput, sc).stream())
                 .toList()).orElseGet(List::of);
     }
 
-    private Optional<ValidationError> validateClause(Clause clause, String clauseText, ValidationInput validationInput) {
+    private Optional<ValidationError> validateClause(String drugName, Clause clause, String clauseText, ValidationInput validationInput) {
         if (shouldSkipClause(clause, validationInput))
             return Optional.empty();
         else
@@ -51,7 +51,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                         throw new ExistingDrugMedicationRequiredException();
                 case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(
                         new ValidationError.Clause(clause.name().value(), clauseText, clause.error().message()),
-                        errorMessageAssembler.assemble(error),
+                        errorMessageAssembler.assemble(error, drugName),
                         clause.error().code(),
                         validationInput.elementPath()
                 );
@@ -63,9 +63,9 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
         validationInput.reportedBy().ifPresent(reportedBy -> skippedValidationService.createSkippedValidations(reportedBy.id(), validationInput.personId(), validationInput.skippedErrorCodes()));
     }
 
-    private Optional<ValidationError> validateStamDataClause(ValidationInput validationInput, DrugClause.Clause clause) {
+    private Optional<ValidationError> validateStamDataClause(String drugName, ValidationInput validationInput, DrugClause.Clause clause) {
         return clauseCache.get(new Clause.Name(clause.code()))
-                .flatMap(c -> validateClause(c, clause.text(), validationInput));
+                .flatMap(c -> validateClause(drugName, c, clause.text(), validationInput));
     }
 
     private boolean shouldSkipClause(Clause clause, ValidationInput validationInput) {

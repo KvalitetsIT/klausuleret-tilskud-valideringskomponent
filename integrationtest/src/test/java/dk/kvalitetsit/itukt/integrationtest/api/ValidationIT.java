@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ValidationIT extends BaseTest {
 
-    private static final long DRUG_ID = 1234L;
+    private static final DrugClauseView.Laegemiddel DRUG = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
     private static final String CLAUSE_NAME = "TEST";
     private static final String CLAUSE_TEXT = "Test clause";
     private static final String CLAUSE_ERROR_MESSAGE = "message";
@@ -82,10 +82,9 @@ public class ValidationIT extends BaseTest {
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
         var sorEntityRepository = new SorEntityRepository(stamdataDatasource);
 
-        var laegemiddel = new DrugClauseView.Laegemiddel(DRUG_ID, "TestDrug");
-        var pakning = new Pakning(laegemiddel.DrugId(), CLAUSE_NAME, 1L);
+        var pakning = new Pakning(DRUG.DrugId(), CLAUSE_NAME, 1L);
         var klausulering = new DrugClauseView.Klausulering(CLAUSE_NAME, CLAUSE_TEXT);
-        laegemiddelRepository.insert(laegemiddel, IN_THE_PAST, IN_THE_FUTURE);
+        laegemiddelRepository.insert(DRUG, IN_THE_PAST, IN_THE_FUTURE);
         pakningRepository.insert(pakning, IN_THE_PAST, IN_THE_FUTURE);
         klausuleringRepository.insert(klausulering, IN_THE_PAST, IN_THE_FUTURE);
         var sorEntity1 = new DepartmentEntity(VALID_DEPARTMENT_SOR, null, VALID_DEPARTMENT_SPECIALITY, null, null, null, null, null, null, null);
@@ -225,12 +224,13 @@ public class ValidationIT extends BaseTest {
     }
 
     private static void assertValidationError(ValidationResponse response, String expectedErrorMessage) {
+        String prefixedErrorMessage = "Manglende opfyldelse af tilskudsklausulen for '%s': %s".formatted(DRUG.DrugName(), expectedErrorMessage);
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().getFirst();
         ValidationError expectedValidationError = new ValidationError()
                 .elementPath(ELEMENT_PATH)
-                .message(expectedErrorMessage)
+                .message(prefixedErrorMessage)
                 .code(10800)
                 .clause(new Clause()
                         .code(CLAUSE_NAME)
@@ -262,7 +262,7 @@ public class ValidationIT extends BaseTest {
 
     private NewDrugMedication createNewDrugMedication(Indication indication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
         return new NewDrugMedication()
-                .drugIdentifier(DRUG_ID)
+                .drugIdentifier(DRUG.DrugId())
                 .indicationCode(indication.code() + "")
                 .createdBy(createActor(doctorSpeciality, departmentSorId))
                 .reportedBy(createActor(reportedByDoctorSpeciality, departmentSorId))

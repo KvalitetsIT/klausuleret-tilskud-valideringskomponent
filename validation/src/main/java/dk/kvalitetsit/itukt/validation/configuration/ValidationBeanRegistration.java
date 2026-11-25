@@ -4,7 +4,6 @@ import dk.kvalitetsit.itukt.common.configuration.DataSourceBuilder;
 import dk.kvalitetsit.itukt.common.model.Department;
 import dk.kvalitetsit.itukt.common.model.Indication;
 import dk.kvalitetsit.itukt.common.model.Medication;
-import dk.kvalitetsit.itukt.common.model.ValidationError;
 import dk.kvalitetsit.itukt.common.repository.SkippedValidationRepository;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
@@ -16,8 +15,8 @@ import dk.kvalitetsit.itukt.validation.scheduled.SkippedValidationCleanupJob;
 import dk.kvalitetsit.itukt.validation.service.*;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.CapitalizedErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.CombinedErrorMessageAssembler;
-import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssemblerFactory;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.PrefixedErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.*;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.entity.DepartmentEntity;
@@ -130,7 +129,7 @@ public class ValidationBeanRegistration {
             @Autowired Cache<Long, DrugClause> drugClauseCache,
             @Autowired SkippedValidationService skippedValidationService,
             @Autowired Cache<Department.Identifier, Department> departmentCache,
-            @Autowired ErrorMessageAssembler<ValidationError> errorMessageAssembler
+            @Autowired PrefixedErrorMessageAssembler errorMessageAssembler
     ) {
         var validationService = new ValidationServiceImpl(
                 clauseService,
@@ -153,13 +152,14 @@ public class ValidationBeanRegistration {
     }
 
     @Bean
-    public ErrorMessageAssembler<ValidationError> validationErrorAssembler(
+    public PrefixedErrorMessageAssembler validationErrorAssembler(
             @Autowired StamdataCacheService<Indication> indicationCache,
             @Autowired StamdataCacheService<Medication.ATC> atcCache,
             @Autowired StamdataCacheService<Medication.Form> formCache,
             @Autowired StamdataCacheService<Medication.Route> routeCache) {
         var assemblerFactory = new ErrorMessageAssemblerFactory(indicationCache, atcCache, formCache, routeCache);
         var assembler = new CombinedErrorMessageAssembler(assemblerFactory);
-        return new CapitalizedErrorMessageAssembler(assembler);
+        var capitalizedAssembler = new CapitalizedErrorMessageAssembler(assembler);
+        return new PrefixedErrorMessageAssembler(capitalizedAssembler);
     }
 }

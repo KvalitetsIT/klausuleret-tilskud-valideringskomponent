@@ -3,7 +3,7 @@ package dk.kvalitetsit.itukt.validation.service;
 
 import dk.kvalitetsit.itukt.common.model.*;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
-import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.PrefixedErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class ValidationServiceImplTest {
     @Mock
     private SkippedValidationService skippedValidationService;
     @Mock
-    private ErrorMessageAssembler<ValidationError> errorMessageAssembler;
+    private PrefixedErrorMessageAssembler errorMessageAssembler;
 
     @Test
     void validate_WhenDrugIdDoesNotMatchClause_ReturnsSuccess() {
@@ -82,14 +82,14 @@ class ValidationServiceImplTest {
     void validate_WhenClauseCacheContainsClauseForDrugIdAndValidationFails_ReturnsValidationError() {
         var validationInput = new ValidationInput("1234", new ValidationInput.Actor("creator"), Optional.empty(), List.of(), 5, 1234, "", Optional.empty(), "");
         var name = new Clause.Name("0000");
-        var drugClause = new DrugClause(new DrugClause.Drug(null, null), Set.of(new DrugClause.Clause(name.value(), "clauses text")));
+        var drugClause = new DrugClause(new DrugClause.Drug(null, "drug name"), Set.of(new DrugClause.Clause(name.value(), "clauses text")));
         var expression = Mockito.mock(BinaryExpression.class);
         var clause = new Clause(1L, name, Clause.Status.ACTIVE, null, new Clause.Error("message", 10800), expression, "tester", new Date());
         Mockito.when(drugClauseCache.get(validationInput.drugId())).thenReturn(Optional.of(drugClause));
         Mockito.when(clauseService.get(clause.name())).thenReturn(Optional.of(clause));
         Mockito.when(expression.validates(validationInput)).thenReturn(Optional.of(someError));
         String mappedError = "mapped error";
-        Mockito.when(errorMessageAssembler.assemble(someError)).thenReturn(mappedError);
+        Mockito.when(errorMessageAssembler.assemble(someError, drugClause.drug().name())).thenReturn(mappedError);
 
         var result = service.validate(validationInput);
 

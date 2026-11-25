@@ -12,7 +12,7 @@ public class DrugClauseViewMapper implements Mapper<DrugClauseView, DrugClause> 
     @Override
     public DrugClause map(DrugClauseView entity) {
         return new DrugClause(
-                new DrugClause.Drug(entity.laegemiddel().DrugId()),
+                new DrugClause.Drug(entity.laegemiddel().DrugId(), entity.laegemiddel().DrugName()),
                 Set.of(new DrugClause.Clause(entity.klausulering().Kode(), entity.klausulering().Tekst()))
         );
     }

@@ -15,26 +15,26 @@ import java.util.Set;
 class DrugClauseViewMapperTest {
 
     @Test
-    void map_givenAListOf5Entries_whenDrugIdIsRedundant_thenMergeAndReturnMapOfFiveEntries() {
+    void map_givenAListOf5Entries_ReturnsMappedEntries() {
 
         List<DrugClauseView> given = List.of(
-                new DrugClauseView(new DrugClauseView.Laegemiddel(1L), new DrugClauseView.Klausulering("kode1", "tekst")),
-                new DrugClauseView(new DrugClauseView.Laegemiddel(2L), new DrugClauseView.Klausulering("kode2", "tekst")),
-                new DrugClauseView(new DrugClauseView.Laegemiddel(3L), new DrugClauseView.Klausulering("kode3", "tekst")),
-                new DrugClauseView(new DrugClauseView.Laegemiddel(4L), new DrugClauseView.Klausulering("kode4", "tekst")),
-                new DrugClauseView(new DrugClauseView.Laegemiddel(5L), new DrugClauseView.Klausulering("kode5", "tekst")),
-                new DrugClauseView(new DrugClauseView.Laegemiddel(6L), new DrugClauseView.Klausulering("kode6", "tekst")),
-                new DrugClauseView(new DrugClauseView.Laegemiddel(7L), new DrugClauseView.Klausulering("kode7", "tekst"))
+                new DrugClauseView(new DrugClauseView.Laegemiddel(1L, "drug1"), new DrugClauseView.Klausulering("kode1", "tekst")),
+                new DrugClauseView(new DrugClauseView.Laegemiddel(2L, "drug2"), new DrugClauseView.Klausulering("kode2", "tekst")),
+                new DrugClauseView(new DrugClauseView.Laegemiddel(3L, "drug3"), new DrugClauseView.Klausulering("kode3", "tekst")),
+                new DrugClauseView(new DrugClauseView.Laegemiddel(4L, "drug4"), new DrugClauseView.Klausulering("kode4", "tekst")),
+                new DrugClauseView(new DrugClauseView.Laegemiddel(5L, "drug5"), new DrugClauseView.Klausulering("kode5", "tekst")),
+                new DrugClauseView(new DrugClauseView.Laegemiddel(6L, "drug6"), new DrugClauseView.Klausulering("kode6", "tekst")),
+                new DrugClauseView(new DrugClauseView.Laegemiddel(7L, "drug7"), new DrugClauseView.Klausulering("kode7", "tekst"))
         );
 
         List<DrugClause> expected = List.of(
-                new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("kode1", "tekst"))),
-                new DrugClause(new DrugClause.Drug(2L), Set.of(new DrugClause.Clause("kode2", "tekst"))),
-                new DrugClause(new DrugClause.Drug(3L), Set.of(new DrugClause.Clause("kode3", "tekst"))),
-                new DrugClause(new DrugClause.Drug(4L), Set.of(new DrugClause.Clause("kode4", "tekst"))),
-                new DrugClause(new DrugClause.Drug(5L), Set.of(new DrugClause.Clause("kode5", "tekst"))),
-                new DrugClause(new DrugClause.Drug(6L), Set.of(new DrugClause.Clause("kode6", "tekst"))),
-                new DrugClause(new DrugClause.Drug(7L), Set.of(new DrugClause.Clause("kode7", "tekst")))
+                new DrugClause(new DrugClause.Drug(1L, "drug1"), Set.of(new DrugClause.Clause("kode1", "tekst"))),
+                new DrugClause(new DrugClause.Drug(2L, "drug2"), Set.of(new DrugClause.Clause("kode2", "tekst"))),
+                new DrugClause(new DrugClause.Drug(3L, "drug3"), Set.of(new DrugClause.Clause("kode3", "tekst"))),
+                new DrugClause(new DrugClause.Drug(4L, "drug4"), Set.of(new DrugClause.Clause("kode4", "tekst"))),
+                new DrugClause(new DrugClause.Drug(5L, "drug5"), Set.of(new DrugClause.Clause("kode5", "tekst"))),
+                new DrugClause(new DrugClause.Drug(6L, "drug6"), Set.of(new DrugClause.Clause("kode6", "tekst"))),
+                new DrugClause(new DrugClause.Drug(7L, "drug7"), Set.of(new DrugClause.Clause("kode7", "tekst")))
 
         );
 

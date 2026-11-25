@@ -23,7 +23,7 @@ class DrugClauseCacheTest {
     @Test
     void getStamDataByDrugId_WhenDrugIdIsNotInCache_ReturnsEmptyOptional() {
         long drugId = 1L;
-        DrugClause data = new DrugClause(new DrugClause.Drug(drugId), Set.of(new DrugClause.Clause("code", "long clause text")));
+        DrugClause data = new DrugClause(new DrugClause.Drug(drugId, "test"), Set.of(new DrugClause.Clause("code", "long clause text")));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(data));
         DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.run();
@@ -36,7 +36,7 @@ class DrugClauseCacheTest {
     @Test
     void get_WhenDrugIdIsInCache_ReturnsStamDataName() {
         long drugId = 1L;
-        DrugClause data = new DrugClause(new DrugClause.Drug(drugId), Set.of(new DrugClause.Clause("code", "long clause text")));
+        DrugClause data = new DrugClause(new DrugClause.Drug(drugId, "test"), Set.of(new DrugClause.Clause("code", "long clause text")));
 
         Mockito.when(mock.fetchAll()).thenReturn(List.of(data));
         DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
@@ -51,7 +51,7 @@ class DrugClauseCacheTest {
     @Test
     void getClauseByDrugId_WhenDrugIdIsInCache_ReturnsStamdataAndNoMoreInteractions() {
         long drugId = 1L;
-        DrugClause data = new DrugClause(new DrugClause.Drug(drugId), Set.of(new DrugClause.Clause("code", "long clause text")));
+        DrugClause data = new DrugClause(new DrugClause.Drug(drugId, "test"), Set.of(new DrugClause.Clause("code", "long clause text")));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(data));
         DrugClauseCacheImpl stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.run();
@@ -78,7 +78,7 @@ class DrugClauseCacheTest {
 
     @Test
     void getNumberOfDrugsForClause_WhenClauseIsNotInCache_Returns0() {
-        var drugClause = new DrugClause(new DrugClause.Drug(1L), Set.of(new DrugClause.Clause("code", "")));
+        var drugClause = new DrugClause(new DrugClause.Drug(1L, "test"), Set.of(new DrugClause.Clause("code", "")));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(drugClause));
         var stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.run();
@@ -91,10 +91,10 @@ class DrugClauseCacheTest {
     @Test
     void getNumberOfDrugsForClause_WhenClauseHas2DifferentDrugs_Returns2() {
         var clause = new DrugClause.Clause("test", "");
-        var drugClause1 = new DrugClause(new DrugClause.Drug(1L), Set.of(clause));
-        var drugClause2 = new DrugClause(new DrugClause.Drug(2L), Set.of(clause));
-        var drugClause3 = new DrugClause(new DrugClause.Drug(3L), Set.of(new DrugClause.Clause("another-clause", "")));
-        var drugClause4 = new DrugClause(new DrugClause.Drug(2L), Set.of(clause));
+        var drugClause1 = new DrugClause(new DrugClause.Drug(1L, "test1"), Set.of(clause));
+        var drugClause2 = new DrugClause(new DrugClause.Drug(2L, "test2"), Set.of(clause));
+        var drugClause3 = new DrugClause(new DrugClause.Drug(3L, "test3"), Set.of(new DrugClause.Clause("another-clause", "")));
+        var drugClause4 = new DrugClause(new DrugClause.Drug(2L, "test2"), Set.of(clause));
         Mockito.when(mock.fetchAll()).thenReturn(List.of(drugClause1, drugClause2, drugClause3, drugClause4));
         var stamDataCache = new DrugClauseCacheImpl(new CacheConfiguration(""), mock);
         stamDataCache.run();

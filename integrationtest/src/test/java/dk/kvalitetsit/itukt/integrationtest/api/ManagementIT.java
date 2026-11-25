@@ -613,7 +613,7 @@ class ManagementIT extends BaseTest {
         var pakningRepository = new PakningRepository(stamdataDatasource);
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
 
-        var laegemiddel = new DrugClauseView.Laegemiddel(1L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1L, "drug1");
         var pakning = new Pakning(laegemiddel.DrugId(), clauseName, 1L);
         var klausulering = new DrugClauseView.Klausulering(clauseName, "test");
         laegemiddelRepository.insert(laegemiddel, IN_THE_PAST, IN_THE_FUTURE);

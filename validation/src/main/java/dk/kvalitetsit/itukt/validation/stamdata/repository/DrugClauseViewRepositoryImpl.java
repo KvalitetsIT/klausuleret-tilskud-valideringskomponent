@@ -10,7 +10,9 @@ import java.util.List;
 public class DrugClauseViewRepositoryImpl implements Repository<DrugClauseView> {
 
     private final static RowMapper<DrugClauseView> clauseRowMapper = (rs, rowNum) -> new DrugClauseView(
-            new DrugClauseView.Laegemiddel(rs.getLong("d.DrugId")),
+            new DrugClauseView.Laegemiddel(
+                    rs.getLong("d.DrugId"),
+                    rs.getString("d.DrugName")),
             new DrugClauseView.Klausulering(
                     rs.getString("k.Kode"),
                     rs.getString("k.Tekst")
@@ -27,7 +29,7 @@ public class DrugClauseViewRepositoryImpl implements Repository<DrugClauseView> 
     public List<DrugClauseView> fetchAll() {
         try {
             String sql = """
-                    SELECT DISTINCT d.DrugId, k.Kode, k.Tekst
+                    SELECT DISTINCT d.DrugId, d.DrugName, k.Kode, k.Tekst
                     FROM Laegemiddel d
                     JOIN Pakning p on p.DrugID = d.DrugID
                     JOIN Klausulering k ON k.kode = p.klausuleringskode

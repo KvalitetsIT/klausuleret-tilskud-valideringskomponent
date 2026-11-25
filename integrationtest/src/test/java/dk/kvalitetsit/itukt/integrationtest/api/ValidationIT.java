@@ -82,7 +82,7 @@ public class ValidationIT extends BaseTest {
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
         var sorEntityRepository = new SorEntityRepository(stamdataDatasource);
 
-        var laegemiddel = new DrugClauseView.Laegemiddel(DRUG_ID);
+        var laegemiddel = new DrugClauseView.Laegemiddel(DRUG_ID, "TestDrug");
         var pakning = new Pakning(laegemiddel.DrugId(), CLAUSE_NAME, 1L);
         var klausulering = new DrugClauseView.Klausulering(CLAUSE_NAME, CLAUSE_TEXT);
         laegemiddelRepository.insert(laegemiddel, IN_THE_PAST, IN_THE_FUTURE);

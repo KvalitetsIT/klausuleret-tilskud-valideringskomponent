@@ -15,12 +15,13 @@ public class LaegemiddelRepository {
 
     public void insert(DrugClauseView.Laegemiddel laegemiddel, Date validFrom, Date validTo) {
         String sql = """
-                INSERT INTO Laegemiddel (DrugId, ValidFrom, ValidTo)
-                VALUES (:drugId, :validFrom, :validTo)
+                INSERT INTO Laegemiddel (DrugId, DrugName, ValidFrom, ValidTo)
+                VALUES (:drugId, :drugName, :validFrom, :validTo)
                 """;
 
         var params = new java.util.HashMap<String, Object>();
         params.put("drugId", laegemiddel.DrugId());
+        params.put("drugName", laegemiddel.DrugName());
         params.put("validFrom", validFrom);
         params.put("validTo", validTo);
 

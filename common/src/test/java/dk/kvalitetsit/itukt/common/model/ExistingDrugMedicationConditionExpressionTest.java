@@ -51,6 +51,18 @@ class ExistingDrugMedicationConditionExpressionTest {
     }
 
     @Test
+    void validates_WhenAtcCodeStartsWithRequiredValue_ReturnsNoErrors() {
+        ExistingDrugMedication existingDrugMedication = new ExistingDrugMedication("atc", "form", "adm");
+        var condition = new ExistingDrugMedicationConditionExpression(existingDrugMedication);
+        ValidationInput validationInput = Mockito.mock(ValidationInput.class);
+        Mockito.when(validationInput.existingDrugMedication()).thenReturn(Optional.of(List.of(new ExistingDrugMedication("atc1234", "form", "adm"))));
+
+        var validationError = condition.validates(validationInput);
+
+        assertTrue(validationError.isEmpty(), "Expected condition to validate when atc code matches as prefix");
+    }
+
+    @Test
     void validates_WhenFormCodeDoesNotMatchCondition_ReturnsValidationError() {
         var existingDrugMedication = new ExistingDrugMedication("atc", "form", "adm");
         var condition = new ExistingDrugMedicationConditionExpression(existingDrugMedication);

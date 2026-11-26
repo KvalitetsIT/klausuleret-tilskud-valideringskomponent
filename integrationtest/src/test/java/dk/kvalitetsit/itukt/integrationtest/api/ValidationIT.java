@@ -45,6 +45,7 @@ public class ValidationIT extends BaseTest {
     private static final String VALID_DEPARTMENT_SPECIALITY = "infektionsmedicin";
     private static final String VALID_DOCTOR_SPECIALITY = "ortopædkirurg";
     private static final Medication.ATC VALID_ATC = new Medication.ATC("ATC123", "Valid ATC");
+    private static final Medication.Form VALID_FORM = new Medication.Form("FORM123", "Valid form");
     private static final Date IN_THE_PAST = Date.from(Instant.now().minusSeconds(1));
     private static final Date IN_THE_FUTURE = Date.from(Instant.now().plusSeconds(1000));
     private static final ValidationApi validationApi = new ValidationApi(client);
@@ -58,7 +59,7 @@ public class ValidationIT extends BaseTest {
 
         var departmentSpecialityRequirement = new ExpressionEntity.StringConditionEntity(Field.DEPARTMENT_SPECIALITY, VALID_DEPARTMENT_SPECIALITY);
 
-        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, VALID_ATC.code(), "*", "*");
+        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, VALID_ATC.code(), VALID_FORM.code(), "*");
         var orExpression = new ExpressionEntity.BinaryExpressionEntity(
                 ageAndIndication,
                 BinaryExpression.Operator.OR,
@@ -102,11 +103,17 @@ public class ValidationIT extends BaseTest {
         atcRepository.insert(VALID_ATC, IN_THE_PAST, IN_THE_FUTURE);
     }
 
+    private static void setupStamdataWithForm() {
+        var formRepository = new FormbetegnelseRepository(stamDatabase.getDatasource());
+        formRepository.insert(VALID_FORM, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
     @BeforeEach
     void setUp() {
         setupStamdata();
         setupStamdataWithIndication();
         setupStamdataWithAtc();
+        setupStamdataWithForm();
         setupClauses();
         restartService();
     }
@@ -139,7 +146,7 @@ public class ValidationIT extends BaseTest {
         var existingDrugMedication = new ExistingDrugMedicationInput()
                 .drugIdentifier(0L)
                 .atcCode(VALID_ATC.code())
-                .formCode("anything") // Hardcoded clause has wildcard for form
+                .formCode(VALID_FORM.code())
                 .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
         var request = createValidationRequest(age, VALID_INDICATION, List.of(existingDrugMedication), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
 
@@ -153,8 +160,9 @@ public class ValidationIT extends BaseTest {
         int age = 50;  // Hardcoded clause in cache requires age > 50
         var request = createValidationRequest(age, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "alder skal være større end '50' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s)"
-                .formatted(VALID_ATC.text(), VALID_ATC.code()));
+        assertValidationError(response,
+                "alder skal være større end '50' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s)"
+                        .formatted(VALID_ATC.text(), VALID_ATC.code(), VALID_FORM.text(), VALID_FORM.code()));
     }
 
     @Test
@@ -162,8 +170,8 @@ public class ValidationIT extends BaseTest {
         var request = createValidationRequest(VALID_AGE, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response,
-                "indikation skal være '%s' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s)"
-                        .formatted(VALID_INDICATION.text(), VALID_ATC.text(), VALID_ATC.code()));
+                "indikation skal være '%s' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s)"
+                        .formatted(VALID_INDICATION.text(), VALID_ATC.text(), VALID_ATC.code(), VALID_FORM.text(), VALID_FORM.code()));
     }
 
     @Test

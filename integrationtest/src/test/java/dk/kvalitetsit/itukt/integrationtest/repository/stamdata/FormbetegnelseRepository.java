@@ -22,7 +22,7 @@ public class FormbetegnelseRepository {
 
         var params = Map.of(
                 "kode", form.code(),
-                "tekst", "test",
+                "tekst", form.text(),
                 "validFrom", validFrom,
                 "validTo", validTo
         );

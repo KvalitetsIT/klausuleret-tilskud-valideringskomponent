@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ValidationIT extends BaseTest {
 
-    private static final long DRUG_ID = 1234L;
+    private static final DrugClauseView.Laegemiddel DRUG = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
     private static final String CLAUSE_NAME = "TEST";
     private static final String CLAUSE_TEXT = "Test clause";
     private static final String CLAUSE_ERROR_MESSAGE = "message";
@@ -46,6 +46,7 @@ public class ValidationIT extends BaseTest {
     private static final String VALID_DOCTOR_SPECIALITY = "ortopædkirurg";
     private static final Medication.ATC VALID_ATC = new Medication.ATC("ATC123", "Valid ATC");
     private static final Medication.Form VALID_FORM = new Medication.Form("FORM123", "Valid form");
+    private static final Medication.Route VALID_ROUTE = new Medication.Route("R0", "Valid route");
     private static final Date IN_THE_PAST = Date.from(Instant.now().minusSeconds(1));
     private static final Date IN_THE_FUTURE = Date.from(Instant.now().plusSeconds(1000));
     private static final ValidationApi validationApi = new ValidationApi(client);
@@ -59,7 +60,7 @@ public class ValidationIT extends BaseTest {
 
         var departmentSpecialityRequirement = new ExpressionEntity.StringConditionEntity(Field.DEPARTMENT_SPECIALITY, VALID_DEPARTMENT_SPECIALITY);
 
-        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, VALID_ATC.code(), VALID_FORM.code(), "*");
+        var existingDrugMedication = new ExpressionEntity.ExistingDrugMedicationConditionEntity(1L, VALID_ATC.code(), VALID_FORM.code(), VALID_ROUTE.code());
         var orExpression = new ExpressionEntity.BinaryExpressionEntity(
                 ageAndIndication,
                 BinaryExpression.Operator.OR,
@@ -81,10 +82,9 @@ public class ValidationIT extends BaseTest {
         var klausuleringRepository = new KlausuleringRepository(stamdataDatasource);
         var sorEntityRepository = new SorEntityRepository(stamdataDatasource);
 
-        var laegemiddel = new DrugClauseView.Laegemiddel(DRUG_ID);
-        var pakning = new Pakning(laegemiddel.DrugId(), CLAUSE_NAME, 1L);
+        var pakning = new Pakning(DRUG.DrugId(), CLAUSE_NAME, 1L);
         var klausulering = new DrugClauseView.Klausulering(CLAUSE_NAME, CLAUSE_TEXT);
-        laegemiddelRepository.insert(laegemiddel, IN_THE_PAST, IN_THE_FUTURE);
+        laegemiddelRepository.insert(DRUG, IN_THE_PAST, IN_THE_FUTURE);
         pakningRepository.insert(pakning, IN_THE_PAST, IN_THE_FUTURE);
         klausuleringRepository.insert(klausulering, IN_THE_PAST, IN_THE_FUTURE);
         var sorEntity1 = new DepartmentEntity(VALID_DEPARTMENT_SOR, null, VALID_DEPARTMENT_SPECIALITY, null, null, null, null, null, null, null);
@@ -108,12 +108,18 @@ public class ValidationIT extends BaseTest {
         formRepository.insert(VALID_FORM, IN_THE_PAST, IN_THE_FUTURE);
     }
 
+    private static void setupStamdataWithRoute() {
+        var routeRepository = new AdministrationsvejRepository(stamDatabase.getDatasource());
+        routeRepository.insert(VALID_ROUTE, IN_THE_PAST, IN_THE_FUTURE);
+    }
+
     @BeforeEach
     void setUp() {
         setupStamdata();
         setupStamdataWithIndication();
         setupStamdataWithAtc();
         setupStamdataWithForm();
+        setupStamdataWithRoute();
         setupClauses();
         restartService();
     }
@@ -147,7 +153,7 @@ public class ValidationIT extends BaseTest {
                 .drugIdentifier(0L)
                 .atcCode(VALID_ATC.code())
                 .formCode(VALID_FORM.code())
-                .routeOfAdministrationCode("anything"); // Hardcoded clause has wildcard for route of administration code
+                .routeOfAdministrationCode(VALID_ROUTE.code());
         var request = createValidationRequest(age, VALID_INDICATION, List.of(existingDrugMedication), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
 
         var response = validationApi.validation20250801ValidatePost(request);
@@ -161,8 +167,8 @@ public class ValidationIT extends BaseTest {
         var request = createValidationRequest(age, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response,
-                "alder skal være større end '50' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s)"
-                        .formatted(VALID_ATC.text(), VALID_ATC.code(), VALID_FORM.text(), VALID_FORM.code()));
+                "Alder skal være større end '50' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s), Administrationsvejkode = '%s' (%s)"
+                        .formatted(VALID_ATC.text(), VALID_ATC.code(), VALID_FORM.text(), VALID_FORM.code(), VALID_ROUTE.text(), VALID_ROUTE.code()));
     }
 
     @Test
@@ -170,15 +176,15 @@ public class ValidationIT extends BaseTest {
         var request = createValidationRequest(VALID_AGE, INVALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
         assertValidationError(response,
-                "indikation skal være '%s' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s)"
-                        .formatted(VALID_INDICATION.text(), VALID_ATC.text(), VALID_ATC.code(), VALID_FORM.text(), VALID_FORM.code()));
+                "Indikation skal være '%s' eller tidligere medicinsk behandling med følgende påkrævet: ATC = '%s' (%s), Formkode = '%s' (%s), Administrationsvejkode = '%s' (%s)"
+                        .formatted(VALID_INDICATION.text(), VALID_ATC.text(), VALID_ATC.code(), VALID_FORM.text(), VALID_FORM.code(), VALID_ROUTE.text(), VALID_ROUTE.code()));
     }
 
     @Test
     void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsDoctorSpecialityValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), "invalid speciale", VALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "lægespeciale skal være '" + VALID_DOCTOR_SPECIALITY + "'");
+        assertValidationError(response, "Lægespeciale skal være '" + VALID_DOCTOR_SPECIALITY + "'");
     }
 
     @Test
@@ -214,16 +220,17 @@ public class ValidationIT extends BaseTest {
     void validation20250801ValidatePost_WithInputThatMatchesClauseAndFailsDepartmentSpecialityValidation_ReturnsValidationError() {
         var request = createValidationRequest(VALID_AGE, VALID_INDICATION, List.of(), VALID_DOCTOR_SPECIALITY, INVALID_DEPARTMENT_SOR);
         var response = validationApi.validation20250801ValidatePost(request);
-        assertValidationError(response, "afdelingens speciale skal være '" + VALID_DEPARTMENT_SPECIALITY + "'");
+        assertValidationError(response, "Afdelingens speciale skal være '" + VALID_DEPARTMENT_SPECIALITY + "'");
     }
 
     private static void assertValidationError(ValidationResponse response, String expectedErrorMessage) {
+        String prefixedErrorMessage = "Manglende opfyldelse af tilskudsklausulen for '%s': %s".formatted(DRUG.DrugName(), expectedErrorMessage);
         var failedResponse = assertInstanceOf(ValidationFailed.class, response);
         assertEquals(1, failedResponse.getValidationErrors().size());
         var validationError = failedResponse.getValidationErrors().getFirst();
         ValidationError expectedValidationError = new ValidationError()
                 .elementPath(ELEMENT_PATH)
-                .message(expectedErrorMessage)
+                .message(prefixedErrorMessage)
                 .code(10800)
                 .clause(new Clause()
                         .code(CLAUSE_NAME)
@@ -255,7 +262,7 @@ public class ValidationIT extends BaseTest {
 
     private NewDrugMedication createNewDrugMedication(Indication indication, String doctorSpeciality, String reportedByDoctorSpeciality, String departmentSorId) {
         return new NewDrugMedication()
-                .drugIdentifier(DRUG_ID)
+                .drugIdentifier(DRUG.DrugId())
                 .indicationCode(indication.code() + "")
                 .createdBy(createActor(doctorSpeciality, departmentSorId))
                 .reportedBy(createActor(reportedByDoctorSpeciality, departmentSorId))

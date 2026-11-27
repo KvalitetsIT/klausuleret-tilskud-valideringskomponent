@@ -34,9 +34,9 @@ class MedicationRouteCacheTest {
 
     @Test
     void getAll_AfterRun_ReturnsDistinctRoutes() {
-        var route1 = new Medication.Route("routeA");
-        var route2 = new Medication.Route("routeB");
-        var route3 = new Medication.Route("routeB");
+        var route1 = new Medication.Route("routeA", "textA");
+        var route2 = new Medication.Route("routeB", "textB");
+        var route3 = new Medication.Route("routeB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(route1, route2, route3));
 
@@ -49,8 +49,8 @@ class MedicationRouteCacheTest {
 
     @Test
     void get_NotMatchingRouteFromLoad_ReturnsEmpty() {
-        var route1 = new Medication.Route("routeA");
-        var route2 = new Medication.Route("routeB");
+        var route1 = new Medication.Route("routeA", "textA");
+        var route2 = new Medication.Route("routeB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(route1, route2));
 
@@ -61,14 +61,14 @@ class MedicationRouteCacheTest {
     }
 
     @Test
-    void get_MatchingRouteFromLoad_ReturnsRoute() {
-        var route1 = new Medication.Route("routeA");
-        var route2 = new Medication.Route("routeB");
+    void get_MatchingRouteFromLoadButDifferentCasing_ReturnsRoute() {
+        var route1 = new Medication.Route("routeA", "textA");
+        var route2 = new Medication.Route("routeB", "textB");
 
         Mockito.when(repository.fetchAll()).thenReturn(List.of(route1, route2));
 
         routeCache.run();
-        var result = routeCache.get(route1.code());
+        var result = routeCache.get("RoUtEa");
 
         assertTrue(result.isPresent());
         assertEquals(route1, result.get());

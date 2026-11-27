@@ -11,6 +11,6 @@ public record DrugClause(Drug drug, Set<Clause> clauses) {
         }
     }
 
-    public record Drug(Long id) {
+    public record Drug(Long id, String name) {
     }
 }

@@ -9,14 +9,17 @@ public class ErrorMessageAssemblerFactory {
     private final StamdataCacheService<Indication> indicationCache;
     private final StamdataCacheService<Medication.ATC> atcCache;
     private final StamdataCacheService<Medication.Form> formCache;
+    private final StamdataCacheService<Medication.Route> routeCache;
 
     public ErrorMessageAssemblerFactory(
             StamdataCacheService<Indication> indicationCache,
             StamdataCacheService<Medication.ATC> atcCache,
-            StamdataCacheService<Medication.Form> formCache) {
+            StamdataCacheService<Medication.Form> formCache,
+            StamdataCacheService<Medication.Route> routeCache) {
         this.indicationCache = indicationCache;
         this.atcCache = atcCache;
         this.formCache = formCache;
+        this.routeCache = routeCache;
     }
 
     public ErrorMessageAssembler<ValidationError.ConditionError> createConditionAssembler() {
@@ -24,7 +27,7 @@ public class ErrorMessageAssemblerFactory {
     }
 
     public ErrorMessageAssembler<ValidationError.ExistingDrugMedicationError> createExistingDrugMedicationAssembler() {
-        return new ExistingDrugMedicationErrorMessageAssembler(atcCache, formCache);
+        return new ExistingDrugMedicationErrorMessageAssembler(atcCache, formCache, routeCache);
     }
 
     public ErrorMessageAssembler<ValidationError.AndError> createAndAssembler(ErrorMessageAssembler<ValidationError> combinedAssembler) {

@@ -22,7 +22,7 @@ public class MedicationRouteRepository implements Repository<Medication.Route> {
     public List<Medication.Route> fetchAll() {
         try {
             String sql = """
-                    SELECT DISTINCT AdministrationsvejKode as code
+                    SELECT DISTINCT AdministrationsvejKode as code, AdministrationsvejTekst as text
                     FROM Administrationsvej
                     WHERE ValidTo > NOW() AND ValidFrom < NOW()
                     """;

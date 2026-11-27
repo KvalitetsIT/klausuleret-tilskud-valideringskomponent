@@ -37,10 +37,10 @@ public class MedicationRouteRepositoryIT extends BaseTest {
 
     @Test
     void fetchAll_WithBothValidAndInvalidRouteInDB_ReturnsValidRoute() {
-        var valid1 = new Medication.Route("R1");
-        var valid2 = new Medication.Route("R2");
-        var invalid1 = new Medication.Route("R3");
-        var invalid2 = new Medication.Route("R4");
+        var valid1 = new Medication.Route("R1", "valid 1");
+        var valid2 = new Medication.Route("R2", "valid 2");
+        var invalid1 = new Medication.Route("R3", "invalid 1");
+        var invalid2 = new Medication.Route("R4", "invalid 2");
         administrationsvejRepository.insert(valid1, inThePast, inTheFuture);
         administrationsvejRepository.insert(valid2, inThePast, inTheFuture);
         administrationsvejRepository.insert(invalid1, inThePast, inThePast);

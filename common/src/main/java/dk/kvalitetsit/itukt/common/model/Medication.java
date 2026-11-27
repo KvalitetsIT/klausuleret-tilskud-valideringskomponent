@@ -18,9 +18,10 @@ public final class Medication {
         }
     }
 
-    public record Route(String code) {
-        public Route(String code) {
+    public record Route(String code, String text) {
+        public Route(String code, String text) {
             this.code = code.toUpperCase();
+            this.text = text;
         }
     }
 }

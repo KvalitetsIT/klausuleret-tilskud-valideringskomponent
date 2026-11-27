@@ -10,7 +10,7 @@ public record DrugClauseView(Laegemiddel laegemiddel, Klausulering klausulering)
 
     }
 
-    public record Laegemiddel(Long DrugId) {
+    public record Laegemiddel(Long DrugId, String DrugName) {
 
     }
 }

@@ -41,7 +41,7 @@ class ExistingDrugMedicationExpressionValidatorTest {
         when(medicationFormService.get(form.code())).thenReturn(Optional.of(form));
         var atc = new Medication.ATC("knownAtcCode", "Known ATC text");
         when(medicationATCService.get(atc.code())).thenReturn(Optional.of(atc));
-        var route = new Medication.Route("knownRouteCode");
+        var route = new Medication.Route("knownRouteCode", "Known route text");
         when(medicationRouteService.get(route.code())).thenReturn(Optional.of(route));
         var expression = new ExistingDrugMedicationConditionExpression(new ExistingDrugMedication(atc.code(), form.code(), route.code()));
 

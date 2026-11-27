@@ -50,7 +50,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
     @Test
     void fetchAll_WhenLaegemiddelIsNotValidYet_ReturnsEmptyList() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
         var pakning = new Pakning(laegemiddel.DrugId(), "TEST", 1L);
         var klausulering = new DrugClauseView.Klausulering(pakning.klausuleringsKode(), "test");
         laegemiddelRepository.insert(laegemiddel, inTheFuture, inTheFuture);
@@ -64,7 +64,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
     @Test
     void fetchAll_WhenLaegemiddelIsNotValidAnymore_ReturnsEmptyList() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
         var pakning = new Pakning(laegemiddel.DrugId(), "TEST", 1L);
         var klausulering = new DrugClauseView.Klausulering(pakning.klausuleringsKode(), "test");
         laegemiddelRepository.insert(laegemiddel, inThePast, inThePast);
@@ -78,7 +78,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
     @Test
     void fetchAll_WhenPakningIsNotValidYet_ReturnsEmptyList() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
         var pakning = new Pakning(laegemiddel.DrugId(), "TEST", 1L);
         var klausulering = new DrugClauseView.Klausulering(pakning.klausuleringsKode(), "test");
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
@@ -92,7 +92,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
     @Test
     void fetchAll_WhenPakningIsNotValidAnymore_ReturnsEmptyList() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
         var pakning = new Pakning(laegemiddel.DrugId(), "TEST", 1L);
         var klausulering = new DrugClauseView.Klausulering(pakning.klausuleringsKode(), "test");
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
@@ -106,7 +106,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
     @Test
     void fetchAll_WhenKlausuleringIsNotValidYet_ReturnsEmptyList() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
         var pakning = new Pakning(laegemiddel.DrugId(), "TEST", 1L);
         var klausulering = new DrugClauseView.Klausulering(pakning.klausuleringsKode(), "test");
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
@@ -120,7 +120,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
     @Test
     void fetchAll_WhenKlausuleringIsNotValidAnymore_ReturnsEmptyList() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
         var pakning = new Pakning(laegemiddel.DrugId(), "TEST", 1L);
         var klausulering = new DrugClauseView.Klausulering(pakning.klausuleringsKode(), "test");
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
@@ -134,7 +134,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
     @Test
     void fetchAll_WithoutMatchingDrugId_ReturnsEmptyList() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1111L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1111L, "TestDrug");
         var pakning = new Pakning(1234L, "TEST", 1L);
         var klausulering = new DrugClauseView.Klausulering(pakning.klausuleringsKode(), "test");
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
@@ -148,7 +148,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
     @Test
     void fetchAll_WithoutMatchingKlausuleringsKode_ReturnsEmptyList() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
         var pakning = new Pakning(laegemiddel.DrugId(), "TEST", 1L);
         var klausulering = new DrugClauseView.Klausulering("TEST2", "test");
         laegemiddelRepository.insert(laegemiddel, inThePast, inTheFuture);
@@ -162,7 +162,7 @@ class DrugClauseViewRepositoryImplIT extends BaseTest {
 
    @Test
     void fetchAll_WithMultiplePakning_ReturnsUniqueEntries() {
-        var laegemiddel = new DrugClauseView.Laegemiddel(1234L);
+        var laegemiddel = new DrugClauseView.Laegemiddel(1234L, "TestDrug");
         var pakning1 = new Pakning(laegemiddel.DrugId(), "TEST1", 1L);
         var pakning2 = new Pakning(laegemiddel.DrugId(), "TEST2", 2L);
         var pakning3 = new Pakning(laegemiddel.DrugId(), "TEST2", 3L);

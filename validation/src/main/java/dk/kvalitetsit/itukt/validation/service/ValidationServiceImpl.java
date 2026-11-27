@@ -2,11 +2,12 @@ package dk.kvalitetsit.itukt.validation.service;
 
 
 import dk.kvalitetsit.itukt.common.model.Clause;
+import dk.kvalitetsit.itukt.common.model.PrescriptionValidationError;
 import dk.kvalitetsit.itukt.common.model.ValidationFailed;
 import dk.kvalitetsit.itukt.common.model.ValidationInput;
 import dk.kvalitetsit.itukt.common.service.ClauseService;
 import dk.kvalitetsit.itukt.validation.service.exceptions.ExistingDrugMedicationRequiredException;
-import dk.kvalitetsit.itukt.validation.service.mapping.error.PrefixedErrorMessageAssembler;
+import dk.kvalitetsit.itukt.validation.service.mapping.error.ErrorMessageAssembler;
 import dk.kvalitetsit.itukt.validation.service.model.ValidationError;
 import dk.kvalitetsit.itukt.validation.stamdata.repository.cache.Cache;
 import dk.kvalitetsit.itukt.validation.stamdata.service.model.DrugClause;
@@ -21,9 +22,9 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
     private final ClauseService clauseCache;
     private final Cache<Long, DrugClause> drugClauseCache;
     private final SkippedValidationService skippedValidationService;
-    private final PrefixedErrorMessageAssembler errorMessageAssembler;
+    private final ErrorMessageAssembler<PrescriptionValidationError> errorMessageAssembler;
 
-    public ValidationServiceImpl(ClauseService clauseCache, Cache<Long, DrugClause> drugClauseCache, SkippedValidationService skippedValidationService, PrefixedErrorMessageAssembler errorMessageAssembler) {
+    public ValidationServiceImpl(ClauseService clauseCache, Cache<Long, DrugClause> drugClauseCache, SkippedValidationService skippedValidationService, ErrorMessageAssembler<PrescriptionValidationError> errorMessageAssembler) {
         this.clauseCache = clauseCache;
         this.drugClauseCache = drugClauseCache;
         this.skippedValidationService = skippedValidationService;
@@ -51,7 +52,7 @@ public class ValidationServiceImpl implements ValidationService<ValidationInput,
                         throw new ExistingDrugMedicationRequiredException();
                 case dk.kvalitetsit.itukt.common.model.ValidationError error -> new ValidationError(
                         new ValidationError.Clause(clause.name().value(), clauseText, clause.error().message()),
-                        errorMessageAssembler.assemble(error, drugName),
+                        errorMessageAssembler.assemble(new PrescriptionValidationError(drugName, error)),
                         clause.error().code(),
                         validationInput.elementPath()
                 );

@@ -1,5 +1,6 @@
 package dk.kvalitetsit.itukt.validation.service.mapping.error;
 
+import dk.kvalitetsit.itukt.common.model.PrescriptionValidationError;
 import dk.kvalitetsit.itukt.common.model.ValidationError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,14 +21,13 @@ class PrefixedErrorMessageAssemblerTest {
 
     @Test
     void assemble_ReturnsPrefixedErrorMessage() {
-        var error = Mockito.mock(ValidationError.ConditionError.class);
+        var error = new PrescriptionValidationError("drug name", Mockito.mock(ValidationError.ConditionError.class));
         String errorMessage = "error message";
-        Mockito.when(errorMessageAssembler.assemble(error)).thenReturn(errorMessage);
-        String drugName = "drug name";
+        Mockito.when(errorMessageAssembler.assemble(error.content())).thenReturn(errorMessage);
 
-        String prefixedErrorMessage = prefixedErrorMessageAssembler.assemble(error, drugName);
+        String prefixedErrorMessage = prefixedErrorMessageAssembler.assemble(error);
 
-        String expectedMessage = "Manglende opfyldelse af tilskudsklausulen for '%s': %s".formatted(drugName, errorMessage);
+        String expectedMessage = "Manglende opfyldelse af tilskudsklausulen for '%s': %s".formatted(error.drugName(), errorMessage);
         assertEquals(expectedMessage, prefixedErrorMessage);
     }
 }

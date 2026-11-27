@@ -758,6 +758,7 @@ components:
         code:
           type: integer
           format: int64
+          minimum: 0
         text:
           type: string
           example: "mod kalkmangel"

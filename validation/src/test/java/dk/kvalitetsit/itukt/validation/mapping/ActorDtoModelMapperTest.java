@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.Actor;
 import org.openapitools.model.DepartmentIdentifier;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ class ActorDtoModelMapperTest {
                 .type(DepartmentIdentifier.TypeEnum.SHAK);
         var actor = new Actor()
                 .identifier("test-id")
-                .specialityCode("test-speciality")
+                .specialityCodes(List.of("test-speciality"))
                 .departmentIdentifier(departmentId);
         var mappedDepartmentId = new Department.Identifier.SHAK(departmentId.getCode());
         var department = Mockito.mock(Department.class);
@@ -42,7 +43,7 @@ class ActorDtoModelMapperTest {
 
         var expectedActor = new ValidationInput.Actor(
                 actor.getIdentifier(),
-                actor.getSpecialityCode(),
+                actor.getSpecialityCodes(),
                 Optional.of(department)
         );
         assertEquals(expectedActor, mappedActor);
@@ -55,7 +56,7 @@ class ActorDtoModelMapperTest {
                 .type(DepartmentIdentifier.TypeEnum.SOR);
         var actor = new Actor()
                 .identifier("test-id")
-                .specialityCode("test-speciality")
+                .specialityCodes(List.of("test-speciality"))
                 .departmentIdentifier(departmentId);
         var mappedDepartmentId = new Department.Identifier.SOR(departmentId.getCode());
         var department = Mockito.mock(Department.class);
@@ -66,7 +67,7 @@ class ActorDtoModelMapperTest {
 
         var expectedActor = new ValidationInput.Actor(
                 actor.getIdentifier(),
-                actor.getSpecialityCode(),
+                actor.getSpecialityCodes(),
                 Optional.of(department)
         );
         assertEquals(expectedActor, mappedActor);
@@ -79,7 +80,7 @@ class ActorDtoModelMapperTest {
                 .type(DepartmentIdentifier.TypeEnum.SOR);
         var actor = new Actor()
                 .identifier("test-id")
-                .specialityCode("test-speciality")
+                .specialityCodes(List.of("test-speciality"))
                 .departmentIdentifier(departmentId);
         var mappedDepartmentId = new Department.Identifier.SOR(departmentId.getCode());
         Mockito.when(departmentCache.get(mappedDepartmentId))
@@ -89,7 +90,7 @@ class ActorDtoModelMapperTest {
 
         var expectedActor = new ValidationInput.Actor(
                 actor.getIdentifier(),
-                actor.getSpecialityCode(),
+                actor.getSpecialityCodes(),
                 Optional.of(new Department(mappedDepartmentId, Set.of()))
         );
         assertEquals(expectedActor, mappedActor);
@@ -99,13 +100,13 @@ class ActorDtoModelMapperTest {
     void map_WithoutDepartmentId_ReturnsActorWithoutDepartment() {
         var actor = new Actor()
                 .identifier("test-id")
-                .specialityCode("test-speciality");
+                .specialityCodes(List.of("test-speciality"));
 
         var mappedActor = actorDtoModelMapper.map(actor);
 
         var expectedActor = new ValidationInput.Actor(
                 actor.getIdentifier(),
-                actor.getSpecialityCode(),
+                actor.getSpecialityCodes(),
                 Optional.empty()
         );
         assertEquals(expectedActor, mappedActor);

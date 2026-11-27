@@ -29,13 +29,13 @@ public record ValidationInput(
     /**
      * Represents the actor who either created or reported the prescription
      *
-     * @param id             Unique ID of the actor
-     * @param specialityCode Example values: ortopædkirurg, sygeplejeske etc.
-     * @param department     the department of which the actor is associated
+     * @param id              Unique ID of the actor
+     * @param specialityCodes Example values: ANÆSTESI, ORTOPÆD etc.
+     * @param department      the department of which the actor is associated
      */
-    public record Actor(String id, Optional<String> specialityCode, Optional<Department> department) {
+    public record Actor(String id, List<String> specialityCodes, Optional<Department> department) {
         public Actor(String id) {
-            this(id, Optional.empty(), Optional.empty());
+            this(id, List.of(), Optional.empty());
         }
     }
 }

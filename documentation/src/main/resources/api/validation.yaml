@@ -154,15 +154,18 @@ components:
       type: object
       required:
         - identifier
+        - specialityCodes
       properties:
         identifier:
           description: "Unikt id for aktøren"
           type: string
           example: "123456"
-        specialityCode:
-          description: "Lægens speciale jf. autorisationsregistret"
-          type: string
-          example: "PSYK"
+        specialityCodes:
+          description: "Lægens specialer jf. autorisationsregistret"
+          type: array
+          items:
+            type: string
+          example: [ "ANÆSTESI", "ORTOPÆD" ]
         departmentIdentifier:
           $ref: "#/components/schemas/departmentIdentifier"
 

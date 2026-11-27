@@ -273,7 +273,7 @@ public class ValidationIT extends BaseTest {
     private static Actor createActor(String speciality, String departmentSorId) {
         return new Actor()
                 .identifier("actor1")
-                .specialityCode(speciality)
+                .specialityCodes(List.of(speciality))
                 .departmentIdentifier(
                         new DepartmentIdentifier().code(departmentSorId)
                                 .type(DepartmentIdentifier.TypeEnum.SOR)

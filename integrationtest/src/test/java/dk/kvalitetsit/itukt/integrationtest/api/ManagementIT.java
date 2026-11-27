@@ -548,14 +548,16 @@ class ManagementIT extends BaseTest {
     }
 
     @Test
-    void testGetIndicationCodes_ReturnsIndicationCodes() {
-        long indicationCode = 1234;
-        setupStamdataWithIndicationCode(indicationCode, "TEST");
+    void testGetIndications_ReturnsIndications() {
+        var indication = new org.openapitools.client.model.Indication()
+                .code(1234L)
+                .text("TEST");
+        setupStamdataWithIndicationCode(indication.getCode(), indication.getText());
         restartService();
 
-        var indicationCodes = api.management20250801IndicationCodesGet();
+        var indications = api.management20250801IndicationsGet();
 
-        assertEquals(Set.of(indicationCode), indicationCodes);
+        assertEquals(Set.of(indication), indications);
     }
 
     @Test

@@ -41,10 +41,12 @@ public class IndicationRepositoryIT extends BaseTest {
         var valid2 = new Indication(2, "text2");
         var invalid1 = new Indication(3, "text3");
         var invalid2 = new Indication(4, "text4");
+        var invalid3 = new Indication(5, null);
         indikationRepository.insert(valid1, inThePast, inTheFuture);
         indikationRepository.insert(valid2, inThePast, inTheFuture);
         indikationRepository.insert(invalid1, inThePast, inThePast);
         indikationRepository.insert(invalid2, inTheFuture, inTheFuture);
+        indikationRepository.insert(invalid3, inThePast, inTheFuture);
 
         var entries = this.repository.fetchAll();
 

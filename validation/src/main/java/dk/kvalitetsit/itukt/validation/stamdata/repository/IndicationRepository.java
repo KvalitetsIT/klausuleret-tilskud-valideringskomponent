@@ -24,7 +24,7 @@ public class IndicationRepository implements Repository<Indication> {
             String sql = """
                     SELECT DISTINCT IndikationKode as code, IndikationTekst as text
                     FROM Indikation
-                    WHERE ValidTo > NOW() AND ValidFrom < NOW()
+                    WHERE ValidTo > NOW() AND ValidFrom < NOW() AND IndikationTekst IS NOT NULL
                     """;
 
             return template.query(sql, rowMapper);

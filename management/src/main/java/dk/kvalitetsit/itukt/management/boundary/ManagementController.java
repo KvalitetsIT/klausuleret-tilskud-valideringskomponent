@@ -2,9 +2,8 @@ package dk.kvalitetsit.itukt.management.boundary;
 
 
 import dk.kvalitetsit.itukt.common.exceptions.NotFoundApiException;
-import dk.kvalitetsit.itukt.common.model.Indication;
-import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
 import dk.kvalitetsit.itukt.common.model.Department;
+import dk.kvalitetsit.itukt.common.model.DoctorSpeciality;
 import dk.kvalitetsit.itukt.common.model.Medication;
 import dk.kvalitetsit.itukt.common.service.StamdataCacheService;
 import dk.kvalitetsit.itukt.management.service.ManagementServiceAdaptor;
@@ -158,11 +157,8 @@ public class ManagementController implements ManagementApi {
     }
 
     @Override
-    public ResponseEntity<Set<Long>> management20250801IndicationCodesGet() {
-        Set<Long> indicationCodes = indicationService.getAll().stream()
-                .map(Indication::code)
-                .collect(Collectors.toSet());
-        return ResponseEntity.ok(indicationCodes);
+    public ResponseEntity<Set<Indication>> management20250801IndicationsGet() {
+        return ResponseEntity.ok(indicationService.getAll());
     }
 
     @Override

@@ -27,6 +27,7 @@ import dk.kvalitetsit.itukt.management.boundary.mapping.exceptions.ManagementExc
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseInputDtoModelMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ClauseModelDtoMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.model.ExpressionModelDtoMapper;
+import dk.kvalitetsit.itukt.management.boundary.mapping.model.IndicationMapper;
 import dk.kvalitetsit.itukt.management.boundary.mapping.validation.ExpressionValidationErrorMapper;
 import dk.kvalitetsit.itukt.management.repository.*;
 import dk.kvalitetsit.itukt.management.repository.cache.ActiveClauseCache;
@@ -162,5 +163,12 @@ public class ManagementBeanRegistration {
     ) {
         var expressionValidatorFactory = new ExpressionValidatorFactory(departmentSpecialityService, medicationFormService, medicationATCService, indicationService, medicationRouteService, doctorSpecialityService);
         return expressionValidatorFactory.createCombinedExpressionValidator();
+    }
+
+    @Bean
+    public StamdataCacheService<org.openapitools.model.Indication> indicationServiceAdaptor(
+            @Autowired StamdataCacheService<Indication> indicationService) {
+        var indicationMapper = new IndicationMapper();
+        return new IndicationServiceAdaptor(indicationService, indicationMapper);
     }
 }
